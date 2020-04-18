@@ -1,9 +1,0 @@
-/**
- * 
- */
-/**
- * @author Ben
- *
- */
-module CADCOP {
-}
