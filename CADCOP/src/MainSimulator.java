@@ -30,8 +30,8 @@ public class MainSimulator {
 	public static int dcopScaleHubs = 10; // number of agents with central weight
 	public static int dcopScaleNeighbors = 3; // number of neighbors (not including policy of hubs
 	public static double dcopScaleP2 =  1 ;// Probability for two values in domain between neighbors to have constraints
-
-	// ------------------------------**Algorithm Selection**-----------
+	
+	// ------------------------------**Algorithm Selection**
 	/*
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
 	 */
@@ -57,7 +57,7 @@ public class MainSimulator {
 			Dcop dcop = createDcop(dcopId);
 			dcop.createNeighbors();
 			//dcop.createTrees();
-			//dcop.createFactorGraph();
+			dcop.createFactorGraph();
 			ans[dcopId] = dcop;
 		}
 		return ans;

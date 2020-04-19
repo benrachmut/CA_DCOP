@@ -1,49 +1,59 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Dcop {
 	protected int id;
-	protected Agent[] agents;
+	protected AgentVariable[] agentsVariables;
 	protected List<Neighbor> neighbors;
+	protected List<AgentFunction> functionNodes;
 
 	protected int D;
 	protected int costParameter;
 	
 	public Dcop(int A, int D, int costPrameter) {
 		this.D = D;
-		agents = new Agent[A];
-		createAgents();
+		agentsVariables = new AgentVariable[A];
+		neighbors = new ArrayList<Neighbor>();
+		createVariableAgents();
 	}
 
 
+	public int computeGlobalCost() {
+		int ans = 0;
+		for (Neighbor n : neighbors) {
+			ans+=n.getCurrentCost();
+		}
+		return ans;
+	}
 	
 	public abstract void createNeighbors();
 	
-	private void createAgents() {
-		for (int agentId = 0; agentId < agents.length; agentId++) {
-			agents[agentId] = createAgentInstance(agentId);
+	private void createVariableAgents() {
+		for (int agentId = 0; agentId < agentsVariables.length; agentId++) {
+			agentsVariables[agentId] = createAgentInstance(agentId);
 		}
 		
 	}
 
 
-	private Agent createAgentInstance(int agentId) {
-		Agent ans = null;
+	private AgentVariable createAgentInstance(int agentId) {
+		AgentVariable ans = null;
 		int agentType = MainSimulator.agentType;
 		
 		if (agentType == 1) {
-			ans = new AgentDSA_ASY(agentId, D,MainSimulator.dsaP);
+			ans = new AgentDSA_ASY(D, dcopId, agentId ,MainSimulator.dsaP);
 		}
 		if (agentType == 2) {
-			ans = new AgentDSA_SY(agentId,D,MainSimulator.dsaP);
+			ans = new AgentDSA_SY(D, dcopId, agentId,MainSimulator.dsaP);
 		}
 		if (agentType == 3) {
-			ans = new AgentMGM_ASY(agentId,D);
+			ans = new AgentMGM_ASY(D, dcopId, agentId);
 		}
 		if (agentType == 4) {
-			ans = new AgentMGM_SY(agentId,D);
+			ans = new AgentMGM_SY(D, dcopId, agentId);
 		}
 		if (agentType == 5) {
-			ans = new AgentAMDLS(agentId,D);
+			ans = new AgentAMDLS(D, dcopId, agentId);
 		}
 		if (agentType == 6) {
 			double pA = MainSimulator.dsaSdpPA;
@@ -66,5 +76,8 @@ public abstract class Dcop {
 		bfs();
 		
 	}
+
+
+	
 
 }
