@@ -6,24 +6,21 @@ import java.util.TreeMap;
 public abstract class Agent implements Runnable{
 	protected int id;
 	protected int id2;
-	protected int [] D;
+	protected int dcopId;
 	protected int defultMessageValue; 
+	
 	
 
 	
-	public Agent( int D, int dcopId,  int id) {
+	public Agent( int dcopId,  int agentId) {
 		super();
-		this.id = id;
+		this.dcopId=dcopId;
+		this.id = agentId;
 		defultMessageValue = -1;
-		this.D = new int[D];
-		createDomainArray();
+		
 		
 	}
-	private void createDomainArray() {
-		for (int domainValue = 0; domainValue < D.length; domainValue++) {
-			D[domainValue] = domainValue;
-		}
-	}
+	
 	
 	public int getId() {
 		return this.id;
@@ -38,8 +35,8 @@ public abstract class Agent implements Runnable{
 	}
 	
 	
-	public abstract void receiveMessage (List<? extends Message> messages);
-	public void receiveAnytimeMessage (List<MessageAnytime> messages) {	}
+	public abstract void receiveMessage (List<? extends MsgAlgorithm> messages);
+	public void receiveAnytimeMessage (List<? extends MsgAnytime> messages) {	}
 	public abstract void resetAgent ();
 
 	

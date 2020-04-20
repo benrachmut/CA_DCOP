@@ -13,8 +13,9 @@ public abstract class Dcop {
 	public Dcop(int A, int D, int costPrameter) {
 		this.D = D;
 		agentsVariables = new AgentVariable[A];
-		neighbors = new ArrayList<Neighbor>();
 		createVariableAgents();
+
+		neighbors = new ArrayList<Neighbor>();
 	}
 
 
@@ -41,19 +42,19 @@ public abstract class Dcop {
 		int agentType = MainSimulator.agentType;
 		
 		if (agentType == 1) {
-			ans = new AgentDSA_ASY(D, dcopId, agentId ,MainSimulator.dsaP);
+			ans = new AgentVDSA_ASY(dcopId,D, agentId ,MainSimulator.dsaP);
 		}
 		if (agentType == 2) {
-			ans = new AgentDSA_SY(D, dcopId, agentId,MainSimulator.dsaP);
+			ans = new AgentVDSA_SY(dcopId,D, agentId,MainSimulator.dsaP);
 		}
 		if (agentType == 3) {
-			ans = new AgentMGM_ASY(D, dcopId, agentId);
+			ans = new AgentVMGM_ASY(dcopId,D, agentId);
 		}
 		if (agentType == 4) {
-			ans = new AgentMGM_SY(D, dcopId, agentId);
+			ans = new AgentVMGM_SY(dcopId,D, agentId);
 		}
 		if (agentType == 5) {
-			ans = new AgentAMDLS(D, dcopId, agentId);
+			ans = new AgentVAMDLS(dcopId,D, agentId);
 		}
 		if (agentType == 6) {
 			double pA = MainSimulator.dsaSdpPA;
@@ -61,7 +62,7 @@ public abstract class Dcop {
 			double pC = MainSimulator.dsaSdpPC;
 			double pD = MainSimulator.dsaSdpPD;
 			int k = MainSimulator.dsaSdpK;
-			ans = new AgentDSASDP(agentId,D, pA,pB,pC,pD,K);
+			ans = new AgentDSASDP(dcopId,D,agentId, pA,pB,pC,pD,K);
 		}
 		
 		
@@ -74,6 +75,23 @@ public abstract class Dcop {
 	public void createTrees() {
 		dfs();
 		bfs();
+		
+	}
+
+
+	public Dcop initiate() {
+		createNeighbors();
+		createFactorGraph();
+		createTrees();
+		return this;
+	}
+
+
+	private void neighborsMeetEachOther() {
+		for (int i = 0; i < this.neighbors.size(); i++) {
+			Neighbor n= neighbors.get(i);
+			n.neighborsMeetings();
+		}
 		
 	}
 

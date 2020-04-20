@@ -140,13 +140,13 @@ public class DcopScaleFreeNetwork extends Dcop {
 		double sigma = 0;
 
 		for (AgentVariable a : agentsVariables) {
-			sigma += a.getNieghborSize();
+			sigma += a.neighborSize();
 		}
 
 		for (int i = 0; i < agentsVariables.length; i++) {
 			AgentVariable a = agentsVariables[i];
 			int id = a.getId();
-			double aProb = a.getNeighborSize() / sigma;
+			double aProb = a.neighborSize() / sigma;
 			if (i == 0) {
 				ans.put(id, aProb);
 			} else {

@@ -54,11 +54,7 @@ public class MainSimulator {
 	private static Dcop[] generateDcops() {
 		Dcop[] ans = new Dcop[end - start];
 		for (int dcopId = start; dcopId < end; dcopId++) {
-			Dcop dcop = createDcop(dcopId);
-			dcop.createNeighbors();
-			//dcop.createTrees();
-			dcop.createFactorGraph();
-			ans[dcopId] = dcop;
+			ans[dcopId] = createDcop(dcopId).initiate();
 		}
 		return ans;
 	}
