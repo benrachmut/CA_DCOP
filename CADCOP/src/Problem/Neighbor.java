@@ -1,4 +1,8 @@
+package Problem;
 import java.util.Random;
+
+import Agents.AgentFunction;
+import Agents.AgentVariable;
 
 public class Neighbor {
 	private AgentVariable a1, a2;

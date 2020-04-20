@@ -1,3 +1,4 @@
+package Problem;
 import java.util.List;
 
 public class MainSimulator {
@@ -5,6 +6,11 @@ public class MainSimulator {
 	// ------------------------------**Implementation**
 	public static boolean runThreads;
 	public static double mailerMessagesGaps = 1;
+	
+	
+	// ------------------------------**any time**
+	public static boolean anyTime = false;
+
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;

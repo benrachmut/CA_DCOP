@@ -1,5 +1,9 @@
+package Problem;
 import java.util.ArrayList;
 import java.util.List;
+
+import Agents.AgentFunction;
+import Agents.AgentVariable;
 
 public abstract class Dcop {
 	protected int id;
@@ -9,12 +13,12 @@ public abstract class Dcop {
 
 	protected int D;
 	protected int costParameter;
-	
+	protected int defultMessageValue; 
+
 	public Dcop(int A, int D, int costPrameter) {
 		this.D = D;
 		agentsVariables = new AgentVariable[A];
 		createVariableAgents();
-
 		neighbors = new ArrayList<Neighbor>();
 	}
 
@@ -42,19 +46,19 @@ public abstract class Dcop {
 		int agentType = MainSimulator.agentType;
 		
 		if (agentType == 1) {
-			ans = new AgentVDSA_ASY(dcopId,D, agentId ,MainSimulator.dsaP);
+			ans = new AgentDSA_ASY<Integer, Integer>(dcopId,D, agentId ,MainSimulator.dsaP);
 		}
 		if (agentType == 2) {
-			ans = new AgentVDSA_SY(dcopId,D, agentId,MainSimulator.dsaP);
+			ans = new AgentDSA_SY<Integer, Integer>(dcopId,D, agentId,MainSimulator.dsaP);
 		}
 		if (agentType == 3) {
-			ans = new AgentVMGM_ASY(dcopId,D, agentId);
+			ans = new AgentMGM_ASY<Integer, Integer>(dcopId,D, agentId);
 		}
 		if (agentType == 4) {
-			ans = new AgentVMGM_SY(dcopId,D, agentId);
+			ans = new AgentMGM_SY<Integer, Integer>(dcopId,D, agentId);
 		}
 		if (agentType == 5) {
-			ans = new AgentVAMDLS(dcopId,D, agentId);
+			ans = new AgentAMDLS<Integer, Integer>(dcopId,D, agentId);
 		}
 		if (agentType == 6) {
 			double pA = MainSimulator.dsaSdpPA;
@@ -62,7 +66,7 @@ public abstract class Dcop {
 			double pC = MainSimulator.dsaSdpPC;
 			double pD = MainSimulator.dsaSdpPD;
 			int k = MainSimulator.dsaSdpK;
-			ans = new AgentDSASDP(dcopId,D,agentId, pA,pB,pC,pD,K);
+			ans = new AgentDSASDP<Integer, Integer>(dcopId,D,agentId, pA,pB,pC,pD,K);
 		}
 		
 		
@@ -87,13 +91,7 @@ public abstract class Dcop {
 	}
 
 
-	private void neighborsMeetEachOther() {
-		for (int i = 0; i < this.neighbors.size(); i++) {
-			Neighbor n= neighbors.get(i);
-			n.neighborsMeetings();
-		}
-		
-	}
+	
 
 
 	

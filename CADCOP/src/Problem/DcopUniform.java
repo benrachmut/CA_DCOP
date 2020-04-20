@@ -1,4 +1,7 @@
+package Problem;
 import java.util.Random;
+
+import Agents.AgentVariable;
 
 public class DcopUniform extends Dcop {
 
