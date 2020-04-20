@@ -35,11 +35,12 @@ public abstract class Agent implements Runnable{
 	}
 	
 	
-	public abstract void receiveMessage (List<? extends MsgAlgorithm> messages);
 	public void receiveAnytimeMessage (List<? extends MsgAnytime> messages) {	}
-	public abstract void resetAgent ();
-
 	
-
+	public abstract void resetAgent ();
+	public abstract void initialize();
+	public abstract void receiveMessage (List<? extends MsgAlgorithm> messages);
+	protected abstract void compute();
+	protected abstract void sendMessage();
 	
 }
