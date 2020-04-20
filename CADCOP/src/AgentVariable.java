@@ -53,7 +53,8 @@ public abstract class AgentVariable extends Agent{
 		return variableX;
 	}
 
-	
+	//public void receiveAnytimeMessage (List<? extends MsgAnytime> messages) {---}
+
 	
 	
 }
