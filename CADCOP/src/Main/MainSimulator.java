@@ -1,5 +1,10 @@
-package Problem;
+package Main;
 import java.util.List;
+
+import Problem.Dcop;
+import Problem.DcopGraphColoring;
+import Problem.DcopScaleFreeNetwork;
+import Problem.DcopUniform;
 
 public class MainSimulator {
 
@@ -40,13 +45,11 @@ public class MainSimulator {
 	// ------------------------------**Algorithm Selection**
 	/*
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
+	 * 7 = max sum standard
 	 */
 	public static int agentType = 1; // 1= DSA ASY,1= DSA SY
-	// 1,2-DSA
-	public static double dsaP;
-	// 6-DSA_SDP
-	public static double dsaSdpPA, dsaSdpPB, dsaSdpPC, dsaSdpPD;
-	public static int dsaSdpK;
+	
+
 
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();

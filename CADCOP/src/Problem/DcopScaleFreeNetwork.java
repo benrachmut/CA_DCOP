@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import Agents.AgentVariable;
+import AgentsAbstract.AgentVariable;
 
 public class DcopScaleFreeNetwork extends Dcop {
 

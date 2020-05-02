@@ -1,7 +1,7 @@
 package Problem;
 import java.util.Random;
 
-import Agents.AgentVariable;
+import AgentsAbstract.AgentVariable;
 
 public class DcopGraphColoring extends Dcop {
 

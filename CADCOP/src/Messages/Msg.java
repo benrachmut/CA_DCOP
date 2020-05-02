@@ -1,17 +1,17 @@
 package Messages;
 
-public abstract class Msg<Identity,Context> {
+public abstract class Msg<Identity> {
 
-	private Identity sender;
-	private Identity reciever;
-	private Context context;
+	private int sender;
+	private int reciever;
+	private Object context;
 	private int timeStamp;
 	
 	private double delay;
 	private double timeCreated;
 	
 	
-	public Msg(Identity sender, Identity reciever, Context context, int timeStamp, double delay, double timeCreated) {
+	public Msg(int sender, int reciever, Object context, int timeStamp, double delay, double timeCreated) {
 		super();
 		this.sender = sender;
 		this.reciever = reciever;

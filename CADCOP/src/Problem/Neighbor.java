@@ -1,12 +1,12 @@
 package Problem;
 import java.util.Random;
 
-import Agents.AgentFunction;
-import Agents.AgentVariable;
+import AgentsAbstract.AgentFunction;
+import AgentsAbstract.AgentVariable;
 
 public class Neighbor {
 	private AgentVariable a1, a2;
-	private AgentFunction f;
+	//private AgentFunction f;
 	private Integer[][] constraints;
 	private Integer[][] constraintsTranspose;
 
@@ -25,8 +25,16 @@ public class Neighbor {
 		createConstraintsWithP2();
 		neighborsMeetings();
 	}
+	
 
 
+	public Integer[][] getConstraints() {
+		return constraints;
+	}
+
+	public Integer[][] getConstraintsTranspose() {
+		return constraintsTranspose;
+	}
 
 	public Neighbor(AgentVariable a1, AgentVariable a2, int D, int costParameter, int dcopId) {
 		updateVariables(a1,a2,costParameter,D);
@@ -74,8 +82,8 @@ public class Neighbor {
 	}
 
 	public int getCurrentCost() {
-		int i = a1.getVariableX();
-		int j = a2.getVariableX();
+		int i = a1.getValueAssignment();
+		int j = a2.getValueAssignment();
 		return this.constraints[i][j];
 	}
 
@@ -83,7 +91,16 @@ public class Neighbor {
 		a1.meetNeighbor(a2.getId(), this.constraints);
 		a2.meetNeighbor(a1.getId(), this.constraintsTranspose);	
 	}
+
+
+
+	public AgentVariable getA1() {
+		return a1;
+	}
 	
+	public AgentVariable getA2() {
+		return a2;
+	}
 	
 
 }

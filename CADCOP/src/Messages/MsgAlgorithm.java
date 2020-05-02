@@ -1,10 +1,12 @@
 package Messages;
 
-public class MsgAlgorithm<Identity,Context>extends Msg<Identity,Context> {
+public class MsgAlgorithm extends Msg{
 
-	public MsgAlgorithm(Identity sender, Identity reciever, Context context, int timeStamp) {
-		super(sender, reciever, context, timeStamp);
+	public MsgAlgorithm(int sender, int reciever, Object context, int timeStamp, double delay,
+			double timeCreated) {
+		super(sender, reciever, context, timeStamp, delay, timeCreated);
 		// TODO Auto-generated constructor stub
 	}
 
+	
 }
