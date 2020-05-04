@@ -1,7 +1,11 @@
 package Main;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import AgentsAbstract.Agent;
+import AgentsAbstract.AgentFunction;
+import AgentsAbstract.AgentVariableInference;
 import Communication.ProtocolDelay;
 import Communication.ProtocolDown;
 import Problem.Dcop;
@@ -16,11 +20,9 @@ public class MainSimulator {
 	// ------------------------------**Implementation**
 	public static boolean runThreads;
 	public static double mailerMessagesGaps = 1;
-	
-	
+
 	// ------------------------------**any time**
 	public static boolean anyTime = false;
-
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
@@ -45,36 +47,33 @@ public class MainSimulator {
 	// 3 = Graph Coloring
 	public static int dcopScaleHubs = 10; // number of agents with central weight
 	public static int dcopScaleNeighbors = 3; // number of neighbors (not including policy of hubs
-	public static double dcopScaleP2 =  1 ;// Probability for two values in domain between neighbors to have constraints
-	
+	public static double dcopScaleP2 = 1;// Probability for two values in domain between neighbors to have constraints
+
 	// ------------------------------**Algorithm Selection**
 	/*
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
 	 * 7 = max sum standard
 	 */
 	public static int agentType = 1; // 1= DSA ASY,1= DSA SY
-	
 
 	/*
-	 * delayTypes: 0 = non, 1 = normal, 2 = uniform 
+	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
 	 */
 	public static int delayType = 1;
-	
+
 	/*
 	 * delayTypes: 0 = non
 	 */
 	public static int downType = 1;
-	
-	
+
 	public static CreatorDelays creatorDelay;
 	public static CreatorDowns creatorDown;
-	
+
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();
 		List<Mailer> mailers = createCommunicationProtocols();
-		//dcopsMeetMailers(dcops,mailers);
+		// dcopsMeetMailers(dcops,mailers);
 	}
-
 
 	private static List<Mailer> createCommunicationProtocols() {
 		List<Mailer> ans = new ArrayList<Mailer>();
@@ -88,14 +87,14 @@ public class MainSimulator {
 					ans.add(new Mailer(delay));
 				}
 			}
-		} catch (NullPointerException e) {
-			System.err.println("type communication does not exsits");
-		}
-		return ans;
+		}catch(
+
+	NullPointerException e)
+	{
+		System.err.println("type communication does not exsits");
+	}return ans;
 	}
 
-	
-	
 	private static Dcop[] generateDcops() {
 		Dcop[] ans = new Dcop[end - start];
 		for (int dcopId = start; dcopId < end; dcopId++) {
@@ -113,11 +112,11 @@ public class MainSimulator {
 			}
 
 			if (dcopBenchMark == 2) {
-				ans = new DcopGraphColoring(A,  dcopGraphColoringP1);
+				ans = new DcopGraphColoring(A, dcopGraphColoringP1);
 			}
 
 			if (dcopBenchMark == 3) {
-				ans = new DcopScaleFreeNetwork(A,  dcopScaleHubs, dcopScaleNeighbors, dcopScaleP2);
+				ans = new DcopScaleFreeNetwork(A, dcopScaleHubs, dcopScaleNeighbors, dcopScaleP2);
 			}
 		}
 
@@ -127,15 +126,24 @@ public class MainSimulator {
 			}
 
 			if (dcopBenchMark == 2) {
-				ans = new DcopGraphColoring(A,  D, costParameter, dcopGraphColoringP1);
+				ans = new DcopGraphColoring(A, D, costParameter, dcopGraphColoringP1);
 			}
 
 			if (dcopBenchMark == 3) {
-				ans = new DcopScaleFreeNetwork(A,  D, costParameter, dcopScaleHubs, dcopScaleNeighbors,
-						dcopScaleP2);
+				ans = new DcopScaleFreeNetwork(A, D, costParameter, dcopScaleHubs, dcopScaleNeighbors, dcopScaleP2);
 			}
 		}
 
 		return ans;
 	}
+
+	/**
+	 * is agent factor graph?  does it have node id?
+	 * @param a
+	 * @return
+	 */
+	public static boolean isFactorAgent(Agent a) {
+		return (a instanceof AgentVariableInference) || (a instanceof AgentFunction)
+	}
+
 }

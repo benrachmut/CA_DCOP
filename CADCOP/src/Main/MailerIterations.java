@@ -36,13 +36,20 @@ public class MailerIterations extends Mailer {
 		List<MsgAlgorithm>msgsAlgorithm = new ArrayList<MsgAlgorithm>();
 		
 		iterateOverMsgToSend(msgToSend,msgsAnyTime,msgsAlgorithm);
+		handleMsgAlgorithm(msgsAlgorithm);
 		
+		
+		
+		
+	}
+
+	private void handleMsgAlgorithm(List<MsgAlgorithm> msgsAlgorithm) {
+		
+		Map<>
 		for (MsgAlgorithm msgAlgorithm : msgsAlgorithm) {
 			msgAlgorithm
 		}
-		
-		
-		
+		//recieveAlgorithmicMsgs
 	}
 
 	private void iterateOverMsgToSend(List<Msg> msgToSend, List<MsgAnyTime> msgsAnyTime, List<MsgAlgorithm> msgsAlgorithm) {

@@ -108,6 +108,7 @@ public abstract class Dcop {
 		return this;
 	}
 
+	
 	private void createFactorGraph() {
 		int agentType = MainSimulator.agentType;
 
@@ -120,6 +121,8 @@ public abstract class Dcop {
 
 			 
 			AgentFunction af = null;
+			
+			
 			if (agentType == 7) {
 				af = new MaxSumStandardFunction(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
 			}

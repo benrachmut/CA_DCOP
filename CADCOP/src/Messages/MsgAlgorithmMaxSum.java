@@ -1,14 +1,15 @@
 package Messages;
 
+import AgentsAbstract.NodeId;
+
 public class MsgAlgorithmMaxSum extends MsgAlgorithm{
-    private int sender2;
-    private int reciever2;
+    private NodeId recieverNode, senderNode;
 	
     public MsgAlgorithmMaxSum(int sender, int reciever, Object context, int timeStamp, double delay,
-			double timeCreated, int sender2, int reciever2) {
+			double timeCreated, NodeId senderNode, NodeId recieverNode) {
 		super(sender, reciever, context, timeStamp, delay, timeCreated);
-		this.sender2 = sender2;
-		this.reciever2 = reciever2;
+		this.recieverNode = recieverNode;
+		this.senderNode = senderNode;
 	}
 
 }
