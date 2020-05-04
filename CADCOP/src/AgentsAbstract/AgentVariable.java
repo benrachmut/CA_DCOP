@@ -93,7 +93,7 @@ public abstract class AgentVariable extends Agent {
 	@Override
 	public void initialize() {
 		resetAgent();
-		sendContextMsgs(true);
+		sendMsg(true);
 	}
 	// public void receiveAnytimeMessage (List<? extends MsgAnytime> messages) {---}
 
@@ -229,5 +229,17 @@ public abstract class AgentVariable extends Agent {
 	public Set<Integer> getNeigborSetId() {
 		return this.neighborsConstraint.keySet();
 	}
+	
+	// ------------- **Mailer use to move the algorithm**-------------
+	
+	public boolean reactionToMsgs() {
+		boolean isUpdate = compute();
+		sendMsg(isUpdate);
+		return isUpdate;
+	}
+	
+
+	
+
 
 }

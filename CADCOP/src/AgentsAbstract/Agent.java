@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import Main.MainSimulator;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
 
@@ -45,22 +46,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	}
 
-	
-	
-	
-	
-	//-----------------**methods of algorithms**---------------
+	// -----------------**methods of algorithms**---------------
 
-	/**
-	 * mailer activates prior to begin of algorithm
-	 */
-	public abstract void initialize();
-
-	public boolean reactionToMsgs() {
-		boolean isUpdate = compute();
-		increaseTimeStampCounterAndSendContextMsg(isUpdate);
-		return isUpdate;
-	}
+	
 
 	@Override
 	public int compareTo(Agent a) {
@@ -68,34 +56,70 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	}
 	
-	
 	/**
-	 * will be used by mailer
+	 * mailer activates prior to algorithm's launch at time 0
+	 */
+	public abstract void initialize();
+
+	/**
+	 * used by mailer, when it has msgs with the receivers address, each agent
+	 * updates the relevant field according to the context recieved in the msg
 	 * @param messages
 	 */
+	
 	public abstract void recieveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages);
+
+	
+	/**
+	 * used by mailer after, the mailer uses recieveAlgorithmicMsgs on the receiver
+	 * @param messages
+	 */ 
+	public boolean reactionToAlgorithmicMsgs() {
+		boolean isUpdate = compute();
+		varifyIfMsgsWillBeSent(isUpdate);
+		return isUpdate;
+	}
+
+	/**
+	 * After the context was updated by messages received, 
+	 * computation takes place using the new information
+	 * and preparation on context to be sent takes place
+	 * @return if statues changed after context was updated
+	 */
+	protected abstract boolean compute();
+
+	/**
+	 * used by reactionToAlgorithmicMsgs and sent under condition of context sent of 
+	 * input boolean MainSimulator.sendOnlyIfChange == false
+	 * @param changeContext
+	 */
+	protected void varifyIfMsgsWillBeSent(boolean changeContext) {
+		if (isMsgGoingToBeSent(changeContext)) {
+			this.timeStampCounter++;
+			sendMsg();
+		}
+	}
+
+	private boolean isMsgGoingToBeSent(boolean changeContext) {
+		return (changeContext && MainSimulator.sendOnlyIfChange == true) || (MainSimulator.sendOnlyIfChange == false);
+	}
+
+	/**
+	 * after varification, loop over neighbors and send them the message using the mailer
+	 */
+	protected abstract void sendMsg();
 
 	/**
 	 * reaction to msgs include computation and send message to mailer
 	 * 
 	 * @return true if agents reaction caused change in statues
 	 */
-	
-/**
- * used by public boolean reactionToMsgs()
- * @param changeContext
- */
-	
-	
-	
-	protected void increaseTimeStampCounterAndSendContextMsg(boolean changeContext) {
-		this.timeStampCounter++;
-		sendContextMsg(changeContext);
-	}
 
-	protected abstract boolean compute();
-
-	protected abstract void handleAlgorithmicMsgs();
+	/**
+	 * used by public boolean reactionToMsgs()
+	 * 
+	 * @param changeContext
+	 */
 
 //-----------------**TO-DO**---------------
 	protected boolean terminationCondition() {

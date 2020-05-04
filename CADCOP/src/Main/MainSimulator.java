@@ -17,6 +17,10 @@ import SimulatorCreators.CreatorDowns;
 
 public class MainSimulator {
 
+	// ------------------------------**Algorithmic relevance under imperfect communication**
+	// true = send only if change, false = send regardless if change took place
+	public static boolean sendOnlyIfChange = false;
+
 	// ------------------------------**Implementation**
 	public static boolean runThreads;
 	public static double mailerMessagesGaps = 1;
