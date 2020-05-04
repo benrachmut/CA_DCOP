@@ -18,6 +18,18 @@ public abstract class Msg<Identity> {
 		this.context = context;
 		this.timeStamp = timeStamp;
 	}
+
+
+	public double getDelay() {
+		// TODO Auto-generated method stub
+		return this.delay;
+	}
+
+
+	public void setDelay(double d) {
+		this.delay = d;
+		
+	}
 	
 	
 	

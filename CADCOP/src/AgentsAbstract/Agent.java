@@ -43,15 +43,17 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	}
 
-	public abstract void initialize();
-
-	public abstract void recieveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages);
+	
+	
+	
+	
+	//-----------------**methods of algorithms**---------------
 
 	/**
-	 * reaction to msgs include computation and send message to mailer
-	 * 
-	 * @return true if agents reaction caused change in statues
+	 * mailer activates prior to begin of algorithm
 	 */
+	public abstract void initialize();
+
 	public boolean reactionToMsgs() {
 		boolean isUpdate = compute();
 		sendContextMsgs(isUpdate);
@@ -63,14 +65,27 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		return a.getId() - this.id;
 
 	}
+	
+	
+	/**
+	 * will be used by mailer
+	 * @param messages
+	 */
+	public abstract void recieveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages);
 
 	/**
+	 * reaction to msgs include computation and send message to mailer
 	 * 
-	 * @return
+	 * @return true if agents reaction caused change in statues
 	 */
-	protected abstract boolean compute();
-
+	
+/**
+ * used by public boolean reactionToMsgs()
+ * @param changeContext
+ */
 	protected abstract void sendContextMsgs(boolean changeContext);
+
+	protected abstract boolean compute();
 
 	protected abstract void handleAlgorithmicMsgs();
 

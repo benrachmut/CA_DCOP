@@ -1,0 +1,44 @@
+package Communication;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import Communication.ProtocolDelay;
+
+
+
+public class CreatorDelaysNormal extends CreatorDelays{
+
+	
+	private  double[] sigmas = {10};//{ 5,10,25,50 };
+	private  double[] mus = {5,10,25,50,100,200 }; // 
+	
+	
+	
+	
+	@Override
+	protected ProtocolDelay createDefultProtocol() {
+		return new ProtocolDelayNormal();
+	}
+	
+	@Override
+	protected  Collection<? extends ProtocolDelay> createCombinationsDelay(boolean timestampBoolean, double gamma) {
+		List<ProtocolDelay> ans = new ArrayList<ProtocolDelay>();
+		// ----For el delay
+
+			for (double sigma : sigmas) {
+				for (double mu : mus) {
+					ans.add(new ProtocolDelayNormal(timestampBoolean, gamma, sigma, mu));
+				} // mu
+			} // sigma
+		return ans;
+	}
+	
+	public String header() {
+		return super.header()+",Gamma,Sigma,Mu"; 
+		
+	}
+
+	
+}

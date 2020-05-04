@@ -1,10 +1,15 @@
 package Main;
+import java.util.ArrayList;
 import java.util.List;
 
+import Communication.ProtocolDelay;
+import Communication.ProtocolDown;
 import Problem.Dcop;
 import Problem.DcopGraphColoring;
 import Problem.DcopScaleFreeNetwork;
 import Problem.DcopUniform;
+import SimulatorCreators.CreatorDelays;
+import SimulatorCreators.CreatorDowns;
 
 public class MainSimulator {
 
@@ -50,16 +55,47 @@ public class MainSimulator {
 	public static int agentType = 1; // 1= DSA ASY,1= DSA SY
 	
 
-
+	/*
+	 * delayTypes: 0 = non, 1 = normal, 2 = uniform 
+	 */
+	public static int delayType = 1;
+	
+	/*
+	 * delayTypes: 0 = non
+	 */
+	public static int downType = 1;
+	
+	
+	public static CreatorDelays creatorDelay;
+	public static CreatorDowns creatorDown;
+	
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();
-		//List<Mailer>mailers = createMailers();
+		List<Mailer> mailers = createCommunicationProtocols();
 		//dcopsMeetMailers(dcops,mailers);
 	}
 
-	/*
-	 * 
-	 */
+
+	private static List<Mailer> createCommunicationProtocols() {
+		List<Mailer> ans = new ArrayList<Mailer>();
+		try {
+
+			creatorDelay = getCreatorDelays();
+			List<ProtocolDelay> delays = creatorDelay.createProtocolDelays();
+			
+			for (ProtocolDelay delay : delays) {
+				
+					ans.add(new Mailer(delay));
+				}
+			}
+		} catch (NullPointerException e) {
+			System.err.println("type communication does not exsits");
+		}
+		return ans;
+	}
+
+	
+	
 	private static Dcop[] generateDcops() {
 		Dcop[] ans = new Dcop[end - start];
 		for (int dcopId = start; dcopId < end; dcopId++) {

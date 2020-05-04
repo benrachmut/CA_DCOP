@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,57 +18,16 @@ public class DFS extends Tree {
 	public DFS(AgentVariable[] agentsArray, Comparator<AgentVariable> c) {
 		super(agentsArray, c);
 	}
+	
+	//------------**create tree**----------
 
 	public void createTree() {
 		while (someOneIsNotColored()) {
 			AgentVariable firstNotVisited = findFirstNotVisited();
 			createTree(firstNotVisited);
 		}
-		TreeMap<Integer, Integer> levelsMap = setLevelInTree();
-		stop here
-	}
-
-	protected TreeMap<Integer, Integer> setLevelInTree() {
-
-		TreeMap<Integer, Integer> ans = new TreeMap<Integer, Integer>();// id,level
-		Collection<AgentVariable> heads = getAllHeads();
-		for (AgentVariable head : heads) {
-			head.setDfsLevelInTree(0);
-		}
-
-		for (AgentVariable a : agents) {
-			ans.put(a.getId(), a.getLevelInDfs());
-		}
-		return ans;
-	}
-
-	/**
-	 * get all the head root of trees. If an agent has no dfs father then it is a
-	 * head
-	 * 
-	 * @return
-	 */
-	private Collection<AgentVariable> getAllHeads() {
-		Collection<AgentVariable> ans = new ArrayList<AgentVariable>();
-		for (AgentVariable a : agents) {
-			if (a.isDfsHead()) {
-				ans.add(a);
-			}
-		}
-		return ans;
-	}
-
-	private AgentVariable findFirstNotVisited() {
-
-		for (AgentVariable agentField : agents) {
-			if (!visited.get(agentField)) {
-				return agentField;
-			}
-		}
-		return null;
-	}
-
 	
+	}
 	/**
 	 * recursive call for dfs tree
 	 * @param currentA
@@ -77,91 +37,64 @@ public class DFS extends Tree {
 		List<AgentVariable> sons = getSons(currentA);
 		for (AgentVariable agentFieldSon : sons) {
 			if (!visited.get(agentFieldSon)) {
-				agentFieldSon.setDfsFather(currentA);
-				currentA.addDfsSon(agentFieldSon);
+				agentFieldSon.setDfsFather(currentA.getId());
+				currentA.addDfsSon(agentFieldSon.getId());
 				createTree(agentFieldSon);
 			}
 		}
 	}
 
-	private boolean someOneIsNotColored() {
-		Collection<Boolean> colors = this.visited.values();
-		for (Boolean c : colors) {
-			if (!c) {
-				return true;
+	
+
+	
+
+	
+	
+	//------------**inform dfs above below and equals**----------
+	@Override
+	protected void informEqual(AgentVariable a, Set<Integer> equalA) {
+		if (equalA.isEmpty()== false) {
+			System.err.println("the dfs is not pseudo tree thus you have a bug");
+		}
+		
+	}
+
+	@Override
+	protected void informAbove(AgentVariable a, Set<Integer> aboveA) {
+		a.setAboveDFS(aboveA);
+	}
+
+	@Override
+	protected void informBelow(AgentVariable a, Set<Integer> belowA) {
+		a.setBelowDFS(belowA);
+	}
+
+	
+	//------------**level stuff**----------
+
+	@Override
+	protected void setLevelPerAgent(AgentVariable a, int level) {
+		a.setDfsLevelInTree(level);
+		
+	}
+
+	@Override
+	protected Set<Integer> getSonsIds(AgentVariable a) {
+		return a.getDfsSonsIds();
+	}
+
+	@Override
+	protected Set<AgentVariable> getHeads() {
+		Set<AgentVariable> ans = new HashSet<AgentVariable>();
+		for (AgentVariable a : agentsVector) {
+			if (a.getDfsFather() == -1) {
+				ans.add(a);
 			}
 		}
-		return false;
+		return ans;
 	}
 
-	private List<AgentVariable> getSons(AgentVariable currntA) {
-		Set<Integer> nSetId = currntA.getNeigborSetId();
-		List<AgentVariable> sons = getNeighborsOfAgentField(nSetId);
-		Collections.sort(sons, this.c);
-		Collections.reverse(sons);
-		return sons;
-	}
+	
 
-	private List<AgentVariable> getNeighborsOfAgentField(Set<Integer> nSetId) {
-		List<AgentVariable> aFNeighbors = new ArrayList<AgentVariable>();
-		for (Integer i : nSetId) {
-			for (AgentVariable neighbor : agents) {
-				if (i == neighbor.getId() && !this.visited.get(neighbor)) {
-					aFNeighbors.add(neighbor);
-					break;
-				}
-			}
-		}
-		return aFNeighbors;
-	}
-
-	/*
-	 * public void setIsAboveBelow() { setAbove(); setBelow(); }
-	 */
-	/*
-	 * protected void setBelow() { for (AgentVariable a : agents) { a.addBelowDFS();
-	 * }
-	 * 
-	 */
-
-	/*
-	 * protected void setAbove() { Map<AgentVariable, Boolean> color = new
-	 * HashMap<AgentVariable, Boolean>(); for (AgentVariable agentField : agents) {
-	 * color.put(agentField, false); }
-	 * 
-	 * List<AgentVariable> breathingArray = getAllLeaves();
-	 * 
-	 * while (nonColored(color)) { breathingArray =
-	 * setIsAboveBelowPerBreathing(breathingArray, color); }
-	 * 
-	 * }
-	 */
-	/*
-	 * private List<AgentVariable> setIsAboveBelowPerBreathing(List<AgentVariable>
-	 * breathingArray, Map<AgentVariable, Boolean> color) { List<AgentVariable> temp
-	 * = new ArrayList<AgentVariable>();
-	 * 
-	 * for (AgentVariable a : breathingArray) { AgentVariable father =
-	 * a.getDfsFather(); if (father != null) { if (!temp.contains(father) &&
-	 * !color.get(father)) { temp.add(father); } } color.put(a, true); while (father
-	 * != null) { if (a.getNeigborSetId().contains(father.getId())) {
-	 * a.putInDfsAboveMap(father.getId(), 0); }
-	 * 
-	 * father = father.getDfsFather(); } }
-	 * 
-	 * return temp; }
-	 * 
-	 */
-	/*
-	 * private List<AgentVariable> getAllLeaves() { List<AgentVariable> ans = new
-	 * ArrayList<AgentVariable>(); for (AgentVariable a : agents) { if
-	 * (a.dfsSonsSize() == 0) { ans.add(a); } } return ans; }
-	 * 
-	 */
-	/*
-	 * private boolean nonColored(Map<AgentVariable, Boolean> color) { for (Boolean
-	 * colored : color.values()) { if (!colored) { return true; } } return false; }
-	 * 
-	 */
 
 }

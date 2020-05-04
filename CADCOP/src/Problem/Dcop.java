@@ -1,6 +1,8 @@
 package Problem;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -10,7 +12,11 @@ import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableFactor;
 import AgentsAbstract.AgentVariableInference;
 import Algorithms.MaxSumStandardFunction;
+import Comparators.CompAgentVariableByNeighborSize;
 import Main.MainSimulator;
+import Trees.BFS;
+import Trees.DFS;
+import Trees.Tree;
 
 public abstract class Dcop {
 	protected int id;
@@ -81,9 +87,13 @@ public abstract class Dcop {
 	}
 
 	public void createTrees() {
-		dfs();
-		bfs();
+		Collection<Tree>trees = new HashSet<Tree>();
+		trees.add(new DFS(this.agentsVariables, new CompAgentVariableByNeighborSize()));
+		trees.add(new BFS(this.agentsVariables, new CompAgentVariableByNeighborSize()));
 
+		for (Tree tree : trees) {
+			tree.initiateTree();
+		}
 	}
 
 
