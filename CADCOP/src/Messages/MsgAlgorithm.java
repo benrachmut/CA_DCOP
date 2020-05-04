@@ -1,5 +1,7 @@
 package Messages;
 
+import AgentsAbstract.NodeId;
+
 public class MsgAlgorithm extends Msg{
 
 	public MsgAlgorithm(int sender, int reciever, Object context, int timeStamp, double delay,
@@ -7,6 +9,7 @@ public class MsgAlgorithm extends Msg{
 		super(sender, reciever, context, timeStamp, delay, timeCreated);
 		// TODO Auto-generated constructor stub
 	}
+
 
 	
 }

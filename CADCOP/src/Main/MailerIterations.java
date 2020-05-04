@@ -31,37 +31,7 @@ public class MailerIterations extends Mailer {
 
 	}
 	
-	private void agentsRecieveMsgs(List<Msg> msgToSend) {
-		List<MsgAnyTime>msgsAnyTime = new ArrayList<MsgAnyTime>();
-		List<MsgAlgorithm>msgsAlgorithm = new ArrayList<MsgAlgorithm>();
-		
-		iterateOverMsgToSend(msgToSend,msgsAnyTime,msgsAlgorithm);
-		handleMsgAlgorithm(msgsAlgorithm);
-		
-		
-		
-		
-	}
-
-	private void handleMsgAlgorithm(List<MsgAlgorithm> msgsAlgorithm) {
-		
-		Map<>
-		for (MsgAlgorithm msgAlgorithm : msgsAlgorithm) {
-			msgAlgorithm
-		}
-		//recieveAlgorithmicMsgs
-	}
-
-	private void iterateOverMsgToSend(List<Msg> msgToSend, List<MsgAnyTime> msgsAnyTime, List<MsgAlgorithm> msgsAlgorithm) {
-		for (Msg msg : msgToSend) {
-			if (msg instanceof MsgAnyTime) {
-				msgsAnyTime.add((MsgAnyTime)msg);
-			}else {
-				msgsAlgorithm.add((MsgAlgorithm)msg);
-			}
-		}
-		
-	}
+	
 
 	public List<Msg> handleDelay() {
 		Collections.sort(this.messageBox);

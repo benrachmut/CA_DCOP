@@ -102,7 +102,7 @@ public abstract class Dcop {
 		createNeighbors();
 		createTrees();
 
-		if (this.agentsVariables[0] instanceof AgentVariableInference) {
+		if (MainSimulator.isFactorAgent(this.agentsVariables[0])) {
 			createFactorGraph();
 		}
 		return this;

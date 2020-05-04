@@ -13,6 +13,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected Integer id;
 	protected int domainSize;
 	protected int dcopId;
+	protected int timeStampCounter;
 
 	protected List<MsgAlgorithm> msgBoxAlgorithmic;
 
@@ -20,7 +21,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		super();
 		this.dcopId = dcopId;
 		this.domainSize = D;
-
+		this.timeStampCounter = 0;
 		msgBoxAlgorithmic = new ArrayList<MsgAlgorithm>();
 
 	}
@@ -40,6 +41,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	public void resetAgent() {
 		this.msgBoxAlgorithmic = new ArrayList<MsgAlgorithm>();
+		this.timeStampCounter = 0;
 
 	}
 
@@ -56,7 +58,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	public boolean reactionToMsgs() {
 		boolean isUpdate = compute();
-		sendContextMsgs(isUpdate);
+		increaseTimeStampCounterAndSendContextMsg(isUpdate);
 		return isUpdate;
 	}
 
@@ -83,7 +85,13 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
  * used by public boolean reactionToMsgs()
  * @param changeContext
  */
-	protected abstract void sendContextMsgs(boolean changeContext);
+	
+	
+	
+	protected void increaseTimeStampCounterAndSendContextMsg(boolean changeContext) {
+		this.timeStampCounter++;
+		sendContextMsg(changeContext);
+	}
 
 	protected abstract boolean compute();
 

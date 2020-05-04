@@ -11,5 +11,9 @@ public class MsgReceive<Context> {
 		this.timeStamp = timeStamp;
 	}
 	
+	public Context getContext() {
+		return this.context;
+	}
+	
 	
 }
