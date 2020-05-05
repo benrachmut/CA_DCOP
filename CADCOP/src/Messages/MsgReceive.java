@@ -3,9 +3,9 @@ package Messages;
 public class MsgReceive<Context> {
 
 	private Context context;
-	private Integer timeStamp;
+	private Double timeStamp;
 	
-	public MsgReceive(Context context, Integer timeStamp) {
+	public MsgReceive(Context context, Double timeStamp) {
 		super();
 		this.context = context;
 		this.timeStamp = timeStamp;
@@ -13,6 +13,9 @@ public class MsgReceive<Context> {
 	
 	public Context getContext() {
 		return this.context;
+	}
+	public double getTimeStamp() {
+		return this.timeStamp;
 	}
 	
 	

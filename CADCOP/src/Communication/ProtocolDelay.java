@@ -29,6 +29,9 @@ public abstract class ProtocolDelay {
 		return this.perfectCommunication+","+this.isTimeStamp+","+this.gamma;
 	}
 
+
+	
+
 	
 
 }

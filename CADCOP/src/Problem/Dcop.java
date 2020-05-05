@@ -30,7 +30,7 @@ public abstract class Dcop {
 	// ------- ** for factor graph use **------
 	protected List<AgentFunction> agentFunctions;
 	protected SortedSet<Agent> agentsAll;
-	protected List<AgentFunction> functionNodes;
+//	protected List<AgentFunction> functionNodes;
 
 	public Dcop(int A, int D, int costPrameter) {
 		this.D = D;
@@ -126,7 +126,7 @@ public abstract class Dcop {
 			if (agentType == 7) {
 				af = new MaxSumStandardFunction(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
 			}
-			 agentFunctions.add(af);
+			 this.agentFunctions.add(af);
 			 agentsAll.add(af);
 			 av1.meetFunction(af.getNodeId());
 			 av2.meetFunction(af.getNodeId());

@@ -230,13 +230,8 @@ public abstract class AgentVariable extends Agent {
 		return this.neighborsConstraint.keySet();
 	}
 	
-	// ------------- **Mailer use to move the algorithm**-------------
 	
-	public boolean reactionToMsgs() {
-		boolean isUpdate = compute();
-		sendMsg(isUpdate);
-		return isUpdate;
-	}
+	
 	
 
 	

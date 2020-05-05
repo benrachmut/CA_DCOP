@@ -22,7 +22,13 @@ public class ProtocolDelayNormal extends ProtocolDelay {
 
 	@Override
 	public Double createDelay() {
-		return rndUNormal.nextGaussian() * sigma + mu;
+		double ans =  rndUNormal.nextGaussian() * sigma + mu;
+		if (ans<0) {
+			return 0.0;
+		}
+		else {
+			return ans;
+		}
 	}
 
 	@Override

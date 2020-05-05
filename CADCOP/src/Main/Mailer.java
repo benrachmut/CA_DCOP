@@ -22,9 +22,9 @@ public abstract class Mailer {
 	protected ProtocolDelay delay;
 	protected List<Msg> messageBox;
 	protected List<Agent>agents;
-	protected int terminationTime;
+	protected double terminationTime;
 
-	public Mailer(ProtocolDelay delay, int terminationTime) {
+	public Mailer(ProtocolDelay delay, double terminationTime) {
 		super();
 		this.delay = delay;
 		
@@ -32,9 +32,25 @@ public abstract class Mailer {
 		this.terminationTime = terminationTime;
 	}
 	
-	public void resetMailer(int dcopId, List<Agent>agents) {
+	
+	public abstract void execute();
+
+	protected abstract List<Msg> handleDelay();
+	
+	
+	/**
+	 * called from main each time a mailer and dcop meet prior to execution, 
+	 * thus the mailer updates its fields 
+	 * @param dcopId
+	 * @param agents
+	 */
+	public void mailerMeetsDcop(int dcopId, List<Agent>agents) {
 		this.messageBox = new ArrayList<Msg>();
 		this.agents = agents;
+		boolean isWithTimeStamp = this.delay.isWithTimeStamp();
+		for (Agent a : agents) {
+			a.setIsWithTimeStamp(isWithTimeStamp);
+		}
 		this.delay.setSeeds(dcopId);
 	}
 	
@@ -42,6 +58,7 @@ public abstract class Mailer {
 	public String toString() {
 		return delay.toString();
 	}
+
 
 	
 	public void createMessage(Messageable sender, int decisionCounter, Messageable reciever, double context);
@@ -52,31 +69,31 @@ public abstract class Mailer {
 	
 
 	
-	
+	/*
 	public void printMailBox() {
 		for (int i = 0; i < this.messageBox.size(); i++) {
 			System.out.println("index: " + i + ", message: " + messageBox.get(i));
 		}
 	}
+	*/
 	
 	public boolean isWithTimeStamp() {
 		return this.delay.isWithTimeStamp();
 	}
 
-	// for debug
-	public ProtocolDelay getDelay() {
-		// TODO Auto-generated method stub
-		return this.delay;
-	}
+	
 	
 	
 
 	//public abstract void execute();
 
-	protected abstract void execute();
-	
-	
-	private void agentsRecieveMsgs(List<Msg> msgToSend) {
+
+	//-------------** agentsRecieveMsgs methods**-------------
+	/**
+	 * 
+	 * @param msgToSend created by handle msgs
+	 */
+	protected void agentsRecieveMsgs(List<Msg> msgToSend) {
 		List<MsgAnyTime>msgsAnyTime = new ArrayList<MsgAnyTime>();
 		List<MsgAlgorithm>msgsAlgorithm = new ArrayList<MsgAlgorithm>();
 		
@@ -87,7 +104,7 @@ public abstract class Mailer {
 		
 		
 	}
-
+// receiveAlgorithmicMsgs
 	private void handleMsgAlgorithm(List<MsgAlgorithm> msgsAlgorithm) {
 		if (MainSimulator.isFactorAgent(this.agents.get(0))) {
 			Map<NodeId,List<MsgAlgorithm>> recieversByNodeId = new HashMap<NodeId,List<MsgAlgorithm>>();

@@ -17,6 +17,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected int timeStampCounter;
 
 	protected List<MsgAlgorithm> msgBoxAlgorithmic;
+	private boolean isWithTimeStamp;
 
 	public Agent(int dcopId, int D) {
 		super();
@@ -47,15 +48,12 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	// -----------------**methods of algorithms**---------------
-
-	
-
 	@Override
 	public int compareTo(Agent a) {
 		return a.getId() - this.id;
 
 	}
-	
+
 	/**
 	 * mailer activates prior to algorithm's launch at time 0
 	 */
@@ -64,16 +62,46 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	/**
 	 * used by mailer, when it has msgs with the receivers address, each agent
 	 * updates the relevant field according to the context recieved in the msg
+	 * 
 	 * @param messages
 	 */
-	
-	public abstract void recieveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages);
 
-	
+	// ------------**Receive Algorithmic Msgs methods**------------
+
+	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+		for (MsgAlgorithm msgAlgorithm : messages) {
+			if (this.isWithTimeStamp) {
+				double currentDateInContext  = getSenderCurrentTimeStampFromContext(msgAlgorithm);
+				if (msgAlgorithm.getTimeStamp()>currentDateInContext) {
+					updateMessageInContext(msgAlgorithm);
+				}
+			}else {
+				updateMessageInContext(msgAlgorithm);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param MsgAlgorithm, uses it to get the sender's id 
+	 * @return last time stamp of message received by sender. 
+	 */
+	protected abstract double getSenderCurrentTimeStampFromContext(MsgAlgorithm MsgAlgorithm);
+
+	/**
+	 * 
+	 * @param MsgAlgorithm, update message received in relevant context message field
+	 * @return
+	 */
+	protected abstract double updateMessageInContext(MsgAlgorithm MsgAlgorithm);
+
+	// ------------**Reaction to algorithmic messages methods**------------
 	/**
 	 * used by mailer after, the mailer uses recieveAlgorithmicMsgs on the receiver
+	 * 
 	 * @param messages
-	 */ 
+	 * 
+	 */
 	public boolean reactionToAlgorithmicMsgs() {
 		boolean isUpdate = compute();
 		varifyIfMsgsWillBeSent(isUpdate);
@@ -81,16 +109,17 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	/**
-	 * After the context was updated by messages received, 
-	 * computation takes place using the new information
-	 * and preparation on context to be sent takes place
+	 * After the context was updated by messages received, computation takes place
+	 * using the new information and preparation on context to be sent takes place
+	 * 
 	 * @return if statues changed after context was updated
 	 */
 	protected abstract boolean compute();
 
 	/**
-	 * used by reactionToAlgorithmicMsgs and sent under condition of context sent of 
+	 * used by reactionToAlgorithmicMsgs and sent under condition of context sent of
 	 * input boolean MainSimulator.sendOnlyIfChange == false
+	 * 
 	 * @param changeContext
 	 */
 	protected void varifyIfMsgsWillBeSent(boolean changeContext) {
@@ -105,7 +134,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	/**
-	 * after varification, loop over neighbors and send them the message using the mailer
+	 * after varification, loop over neighbors and send them the message using the
+	 * mailer
 	 */
 	protected abstract void sendMsg();
 
@@ -125,6 +155,11 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected boolean terminationCondition() {
 		// TO-DO
 		return false;
+	}
+
+	public void setIsWithTimeStamp(boolean input) {
+		this.isWithTimeStamp = input;
+		
 	}
 
 }
