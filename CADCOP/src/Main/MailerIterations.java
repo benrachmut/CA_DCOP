@@ -29,7 +29,7 @@ public class MailerIterations extends Mailer {
 
 	private void agentsReactToMsgs(int iteration) {
 		
-		for (Agent agent : agents) {
+		for (Agent agent : dcop.getAgents()) {
 			if (iteration == 0) {
 				agent.initialize(); // abstract method in agents
 			} else {

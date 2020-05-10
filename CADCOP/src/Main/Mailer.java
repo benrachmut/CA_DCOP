@@ -21,7 +21,7 @@ import Problem.Dcop;
 public abstract class Mailer {
 	protected ProtocolDelay delay;
 	protected List<Msg> messageBox;
-	protected List<Agent>agents;
+	protected Dcop dcop;
 	protected double terminationTime;
 
 	public Mailer(ProtocolDelay delay, double terminationTime) {
@@ -30,6 +30,7 @@ public abstract class Mailer {
 		
 		this.messageBox = new ArrayList<Msg>();
 		this.terminationTime = terminationTime;
+		this.dcop = null;
 	}
 	
 	
@@ -44,14 +45,14 @@ public abstract class Mailer {
 	 * @param dcopId
 	 * @param agents
 	 */
-	public void mailerMeetsDcop(int dcopId, List<Agent>agents) {
+	public void mailerMeetsDcop(Dcop dcop, List<Agent>agents) {
 		this.messageBox = new ArrayList<Msg>();
-		this.agents = agents;
+		this.dcop = dcop;
 		boolean isWithTimeStamp = this.delay.isWithTimeStamp();
 		for (Agent a : agents) {
 			a.setIsWithTimeStamp(isWithTimeStamp);
 		}
-		this.delay.setSeeds(dcopId);
+		this.delay.setSeeds(dcop.getId());
 	}
 	
 	@Override
