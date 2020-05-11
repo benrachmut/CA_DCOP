@@ -19,9 +19,9 @@ public class ProtocolDelayNormal extends ProtocolDelay {
 		this.sigma = 0;
 		this.mu = 0;
 	}
-
+	
 	@Override
-	public Double createDelay() {
+	protected  Double createDelayGivenParameters() {
 		double ans =  rndUNormal.nextGaussian() * sigma + mu;
 		if (ans<0) {
 			return 0.0;
@@ -32,9 +32,14 @@ public class ProtocolDelayNormal extends ProtocolDelay {
 	}
 
 	@Override
-	public void setSeeds(int dcopId) {
+	protected void setSeedsGivenParameters(int dcopId) {
 		rndUNormal = new Random(dcopId);
+	}
 
+	@Override
+	protected String getStringParamets() {
+		// TODO Auto-generated method stub
+		return this.sigma+","+this.mu;
 	}
 
 }

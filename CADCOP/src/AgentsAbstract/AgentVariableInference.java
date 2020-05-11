@@ -28,6 +28,11 @@ public abstract class AgentVariableInference extends AgentVariable{
 		this.functionMsgs = Agent.resetMapToValueNull(this.functionMsgs);
 
 	}
+	@Override
+	public NodeId getNodeId() {
+		// TODO Auto-generated method stub
+		return this.nodeId;
+	}
 	
 	
 

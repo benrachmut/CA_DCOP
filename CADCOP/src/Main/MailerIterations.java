@@ -7,17 +7,26 @@ import java.util.List;
 
 import AgentsAbstract.Agent;
 import Communication.ProtocolDelay;
+import Comparators.CompMsgByDelay;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgAnyTime;
+import Problem.Dcop;
 
 public class MailerIterations extends Mailer {
 
+	public MailerIterations(ProtocolDelay delay, double terminationTime,Dcop dcop) {
+		super(delay, terminationTime,dcop);
+	}
+
+
+
 	@Override
 	public void execute() {
-		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
+		createData(0);
+		for (double iteration = 1; iteration < this.terminationTime; iteration++) {
 			agentsReactToMsgs(iteration);
-			addCostToMaps();
+			createData((double)iteration);
 			List<Msg> msgToSend = this.handleDelay();
 			agentsRecieveMsgs(msgToSend);
 			
@@ -27,10 +36,13 @@ public class MailerIterations extends Mailer {
 	
 	
 
-	private void agentsReactToMsgs(int iteration) {
+
+
+
+	private void agentsReactToMsgs(double iteration) {
 		
 		for (Agent agent : dcop.getAgents()) {
-			if (iteration == 0) {
+			if (iteration == 1) {
 				agent.initialize(); // abstract method in agents
 			} else {
 				// compute (abstract method in agents) -->
@@ -46,7 +58,7 @@ public class MailerIterations extends Mailer {
 
 
 	public List<Msg> handleDelay() {
-		Collections.sort(this.messageBox);
+		Collections.sort(this.messageBox, new CompMsgByDelay());
 		List<Msg> msgToSend = new ArrayList<Msg>();
 		Iterator it = this.messageBox.iterator();
 

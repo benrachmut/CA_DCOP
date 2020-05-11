@@ -6,18 +6,23 @@ import java.util.List;
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariableInference;
+import Communication.CreatorDelays;
+import Communication.CreatorDelaysNone;
+import Communication.CreatorDelaysNormal;
+import Communication.CreatorDelaysUniform;
 import Communication.ProtocolDelay;
 import Communication.ProtocolDown;
+import Market.Mailer;
 import Problem.Dcop;
 import Problem.DcopGraphColoring;
 import Problem.DcopScaleFreeNetwork;
 import Problem.DcopUniform;
-import SimulatorCreators.CreatorDelays;
-import SimulatorCreators.CreatorDowns;
+import jdk.jshell.TypeDeclSnippet;
 
 public class MainSimulator {
 
-	// ------------------------------**Algorithmic relevance under imperfect communication**
+	// ------------------------------**Algorithmic relevance under imperfect
+	// communication**
 	// true = send only if change, false = send regardless if change took place
 	public static boolean sendOnlyIfChange = false;
 
@@ -64,39 +69,38 @@ public class MainSimulator {
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
 	 */
 	public static int delayType = 1;
+	public static CreatorDelays creatorDelay;
 
 	/*
 	 * delayTypes: 0 = non
 	 */
 	public static int downType = 1;
 
-	public static CreatorDelays creatorDelay;
-	public static CreatorDowns creatorDown;
+//	public static CreatorDelays creatorDelay;
+//	public static CreatorDowns creatorDown;
 
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();
-		List<Mailer> mailers = createCommunicationProtocols();
-		// dcopsMeetMailers(dcops,mailers);
+		List<ProtocolDelay> delays = getCreatorDelays().createProtocolDelays();	
+		runDcops(dcops, delays);
 	}
 
-	private static List<Mailer> createCommunicationProtocols() {
-		List<Mailer> ans = new ArrayList<Mailer>();
-		try {
 
-			creatorDelay = getCreatorDelays();
-			List<ProtocolDelay> delays = creatorDelay.createProtocolDelays();
-			
-			for (ProtocolDelay delay : delays) {
-				
-					ans.add(new Mailer(delay));
-				}
-			}
-		}catch(
 
-	NullPointerException e)
-	{
-		System.err.println("type communication does not exsits");
-	}return ans;
+
+	private static CreatorDelays getCreatorDelays() {
+		if (delayType == 0) {
+			return new CreatorDelaysNone();
+		}
+		
+		if (delayType == 1) {
+			return new CreatorDelaysNormal();
+		}
+		
+		if (delayType == 2) {
+			return new CreatorDelaysUniform();
+		}
+		return null;
 	}
 
 	private static Dcop[] generateDcops() {
@@ -142,12 +146,13 @@ public class MainSimulator {
 	}
 
 	/**
-	 * is agent factor graph?  does it have node id?
+	 * is agent factor graph? does it have node id?
+	 * 
 	 * @param a
 	 * @return
 	 */
 	public static boolean isFactorAgent(Agent a) {
-		return (a instanceof AgentVariableInference) || (a instanceof AgentFunction)
+		return (a instanceof AgentVariableInference) || (a instanceof AgentFunction);
 	}
 
 }

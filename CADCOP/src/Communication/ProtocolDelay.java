@@ -6,6 +6,7 @@ public abstract class ProtocolDelay {
 	protected boolean perfectCommunication;
 	protected boolean isTimeStamp;
 	private double gamma;
+	private Random rndGamma;
 	
 
 	public ProtocolDelay(boolean perfectCommunication, boolean isTimeStamp, double gamma) {
@@ -15,8 +16,23 @@ public abstract class ProtocolDelay {
 		this.gamma = gamma;
 	}
 	
-	public abstract Double createDelay();
-	abstract public void setSeeds(int dcopId);
+	
+	public Double createDelay() {
+		double rnd = rndGamma.nextDouble();
+		if (rnd<gamma) {
+			return null;
+		}
+		else {
+			return createDelayGivenParameters();
+		}
+	}
+	protected abstract Double createDelayGivenParameters();
+	protected abstract void setSeedsGivenParameters(int dcopId) ;
+
+	public void setSeeds(int dcopId) {
+		this.rndGamma = new Random(dcopId*145);
+		this.setSeedsGivenParameters(dcopId);
+	}
 
 	public boolean isWithTimeStamp() {
 		// TODO Auto-generated method stub
@@ -25,9 +41,18 @@ public abstract class ProtocolDelay {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return this.perfectCommunication+","+this.isTimeStamp+","+this.gamma;
+		String timeS;
+		if (this.isTimeStamp) {
+			timeS = "With Time Stamp";
+		}else {
+			timeS = "Without Time Stamp";
+		}
+		
+		return this.perfectCommunication+","+timeS+","+this.gamma+","+getStringParamets();
 	}
+
+
+	protected abstract String getStringParamets();
 
 
 	

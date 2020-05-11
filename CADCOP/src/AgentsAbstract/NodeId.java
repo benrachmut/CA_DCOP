@@ -109,6 +109,22 @@ public class NodeId implements Comparable<NodeId> {
 		this.type = type;
 		
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		
+		if (obj instanceof NodeId) {
+			NodeId other  = (NodeId)obj;
+			if (other.getId1() == this.id1 && other.getId2() == this.id2) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		
+		return false;
+	}
 
 
 

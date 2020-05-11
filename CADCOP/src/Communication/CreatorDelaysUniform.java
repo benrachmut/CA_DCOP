@@ -23,9 +23,10 @@ public class CreatorDelaysUniform extends CreatorDelays {
 		} // sigma
 		return ans;
 	}
+	@Override
 
-	public String header() {
-		return super.header() + ",Gamma,UB";
+	protected String header() {
+		return "UB";
 
 	}
 

@@ -11,7 +11,7 @@ public abstract class Msg<Identity> {
 	private double timeCreated;
 	
 	
-	public Msg(int sender, int reciever, Object context, double timeStamp, double delay, double timeCreated) {
+	public Msg(int sender, int reciever, Object context, double timeStamp, double timeCreated) {
 		super();
 		this.sender = sender;
 		this.reciever = reciever;
@@ -20,10 +20,7 @@ public abstract class Msg<Identity> {
 	}
 
 
-	public double getDelay() {
-		// TODO Auto-generated method stub
-		return this.delay;
-	}
+
 
 
 	public void setDelay(double d) {
@@ -35,6 +32,16 @@ public abstract class Msg<Identity> {
 		// TODO Auto-generated method stub
 		return this.getTimeStamp();
 	}
+
+
+	public int getRecieverId() {
+		return reciever;
+	}
+	public double getDelay() {
+		return this.delay;
+	}
+	
+	
 	
 	
 	

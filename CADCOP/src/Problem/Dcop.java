@@ -13,7 +13,9 @@ import AgentsAbstract.AgentVariableFactor;
 import AgentsAbstract.AgentVariableInference;
 import Algorithms.MaxSumStandardFunction;
 import Comparators.CompAgentVariableByNeighborSize;
+import Main.Mailer;
 import Main.MainSimulator;
+import Messages.Msg;
 import Trees.BFS;
 import Trees.DFS;
 import Trees.Tree;
@@ -37,6 +39,12 @@ public abstract class Dcop {
 		agentsVariables = new AgentVariable[A];
 		createVariableAgents();
 		neighbors = new ArrayList<Neighbor>();
+	}
+	
+	public void DcopMeetsMailer(Mailer mailer) {
+		for (Agent a : agentsAll) {
+			a.meetMailer(mailer);
+		}
 	}
 
 	public int computeGlobalCost() {
@@ -132,6 +140,22 @@ public abstract class Dcop {
 			 av2.meetFunction(af.getNodeId());
 		}
 		
+	}
+
+	public SortedSet<Agent> getAgents() {
+		return agentsAll;
+	}
+
+	public int getId() {
+		return this.id;
+	}
+
+	public List<Neighbor> getNeighbors() {
+		return this.neighbors;
+	}
+
+	public AgentVariable[] getVariableAgents() {
+		return  agentsVariables;
 	}
 
 }

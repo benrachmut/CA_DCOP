@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import Main.Mailer;
 import Main.MainSimulator;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
@@ -16,16 +17,14 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected int dcopId;
 	protected int timeStampCounter;
 
-	protected List<MsgAlgorithm> msgBoxAlgorithmic;
 	private boolean isWithTimeStamp;
+	protected Mailer mailer;
 
 	public Agent(int dcopId, int D) {
 		super();
 		this.dcopId = dcopId;
 		this.domainSize = D;
 		this.timeStampCounter = 0;
-		msgBoxAlgorithmic = new ArrayList<MsgAlgorithm>();
-
 	}
 
 	public int getId() {
@@ -42,10 +41,11 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	public void resetAgent() {
-		this.msgBoxAlgorithmic = new ArrayList<MsgAlgorithm>();
 		this.timeStampCounter = 0;
-
+		resetAgentGivenParameters();
 	}
+
+	protected abstract void  resetAgentGivenParameters();
 
 	// -----------------**methods of algorithms**---------------
 	@Override
@@ -71,11 +71,11 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
 		for (MsgAlgorithm msgAlgorithm : messages) {
 			if (this.isWithTimeStamp) {
-				double currentDateInContext  = getSenderCurrentTimeStampFromContext(msgAlgorithm);
-				if (msgAlgorithm.getTimeStamp()>currentDateInContext) {
+				double currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
+				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
 					updateMessageInContext(msgAlgorithm);
 				}
-			}else {
+			} else {
 				updateMessageInContext(msgAlgorithm);
 			}
 		}
@@ -83,14 +83,15 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	/**
 	 * 
-	 * @param MsgAlgorithm, uses it to get the sender's id 
-	 * @return last time stamp of message received by sender. 
+	 * @param MsgAlgorithm, uses it to get the sender's id
+	 * @return last time stamp of message received by sender.
 	 */
 	protected abstract double getSenderCurrentTimeStampFromContext(MsgAlgorithm MsgAlgorithm);
 
 	/**
 	 * 
-	 * @param MsgAlgorithm, update message received in relevant context message field
+	 * @param MsgAlgorithm, update message received in relevant context message
+	 *        field
 	 * @return
 	 */
 	protected abstract double updateMessageInContext(MsgAlgorithm MsgAlgorithm);
@@ -137,6 +138,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * after varification, loop over neighbors and send them the message using the
 	 * mailer
 	 */
+	
+	
 	protected abstract void sendMsg();
 
 	/**
@@ -151,6 +154,14 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param changeContext
 	 */
 
+	/**
+	 * in inference needs to return nodeId, else return null
+	 * @return
+	 */
+	public NodeId getNodeId() {
+		return null;
+	}
+
 //-----------------**TO-DO**---------------
 	protected boolean terminationCondition() {
 		// TO-DO
@@ -159,6 +170,16 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	public void setIsWithTimeStamp(boolean input) {
 		this.isWithTimeStamp = input;
+
+	}
+
+	/**
+	 * used by dcop before starting solving dcop
+	 * @param mailer
+	 */
+	public void meetMailer(Mailer mailer) {
+		this.mailer = mailer;
+		this.resetAgent();
 		
 	}
 

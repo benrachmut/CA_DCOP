@@ -22,6 +22,7 @@ public abstract class AgentFunction extends Agent {
 
 	}
 
+	@Override
 	public NodeId getNodeId() {
 		return this.nodeId;
 	}
@@ -44,5 +45,7 @@ public abstract class AgentFunction extends Agent {
 
 		return ans;
 	}
+	
+
 
 }

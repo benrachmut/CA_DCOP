@@ -20,15 +20,23 @@ public class ProtocolDelayUniform extends ProtocolDelay {
 		ub = 0;
 	}
 	@Override
-	public Double createDelay() {
+	protected Double createDelayGivenParameters() {
 		return rndUniform.nextDouble()*ub;
 	}
 
 	@Override
-	public void setSeeds(int dcopId) {
+	protected void setSeedsGivenParameters(int dcopId) {
 		rndUniform = new Random(dcopId);
 		
 	}
+	
+	protected String getStringParamets() {
+		// TODO Auto-generated method stub
+		return this.ub+"";
+	}
+
+
+
 
 	
 

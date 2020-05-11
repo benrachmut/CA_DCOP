@@ -24,7 +24,6 @@ public abstract class AgentVariable extends Agent {
 	protected int firstRandomVariable;
 	protected TreeMap<Integer, Integer[][]> neighborsConstraint; // id and matrix of constraints
 	protected int[] domainArray;
-	private List<MsgAnyTime> msgBoxAnytime;
 
 	// ----------**Trees**----------
 	// -----*DFS*-----
@@ -47,7 +46,7 @@ public abstract class AgentVariable extends Agent {
 		createDomainArray();
 		Random r = new Random(132 * id1 + 100 * dcopId);
 		firstRandomVariable = r.nextInt(D);
-		resetAgent();
+		//resetAgent();
 
 		// -----*DFS*-----
 		dfsSons = new HashSet<Integer>();
@@ -79,33 +78,25 @@ public abstract class AgentVariable extends Agent {
 		return this.neighborsConstraint.size();
 	}
 
-	public void resetAgent() {
+	public void resetAgentGivenParameters() {
 		super.resetAgent();
 		valueAssignment = firstRandomVariable;
-		msgBoxAnytime = new ArrayList<MsgAnyTime>();
-		neighborsConstraint = new TreeMap<Integer, Integer[][]>();
 	}
 
 	public int getValueAssignment() {
 		return valueAssignment;
 	}
 
-	@Override
-	public void initialize() {
-		resetAgent();
-		sendMsg(true);
-	}
-	// public void receiveAnytimeMessage (List<? extends MsgAnytime> messages) {---}
-
+	
 	public boolean reactionToAlgorithmicMsgs() {
-		boolean isUpdate = super.reactionToMsgs();
+		boolean isUpdate = super.reactionToAlgorithmicMsgs();
 
 		if (isUpdate && MainSimulator.anyTime) {
 			sendAnytimeChangeContext();
 		}
 		return isUpdate;
 	}
-
+/*
 	@Override
 	public void run() {
 		initialize();
@@ -131,6 +122,7 @@ public abstract class AgentVariable extends Agent {
 
 	}
 
+*/
 	// --------------**TO-DO**--------------------
 	public synchronized void recieveAnyTimeMsgs(List<? extends MsgAnyTime> messages) {
 		// TODO Auto-generated method stub
@@ -229,9 +221,8 @@ public abstract class AgentVariable extends Agent {
 	public Set<Integer> getNeigborSetId() {
 		return this.neighborsConstraint.keySet();
 	}
-	
-	
-	
+
+
 	
 
 	

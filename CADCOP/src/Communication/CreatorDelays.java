@@ -48,9 +48,12 @@ public abstract class CreatorDelays  {
 
 	protected abstract Collection<? extends ProtocolDelay> createCombinationsDelay(boolean isTimeStamp, double gamma);
 	
-	public String header() {
-		return "Perfect Communication,Time Stamp Use, Message Lost Prob";
+	public String getHeader() {
+		return "Perfect Communication,Time Stamp Use, Message Lost Prob,"+ header();
 	}
+
+
+	protected abstract String header();
 		
 	
 	
