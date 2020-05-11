@@ -10,7 +10,12 @@ public class Data {
 	
 	public Data(Double time, Dcop dcop, Mailer mailer) {
 		this.time = time;
-		this.global = new DataGlobal(dcop, mailer);
+		
+		if (dcop.isSearchAlgorithm()) {
+			this.global = new DataGlobalSearch(dcop, mailer);
+		}else {
+			this.global = new DataGlobalInference(dcop, mailer);
+		}
 		this.perAgent = new DataPerAgentVariable(dcop, mailer);
 	}
 	public String globalDataString() {

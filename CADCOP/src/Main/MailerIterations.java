@@ -39,6 +39,10 @@ public class MailerIterations extends Mailer {
 
 
 
+
+
+
+
 	private void agentsReactToMsgs(double iteration) {
 		
 		for (Agent agent : dcop.getAgents()) {

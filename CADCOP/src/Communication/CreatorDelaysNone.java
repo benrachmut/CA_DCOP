@@ -18,7 +18,7 @@ public class CreatorDelaysNone extends CreatorDelays {
 
 	@Override
 	protected String header() {
-		return "";
+		return ",";
 	}
 
 }

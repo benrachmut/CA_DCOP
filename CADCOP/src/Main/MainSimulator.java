@@ -151,8 +151,6 @@ public class MainSimulator {
 	 * @param a
 	 * @return
 	 */
-	public static boolean isFactorAgent(Agent a) {
-		return (a instanceof AgentVariableInference) || (a instanceof AgentFunction);
-	}
+
 
 }

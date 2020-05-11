@@ -24,35 +24,43 @@ public abstract class Mailer {
 	protected List<Msg> messageBox;
 	protected Dcop dcop;
 	protected double terminationTime;
-	protected SortedMap<Double,Data>dataMap;
+	protected SortedMap<Double, Data> dataMap;
+	private Integer algorithmMsgsCounter;
+	private Integer anytimeMsgsCounter;
 
-	public Mailer(ProtocolDelay delay, double terminationTime,Dcop dcop) {
+	public Mailer(ProtocolDelay delay, double terminationTime, Dcop dcop) {
 		super();
 		this.dcop = dcop;
 		this.delay = delay;
 		this.delay.setSeeds(dcop.getId());
 		this.messageBox = new ArrayList<Msg>();
 		this.terminationTime = terminationTime;
-		this.dataMap = new TreeMap<Double,Data>();
-		
-	}
+		this.dataMap = new TreeMap<Double, Data>();
 
+	}
 
 	/**
 	 * used by agents when creating messages
+	 * 
 	 * @param m
 	 */
 	public void sendMsg(Msg m) {
+		
+		if (m instanceof MsgAlgorithm) {
+			this.algorithmMsgsCounter++;
+		}
+		if (m instanceof MsgAnyTime) {
+			this.anytimeMsgsCounter++;
+		}
+		
 		double d = createDelay();
-		if (d!=-1) {
+		if (d != -1) {
 			m.setDelay(d);
 			this.messageBox.add(m);
 		}
-		
+
 	}
-	
-	
-	
+
 	private double createDelay() {
 		Double d = this.delay.createDelay();
 		if (d == null) {
@@ -60,14 +68,13 @@ public abstract class Mailer {
 		}
 		double dd = d;
 		if (this instanceof MailerIterations) {
-			dd = (int)dd;
+			dd = (int) dd;
 			System.out.println("mailer: this is mailer iteration");
-		}else {
+		} else {
 			System.out.println("mailer: this is mailer threads");
 		}
 		return dd;
 	}
-
 
 	public abstract void execute();
 
@@ -95,12 +102,6 @@ public abstract class Mailer {
 		return delay.toString();
 	}
 
-	
-	
-
-
-	
-
 	public boolean isWithTimeStamp() {
 		return this.delay.isWithTimeStamp();
 	}
@@ -120,9 +121,10 @@ public abstract class Mailer {
 		handleMsgAnytime(msgsAnyTime);
 
 	}
-	
+
 	/**
 	 * sort messages by type, anytime and algorithm
+	 * 
 	 * @param msgToSend
 	 * @param msgsAnyTime
 	 * @param msgsAlgorithm
@@ -136,20 +138,18 @@ public abstract class Mailer {
 				msgsAlgorithm.add((MsgAlgorithm) msg);
 			}
 		}
-
 	}
-
-	
 
 	// -------------** handleMsgAlgorithm methods**-------------
 
 	/**
 	 * handle messages differently if factor graph or not because of node id
+	 * 
 	 * @param msgsAlgorithm
 	 */
 	private void handleMsgAlgorithm(List<MsgAlgorithm> msgsAlgorithm) {
 
-		if (MainSimulator.isFactorAgent(this.dcop.getAgents().first())) {
+		if (this.dcop.isInferenceAgent()) {
 			handleMsgAlgorithmIfFactor(msgsAlgorithm);
 		} else {
 			handleMsgAlgorithmIfNotFactor(msgsAlgorithm);
@@ -160,9 +160,10 @@ public abstract class Mailer {
 	}
 
 	/**
-	 * handle messages if not factor graph:
-	 * create map of messages were the key is receiver id and key is list of messages destine to it
-	 * use receiveAlgorithmicMsgs on each receiver
+	 * handle messages if not factor graph: create map of messages were the key is
+	 * receiver id and key is list of messages destine to it use
+	 * receiveAlgorithmicMsgs on each receiver
+	 * 
 	 * @param msgsAlgorithm
 	 */
 	private void handleMsgAlgorithmIfNotFactor(List<MsgAlgorithm> msgsAlgorithm) {
@@ -180,15 +181,17 @@ public abstract class Mailer {
 	}
 
 	/**
-	 * create map of messages were the key is receiver id and key is list of messages destine to it
+	 * create map of messages were the key is receiver id and key is list of
+	 * messages destine to it
+	 * 
 	 * @param msgsAlgorithm
 	 * @return
 	 */
 	private Map<Integer, List<MsgAlgorithm>> getRecieversByIntegerId(List<MsgAlgorithm> msgsAlgorithm) {
 		Map<Integer, List<MsgAlgorithm>> ans = new HashMap<Integer, List<MsgAlgorithm>>();
 		for (MsgAlgorithm msg : msgsAlgorithm) {
-			Integer reciever =  msg.getRecieverId();
-			
+			Integer reciever = msg.getRecieverId();
+
 			if (reciever == -1) {
 				System.err.println("from mailer: bug because message was suppose to be msgFactor but its not");
 			}
@@ -203,25 +206,26 @@ public abstract class Mailer {
 
 	/**
 	 * get agent from dcop given its id
+	 * 
 	 * @param recieverId
 	 * @return
 	 */
 	private Agent getAgentByIntegerId(Integer recieverId) {
 		for (Agent a : dcop.getAgents()) {
 			Integer aId = a.getId();
-			
-			if (aId==recieverId) {
+
+			if (aId == recieverId) {
 				return a;
 			}
 		}
 		return null;
 	}
 
-
 	/**
-	 * handle messages if factor graph:
-	 * create map of messages were the key is receiver id and key is list of messages destine to it
-	 * use receiveAlgorithmicMsgs on each receiver
+	 * handle messages if factor graph: create map of messages were the key is
+	 * receiver id and key is list of messages destine to it use
+	 * receiveAlgorithmicMsgs on each receiver
+	 * 
 	 * @param msgsAlgorithm
 	 */
 	private void handleMsgAlgorithmIfFactor(List<MsgAlgorithm> msgsAlgorithm) {
@@ -239,9 +243,9 @@ public abstract class Mailer {
 
 	}
 
-	
 	/**
 	 * get agent from dcop given its NodeId
+	 * 
 	 * @param recieverId
 	 * @return
 	 */
@@ -259,7 +263,9 @@ public abstract class Mailer {
 	}
 
 	/**
-	 * create map of messages were the key is receiver NodeId and key is list of messages destine to it
+	 * create map of messages were the key is receiver NodeId and key is list of
+	 * messages destine to it
+	 * 
 	 * @param msgsAlgorithm
 	 * @return
 	 */
@@ -276,11 +282,21 @@ public abstract class Mailer {
 		return ans;
 	}
 
-
-	
-	//-----** TODO **--------
+	// -----** TODO **--------
 	private void handleMsgAnytime(List<MsgAnyTime> msgsAnyTime) {
 		// TODO Auto-generated method stub
+
+	}
+
+	public Integer getAlgorithmMsgsCounter() {
+		return this.algorithmMsgsCounter;
+	}
+	public Integer getAnytimeMsgsCounter() {
+		return this.anytimeMsgsCounter;
+	}
+	
+	protected void createData(double i) {
+		dataMap.put(i, new Data(i, this.dcop, this));
 		
 	}
 }

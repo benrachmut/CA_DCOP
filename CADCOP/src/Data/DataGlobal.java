@@ -8,45 +8,48 @@ import Main.MainSimulator;
 import Problem.Dcop;
 import Problem.Neighbor;
 
-public class DataGlobal {
+public abstract class DataGlobal {
 	//------**measures from DCOP**-----
-	private double globalCost;
-	private double povCost;
-	private int changeValueAssignmentCounter;
+	private Double globalCost;
+	private Integer changeValueAssignmentCounter;
 	
 	//------**measures from mailer**-----
-	private int valueAssignmentMsgsCreated;
-	private int valueAssignmentMsgsRecieved;
+	private Integer algorithmMsgsCounter;
 	
 	//------**measures from mailer: any time**-----
 
-	private int anytimeMsgsCreated;
-	private int anytimeMsgsRecieved;
+	private int anytimeMsgsCounter;
 	
 	
 	public DataGlobal(Dcop dcop, Mailer mailer) {
 
 		this.globalCost = calcGlobalCost(dcop.getNeighbors());
-		this.povCost = calcPovCost(dcop.getVariableAgents());
-		this.valueAssignmentMsgsCreated = mailer.getValueAssignmentMsgsCreated();
-		this.valueAssignmentMsgsRecieved = mailer.getValueAssignmentMsgsRecieved();
+		this.changeValueAssignmentCounter = calcChangeValueAssignmentCounter(dcop.getVariableAgents());
+		this.algorithmMsgsCounter = mailer.getAlgorithmMsgsCounter();
 		
 		if (MainSimulator.anyTime) {
-			this.anytimeMsgsCreated = mailer.getAnytimeMsgsCreated();
-			this.anytimeMsgsRecieved = mailer.getAnytimeMsgsRecieved();
+			this.anytimeMsgsCounter = mailer.getAnytimeMsgsCounter();
 		}
 	
 	}
+	
+	
 
 
-	private double calcPovCost(AgentVariable[] variableAgents) {
-		double ans = 0.0;
 
+
+	
+
+	private static Integer calcChangeValueAssignmentCounter(AgentVariable[] variableAgents) {
+		Integer ans = 0;
 		for (AgentVariable a : variableAgents) {
-			ans += a.getPOVcost();
+			ans =+a.getChangeValueAssignmentCounter();
 		}
-		return 0;
+		return ans;
 	}
+
+
+
 
 
 	private static double calcGlobalCost(List<Neighbor> neighbors) {
@@ -57,5 +60,20 @@ public class DataGlobal {
 		return ans;
 	}		
 
+	
+	protected abstract String getHeaderGivenParameters();
+
+	protected abstract String getToStringGivenParameters();
+	
+	
+	public String header() {
+		return "Global Cost,Change Value Counter,Algorithm Message Counter,Anytime Message Counter,"+getHeaderGivenParameters();
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return this.globalCost+","+this.changeValueAssignmentCounter+","+this.algorithmMsgsCounter+","+this.anytimeMsgsCounter+","+getToStringGivenParameters();
+	}
 
 }

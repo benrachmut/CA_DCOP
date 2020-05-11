@@ -1,6 +1,7 @@
 package AgentsAbstract;
 
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -28,11 +29,13 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	private void createVariableAssignmentMsg(int timeCreated) {
 		for (Integer reciever : this.getNeigborSetId()) {
-			Msg m = new MsgValueAssignmnet(this.id, reciever, this.valueAssignment, this.timeStampCounter, timeCreated);
+			Msg m = new MsgValueAssignmnet(this.id, reciever, this.getValueAssignmnet(), this.timeStampCounter, timeCreated);
 			this.mailer.sendMsg(m);
 		}
 
 	}
+
+
 
 	@Override
 	public void meetNeighbor(int neighborId, Integer[][] constraint) {
@@ -45,5 +48,23 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		this.neighborsVariables = Agent.resetMapToValueNull(this.neighborsVariables);
 
 	}
+
+	public double getPOVcost() {
+		double ans=0;
+	
+		for (Entry<Integer, MsgReceive<Integer>> e : this.neighborsVariables.entrySet()) {
+			int nId = e.getKey();
+			if (e.getValue().getContext() == null) {
+				return -1;
+			}
+			int nValueAssignmnet = e.getValue().getContext();
+
+			Integer[][] nConst= this.neighborsConstraint.get(nId);
+			ans+=nConst[this.getValueAssignment()][nValueAssignmnet];
+		}
+		return ans;
+	}
+
+
 
 }

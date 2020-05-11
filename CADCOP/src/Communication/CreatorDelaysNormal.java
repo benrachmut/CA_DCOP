@@ -36,7 +36,7 @@ public class CreatorDelaysNormal extends CreatorDelays{
 	}
 	
 	protected String header() {
-		return "Sigma,Mu"; 
+		return "Sigma,Mu,"; 
 		
 	}
 

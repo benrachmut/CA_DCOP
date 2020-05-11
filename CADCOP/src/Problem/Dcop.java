@@ -11,6 +11,7 @@ import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableFactor;
 import AgentsAbstract.AgentVariableInference;
+import AgentsAbstract.AgentVariableSearch;
 import Algorithms.MaxSumStandardFunction;
 import Comparators.CompAgentVariableByNeighborSize;
 import Main.Mailer;
@@ -110,7 +111,7 @@ public abstract class Dcop {
 		createNeighbors();
 		createTrees();
 
-		if (MainSimulator.isFactorAgent(this.agentsVariables[0])) {
+		if (isFactorAgent()) {
 			createFactorGraph();
 		}
 		return this;
@@ -158,5 +159,12 @@ public abstract class Dcop {
 		return  agentsVariables;
 	}
 
+	public  boolean isInferenceAgent() {
+		return (this.agentsVariables[0] instanceof AgentVariableInference) ;
+	}
+
+	public boolean isSearchAlgorithm() {
+		// TODO Auto-generated method stub
+		return (this.agentsVariables[0] instanceof AgentVariableSearch) ;
+	}
 }
-7

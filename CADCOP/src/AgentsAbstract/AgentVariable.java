@@ -20,7 +20,8 @@ import Messages.MsgAnyTime;
 
 public abstract class AgentVariable extends Agent {
 
-	protected int valueAssignment;
+	private int valueAssignment;
+	private int valueAssignmentChangeCounterCounter;
 	protected int firstRandomVariable;
 	protected TreeMap<Integer, Integer[][]> neighborsConstraint; // id and matrix of constraints
 	protected int[] domainArray;
@@ -63,6 +64,19 @@ public abstract class AgentVariable extends Agent {
 		bfsLevelInTree = -1;
 
 	}
+	protected boolean setValueAssignmnet(int input) {
+		if (this.valueAssignment !=input) {
+			this.valueAssignmentChangeCounterCounter++;
+			this.valueAssignment =input;
+			return true;
+		}
+		return false;
+	}
+	
+	protected int getValueAssignmnet() {
+		// TODO Auto-generated method stub
+		return this.valueAssignment;
+	}
 
 	private void createDomainArray() {
 		for (int domainValue = 0; domainValue < domainSize; domainValue++) {
@@ -81,6 +95,7 @@ public abstract class AgentVariable extends Agent {
 	public void resetAgentGivenParameters() {
 		super.resetAgent();
 		valueAssignment = firstRandomVariable;
+		valueAssignmentChangeCounterCounter = 0;
 	}
 
 	public int getValueAssignment() {
@@ -220,6 +235,10 @@ public abstract class AgentVariable extends Agent {
 
 	public Set<Integer> getNeigborSetId() {
 		return this.neighborsConstraint.keySet();
+	}
+	public int getChangeValueAssignmentCounter() {
+		// TODO Auto-generated method stub
+		return this.valueAssignmentChangeCounterCounter;
 	}
 
 
