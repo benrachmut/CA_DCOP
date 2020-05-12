@@ -11,7 +11,7 @@ public class DataGlobalInference extends DataGlobal {
 	}
 
 	@Override
-	protected String getHeaderGivenParameters() {
+	protected String header() {
 		return "";
 	}
 

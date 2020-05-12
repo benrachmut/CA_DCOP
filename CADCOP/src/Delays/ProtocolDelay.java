@@ -3,15 +3,15 @@ import java.util.Random;
 
 public abstract class ProtocolDelay {
 	
-	protected boolean perfectCommunication;
+	protected boolean imperfectCommunicationScenario;
 	protected boolean isTimeStamp;
 	private double gamma;
 	private Random rndGamma;
 	
 
-	public ProtocolDelay(boolean perfectCommunication, boolean isTimeStamp, double gamma) {
+	public ProtocolDelay(boolean imperfectCommunicationScenario, boolean isTimeStamp, double gamma) {
 		
-		this.perfectCommunication = perfectCommunication;
+		this.imperfectCommunicationScenario = imperfectCommunicationScenario;
 		this.isTimeStamp = isTimeStamp;
 		this.gamma = gamma;
 	}
@@ -48,7 +48,7 @@ public abstract class ProtocolDelay {
 			timeS = "Without Time Stamp";
 		}
 		
-		return this.perfectCommunication+","+timeS+","+this.gamma+","+getStringParamets();
+		return this.imperfectCommunicationScenario+","+timeS+","+this.gamma+","+getStringParamets();
 	}
 
 

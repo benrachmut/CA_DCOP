@@ -27,7 +27,7 @@ public class DataGlobalSearch extends DataGlobal {
 		return ans;
 	}
 	@Override
-	protected String getHeaderGivenParameters() {
+	protected String header() {
 		// TODO Auto-generated method stub
 		return "Cost Agent POV,";
 	}

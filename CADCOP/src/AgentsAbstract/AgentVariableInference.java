@@ -4,42 +4,38 @@ import java.util.SortedMap;
 
 import Messages.MsgReceive;
 
-public abstract class AgentVariableInference extends AgentVariable{
+public abstract class AgentVariableInference extends AgentVariable {
 
+	protected NodeId nodeId;
+	protected SortedMap<NodeId, MsgReceive<double[]>> functionMsgs;
 
-	protected  NodeId nodeId;
-	protected SortedMap <NodeId, MsgReceive<double[]>> functionMsgs; 
-	
-	
 	public AgentVariableInference(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		this.nodeId = new NodeId(id1);
 	}
 
+	public int getFunctionMsgsSize() {
+
+		return functionMsgs.size();
+
+	}
 
 	public void meetFunction(NodeId nodeId) {
 		this.functionMsgs.put(nodeId, null);
-		
+
 	}
-	
+
 	@Override
 	public void resetAgent() {
 		super.resetAgent();
 		this.functionMsgs = Agent.resetMapToValueNull(this.functionMsgs);
 
 	}
+
 	@Override
 	public NodeId getNodeId() {
 		// TODO Auto-generated method stub
 		return this.nodeId;
 	}
-	
-	
 
-
-
-	
-	
-
-	
 }

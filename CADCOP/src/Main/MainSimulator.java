@@ -7,7 +7,11 @@ import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariableInference;
 import Delays.CreatorDelays;
+import Delays.CreatorDelaysNone;
+import Delays.CreatorDelaysNormal;
+import Delays.CreatorDelaysUniform;
 import Delays.ProtocolDelay;
+import Down.ProtocolDown;
 import Problem.Dcop;
 import Problem.DcopGraphColoring;
 import Problem.DcopScaleFreeNetwork;
@@ -77,7 +81,7 @@ public class MainSimulator {
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();
 		List<ProtocolDelay> delays = getCreatorDelays().createProtocolDelays();	
-		List<ProtocolDown> 
+		List<ProtocolDown> downs = getCreatorDowns().createProtocolDowns();
 		runDcops(dcops, delays);
 	}
 

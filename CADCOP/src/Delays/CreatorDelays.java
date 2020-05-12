@@ -14,7 +14,7 @@ import Delays.ProtocolDelay;
  */
 public abstract class CreatorDelays  {
 
-	protected boolean[] perfectCommunications={true,false};
+	protected boolean[] imperfectCommunicationScenario={true,false};
 	protected boolean[] isTimeStamps = { true, false };
 	protected double[] gammas = {0};
 
@@ -28,8 +28,8 @@ public abstract class CreatorDelays  {
 	 */
 	public  List<ProtocolDelay> createProtocolDelays() {
 		List<ProtocolDelay> ans = new ArrayList<ProtocolDelay>();
-		for (boolean perfectP : perfectCommunications) {
-			if (perfectP == true) {
+		for (boolean perfectP : imperfectCommunicationScenario) {
+			if (perfectP == false) {
 				ans.add(createDefultProtocol());
 			} else {
 				for (boolean isTimeStamp : isTimeStamps) {

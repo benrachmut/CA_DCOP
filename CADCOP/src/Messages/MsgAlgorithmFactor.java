@@ -6,8 +6,8 @@ public class MsgAlgorithmFactor extends MsgAlgorithm{
     private NodeId recieverNode, senderNode;
 	
     public MsgAlgorithmFactor(NodeId senderNode, NodeId recieverNode, Object context, 
-    		double timeStamp, double timeCreated ) {
-		super(-1, -1, context, timeStamp,  timeCreated);
+    		double timeStamp) {
+		super(-1, -1, context, timeStamp);
 		this.recieverNode = recieverNode;
 		this.senderNode = senderNode;
 	}

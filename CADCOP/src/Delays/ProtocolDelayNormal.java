@@ -8,14 +8,14 @@ public class ProtocolDelayNormal extends ProtocolDelay {
 	private Random rndUNormal;
 
 	public ProtocolDelayNormal(boolean isTimeStamp, double gamma, double sigma, double mu) {
-		super(false, isTimeStamp, gamma);
+		super(true, isTimeStamp, gamma);
 
 		this.sigma = sigma;
 		this.mu = mu;
 	}
 
 	public ProtocolDelayNormal() {
-		super(true, true, 0.0);
+		super(false, true, 0.0);
 		this.sigma = 0;
 		this.mu = 0;
 	}

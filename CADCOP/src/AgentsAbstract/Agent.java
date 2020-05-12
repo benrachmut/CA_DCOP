@@ -94,7 +94,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 *        field
 	 * @return
 	 */
-	protected abstract double updateMessageInContext(MsgAlgorithm MsgAlgorithm);
+	protected abstract void updateMessageInContext(MsgAlgorithm msgAlgorithm);
 
 	// ------------**Reaction to algorithmic messages methods**------------
 	/**

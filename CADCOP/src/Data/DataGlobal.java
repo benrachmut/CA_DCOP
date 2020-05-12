@@ -61,13 +61,13 @@ public abstract class DataGlobal {
 	}		
 
 	
-	protected abstract String getHeaderGivenParameters();
+	protected abstract String header();
 
 	protected abstract String getToStringGivenParameters();
 	
 	
-	public String header() {
-		return "Global Cost,Change Value Counter,Algorithm Message Counter,Anytime Message Counter,"+getHeaderGivenParameters();
+	public String getHeader() {
+		return "Global Cost,Change Value Counter,Algorithm Message Counter,Anytime Message Counter,"+header();
 	}
 
 	@Override

@@ -7,7 +7,7 @@ public class ProtocolDelayUniform extends ProtocolDelay {
 	private double ub;
 	private Random rndUniform;
 	public ProtocolDelayUniform( boolean isTimeStamp, double gamma, double ub) {
-		super(false, isTimeStamp,gamma);
+		super(true, isTimeStamp,gamma);
 
 		this.ub = ub;
 		
@@ -16,7 +16,7 @@ public class ProtocolDelayUniform extends ProtocolDelay {
 
 	
 	public ProtocolDelayUniform() {
-		super(true, true,0.0);
+		super(false, true,0.0);
 		ub = 0;
 	}
 	@Override
