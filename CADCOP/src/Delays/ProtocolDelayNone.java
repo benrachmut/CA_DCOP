@@ -1,4 +1,4 @@
-package Communication;
+package Delays;
 
 public class ProtocolDelayNone extends ProtocolDelay{
 

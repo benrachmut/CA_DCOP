@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import AgentsAbstract.Agent;
-import Communication.ProtocolDelay;
 import Comparators.CompMsgByDelay;
+import Delays.ProtocolDelay;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgAnyTime;

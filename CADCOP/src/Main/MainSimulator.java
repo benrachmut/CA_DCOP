@@ -6,13 +6,8 @@ import java.util.List;
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariableInference;
-import Communication.CreatorDelays;
-import Communication.CreatorDelaysNone;
-import Communication.CreatorDelaysNormal;
-import Communication.CreatorDelaysUniform;
-import Communication.ProtocolDelay;
-import Communication.ProtocolDown;
-import Market.Mailer;
+import Delays.CreatorDelays;
+import Delays.ProtocolDelay;
 import Problem.Dcop;
 import Problem.DcopGraphColoring;
 import Problem.DcopScaleFreeNetwork;
@@ -82,6 +77,7 @@ public class MainSimulator {
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();
 		List<ProtocolDelay> delays = getCreatorDelays().createProtocolDelays();	
+		List<ProtocolDown> 
 		runDcops(dcops, delays);
 	}
 

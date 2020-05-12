@@ -11,8 +11,8 @@ import java.util.TreeSet;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.NodeId;
-import Communication.ProtocolDelay;
 import Data.Data;
+import Delays.ProtocolDelay;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgAlgorithmFactor;
