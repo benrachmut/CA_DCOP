@@ -12,6 +12,7 @@ import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableFactor;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
+import Algorithms.MaxSumSplitConstraintFactorGraph;
 import Algorithms.MaxSumStandardFunction;
 import Comparators.CompAgentVariableByNeighborSize;
 import Main.Mailer;
@@ -117,11 +118,12 @@ public abstract class Dcop {
 		return this;
 	}
 
-	
 	private void createFactorGraph() {
+		
 		int agentType = MainSimulator.agentType;
 
-		for (Neighbor n : neighbors ) {
+		for (Neighbor n : neighbors) {
+			
 			AgentVariableInference av1 = (AgentVariableInference) n.getA1();
 			AgentVariableInference av2 = (AgentVariableInference) n.getA2();
 			
@@ -131,17 +133,48 @@ public abstract class Dcop {
 			 
 			AgentFunction af = null;
 			
-			
 			if (agentType == 7) {
 				af = new MaxSumStandardFunction(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
 			}
-			 this.agentFunctions.add(af);
-			 agentsAll.add(af);
-			 av1.meetFunction(af.getNodeId());
-			 av2.meetFunction(af.getNodeId());
+			if (agentType == 8) {
+				af = new MaxSumSplitConstraintFactorGraph(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
+
+			}
+			
+			this.agentFunctions.add(af);
+			agentsAll.add(af);
+			av1.meetFunction(af);
+			av2.meetFunction(af);
+			
+			
+			/*
+			
+			if (agentType == 7) {
+				
+				af = new MaxSumStandardFunction(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
+				this.agentFunctions.add(af);
+				agentsAll.add(af);
+				av1.meetFunction(af.getNodeId());
+				av2.meetFunction(af.getNodeId());
+				
+			}
+			 
+			if(agentType == 8) {
+			
+				MaxSumSplitConstraintFactorGraph splitFunctionAgent = new MaxSumSplitConstraintFactorGraph(id,D, av1.getId(), av2.getId(), constraints, constraintsTranspose);
+				this.agentFunctions.add(splitFunctionAgent);
+				agentsAll.add(splitFunctionAgent);
+				av1.meetFunction(splitFunctionAgent.getFirstSplit().getNodeId());
+				av1.meetFunction(splitFunctionAgent.getSecondSplit().getNodeId());
+				av2.meetFunction(splitFunctionAgent.getFirstSplit().getNodeId());
+				av2.meetFunction(splitFunctionAgent.getSecondSplit().getNodeId());
+			
+			}*/
+			
+			
 		}
 		
-	}
+	}	
 
 	public SortedSet<Agent> getAgents() {
 		return agentsAll;
