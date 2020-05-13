@@ -74,7 +74,6 @@ public abstract class AgentVariable extends Agent {
 	}
 	
 	protected int getValueAssignmnet() {
-		// TODO Auto-generated method stub
 		return this.valueAssignment;
 	}
 

@@ -40,6 +40,14 @@ public abstract class Msg<Identity> {
 	public Double getDelay() {
 		return this.delay;
 	}
+
+
+
+
+
+	public Object getContext() {
+		return context;
+	}
 	
 	
 	

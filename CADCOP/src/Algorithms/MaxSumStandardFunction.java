@@ -1,67 +1,155 @@
 package Algorithms;
 
+import java.util.HashMap;
+import java.util.List;
+
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
+import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.NodeId;
+import Messages.MsgAlgorithm;
+import Messages.MsgAlgorithmFactor;
+import Messages.MsgReceive;
 
 public class MaxSumStandardFunction extends AgentFunction {
 
-	
-	double SCFGRatio = 0.6;
-	///// ******* Control Variables ******* ////
-	boolean storedMessageOn = true; 
-	
+	///// ******* Variables ******* ////
+
 	protected Double[][] constraints; 
 	protected Double[][] constraintsTranspose; 
+	HashMap<NodeId, double[]> storedMessges = new HashMap<NodeId, double[]>();
 
+	//-----------------------------------------------------------------------------------------------------------//
+
+	///// ******* Control Variables ******* ////
+	
+	boolean storedMessageOn = true; 
+	
+	///// ******* Constructor ******* ////
+
+	//OmerP - Constructor for regular factor graph. 
 	public MaxSumStandardFunction(int dcopId, int D, int id1, int id2, Integer[][] constraints, Integer[][] constraintsTranspose) {
+		
 		super(dcopId, D, id1, id2);
+		
 		this.constraints = AgentFunction.turnIntegerToDoubleMatrix(constraints);
+		
 		this.constraintsTranspose = AgentFunction.turnIntegerToDoubleMatrix(constraintsTranspose);
 
 		// TODO Auto-generated constructor stub
 	}
 	
-///// ******* ConstraintMatrix ******* ////
+	public MaxSumStandardFunction(int dcopId, int D, int id1, int id2, Double[][] constraints, Double[][] constraintsTranspose) {
+		
+		super(dcopId, D, id1, id2);
+		this.constraints = constraints; 
+		this.constraintsTranspose = constraintsTranspose;
+
+		
+	}
 	
-	//OmerP - Will initialize to constraint matrix according to the cost of the problem
-	protected void initializeConstraintMatrix(double[][] constraintMatrix, int multiplicationFactor) {
-		
-		Random rnd = new Random();
-		
-		for(int i = 0; i < constraintMatrix.length ; i++) {
+	//-----------------------------------------------------------------------------------------------------------//
+
+	///// ******* Main Methods ******* ////
+
+	//OmerP - will send new messages for each one of the neighbors upon the initiation of the algorithm (iteration = 0).
+	@Override
+	public void initialize() {
 			
-			for(int j = 0; j < constraintMatrix.length ; j++) {
-				
-				constraintMatrix[i][j] = rnd.nextDouble();
-				constraintMatrix[i][j] = constraintMatrix[i][j]*multiplicationFactor; 
-				
-			}
+	}
+	
+	//OmerP - will send new messages for each one of the neighbors upon the initiation of the algorithm (iteration = 0) - BUG!!!
+	public void initializeSyncFramework() {
+		
+		for(NodeId i: variableMsgs.keySet()) {
 			
+			double[] sentTable = new double[this.domainSize];
+			sentTable = getBestValueTable(getConstraintMatrix());
+			//MaxSumMessage newMessage = new MaxSumMessage(this.nodeId, i, sentTable);
+			storeNewMessage(i, sentTable);
+			//Send newMessage.
+						
 		}
 		
 	}
 	
-	//OmerP - Will transpose the constraint matrix. 
-	protected double[][] transposeConstraintMatrix(double[][] constraintMatrix) {
+	//OmerP - function node don't need to update anything so he will return false. 
+	@Override
+	protected boolean compute() {
 		
-		double[][] transposedConstraintMatrix = new double [this.getD().length][this.getD().length]; 
-		
-		for(int i = 0; i < constraintMatrix.length ; i++) {
-			
-			for(int j = 0; j < constraintMatrix.length ; j++) {
-				
-				transposedConstraintMatrix[j][i] = constraintMatrix[i][j];
-				
-			}
-			
-			
-		}
-		
-		return transposedConstraintMatrix; 
+		return false; 
 		
 	}
 	
+	//OmerP - saved for multi-threading. 
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
+	//OmerP - ???????????
+	@Override
+	public void resetAgent() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	//OmerP - will loop over the neighbors and will send to each one of the a message. - BUG !!!
+	@Override
+	protected void sendMsg() {
+		
+		for(NodeId i: variableMsgs.keySet()) {
+			
+			double[] sentTable = new double[this.domainSize];
+			sentTable = produceFunctionMessage(i);
+			
+			if(storedMessageOn) {
+				
+				if(areDifferentMessages(i, sentTable)) {
+					
+					storedMessges.put(i, sentTable);
+					//Produce new message. 
+					//MaxSumMessage newMessage = new MaxSumMessage(this.nodeId, i, sentTable);
+					//Send newMessage.
+				
+					}
+				
+				} else { //If stored message is off than the new message will be sent. 
+					
+					//Produce new message. 
+					//Send newMessage.
+				
+				}
+			
+		}
+			
+	}
+	
+	@Override
+	protected double getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm) {
+		
+		return msgAlgorithm.getTimeStamp();
+
+	}
+
+	//OmerP - will get the message and update context in HashMap.
+	@Override
+	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+
+		MsgAlgorithmFactor newMessage = (MsgAlgorithmFactor) msgAlgorithm; //Will do casting for the msgAlgorithm.
+
+		double[] contextFix = (double[]) newMessage.getContext(); //will cast the message object as a double[].
+		
+		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithm.getTimeStamp()); //
+		
+		variableMsgs.put(newMessage.getSenderNodeId(), newMessageReceveid);
+		
+		
+
+	}
+	
+	///// ******* ConstraintMatrix ******* //// 
+			
 	//OmerP - Will initialize a matrix to zero.  
 	protected void initializeMatrixToZero(double[][] matrix) {
 		
@@ -80,38 +168,12 @@ public class MaxSumStandardFunction extends AgentFunction {
 	
 	//-----------------------------------------------------------------------------------------------------------//
 
-	
-    ///// ******* Split Constraint Factor Graph Methods ******* ////
-
-	protected double[][] splitConstraintFactorGraph(){
-		
-		double[][] splitConstraintTable = getConstraintMatrix();
-		
-		if(nodeId.getId1() > nodeId.getId2()) {
-			
-			
-			tableMultiplication(splitConstraintTable, SCFGRatio);
-			
-			
-		}
-		
-		else {
-			
-			tableMultiplication(splitConstraintTable, 1-SCFGRatio);
-			
-		}
-		
-
-		return splitConstraintTable; 
-		
-	}
-	
     ///// ******* Arithmetic Methods ******* ////
-
-	//OmerP - Multiplication of table. 
-	protected double[][] tableMultiplication(double[][] table, double multiplicationFactor) {
+	
+	//OmerP - Multiplication of table - FIXED.
+	protected Double[][] tableMultiplication(Double[][] table, double multiplicationFactor) {
 		
-		double[][] tableDAfterMultiplication = new double[this.getD().length][this.getD().length]; 
+		Double[][] tableDAfterMultiplication = new Double[this.domainSize][this.domainSize]; 
 		
 		for(int i = 0 ; i < tableDAfterMultiplication.length ; i++) {
 			
@@ -127,10 +189,10 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 	}
 	
-	//OmerP - Get the best value of the matrix.
-	protected double[] getBestValueTable(double[][] constraintMatrix) {
+	//OmerP - Get the best value of the matrix - FIXED.
+	protected double[] getBestValueTable(Double[][] constraintMatrix) {
 		
-		double[] table = new double[this.getD().length];
+		double[] table = new double[this.domainSize];
 		
 		for(int i = 0 ; i < constraintMatrix.length ; i++) {
 			
@@ -138,7 +200,6 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 			for(int j = 0 ; j < constraintMatrix.length ; j++) {
 				
-
 				if(constraintMatrix[i][j] < bestCurrentValue) {
 					
 					bestCurrentValue = constraintMatrix[i][j]; 
@@ -155,12 +216,12 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 	}
 	
-	//OmerP - Add an table to the matrix.
-	protected void addTableToMatrix(double[] receivedTable, double[][] constraintMatrix){
+	//OmerP - Add an table to the matrix - FIXED. 
+	protected void addTableToMatrix(double[] receivedTable, Double[][] constraintMatrix){
 		
-		for(int i = 0; i < this.getD().length ; i++) {
+		for(int i = 0; i < this.domainSize ; i++) {
 			
-			for(int j = 0; j < this.getD().length ; j++) {
+			for(int j = 0; j < this.domainSize ; j++) {
 				
 				constraintMatrix[i][j] = constraintMatrix[i][j] + receivedTable[j];
 				
@@ -174,87 +235,44 @@ public class MaxSumStandardFunction extends AgentFunction {
 
     ///// ******* Send Messages ******* ////
 
+	//OmerP - Will produce a message from the constraint matrix without the addition of messages - FIXED.
 	protected void produceOnlyConstraint() {
 		
-		double[] onlyConstraint = new double[this.getD().length];
+		double[] onlyConstraint = new double[this.domainSize];
 		
 		onlyConstraint = getBestValueTable(getConstraintMatrix());
 		
-		
-	
 		//Send only this message. 
 				
 	}
 	
-	protected double[] produceFunctionMessage(NodeId to, double[] table) {
+	//OmerP - Will produce function message - NOT FIXED messages!!!
+	protected double[] produceFunctionMessage(NodeId to) {
 		
-		double[][] constraintMatrix = getConstraintMatrix();
-		MaxSumMessage addedMessage = getOtherNodeIdMessage(to);
+		double[] sentMessage = new double[this.domainSize]; //The message that will be sent.
+		Double[][] constraintMatrix = getConstraintMatrix(); //The constraint matrix. 
 		
-		if(addedMessage != null) {
+		
+		if(getOtherNodeIdMessage(to) != null) { //If the message that the other variable node sent is not Null.
 			
-			addTableToMatrix(addedMessage.getTable(), constraintMatrix); 
+			addTableToMatrix(getOtherNodeIdMessage(to), constraintMatrix); //Will add the second variable node message to the constraint matrix.
 			
 		}
 		
-		table = getBestValueTable(constraintMatrix);  
-		return table; 
+		sentMessage = getBestValueTable(constraintMatrix);  //The best value will be chosen out of the matrix. 
+		return sentMessage; //Sending the message. 
 		
 	}
-		
-	@Override
-	public void initialize() {
-		
-		for(NodeId i: neighbors) {
-			
-			double[] sentTable = new double[this.getD().length];
-			sentTable = getBestValueTable(constraintMatrix);
-			MaxSumMessage newMessage = new MaxSumMessage(this.nodeId, i, sentTable);
-			storeNewMessage(newMessage);
-			//Send newMessage.
-						
-		}
-	
-	}
-	
-	@Override
-	protected void sendMessages() {
-		
-		for(NodeId i: neighbors) {
-			
-			double[] sentTable = new double[this.getD().length];
-			produceFunctionMessage(i, sentTable);
-			MaxSumMessage newMessage = new MaxSumMessage(this.nodeId, i, sentTable);
-			
-			if(areDifferentMessages(i, sentTable)) {
 				
-				storeNewMessage(newMessage);
-				//Send newMessage.
-				
-			}
-			
-			
-		}
-
-	}
-	
-    ///// ******* Methods to handle messages ******* ////
-
-	protected void handleMsgs(MaxSumMessage receivedMessage) {
-		
-		messages.put(receivedMessage.getSender(), receivedMessage);
-		
-	}
-	
 	//-----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Stored Message Methods ******* ////
 
-	protected void storeNewMessage(MaxSumMessage message) {
+	protected void storeNewMessage(NodeId nodeId, double[] table) {
 		
 		if(storedMessageOn) {
 			
-			storedMessages.put(message.getReceiver(), message); 
+			storedMessges.put(nodeId, table);
 			
 		}
 		
@@ -281,17 +299,17 @@ public class MaxSumStandardFunction extends AgentFunction {
 	//OmerP - Loops over the messagesSent map and return the tableD that was saved. 
 	protected double[] getLastSavedMessage(NodeId recevier) {
 		
-		for(NodeId i: messages.keySet()) {
+		for(NodeId i: variableMsgs.keySet()) {
 			
 			if(i.compareTo(recevier) == 0) {
 				
-				return messages.get(i).getTable(); 
+				return variableMsgs.get(i).getContext(); 
 				
 			}
 			
 		}
 		
-		double[] emptyMessage = new double[this.getD().length];
+		double[] emptyMessage = new double[this.domainSize];
 	
 		return emptyMessage;
 		
@@ -299,72 +317,62 @@ public class MaxSumStandardFunction extends AgentFunction {
 	
 	//-----------------------------------------------------------------------------------------------------------//
 	
-	
-    ///// ******* Setters ******* ////
-
-	
-	//-----------------------------------------------------------------------------------------------------------//
-	
-
     ///// ******* Getters ******* ////
 
-	public double[][] getConstraintMatrix(){
+	//OmerP - will return the constraint matrix - FIXED. 
+	public Double[][] getConstraintMatrix(){
 		
-		return constraintMatrix; 
+		return constraints; 
 		
 	}
 	
-	protected MaxSumMessage getOtherNodeIdMessage(NodeId to) {
+	//OmerP - will return the message that is from the other variable node. 
+	protected double[] getOtherNodeIdMessage(NodeId to) {
 		
-		if(neighbors.size() == 1) { //Check the size of the neighbors, if it is 1, it is not full yet and will return null. 
+		
+		if(variableMsgs.size() == 1) { //Check the size of the neighbors, if it is 1, it is not full yet and will return null. 
 			
 			return null; 
 			
 		}
-		
-		NodeId [] a = new NodeId[2]; //Create an array of NodeId in the size of 2. 
-		neighbors.toArray(a); //Returns an array containing all of the elements in this list in proper sequence (from first to last element).
-		
-		if(to.equals(a[0])) {
 			
-			return messages.get(a[1]); //Will return the message that received from the other variable node that was received. 
+		NodeId[] temp = new NodeId[2]; //Create an array of NodeId in the size of 2. 
+		
+		variableMsgs.keySet().toArray(temp); 
+				
+		if(to.equals(temp[0])) {
+						
+			return variableMsgs.get(temp[1]).getContext(); //Will return the message that received from the other variable node that was received. 
 		}
 		
 		else {
 			
-			return messages.get(a[0]); //Will return the message that received from the other variable node that was received. 
+			return variableMsgs.get(temp[0]).getContext(); //Will return the message that received from the other variable node that was received. 
 			
 		}
+		
+	}
+
+	//OmerP - Parameter that are needed to be initialized every time a new problem is initialized. 
+	@Override
+	protected void resetAgentGivenParameters() {
+
+		for(NodeId i : variableMsgs.keySet()) {
+			
+			variableMsgs.replace(i, variableMsgs.get(i), null); //OmerP - will put null instead of the value that was stored. 
+			
+		}
+		
+		for(NodeId i : storedMessges.keySet()) {
+			
+			storedMessges.replace(i, storedMessges.get(i), null); //OmerP - will put null instead of the value that was stored. 
+			
+		}
+		
 		
 	}
 	
 	//-----------------------------------------------------------------------------------------------------------//
 
-	
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void resetAgent() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void compute() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void handleMsgs() {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	
 
 }

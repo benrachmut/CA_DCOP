@@ -24,4 +24,9 @@ public class MsgAlgorithmFactor extends MsgAlgorithm{
 		// TODO Auto-generated method stub
 		return -1;
 	}
+
+	public double[] getContext() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
