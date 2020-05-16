@@ -25,9 +25,8 @@ public class MailerIterations extends Mailer {
 
 	@Override
 	public void execute() {
-		createData(0);
-		for (double iteration = 1; iteration < this.terminationTime; iteration++) {
-
+		
+		for (double iteration = 0; iteration < this.terminationTime; iteration++) {
 			agentsReactToMsgs(iteration);
 			createData((double) iteration);
 			List<Msg> msgToSend = this.handleDelay();
@@ -40,22 +39,33 @@ public class MailerIterations extends Mailer {
 	private void agentsReactToMsgs(double iteration) {
 
 		for (Agent agent : dcop.getAgents()) {
-			if (iteration == 1) {
+			if (iteration == 0) {
 				agent.initialize(); // abstract method in agents
 			} else {
 				// compute (abstract method in agents) -->
 				// varifyMsgSent-->
 				// sendMsg(abstract method in agents)
-				if (didAgentRecieveMsgInThisIteration(agent)) {
-
+				if (didAgentRecieveAlgorithmicMsgInThisIteration(agent)) {
 					agent.reactionToAlgorithmicMsgs();
+				}
+				if (MainSimulator.anyTime) {
+					if (didAgentRecieveAnytimeMsgInThisIteration(agent)) {
+						agent.reactionToAnytimeMsgs();
+					}
 				}
 			}
 		}
 
 	}
 
-	private boolean didAgentRecieveMsgInThisIteration(Agent agent) {
+	private boolean didAgentRecieveAnytimeMsgInThisIteration(Agent agent) {
+		if (this.recieversAnyTimeById.containsKey(agent.getId())) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean didAgentRecieveAlgorithmicMsgInThisIteration(Agent agent) {
 		if (agent instanceof AgentVariableSearch) {
 			if (this.recieversAlgorithmById.containsKey(agent.getId())) {
 				return true;

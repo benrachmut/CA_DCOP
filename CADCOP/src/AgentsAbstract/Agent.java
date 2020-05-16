@@ -108,6 +108,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		varifyIfMsgsWillBeSent(isUpdate);
 		return isUpdate;
 	}
+	
+	public void reactionToAnytimeMsgs() {}
 
 	/**
 	 * After the context was updated by messages received, computation takes place

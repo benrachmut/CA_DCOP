@@ -142,7 +142,7 @@ public abstract class AgentVariable extends Agent {
 		// TODO Auto-generated method stub
 	}
 
-	private synchronized void reactionToAnytimeMsgs() {
+	public synchronized void reactionToAnytimeMsgs() {
 		// TODO Auto-generated method stub
 
 	}

@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import AgentsAbstract.Agent;
+import AgentsAbstract.AgentVariable;
 import AgentsAbstract.NodeId;
 import Data.Data;
 import Delays.ProtocolDelay;
@@ -29,6 +30,7 @@ public abstract class Mailer {
 	private Integer anytimeMsgsCounter;
 	protected Map<NodeId, List<MsgAlgorithm>> recieversAlgortihmiByNodeId;
 	protected Map<Integer, List<MsgAlgorithm>> recieversAlgorithmById;
+	protected Map<Integer, List<MsgAnyTime>> recieversAnyTimeById;
 
 	
 	public Mailer(ProtocolDelay delay, double terminationTime, Dcop dcop) {
@@ -206,6 +208,24 @@ public abstract class Mailer {
 
 		return ans;
 	}
+	
+	
+	private Map<Integer, List<MsgAnyTime>> getRecieversByIntegerIdForAnyTime(List<MsgAnyTime> msgsAlgorithm) {
+		Map<Integer, List<MsgAnyTime>> ans = new HashMap<Integer, List<MsgAnyTime>>();
+		for (MsgAnyTime msg : msgsAlgorithm) {
+			Integer reciever = msg.getRecieverId();
+
+			if (reciever == -1) {
+				System.err.println("from mailer: bug because message was suppose to be msgFactor but its not");
+			}
+			if (!ans.containsKey(reciever)) {
+				ans.put(reciever, new ArrayList<MsgAnyTime>());
+			}
+			ans.get(reciever).add(msg);
+		}
+
+		return ans;
+	}
 
 	/**
 	 * get agent from dcop given its id
@@ -287,8 +307,34 @@ public abstract class Mailer {
 
 	// -----** TODO **--------
 	private void handleMsgAnytime(List<MsgAnyTime> msgsAnyTime) {
-		// TODO Auto-generated method stub
+			handleMsgAnytimeIfNotFactor(msgsAnyTime);
+	}
 
+
+
+	private void handleMsgAnytimeIfNotFactor(List<MsgAnyTime> msgsAnyTime) {
+		this.recieversAnyTimeById = getRecieversByIntegerIdForAnyTime(msgsAnyTime);
+		for (Entry<Integer, List<MsgAnyTime>> e : recieversAnyTimeById.entrySet()) {
+			Integer recieverId = e.getKey();
+			List<MsgAnyTime> msgsForAnAgnet = e.getValue();
+			Agent recieverAgent = getAgentByIntegerId(recieverId);
+			if (recieverAgent == null) {
+				System.err.println("from mailer: something is wrong with finding the recieverAgent");
+			}
+			if (recieverAgent instanceof AgentVariable) {
+				recieverAgent = (AgentVariable)recieverAgent;
+				((AgentVariable)recieverAgent).recieveAnyTimeMsgs(msgsForAnAgnet);
+
+			}
+			else {
+				System.err.println("from mailer: something is wrong with anytime msg sent to a non variable agent");
+			}
+			
+			
+			
+
+		}
+		
 	}
 
 	public Integer getAlgorithmMsgsCounter() {
