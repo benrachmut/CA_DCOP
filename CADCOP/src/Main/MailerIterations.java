@@ -6,6 +6,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import AgentsAbstract.Agent;
+import AgentsAbstract.AgentFunction;
+import AgentsAbstract.AgentVariableInference;
+import AgentsAbstract.AgentVariableSearch;
+import AgentsAbstract.NodeId;
 import Comparators.CompMsgByDelay;
 import Delays.ProtocolDelay;
 import Messages.Msg;
@@ -15,51 +19,65 @@ import Problem.Dcop;
 
 public class MailerIterations extends Mailer {
 
-	public MailerIterations(ProtocolDelay delay, double terminationTime,Dcop dcop) {
-		super(delay, terminationTime,dcop);
+	public MailerIterations(ProtocolDelay delay, double terminationTime, Dcop dcop) {
+		super(delay, terminationTime, dcop);
 	}
-
-
 
 	@Override
 	public void execute() {
 		createData(0);
 		for (double iteration = 1; iteration < this.terminationTime; iteration++) {
+
 			agentsReactToMsgs(iteration);
-			createData((double)iteration);
+			createData((double) iteration);
 			List<Msg> msgToSend = this.handleDelay();
 			agentsRecieveMsgs(msgToSend);
-			
+
 		}
 
 	}
-	
-	
-
-
-
-
-
-
-
 
 	private void agentsReactToMsgs(double iteration) {
-		
+
 		for (Agent agent : dcop.getAgents()) {
 			if (iteration == 1) {
 				agent.initialize(); // abstract method in agents
 			} else {
 				// compute (abstract method in agents) -->
 				// varifyMsgSent-->
-				// sendMsg(abstract method in agents) 
-				agent.reactionToAlgorithmicMsgs(); 
+				// sendMsg(abstract method in agents)
+				if (didAgentRecieveMsgInThisIteration(agent)) {
+
+					agent.reactionToAlgorithmicMsgs();
+				}
 			}
 		}
-		
-		
+
 	}
 
+	private boolean didAgentRecieveMsgInThisIteration(Agent agent) {
+		if (agent instanceof AgentVariableSearch) {
+			if (this.recieversAlgorithmById.containsKey(agent.getId())) {
+				return true;
+			}
+		} else {
+			NodeId nodeId = getNodeId(agent);
+			if (this.recieversAlgortihmiByNodeId.containsKey(nodeId)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
+	private NodeId getNodeId(Agent agent) {
+		NodeId ans;
+		if (agent instanceof AgentFunction) {
+			ans = ((AgentFunction) agent).getNodeId();
+		} else {
+			ans = ((AgentVariableInference) agent).getNodeId();
+		}
+		return ans;
+	}
 
 	public List<Msg> handleDelay() {
 		Collections.sort(this.messageBox, new CompMsgByDelay());

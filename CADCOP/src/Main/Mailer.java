@@ -27,7 +27,10 @@ public abstract class Mailer {
 	protected SortedMap<Double, Data> dataMap;
 	private Integer algorithmMsgsCounter;
 	private Integer anytimeMsgsCounter;
+	protected Map<NodeId, List<MsgAlgorithm>> recieversAlgortihmiByNodeId;
+	protected Map<Integer, List<MsgAlgorithm>> recieversAlgorithmById;
 
+	
 	public Mailer(ProtocolDelay delay, double terminationTime, Dcop dcop) {
 		super();
 		this.dcop = dcop;
@@ -167,8 +170,8 @@ public abstract class Mailer {
 	 * @param msgsAlgorithm
 	 */
 	private void handleMsgAlgorithmIfNotFactor(List<MsgAlgorithm> msgsAlgorithm) {
-		Map<Integer, List<MsgAlgorithm>> recieversByNodeId = getRecieversByIntegerId(msgsAlgorithm);
-		for (Entry<Integer, List<MsgAlgorithm>> e : recieversByNodeId.entrySet()) {
+		this.recieversAlgorithmById = getRecieversByIntegerId(msgsAlgorithm);
+		for (Entry<Integer, List<MsgAlgorithm>> e : recieversAlgorithmById.entrySet()) {
 			Integer recieverId = e.getKey();
 			List<MsgAlgorithm> msgsForAnAgnet = e.getValue();
 			Agent recieverAgent = getAgentByIntegerId(recieverId);
@@ -229,8 +232,8 @@ public abstract class Mailer {
 	 * @param msgsAlgorithm
 	 */
 	private void handleMsgAlgorithmIfFactor(List<MsgAlgorithm> msgsAlgorithm) {
-		Map<NodeId, List<MsgAlgorithm>> recieversByNodeId = getRecieversByNodeId(msgsAlgorithm);
-		for (Entry<NodeId, List<MsgAlgorithm>> e : recieversByNodeId.entrySet()) {
+		this.recieversAlgortihmiByNodeId = getRecieversByNodeId(msgsAlgorithm);
+		for (Entry<NodeId, List<MsgAlgorithm>> e : recieversAlgortihmiByNodeId.entrySet()) {
 			NodeId recieverId = e.getKey();
 			List<MsgAlgorithm> msgsForAnAgnet = e.getValue();
 
