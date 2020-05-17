@@ -43,11 +43,12 @@ public abstract class AgentVariable extends Agent {
 
 	public AgentVariable(int dcopId, int D, int id1) {
 		super(dcopId, D);
+		this.id = id1;
 		this.domainArray = new int[domainSize];
 		createDomainArray();
 		Random r = new Random(132 * id1 + 100 * dcopId);
 		firstRandomVariable = r.nextInt(D);
-		//resetAgent();
+		neighborsConstraint = new TreeMap<Integer, Integer[][]>();
 
 		// -----*DFS*-----
 		dfsSons = new HashSet<Integer>();

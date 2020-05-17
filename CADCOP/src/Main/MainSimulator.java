@@ -65,7 +65,7 @@ public class MainSimulator {
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
 	 * 7 = max sum standard
 	 */
-	public static int agentType = 1; // 1= DSA ASY,1= DSA SY
+	public static int agentType = 7; // 1= DSA ASY,1= DSA SY
 
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
@@ -85,7 +85,7 @@ public class MainSimulator {
 		Dcop[] dcops = generateDcops();
 		List<ProtocolDelay> delays = getCreatorDelays().createProtocolDelays();	
 		List<ProtocolDown> downs = getCreatorDowns().createProtocolDowns();
-		runDcops(dcops, delays);
+		//runDcops(dcops, delays);
 	}
 
 

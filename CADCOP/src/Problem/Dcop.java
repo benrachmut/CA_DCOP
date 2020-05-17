@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
@@ -14,6 +15,7 @@ import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import Algorithms.MaxSumSplitConstraintFactorGraph;
 import Algorithms.MaxSumStandardFunction;
+import Algorithms.MaxSumStandardVarible;
 import Comparators.CompAgentVariableByNeighborSize;
 import Main.Mailer;
 import Main.MainSimulator;
@@ -40,8 +42,10 @@ public abstract class Dcop {
 
 	public Dcop(int dcopId, int A, int D, int costPrameter) {
 		this.D = D;
+		this.costParameter = costPrameter;
 		this.dcopId = dcopId;
 		agentsVariables = new AgentVariable[A];
+		this.agentsAll = new TreeSet<Agent>();
 		createVariableAgents();
 		neighbors = new ArrayList<Neighbor>();
 	}
@@ -117,7 +121,7 @@ public abstract class Dcop {
 		createNeighbors();
 		createTrees();
 
-		if (isFactorAgent()) {
+		if (isInferenceAgent()) {
 			createFactorGraph();
 		}
 		return this;
@@ -148,11 +152,11 @@ public abstract class Dcop {
 			
 			this.agentFunctions.add(af);
 			agentsAll.add(af);
-			av1.meetFunction(af);
-			av2.meetFunction(af);
+			//av1.meetFunction(af);
+			//av2.meetFunction(af);
 			
 			
-			/*
+			
 			
 			if (agentType == 7) {
 				
@@ -163,7 +167,8 @@ public abstract class Dcop {
 				av2.meetFunction(af.getNodeId());
 				
 			}
-			 
+			
+			 /*
 			if(agentType == 8) {
 			
 				MaxSumSplitConstraintFactorGraph splitFunctionAgent = new MaxSumSplitConstraintFactorGraph(id,D, av1.getId(), av2.getId(), constraints, constraintsTranspose);
