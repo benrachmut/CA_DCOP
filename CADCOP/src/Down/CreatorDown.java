@@ -11,7 +11,7 @@ public abstract class CreatorDown {
 	protected boolean[] agentDownScenarios = { false };
 	protected double[] probPerMsgApproch = { 0 };
 
-	public  List<ProtocolDown> createProtocolDelays() {
+	public  List<ProtocolDown> createProtocolDowns() {
 		List<ProtocolDown> ans = new ArrayList<ProtocolDown>();
 		for (boolean agentDownScenario : agentDownScenarios) {
 			if (agentDownScenario == false) {
@@ -19,7 +19,12 @@ public abstract class CreatorDown {
 			}
 			else {
 				for (double prob : probPerMsgApproch) {
-					ans.addAll(createCombinationsDelay(prob));
+					
+					Collection<? extends ProtocolDown> toAdd = createCombinationsDown(prob);
+					if (toAdd!=null) {
+						ans.addAll(toAdd);
+					}	
+					
 				}
 			}
 		}
@@ -33,7 +38,7 @@ public abstract class CreatorDown {
 
 	protected abstract String header();
 		
-	protected abstract Collection<? extends ProtocolDown> createCombinationsDelay(double prob);
+	protected abstract Collection<? extends ProtocolDown> createCombinationsDown(double prob);
 
 	protected abstract ProtocolDown createDefultProtocol();
 }

@@ -11,6 +11,9 @@ import Delays.CreatorDelaysNone;
 import Delays.CreatorDelaysNormal;
 import Delays.CreatorDelaysUniform;
 import Delays.ProtocolDelay;
+import Down.CreatorDown;
+import Down.CreatorDownConstant;
+import Down.CreatorDownNone;
 import Down.ProtocolDown;
 import Problem.Dcop;
 import Problem.DcopGraphColoring;
@@ -84,6 +87,30 @@ public class MainSimulator {
 		List<ProtocolDown> downs = getCreatorDowns().createProtocolDowns();
 		runDcops(dcops, delays);
 	}
+
+
+
+
+
+
+
+
+	private static CreatorDown getCreatorDowns() {
+		if (downType == 0) {
+			return new CreatorDownNone();
+		}
+		
+		if (downType == 1) {
+			return new CreatorDownConstant();
+		}
+		
+		
+		return null;
+	}
+
+
+
+
 
 
 

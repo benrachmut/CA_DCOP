@@ -14,7 +14,7 @@ public class CreatorDownConstant extends CreatorDown {
 	}
 
 	@Override
-	protected Collection<? extends ProtocolDown> createCombinationsDelay(double prob) {
+	protected Collection<? extends ProtocolDown> createCombinationsDown(double prob) {
 		List<ProtocolDown>ans = new ArrayList<ProtocolDown>();
 		for (Integer counter : CounterNonRecieveMsg) {
 			ans.add(new ProtocolDownConstant(prob,counter));

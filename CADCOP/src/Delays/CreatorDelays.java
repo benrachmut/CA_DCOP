@@ -33,10 +33,12 @@ public abstract class CreatorDelays  {
 				ans.add(createDefultProtocol());
 			} else {
 				for (boolean isTimeStamp : isTimeStamps) {
-					for (double gamma : gammas) {
-						ans.addAll(createCombinationsDelay(isTimeStamp,gamma));
-					}
-					
+					for (double gamma : gammas) {	
+						Collection<? extends ProtocolDelay> toAdd = createCombinationsDelay(isTimeStamp,gamma);
+						if (toAdd!=null) {
+							ans.addAll(toAdd);
+						}	
+					}	
 				}
 			}
 		}

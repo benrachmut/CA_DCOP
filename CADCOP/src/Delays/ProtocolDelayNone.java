@@ -3,7 +3,7 @@ package Delays;
 public class ProtocolDelayNone extends ProtocolDelay{
 
 	public ProtocolDelayNone() {
-		super(true, true, 0);
+		super(false, true, 0);
 	}
 
 	
