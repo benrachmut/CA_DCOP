@@ -211,4 +211,95 @@ public abstract class Dcop {
 		// TODO Auto-generated method stub
 		return (this.agentsVariables[0] instanceof AgentVariableSearch) ;
 	}
+	
+	
+///// ******* Debug methods ******* ////
+
+	public void printAllNeighbors() {
+		
+		for(int i = 0 ; i < neighbors.size() ; i++) {
+			
+			System.out.println("AgentVariable:(" + neighbors.get(i).getA1().getId() + ") is constraind with AgentVariable:(" + neighbors.get(i).getA2().getId() + ").\n");
+
+		}
+		
+		
+
+		
+		
+	}
+	
+	public void printVariablesandFunctionConstraints(AgentVariableInference av1, AgentVariableInference av2 , AgentFunction af) {
+		
+		
+		System.out.println("Agent Variable Inference (" + av1.getId() + ") and Agent Variable Inference (" + av2.getId() +
+				") are connected to (" + af.getNodeId().getId1() + "," + af.getNodeId().getId2() + ")\n");
+		
+		
+		
+		
+	}
+	
+	public void binaryDebug() {
+		
+		boolean okMessage = true;
+		
+		for(int i = 0 ; i < agentFunctions.size() ; i++) {
+				
+			if(agentFunctions.get(i).getVariableMsgsSize() != 2) {
+				
+				System.out.println("Severe error !!! " + agentFunctions.get(i).getId() + " has " + agentFunctions.get(i).getVariableMsgsSize() + "neighbors\n");
+				okMessage = false; 
+				
+			}
+			
+		}
+		
+		if(okMessage) {
+			
+			System.out.println("Factor Graph Check: All Constraints Are Binary.");
+		
+		}
+		
+	}
+	
+	public void functionDebug() {
+		
+		boolean okMessage = true;
+		int[] checkArray = new int[neighbors.size()];
+		
+		for(int i = 0 ; i < neighbors.size() ; i++) { //OmerP - will  initialize the checkArray.
+
+			checkArray[neighbors.get(i).getA1().getId()]++; 
+			checkArray[neighbors.get(i).getA2().getId()]++; 
+
+		}
+		
+		for(int i = 0 ; i < checkArray.length ; i++) {
+			
+			AgentVariableInference agentVariable = (AgentVariableInference) agentsVariables[i];
+			int toCheck = agentVariable.getFunctionMsgsSize();
+			
+			if(checkArray[i] != toCheck) {
+				
+				System.out.println("Severe error !!! The number of neighbors of variable agent " + i + " that was initializaed is" + checkArray[i] + 
+						"while the number of initializaed agents are " + toCheck + ".\n" );
+				okMessage = false; 
+				
+			}
+			
+		
+			
+		}
+		
+		if(okMessage) {
+			
+			System.out.println("Factor Graph Check: All Variable Agent Initializaed Correctly.");
+			
+			}
+		
+	}
+	
+	
+	//-----------------------------------------------------------------------------------------------------------//
 }
