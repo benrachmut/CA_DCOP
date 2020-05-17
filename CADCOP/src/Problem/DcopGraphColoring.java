@@ -11,15 +11,15 @@ public class DcopGraphColoring extends Dcop {
 	
 
 	
-	public DcopGraphColoring(int A, int D, int costPrameter, double p1) {
-		super(A, D, costPrameter);
+	public DcopGraphColoring(int dcopId, int A, int D, int costPrameter, double p1) {
+		super(dcopId,A, D, costPrameter);
 		this.p1 = p1;
 		randomP1 = new Random(this.id*10);
 		
 	}
 	
-	public DcopGraphColoring(int A, double p1) {
-		this(A, 3, 10, p1);
+	public DcopGraphColoring(int dcopId,int A, double p1) {
+		this(dcopId, A, 3, 10, p1);
 	}
 
 	@Override

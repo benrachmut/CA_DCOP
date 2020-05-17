@@ -17,8 +17,8 @@ public class DcopScaleFreeNetwork extends Dcop {
 
 	private Random randomHub, randomNotHub, randomP2;
 
-	public DcopScaleFreeNetwork(int A, int D, int costPrameter, int hubs, int neighborsPerAgent, double p2) {
-		super(A, D, costPrameter);
+	public DcopScaleFreeNetwork(int dcopId,int A, int D, int costPrameter, int hubs, int neighborsPerAgent, double p2) {
+		super(dcopId, A, D, costPrameter);
 		this.hubs = hubs;
 		this.neighborsPerAgent = neighborsPerAgent;
 		this.p2 = p2;
@@ -28,8 +28,8 @@ public class DcopScaleFreeNetwork extends Dcop {
 
 	}
 
-	public DcopScaleFreeNetwork(int A, int hubs, int neighborsPerAgent, double p2) {
-		this(A, 10, 100, hubs, neighborsPerAgent, p2);
+	public DcopScaleFreeNetwork(int dcopId, int A, int hubs, int neighborsPerAgent, double p2) {
+		this(dcopId,A, 10, 100, hubs, neighborsPerAgent, p2);
 	}
 
 	@Override

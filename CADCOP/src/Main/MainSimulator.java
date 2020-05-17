@@ -143,29 +143,29 @@ public class MainSimulator {
 		// use default Domain contractors
 		if (D <= 0 || costParameter <= 0) {
 			if (dcopBenchMark == 1) {
-				ans = new DcopUniform(A, dcopUniformP1, dcopUniformP2);
+				ans = new DcopUniform(dcopId,A, dcopUniformP1, dcopUniformP2);
 			}
 
 			if (dcopBenchMark == 2) {
-				ans = new DcopGraphColoring(A, dcopGraphColoringP1);
+				ans = new DcopGraphColoring(dcopId, A, dcopGraphColoringP1);
 			}
 
 			if (dcopBenchMark == 3) {
-				ans = new DcopScaleFreeNetwork(A, dcopScaleHubs, dcopScaleNeighbors, dcopScaleP2);
+				ans = new DcopScaleFreeNetwork(dcopId, A, dcopScaleHubs, dcopScaleNeighbors, dcopScaleP2);
 			}
 		}
 
 		else {
 			if (dcopBenchMark == 1) {
-				ans = new DcopUniform(A, D, costParameter, dcopUniformP1, dcopUniformP2);
+				ans = new DcopUniform(dcopId, A, D, costParameter, dcopUniformP1, dcopUniformP2);
 			}
 
 			if (dcopBenchMark == 2) {
-				ans = new DcopGraphColoring(A, D, costParameter, dcopGraphColoringP1);
+				ans = new DcopGraphColoring(dcopId, A, D, costParameter, dcopGraphColoringP1);
 			}
 
 			if (dcopBenchMark == 3) {
-				ans = new DcopScaleFreeNetwork(A, D, costParameter, dcopScaleHubs, dcopScaleNeighbors, dcopScaleP2);
+				ans = new DcopScaleFreeNetwork(dcopId, A, D, costParameter, dcopScaleHubs, dcopScaleNeighbors, dcopScaleP2);
 			}
 		}
 

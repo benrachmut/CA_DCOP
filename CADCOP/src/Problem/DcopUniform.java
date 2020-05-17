@@ -9,8 +9,8 @@ public class DcopUniform extends Dcop {
 	private double p1;
 	private double p2;
 
-	public DcopUniform(int A, int D, int costPrameter, double p1, double p2) {
-		super(A, D, costPrameter);
+	public DcopUniform(int dcopId, int A, int D, int costPrameter, double p1, double p2) {
+		super(dcopId,A, D, costPrameter);
 		this.randomP1 = new Random(this.id * 10);
 		this.p1 = p1;
 		this.p2 = p2;
@@ -18,8 +18,8 @@ public class DcopUniform extends Dcop {
 
 	}
 
-	public DcopUniform(int A, double p1, double p2) {
-		this(A, 10, 100, p1, p2);
+	public DcopUniform(int dcopId,int A, double p1, double p2) {
+		this(dcopId,A, 10, 100, p1, p2);
 
 	}
 

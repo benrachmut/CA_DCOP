@@ -9,7 +9,7 @@ import java.util.SortedSet;
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariable;
-import AgentsAbstract.AgentVariableFactor;
+
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import Algorithms.MaxSumSplitConstraintFactorGraph;
@@ -34,10 +34,13 @@ public abstract class Dcop {
 	// ------- ** for factor graph use **------
 	protected List<AgentFunction> agentFunctions;
 	protected SortedSet<Agent> agentsAll;
+
+	protected int dcopId;
 //	protected List<AgentFunction> functionNodes;
 
-	public Dcop(int A, int D, int costPrameter) {
+	public Dcop(int dcopId, int A, int D, int costPrameter) {
 		this.D = D;
+		this.dcopId = dcopId;
 		agentsVariables = new AgentVariable[A];
 		createVariableAgents();
 		neighbors = new ArrayList<Neighbor>();
@@ -70,7 +73,7 @@ public abstract class Dcop {
 	private AgentVariable createAgentInstance(int agentId) {
 		AgentVariable ans = null;
 		int agentType = MainSimulator.agentType;
-
+/*
 		if (agentType == 1) {
 			ans = new AgentDSA_ASY(dcopId, D, agentId);
 		}
@@ -89,7 +92,9 @@ public abstract class Dcop {
 		if (agentType == 6) {
 			ans = new AgentDSASDP(dcopId, D, agentId);
 		}
+		*/
 		if (agentType == 7) {
+		
 			ans = new MaxSumStandardVarible(dcopId, D, agentId);
 		}
 
