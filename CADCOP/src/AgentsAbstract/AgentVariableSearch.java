@@ -22,14 +22,14 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	@Override
 	public void initialize() {
 		resetAgent();
-		this.createVariableAssignmentMsg(0);
+		this.createVariableAssignmentMsg();
 		// sendMsg(true);
 	}
 	// public void receiveAnytimeMessage (List<? extends MsgAnytime> messages) {---}
 
-	private void createVariableAssignmentMsg(int timeCreated) {
-		for (Integer reciever : this.getNeigborSetId()) {
-			Msg m = new MsgValueAssignmnet(this.id, reciever, this.getValueAssignmnet(), this.timeStampCounter, timeCreated);
+	private void createVariableAssignmentMsg() {
+		for (NodeId reciever : this.getNeigborSetId()) {
+			Msg m = new MsgValueAssignmnet(this.nodeId, reciever, this.getValueAssignmnet(), this.timeStampCounter);
 			this.mailer.sendMsg(m);
 		}
 
