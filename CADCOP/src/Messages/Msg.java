@@ -1,9 +1,11 @@
 package Messages;
 
+import AgentsAbstract.NodeId;
+
 public abstract class Msg<Identity> {
 
-	private int sender;
-	private int reciever;
+	private NodeId sender;
+	private NodeId reciever;
 	private Object context;
 	private Double timeStamp;
 	
@@ -11,7 +13,7 @@ public abstract class Msg<Identity> {
 	
 	
 	
-	public Msg(int sender, int reciever, Object context, double timeStamp) {
+	public Msg(NodeId sender, NodeId reciever, Object context, double timeStamp) {
 		super();
 		this.sender = sender;
 		this.reciever = reciever;
@@ -34,7 +36,7 @@ public abstract class Msg<Identity> {
 	}
 
 
-	public int getRecieverId() {
+	public NodeId getRecieverId() {
 		return reciever;
 	}
 	public Double getDelay() {

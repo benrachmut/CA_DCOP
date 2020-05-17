@@ -53,6 +53,46 @@ public abstract class ProtocolDelay {
 
 
 	protected abstract String getStringParamets();
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ProtocolDelay) {
+			ProtocolDelay other = (ProtocolDelay)obj;
+			
+			 boolean sameImperfectCommunicationScenario  = this.imperfectCommunicationScenario == other.getIsImperfectCommunication();
+			 if (this.imperfectCommunicationScenario == false && sameImperfectCommunicationScenario) {
+				return true;
+			}
+			 boolean sameIsTimeStamp = this.isTimeStamp == other.getIsTimeStamp();
+			 boolean sameGamma= this.gamma == other.getGamma();
+			 boolean sameOthers = checkSpecificEquals(other);
+			
+			
+			return  sameImperfectCommunicationScenario && sameIsTimeStamp && sameGamma && sameOthers;
+		}
+		return false;
+	}
+
+
+	protected abstract boolean checkSpecificEquals(ProtocolDelay other);
+
+
+	private double getGamma() {
+		// TODO Auto-generated method stub
+		return this.gamma;
+	}
+
+
+	private boolean getIsTimeStamp() {
+		// TODO Auto-generated method stub
+		return this.isTimeStamp;
+	}
+
+
+	private boolean getIsImperfectCommunication() {
+		// TODO Auto-generated method stub
+		return this.imperfectCommunicationScenario;
+	}
 
 
 	

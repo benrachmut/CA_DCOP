@@ -12,7 +12,6 @@ import Messages.MsgReceive;
 public abstract class AgentFunction extends Agent {
 
 	// List<AgentVariable> variableNeighbors;
-	protected NodeId nodeId;
 	protected SortedMap<NodeId, MsgReceive<double[]>> variableMsgs;
 
 	public AgentFunction(int dcopId, int D, int id1, int id2) {

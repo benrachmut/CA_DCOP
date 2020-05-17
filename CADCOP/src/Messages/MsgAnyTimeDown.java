@@ -1,11 +1,12 @@
 package Messages;
 
+import AgentsAbstract.NodeId;
+
 public class MsgAnyTimeDown extends MsgAnyTime {
 
-	public MsgAnyTimeDown(Integer sender, Integer reciever, Permutation context, double timeStamp,
+	public MsgAnyTimeDown(NodeId sender, NodeId reciever, Permutation context, double timeStamp,
 			double timeCreated) {
-		super(sender, reciever, context, timeStamp,  timeCreated);
-		// TODO Auto-generated constructor stub
+		super(sender, reciever, context, timeStamp);
 	}
 
 

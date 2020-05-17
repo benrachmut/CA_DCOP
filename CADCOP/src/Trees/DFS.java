@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import AgentsAbstract.AgentVariable;
+import AgentsAbstract.NodeId;
 
 public class DFS extends Tree {
 
@@ -37,8 +38,8 @@ public class DFS extends Tree {
 		List<AgentVariable> sons = getSons(currentA);
 		for (AgentVariable agentFieldSon : sons) {
 			if (!visited.get(agentFieldSon)) {
-				agentFieldSon.setDfsFather(currentA.getId());
-				currentA.addDfsSon(agentFieldSon.getId());
+				agentFieldSon.setDfsFather(currentA.getNodeId());
+				currentA.addDfsSon(agentFieldSon.getNodeId());
 				createTree(agentFieldSon);
 			}
 		}
@@ -52,7 +53,8 @@ public class DFS extends Tree {
 	
 	//------------**inform dfs above below and equals**----------
 	@Override
-	protected void informEqual(AgentVariable a, Set<Integer> equalA) {
+
+	protected void informEqual(AgentVariable a, Set<NodeId> equalA) {
 		if (equalA.isEmpty()== false) {
 			System.err.println("the dfs is not pseudo tree thus you have a bug");
 		}
@@ -60,12 +62,12 @@ public class DFS extends Tree {
 	}
 
 	@Override
-	protected void informAbove(AgentVariable a, Set<Integer> aboveA) {
+	protected void informAbove(AgentVariable a, Set<NodeId> aboveA) {
 		a.setAboveDFS(aboveA);
 	}
 
 	@Override
-	protected void informBelow(AgentVariable a, Set<Integer> belowA) {
+	protected void informBelow(AgentVariable a, Set<NodeId> belowA) {
 		a.setBelowDFS(belowA);
 	}
 
@@ -79,7 +81,7 @@ public class DFS extends Tree {
 	}
 
 	@Override
-	protected Set<Integer> getSonsIds(AgentVariable a) {
+	protected Set<NodeId> getSonsIds(AgentVariable a) {
 		return a.getDfsSonsIds();
 	}
 
@@ -87,7 +89,7 @@ public class DFS extends Tree {
 	protected Set<AgentVariable> getHeads() {
 		Set<AgentVariable> ans = new HashSet<AgentVariable>();
 		for (AgentVariable a : agentsVector) {
-			if (a.getDfsFather() == -1) {
+			if (a.getDfsFather().getId1() == -1) {
 				ans.add(a);
 			}
 		}

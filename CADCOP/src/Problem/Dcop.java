@@ -43,6 +43,7 @@ public abstract class Dcop {
 	public Dcop(int dcopId, int A, int D, int costPrameter) {
 		this.D = D;
 		this.costParameter = costPrameter;
+		this.agentFunctions = new ArrayList<AgentFunction>();
 		this.dcopId = dcopId;
 		agentsVariables = new AgentVariable[A];
 		this.agentsAll = new TreeSet<Agent>();

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import AgentsAbstract.AgentVariable;
+import AgentsAbstract.NodeId;
 
 public class BFS extends Tree{
 
@@ -32,7 +33,7 @@ public class BFS extends Tree{
 	
 		for (AgentVariable a : q) {
 			current.addBfsSon(a.getId());
-			a.setBfsFather(current.getId());
+			a.setBfsFather(current.getNodeId());
 		}
 		
 		this.visited.put(current, true);
@@ -54,7 +55,7 @@ public class BFS extends Tree{
 			if (!this.visited.get(a) && !q.contains(a)) {
 				ans.add(a);
 				current.addBfsSon(a.getId());
-				a.setBfsFather(current.getId());
+				a.setBfsFather(current.getNodeId());
 			}
 		}
 		return ans;
@@ -70,7 +71,7 @@ public class BFS extends Tree{
 
 
 	@Override
-	protected Set<Integer> getSonsIds(AgentVariable a) {
+	protected Set<NodeId> getSonsIds(AgentVariable a) {
 		// TODO Auto-generated method stub
 		return a.getBfsSonsIds();
 	}
@@ -80,7 +81,7 @@ public class BFS extends Tree{
 	protected Set<AgentVariable> getHeads() {
 		Set<AgentVariable> ans = new HashSet<AgentVariable>();
 		for (AgentVariable a : agentsVector) {
-			if (a.getBfsFather() == -1) {
+			if (a.getBfsFather().getId1() == -1) {
 				ans.add(a);
 			}
 		}
@@ -89,19 +90,19 @@ public class BFS extends Tree{
 
 
 	@Override
-	protected void informEqual(AgentVariable a, Set<Integer> equalA) {
+	protected void informEqual(AgentVariable a, Set<NodeId> equalA) {
 		
 		a.setAboveBFS(equalA);
 		
 	}
 
 	@Override
-	protected void informAbove(AgentVariable a, Set<Integer> aboveA) {
+	protected void informAbove(AgentVariable a, Set<NodeId> aboveA) {
 		a.setAboveBFS(aboveA);
 	}
 
 	@Override
-	protected void informBelow(AgentVariable a, Set<Integer> belowA) {
+	protected void informBelow(AgentVariable a, Set<NodeId> belowA) {
 		a.setBelowBFS(belowA);
 	}
 

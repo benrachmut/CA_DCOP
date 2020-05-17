@@ -1,12 +1,12 @@
 package Messages;
 
-public class MsgValueAssignmnet extends MsgAlgorithm{
+import AgentsAbstract.NodeId;
 
-	public MsgValueAssignmnet(int sender, int reciever, Object context, double timeStamp, double timeCreated) {
-		super(sender, reciever, context, timeStamp, timeCreated);
+public class MsgValueAssignmnet extends MsgAlgorithm {
+
+	public MsgValueAssignmnet(NodeId sender, NodeId reciever, Object context, double timeStamp) {
+		super(sender, reciever, context, timeStamp);
 		// TODO Auto-generated constructor stub
 	}
-
-	
 
 }

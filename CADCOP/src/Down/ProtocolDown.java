@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Random;
 
 import AgentsAbstract.Agent;
+import Delays.ProtocolDelay;
 
 public abstract class ProtocolDown {
 
@@ -84,7 +85,7 @@ public abstract class ProtocolDown {
 
 	protected abstract Integer getCounterToRealse();
 
-	public void setSeed(int seed) {
+	public void setSeeds(int seed) {
 		this.rndToTakeDown = new Random(seed);
 		setSeedSpecific(seed);
 	}
@@ -96,4 +97,31 @@ public abstract class ProtocolDown {
 	}
 
 	protected abstract String getStringParamets();
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ProtocolDown) {
+			ProtocolDown other = (ProtocolDown) obj;
+			boolean sameAgentDownScenario = this.agentDownScenario == other.getAgentDownScenario();
+			if (this.agentDownScenario == false && sameAgentDownScenario) {
+				return true;
+			}
+			boolean sameProbPerMsgApproch = this.probPerMsgApproch == other.getProbPerMsgApproch();
+			boolean sameOthers = checkSpecificEquals(other);
+
+			return sameAgentDownScenario && sameProbPerMsgApproch && sameOthers ;
+		}
+		return false;
+	}
+
+	protected abstract boolean checkSpecificEquals(ProtocolDown other);
+
+	private double getProbPerMsgApproch() {
+		return this.probPerMsgApproch;
+	}
+
+	private boolean getAgentDownScenario() {
+		// TODO Auto-generated method stub
+		return this.agentDownScenario;
+	}
 }

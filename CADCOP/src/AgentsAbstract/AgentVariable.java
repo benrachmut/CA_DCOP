@@ -23,45 +23,47 @@ public abstract class AgentVariable extends Agent {
 	private int valueAssignment;
 	private int valueAssignmentChangeCounterCounter;
 	protected int firstRandomVariable;
-	protected TreeMap<Integer, Integer[][]> neighborsConstraint; // id and matrix of constraints
+	protected TreeMap<NodeId, Integer[][]> neighborsConstraint; // id and matrix of constraints
 	protected int[] domainArray;
 
 	// ----------**Trees**----------
 	// -----*DFS*-----
-	protected Integer dfsFather;
-	protected Set<Integer> dfsSons;
-	protected Set<Integer> dfsBelow;
-	protected Set<Integer> dfsAbove;
+	protected NodeId dfsFather;
+	protected Set<NodeId> dfsSons;
+	protected Set<NodeId> dfsBelow;
+	protected Set<NodeId> dfsAbove;
 	protected int dfsLevelInTree;
 	// -----*BFS*-----
 
-	protected Integer bfsFather;
-	protected Set<Integer> bfsSons;
-	protected Set<Integer> bfsBelow;
-	protected Set<Integer> bfsAbove;
+	protected NodeId bfsFather;
+	protected Set<NodeId> bfsSons;
+	protected Set<NodeId> bfsBelow;
+	protected Set<NodeId> bfsAbove;
 	protected int bfsLevelInTree;
 
 	public AgentVariable(int dcopId, int D, int id1) {
 		super(dcopId, D);
+		neighborsConstraint = new TreeMap<NodeId, Integer[][]>();
 		this.id = id1;
+		this.nodeId = new NodeId(id1);
 		this.domainArray = new int[domainSize];
 		createDomainArray();
 		Random r = new Random(132 * id1 + 100 * dcopId);
 		firstRandomVariable = r.nextInt(D);
-		neighborsConstraint = new TreeMap<Integer, Integer[][]>();
+		//resetAgent();
 
 		// -----*DFS*-----
-		dfsSons = new HashSet<Integer>();
-		dfsAbove = new HashSet<Integer>();
-		dfsBelow = new HashSet<Integer>();
-		dfsFather = -1;
+		dfsSons = new HashSet<NodeId>();
+		dfsAbove = new HashSet<NodeId>();
+		dfsBelow = new HashSet<NodeId>();
+		dfsFather = new NodeId(-1);
 		dfsLevelInTree = -1;
 
 		// -----*BFS*-----
-		bfsSons = new HashSet<Integer>();
-		bfsAbove = new HashSet<Integer>();
-		bfsBelow = new HashSet<Integer>();
-		bfsFather = -1;
+		bfsSons = new HashSet<NodeId>();
+		bfsAbove = new HashSet<NodeId>();
+		bfsBelow = new HashSet<NodeId>();
+		bfsFather = new NodeId(-1);
 		bfsLevelInTree = -1;
 
 	}
@@ -85,7 +87,7 @@ public abstract class AgentVariable extends Agent {
 	}
 
 	public void meetNeighbor(int neighborId, Integer[][] constraint) {
-		this.neighborsConstraint.put(neighborId, constraint);
+		this.neighborsConstraint.put(new NodeId(neighborId), constraint);
 	}
 
 	public int neighborSize() {
@@ -156,15 +158,15 @@ public abstract class AgentVariable extends Agent {
 	// ------------- **TREE METHODS**-------------
 
 	// -- DFS
-	public void setDfsFather(int currentA) {
+	public void setDfsFather(NodeId currentA) {
 		this.dfsFather = currentA;
 	}
 
-	public void addDfsSon(int inputId) {
+	public void addDfsSon(NodeId inputId) {
 		this.dfsSons.add(inputId);
 	}
 
-	public Integer getDfsFather() {
+	public NodeId getDfsFather() {
 		return this.dfsFather;
 	}
 
@@ -173,18 +175,18 @@ public abstract class AgentVariable extends Agent {
 	}
 
 	public boolean isDfsHead() {
-		return this.dfsFather == -1;
+		return this.dfsFather.getId1() == -1;
 	}
 
-	public void setAboveDFS(Set<Integer> aboveA) {
+	public void setAboveDFS(Set<NodeId> aboveA) {
 		this.dfsAbove = aboveA;
 	}
 
-	public void setBelowDFS(Set<Integer> belowA) {
+	public void setBelowDFS(Set<NodeId> belowA) {
 		this.dfsBelow = belowA;
 	}
 
-	public Set<Integer> getDfsSonsIds() {
+	public Set<NodeId> getDfsSonsIds() {
 		return this.dfsSons;
 	}
 
@@ -194,15 +196,15 @@ public abstract class AgentVariable extends Agent {
 	}
 
 	// -- BFS
-	public void setBfsFather(int currentA) {
+	public void setBfsFather(NodeId currentA) {
 		this.bfsFather = currentA;
 	}
 
 	public void addBfsSon(int inputId) {
-		this.bfsSons.add(inputId);
+		this.bfsSons.add(new NodeId(inputId));
 	}
 
-	public Integer getBfsFather() {
+	public NodeId getBfsFather() {
 		return this.bfsFather;
 	}
 
@@ -211,18 +213,18 @@ public abstract class AgentVariable extends Agent {
 	}
 
 	public boolean isBfsHead() {
-		return this.bfsFather == -1;
+		return this.bfsFather.getId1() == -1;
 	}
 
-	public void setAboveBFS(Set<Integer> aboveA) {
+	public void setAboveBFS(Set<NodeId> aboveA) {
 		this.bfsAbove = aboveA;
 	}
 
-	public void setBelowBFS(Set<Integer> belowA) {
+	public void setBelowBFS(Set<NodeId> belowA) {
 		this.bfsBelow = belowA;
 	}
 
-	public Set<Integer> getBfsSonsIds() {
+	public Set<NodeId> getBfsSonsIds() {
 		return this.bfsSons;
 	}
 
@@ -233,7 +235,7 @@ public abstract class AgentVariable extends Agent {
 
 	// ------------- **GENERAL USE**-------------
 
-	public Set<Integer> getNeigborSetId() {
+	public Set<NodeId> getNeigborSetId() {
 		return this.neighborsConstraint.keySet();
 	}
 	public int getChangeValueAssignmentCounter() {

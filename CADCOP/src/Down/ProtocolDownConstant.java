@@ -34,8 +34,20 @@ public class ProtocolDownConstant extends ProtocolDown {
 
 	@Override
 	protected String getStringParamets() {
-		// TODO Auto-generated method stub
 		return this.constantCounter+",";
+	}
+
+	@Override
+	protected boolean checkSpecificEquals(ProtocolDown other) {
+		if (other instanceof ProtocolDownConstant) {
+			return ((ProtocolDownConstant)other).getConstanst() == this.constantCounter;
+		}
+		return false;
+	}
+
+	private Integer getConstanst() {
+		return this.constantCounter;
+		
 	}
 
 }

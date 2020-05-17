@@ -30,5 +30,15 @@ public class ProtocolDelayNone extends ProtocolDelay{
 
 
 
+	@Override
+	protected boolean checkSpecificEquals(ProtocolDelay other) {
+		if (other instanceof ProtocolDelayNone) {
+			return true;
+		}
+		return false;
+	}
+
+
+
 
 }

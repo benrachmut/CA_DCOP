@@ -13,6 +13,9 @@ import Messages.MsgAlgorithm;
 
 public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected Integer id;
+	protected NodeId nodeId;
+
+
 	protected int domainSize;
 	protected int dcopId;
 	protected int timeStampCounter;
@@ -50,7 +53,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	// -----------------**methods of algorithms**---------------
 	@Override
 	public int compareTo(Agent a) {
-		return a.getId() - this.id;
+		return this.nodeId.compareTo(a.getNodeId());
 
 	}
 

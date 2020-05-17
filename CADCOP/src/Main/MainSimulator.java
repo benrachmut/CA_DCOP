@@ -85,7 +85,7 @@ public class MainSimulator {
 		Dcop[] dcops = generateDcops();
 		List<ProtocolDelay> delays = getCreatorDelays().createProtocolDelays();	
 		List<ProtocolDown> downs = getCreatorDowns().createProtocolDowns();
-		//runDcops(dcops, delays);
+		//runDcops(dcops, delays, downs);
 	}
 
 

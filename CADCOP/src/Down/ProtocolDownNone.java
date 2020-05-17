@@ -1,5 +1,6 @@
 package Down;
 
+
 public class ProtocolDownNone extends ProtocolDown{
 
 	
@@ -19,6 +20,14 @@ public class ProtocolDownNone extends ProtocolDown{
 	@Override
 	protected String getStringParamets() {
 		return "";
+	}
+
+	@Override
+	protected boolean checkSpecificEquals(ProtocolDown other) {
+		if (other instanceof ProtocolDownNone) {
+			return true;
+		}
+		return false;
 	}
 
 }

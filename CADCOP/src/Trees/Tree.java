@@ -16,15 +16,16 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import AgentsAbstract.AgentVariable;
+import AgentsAbstract.NodeId;
 
 public abstract class Tree {
 	protected AgentVariable[] agentsArray;
 
 	protected List<AgentVariable> agentsVector;
-	protected SortedMap<Integer, Integer> agentsLevelInTree;
-	protected SortedMap<Integer, Set<Integer>> belowNeighbors;
-	protected SortedMap<Integer, Set<Integer>> aboveNeighbors;
-	protected SortedMap<Integer, Set<Integer>> equalNeighbors;
+	protected SortedMap<NodeId, Integer> agentsLevelInTree;
+	protected SortedMap<NodeId, Set<NodeId>> belowNeighbors;
+	protected SortedMap<NodeId, Set<NodeId>> aboveNeighbors;
+	protected SortedMap<NodeId, Set<NodeId>> equalNeighbors;
 
 	protected Map<AgentVariable, Boolean> visited;
 	protected Comparator<AgentVariable> c;
@@ -34,11 +35,11 @@ public abstract class Tree {
 		this.agentsArray = agentsArray;
 		this.agentsVector = createAgentVariableList(agentsArray);
 		this.visited = initColorMap();
-		this.agentsLevelInTree = new TreeMap<Integer, Integer>();
+		this.agentsLevelInTree = new TreeMap<NodeId, Integer>();
 
-		this.belowNeighbors = new TreeMap<Integer, Set<Integer>>();
-		this.aboveNeighbors = new TreeMap<Integer, Set<Integer>>();
-		this.equalNeighbors = new TreeMap<Integer, Set<Integer>>();
+		this.belowNeighbors = new TreeMap<NodeId, Set<NodeId>>();
+		this.aboveNeighbors = new TreeMap<NodeId, Set<NodeId>>();
+		this.equalNeighbors = new TreeMap<NodeId, Set<NodeId>>();
 		this.createTree();
 	}
 
@@ -75,7 +76,7 @@ public abstract class Tree {
 	protected void setLevelInTree() {
 		Set<AgentVariable> heads = getHeads();
 		for (AgentVariable head : heads) {
-			this.setLevel(head.getId(), 0); // initiate recursion
+			this.setLevel(head.getNodeId(), 0); // initiate recursion
 		}
 	}
 
@@ -86,23 +87,22 @@ public abstract class Tree {
 	 * @param agentId
 	 * @param level
 	 */
-	private void setLevel(int agentId, int level) {
+	private void setLevel(NodeId agentId, int level) {
 
 		updateLevelInfo(agentId, level);
-		Set<Integer> sonsIds = getSonsIds(agentsArray[agentId]);
+		Set<NodeId> sonsIds = getSonsIds(agentsArray[agentId.getId1()]);
 		if (sonsIds.isEmpty()) {
 			return;
 		} else {
-			for (Integer son : sonsIds) {
+			for (NodeId son : sonsIds) {
 				setLevel(son, level + 1);
 			}
 		}
-
 	}
 
-	private void updateLevelInfo(int agentId, int level) {
-		setLevelPerAgent(agentsArray[agentId], level);
-		this.agentsLevelInTree.put(agentId, level);
+	private void updateLevelInfo(NodeId agentId, int level) {
+		setLevelPerAgent(agentsArray[agentId.getId1()], level);
+		this.agentsLevelInTree.put(new NodeId(agentId.getId1()), level);
 
 	}
 
@@ -119,7 +119,7 @@ public abstract class Tree {
 	 * @param a
 	 * @return set of sons from relevent tree field
 	 */
-	protected abstract Set<Integer> getSonsIds(AgentVariable a);
+	protected abstract Set<NodeId> getSonsIds(AgentVariable a);
 
 	/**
 	 * heads have father id of -1
@@ -130,31 +130,31 @@ public abstract class Tree {
 	protected void informNeighborsRelativeToAgent() {
 		for (AgentVariable a : agentsVector) {
 			int aId = a.getId();
-			Set<Integer> belowA = this.belowNeighbors.get(aId);
+			Set<NodeId> belowA = this.belowNeighbors.get(aId);
 			informBelow(a, belowA);
-			Set<Integer> aboveA = this.aboveNeighbors.get(aId);
+			Set<NodeId> aboveA = this.aboveNeighbors.get(aId);
 			informAbove(a, aboveA);
-			Set<Integer> equalA = this.equalNeighbors.get(aId);
+			Set<NodeId> equalA = this.equalNeighbors.get(aId);
 			informEqual(a, equalA);
 		}
 	}
 
-	protected abstract void informEqual(AgentVariable a, Set<Integer> equalA);
+	protected abstract void informEqual(AgentVariable a, Set<NodeId> equalA);
 
-	protected abstract void informAbove(AgentVariable a, Set<Integer> aboveA);
+	protected abstract void informAbove(AgentVariable a, Set<NodeId> aboveA);
 
-	protected abstract void informBelow(AgentVariable a, Set<Integer> belowA);
+	protected abstract void informBelow(AgentVariable a, Set<NodeId> belowA);
 
 	protected void createAboveBelowEqual() {
 		for (AgentVariable a : agentsVector) {
 			int aLevel = this.agentsLevelInTree.get(a.getId());
-			Set<Integer> nIds = a.getNeigborSetId();
+			Set<NodeId> nIds = a.getNeigborSetId();
 
-			Set<Integer> nAbove = new HashSet<Integer>();
-			Set<Integer> nBelow = new HashSet<Integer>();
-			Set<Integer> nEqual = new HashSet<Integer>();
+			Set<NodeId> nAbove = new HashSet<NodeId>();
+			Set<NodeId> nBelow = new HashSet<NodeId>();
+			Set<NodeId> nEqual = new HashSet<NodeId>();
 
-			for (Integer nId : nIds) {
+			for (NodeId nId : nIds) {
 				int nLevel = this.agentsLevelInTree.get(nId);
 
 				if (aLevel < nLevel) {
@@ -168,9 +168,9 @@ public abstract class Tree {
 
 			} // for neighbors of agent
 
-			this.aboveNeighbors.put(a.getId(), nAbove);
-			this.belowNeighbors.put(a.getId(), nBelow);
-			this.aboveNeighbors.put(a.getId(), nEqual);
+			this.aboveNeighbors.put(a.getNodeId(), nAbove);
+			this.belowNeighbors.put(a.getNodeId(), nBelow);
+			this.aboveNeighbors.put(a.getNodeId(), nEqual);
 
 		} // for agents
 
@@ -200,7 +200,7 @@ public abstract class Tree {
 	
 	//-----**general methods used when creating a tree**-----
 	protected List<AgentVariable> getSons(AgentVariable currntA) {
-		Set<Integer> nSetId = currntA.getNeigborSetId();
+		Set<NodeId> nSetId = currntA.getNeigborSetId();
 		List<AgentVariable> sons = getNeighborsOfAgentField(nSetId);
 		Collections.sort(sons, this.c);
 		Collections.reverse(sons);
@@ -208,11 +208,11 @@ public abstract class Tree {
 	}
 
 	//-----**general methods used when creating a tree**-----
-	protected List<AgentVariable> getNeighborsOfAgentField(Set<Integer> nSetId) {
+	protected List<AgentVariable> getNeighborsOfAgentField(Set<NodeId> nSetId) {
 		List<AgentVariable> aFNeighbors = new ArrayList<AgentVariable>();
-		for (Integer i : nSetId) {
+		for (NodeId i : nSetId) {
 			for (AgentVariable neighbor : agentsVector) {
-				if (i == neighbor.getId() && !this.visited.get(neighbor)) {
+				if (i.equals(neighbor.getNodeId()) && !this.visited.get(neighbor)) {
 					aFNeighbors.add(neighbor);
 					break;
 				}

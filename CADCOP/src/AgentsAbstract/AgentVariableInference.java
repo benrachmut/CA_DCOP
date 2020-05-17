@@ -1,17 +1,17 @@
 package AgentsAbstract;
 
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import Messages.MsgReceive;
 
 public abstract class AgentVariableInference extends AgentVariable {
 
-	protected NodeId nodeId;
 	protected SortedMap<NodeId, MsgReceive<double[]>> functionMsgs;
 
 	public AgentVariableInference(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
-		this.nodeId = new NodeId(id1);
+		this.functionMsgs = new TreeMap<NodeId, MsgReceive<double[]>> ();
 	}
 
 	public int getFunctionMsgsSize() {
@@ -37,5 +37,7 @@ public abstract class AgentVariableInference extends AgentVariable {
 		// TODO Auto-generated method stub
 		return this.nodeId;
 	}
+	
+
 
 }

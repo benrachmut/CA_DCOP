@@ -42,4 +42,25 @@ public class ProtocolDelayNormal extends ProtocolDelay {
 		return this.sigma+","+this.mu+",";
 	}
 
+	@Override
+	protected boolean checkSpecificEquals(ProtocolDelay other) {
+		if (other instanceof ProtocolDelayNormal) {
+			ProtocolDelayNormal otherNormal = (ProtocolDelayNormal)other;
+			boolean sameMu = otherNormal.getMu() == this.mu;
+			boolean sameSigma = otherNormal.getSigma() == this.sigma;
+			return sameMu && sameSigma;
+		}
+		return false;
+	}
+
+	private double getSigma() {
+		// TODO Auto-generated method stub
+		return this.sigma;
+	}
+
+	private double getMu() {
+		// TODO Auto-generated method stub
+		return this.mu;
+	}
+
 }

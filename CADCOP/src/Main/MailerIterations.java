@@ -12,6 +12,7 @@ import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
 import Comparators.CompMsgByDelay;
 import Delays.ProtocolDelay;
+import Down.ProtocolDown;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgAnyTime;
@@ -19,13 +20,13 @@ import Problem.Dcop;
 
 public class MailerIterations extends Mailer {
 
-	public MailerIterations(ProtocolDelay delay, double terminationTime, Dcop dcop) {
-		super(delay, terminationTime, dcop);
+	public MailerIterations(Protocol protocol,  double terminationTime, Dcop dcop) {
+		super(protocol, terminationTime, dcop);
 	}
 
 	@Override
 	public void execute() {
-		
+
 		for (double iteration = 0; iteration < this.terminationTime; iteration++) {
 			agentsReactToMsgs(iteration);
 			createData((double) iteration);
@@ -59,36 +60,21 @@ public class MailerIterations extends Mailer {
 	}
 
 	private boolean didAgentRecieveAnytimeMsgInThisIteration(Agent agent) {
-		if (this.recieversAnyTimeById.containsKey(agent.getId())) {
+		if (this.recieversAnyTimeMsgs.containsKey(agent.getNodeId())) {
 			return true;
 		}
 		return false;
 	}
 
 	private boolean didAgentRecieveAlgorithmicMsgInThisIteration(Agent agent) {
-		if (agent instanceof AgentVariableSearch) {
-			if (this.recieversAlgorithmById.containsKey(agent.getId())) {
-				return true;
-			}
-		} else {
-			NodeId nodeId = getNodeId(agent);
-			if (this.recieversAlgortihmiByNodeId.containsKey(nodeId)) {
-				return true;
-			}
+		if (this.recieversAlgortihmicMsgs.containsKey(agent.getNodeId())) {
+			return true;
 		}
+
 		return false;
 	}
 
-	private NodeId getNodeId(Agent agent) {
-		NodeId ans;
-		if (agent instanceof AgentFunction) {
-			ans = ((AgentFunction) agent).getNodeId();
-		} else {
-			ans = ((AgentVariableInference) agent).getNodeId();
-		}
-		return ans;
-	}
-
+	
 	public List<Msg> handleDelay() {
 		Collections.sort(this.messageBox, new CompMsgByDelay());
 		List<Msg> msgToSend = new ArrayList<Msg>();

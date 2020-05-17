@@ -35,7 +35,22 @@ public class ProtocolDelayUniform extends ProtocolDelay {
 		return this.ub+",";
 	}
 
+	@Override
+	protected boolean checkSpecificEquals(ProtocolDelay other) {
+		if (other instanceof ProtocolDelayUniform) {
+			ProtocolDelayUniform otherUniform = (ProtocolDelayUniform)other;
+			boolean sameUB = otherUniform.getUb() == this.ub;
+			return sameUB;
+		}
+		return false;
+	}
 
+
+
+	private double getUb() {
+		// TODO Auto-generated method stub
+		return this.ub;
+	}
 
 
 	
