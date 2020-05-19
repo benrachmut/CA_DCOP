@@ -39,6 +39,10 @@ public abstract class Msg<Identity> {
 	public NodeId getRecieverId() {
 		return reciever;
 	}
+	
+	public NodeId getSenderId() {
+		return sender;
+	}
 	public Double getDelay() {
 		return this.delay;
 	}

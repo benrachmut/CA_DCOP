@@ -129,7 +129,7 @@ public abstract class Tree {
 
 	protected void informNeighborsRelativeToAgent() {
 		for (AgentVariable a : agentsVector) {
-			int aId = a.getId();
+			NodeId aId = a.getNodeId();
 			Set<NodeId> belowA = this.belowNeighbors.get(aId);
 			informBelow(a, belowA);
 			Set<NodeId> aboveA = this.aboveNeighbors.get(aId);
@@ -147,7 +147,7 @@ public abstract class Tree {
 
 	protected void createAboveBelowEqual() {
 		for (AgentVariable a : agentsVector) {
-			int aLevel = this.agentsLevelInTree.get(a.getId());
+			int aLevel = this.agentsLevelInTree.get(a.getNodeId());
 			Set<NodeId> nIds = a.getNeigborSetId();
 
 			Set<NodeId> nAbove = new HashSet<NodeId>();

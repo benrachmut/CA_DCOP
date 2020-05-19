@@ -136,13 +136,12 @@ public class MaxSumStandardFunction extends AgentFunction {
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
-		MsgAlgorithmFactor newMessage = (MsgAlgorithmFactor) msgAlgorithm; //Will do casting for the msgAlgorithm.
 
-		double[] contextFix = (double[]) newMessage.getContext(); //will cast the message object as a double[].
+		double[] contextFix = (double[]) msgAlgorithm.getContext(); //will cast the message object as a double[].
 		
 		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithm.getTimeStamp()); //
 		
-		variableMsgs.put(newMessage.getSenderNodeId(), newMessageReceveid);
+		variableMsgs.put(msgAlgorithm.getSenderId(), newMessageReceveid);
 		
 		
 

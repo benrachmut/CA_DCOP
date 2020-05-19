@@ -248,6 +248,7 @@ public abstract class Mailer {
 	 * @param recieverId
 	 * @return
 	 */
+	/*
 	private Agent getAgentByIntegerId(Integer recieverId) {
 		for (Agent a : dcop.getAgents()) {
 			Integer aId = a.getId();
@@ -258,7 +259,7 @@ public abstract class Mailer {
 		}
 		return null;
 	}
-
+*/
 	/**
 	 * handle messages if factor graph: create map of messages were the key is
 	 * receiver id and key is list of messages destine to it use

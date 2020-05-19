@@ -133,7 +133,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithm.getTimeStamp()); //
 
-		functionMsgs.put(newMessage.getSenderNodeId(), newMessageReceveid);
+		functionMsgs.put(newMessage.getSenderId(), newMessageReceveid);
 
 	}
 

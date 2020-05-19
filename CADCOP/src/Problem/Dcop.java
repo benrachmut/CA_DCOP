@@ -35,7 +35,7 @@ public abstract class Dcop {
 
 	// ------- ** for factor graph use **------
 	protected List<AgentFunction> agentFunctions;
-	protected SortedSet<Agent> agentsAll;
+	protected List<Agent> agentsAll;
 
 	protected int dcopId;
 //	protected List<AgentFunction> functionNodes;
@@ -46,7 +46,7 @@ public abstract class Dcop {
 		this.agentFunctions = new ArrayList<AgentFunction>();
 		this.dcopId = dcopId;
 		agentsVariables = new AgentVariable[A];
-		this.agentsAll = new TreeSet<Agent>();
+		this.agentsAll = new ArrayList<Agent>();
 		createVariableAgents();
 		neighbors = new ArrayList<Neighbor>();
 	}
@@ -120,7 +120,7 @@ public abstract class Dcop {
 
 	public Dcop initiate() {
 		createNeighbors();
-		createTrees();
+		//createTrees();
 
 		if (isInferenceAgent()) {
 			createFactorGraph();
@@ -163,10 +163,13 @@ public abstract class Dcop {
 				
 				af = new MaxSumStandardFunction(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
 				this.agentFunctions.add(af);
-				agentsAll.add(af);
+				this.agentsAll.add(af);
 				av1.meetFunction(af.getNodeId());
 				av2.meetFunction(af.getNodeId());
+				af.meetVariables(av1.getNodeId(), av2.getNodeId());
+				printVariablesandFunctionConstraints(av1, av2, af); //To add to code with Ben.
 				
+			
 			}
 			
 			 /*
@@ -187,7 +190,7 @@ public abstract class Dcop {
 		
 	}	
 
-	public SortedSet<Agent> getAgents() {
+	public List<Agent> getAgents() {
 		return agentsAll;
 	}
 
