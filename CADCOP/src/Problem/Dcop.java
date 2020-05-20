@@ -78,7 +78,7 @@ public abstract class Dcop {
 	private AgentVariable createAgentInstance(int agentId) {
 		AgentVariable ans = null;
 		int agentType = MainSimulator.agentType;
-/*
+		/*
 		if (agentType == 1) {
 			ans = new AgentDSA_ASY(dcopId, D, agentId);
 		}

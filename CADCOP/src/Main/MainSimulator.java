@@ -30,6 +30,7 @@ public class MainSimulator {
 	// ------------------------------**For Data
 	public static List<Mailer> mailerAll = new ArrayList<Mailer>();
 	public static Map<Protocol, List<Mailer>> mailersByProtocol = new HashMap<Protocol, List<Mailer>>();
+	public static Map<Protocol, Statistic> statisticPerProtocol = new HashMap<Protocol, Statistic>();
 
 	
 	// ------------------------------**Algorithmic relevance under imperfect
@@ -94,8 +95,13 @@ public class MainSimulator {
 		Dcop[] dcops = generateDcops();
 		List<Protocol> protocols = createProtocols();
 		runDcops(dcops, protocols);
-		createExcels();
+		createStatistics();
 	}
+
+	private static void createStatistics() {
+	// TODO Auto-generated method stub
+	
+}
 
 	private static void runDcops(Dcop[] dcops, List<Protocol> protocols) {
 		for (Protocol protocol : protocols) {
@@ -117,7 +123,7 @@ public class MainSimulator {
 	private static Mailer getMailer(Protocol protocol,  Dcop dcop) {
 		Mailer ans;
 		if (isThreadMailer) {
-			ans = new MailerThread();
+			ans = new MailerThread(protocol, termination, dcop);
 		}else {
 			ans = new MailerIterations(protocol, termination, dcop);
 		}

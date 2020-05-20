@@ -25,6 +25,10 @@ public class Data {
 	public String perAgentDataString() {
 		return this.perAgent.toString();
 	}
+	public Double getGlobalCost() {
+		// TODO Auto-generated method stub
+		return global.getGlobalCost();
+	}
 	
 	
 }

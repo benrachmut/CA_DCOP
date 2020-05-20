@@ -9,5 +9,9 @@ public class DataPerAgentVariable {
 	public DataPerAgentVariable(Dcop dcop, Mailer mailer) {
 		
 	}
+	@Override
+	public String toString() {
+		return "";
+	}
 
 }

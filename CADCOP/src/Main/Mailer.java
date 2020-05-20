@@ -357,32 +357,7 @@ public abstract class Mailer {
 	}
 
 
-/*
-	private void handleMsgAnytimeIfNotFactor(List<MsgAnyTime> msgsAnyTime) {
-		this.recieversAnyTimeById = getRecieversByIntegerIdForAnyTime(msgsAnyTime);
-		for (Entry<Integer, List<MsgAnyTime>> e : recieversAnyTimeById.entrySet()) {
-			Integer recieverId = e.getKey();
-			List<MsgAnyTime> msgsForAnAgnet = e.getValue();
-			Agent recieverAgent = getAgentByIntegerId(recieverId);
-			if (recieverAgent == null) {
-				System.err.println("from mailer: something is wrong with finding the recieverAgent");
-			}
-			if (recieverAgent instanceof AgentVariable) {
-				recieverAgent = (AgentVariable)recieverAgent;
-				((AgentVariable)recieverAgent).recieveAnyTimeMsgs(msgsForAnAgnet);
 
-			}
-			else {
-				System.err.println("from mailer: something is wrong with anytime msg sent to a non variable agent");
-			}
-			
-			
-			
-
-		}
-		
-	}
-*/
 	
 	public Integer getAlgorithmMsgsCounter() {
 		return this.algorithmMsgsCounter;
@@ -395,6 +370,13 @@ public abstract class Mailer {
 		dataMap.put(i, new Data(i, this.dcop, this));
 		
 	}
+
+	public Double getLastGlobalCost() {
+		Double lastTime = dataMap.lastKey();
+		Data d = dataMap.get(lastTime);
+		return d.getGlobalCost();
+	}
+	
 	
 	
 }
