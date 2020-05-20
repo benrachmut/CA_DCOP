@@ -1,7 +1,10 @@
 package Main;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
@@ -23,13 +26,19 @@ import jdk.jshell.TypeDeclSnippet;
 
 public class MainSimulator {
 
+	
+	// ------------------------------**For Data
+	public static List<Mailer> mailerAll = new ArrayList<Mailer>();
+	public static Map<Protocol, List<Mailer>> mailersByProtocol = new HashMap<Protocol, List<Mailer>>();
+
+	
 	// ------------------------------**Algorithmic relevance under imperfect
 	// communication**
 	// true = send only if change, false = send regardless if change took place
 	public static boolean sendOnlyIfChange = false;
 
 	// ------------------------------**Implementation**
-	public static boolean runThreads;
+	public static boolean isThreadMailer; // determines the mailers type
 	public static double mailerMessagesGaps = 1;
 
 	// ------------------------------**any time**
@@ -83,47 +92,77 @@ public class MainSimulator {
 
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();
-		List<ProtocolDelay> delays = getCreatorDelays().createProtocolDelays();	
-		List<ProtocolDown> downs = getCreatorDowns().createProtocolDowns();
-		//runDcops(dcops, delays, downs);
+		List<Protocol> protocols = createProtocols();
+		runDcops(dcops, protocols);
+		createExcels();
 	}
 
+	private static void runDcops(Dcop[] dcops, List<Protocol> protocols) {
+		for (Protocol protocol : protocols) {
+			for (Dcop dcop : dcops) {
+				Mailer mailer = getMailer(protocol,  dcop);
+				mailer.execute();
+				addMailerToDataFrames(protocol, mailer);
+			}
+		}
 
+	}
 
+	private static void addMailerToDataFrames(Protocol protocol, Mailer mailer) {
+		mailerAll.add(mailer);
+		mailersByProtocol.get(protocol).add(mailer);
+		
+	}
 
+	private static Mailer getMailer(Protocol protocol,  Dcop dcop) {
+		Mailer ans;
+		if (isThreadMailer) {
+			ans = new MailerThread();
+		}else {
+			ans = new MailerIterations(protocol, termination, dcop);
+		}
+		
+		return ans;
+	}
 
-
-
+	private static List<Protocol> createProtocols() {
+		List<ProtocolDelay> delays = getCreatorDelays().createProtocolDelays();
+		List<ProtocolDown> downs = getCreatorDowns().createProtocolDowns();
+		List<Protocol> ans = new ArrayList<Protocol>();
+		for (ProtocolDelay delay : delays) {
+			for (ProtocolDown down : downs) {
+				Protocol p = new Protocol(delay, down);
+				ans.add(p);
+			}
+		}
+		
+		for (Protocol protocol : ans) {
+			mailersByProtocol.put(protocol, new ArrayList<Mailer>());
+		}
+		return ans;
+	}
 
 	private static CreatorDown getCreatorDowns() {
 		if (downType == 0) {
 			return new CreatorDownNone();
 		}
-		
+
 		if (downType == 1) {
 			return new CreatorDownConstant();
 		}
-		
-		
+
 		return null;
 	}
-
-
-
-
-
-
-
 
 	private static CreatorDelays getCreatorDelays() {
 		if (delayType == 0) {
 			return new CreatorDelaysNone();
 		}
-		
+
 		if (delayType == 1) {
 			return new CreatorDelaysNormal();
 		}
-		
+
 		if (delayType == 2) {
 			return new CreatorDelaysUniform();
 		}
@@ -143,7 +182,7 @@ public class MainSimulator {
 		// use default Domain contractors
 		if (D <= 0 || costParameter <= 0) {
 			if (dcopBenchMark == 1) {
-				ans = new DcopUniform(dcopId,A, dcopUniformP1, dcopUniformP2);
+				ans = new DcopUniform(dcopId, A, dcopUniformP1, dcopUniformP2);
 			}
 
 			if (dcopBenchMark == 2) {
@@ -165,7 +204,8 @@ public class MainSimulator {
 			}
 
 			if (dcopBenchMark == 3) {
-				ans = new DcopScaleFreeNetwork(dcopId, A, D, costParameter, dcopScaleHubs, dcopScaleNeighbors, dcopScaleP2);
+				ans = new DcopScaleFreeNetwork(dcopId, A, D, costParameter, dcopScaleHubs, dcopScaleNeighbors,
+						dcopScaleP2);
 			}
 		}
 
@@ -178,6 +218,5 @@ public class MainSimulator {
 	 * @param a
 	 * @return
 	 */
-
 
 }

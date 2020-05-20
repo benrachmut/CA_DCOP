@@ -27,6 +27,7 @@ public class MailerIterations extends Mailer {
 	@Override
 	public void execute() {
 
+
 		for (double iteration = 0; iteration < this.terminationTime; iteration++) {
 			agentsReactToMsgs(iteration);
 			createData((double) iteration);
@@ -41,6 +42,7 @@ public class MailerIterations extends Mailer {
 
 		for (Agent agent : dcop.getAgents()) {
 			if (iteration == 0) {
+				agent.resetAgent();
 				agent.initialize(); // abstract method in agents
 			} else {
 				// compute (abstract method in agents) -->

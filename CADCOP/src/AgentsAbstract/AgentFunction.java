@@ -48,11 +48,19 @@ public abstract class AgentFunction extends Agent {
 
 		return ans;
 	}
-	
-	
+
 	public void meetVariables(NodeId VariableOneNodeId, NodeId VariableTwoNodeId) {
 		this.variableMsgs.put(VariableOneNodeId, null);
 		this.variableMsgs.put(VariableTwoNodeId, null);
+
+	}
+
+	public boolean checkIfNodeIsContained(NodeId nodeId) {
+		if (variableMsgs.containsKey(nodeId)) {
+			return true;
+		}else {
+			return false;
+		}
 
 	}
 

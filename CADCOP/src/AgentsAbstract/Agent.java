@@ -89,7 +89,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param MsgAlgorithm, uses it to get the sender's id
 	 * @return last time stamp of message received by sender.
 	 */
-	protected abstract double getSenderCurrentTimeStampFromContext(MsgAlgorithm MsgAlgorithm);
+	protected abstract double getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm);
 
 	/**
 	 * 

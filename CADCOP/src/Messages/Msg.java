@@ -32,7 +32,7 @@ public abstract class Msg<Identity> {
 	
 	public Double getTimeStamp() {
 		// TODO Auto-generated method stub
-		return this.getTimeStamp();
+		return this.timeStamp;
 	}
 
 

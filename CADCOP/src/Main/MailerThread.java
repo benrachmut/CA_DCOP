@@ -1,5 +1,5 @@
 package Main;
 
-public class MailerThread  {
+public class MailerThread extends Mailer {
 
 }

@@ -165,6 +165,7 @@ public abstract class Mailer {
 			if (recieverAgent == null) {
 				System.err.println("from mailer: something is wrong with finding the recieverAgent");
 			}
+			
 			recieverAgent.receiveAlgorithmicMsgs(msgsForAnAgnet);
 		}
 		//if (this.dcop.isInferenceAgent()) {

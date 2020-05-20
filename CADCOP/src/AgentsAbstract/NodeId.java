@@ -40,6 +40,12 @@ public class NodeId implements Comparable<NodeId> {
 	public int compareTo(NodeId toCheck) {
 		// TODO Auto-generated method stub
 		
+		if (toCheck.id1 - this.id1 == 0 ) {
+			return toCheck.id2- this.id2;
+		}
+		return toCheck.id1 - this.id1;
+		
+		/*
 		if(this.id1 < toCheck.id1) { //Variable node this is in before variable node toCheck
 			
 			return 1; 
@@ -60,7 +66,7 @@ public class NodeId implements Comparable<NodeId> {
 				 
 			 }
 			 
-			 if(this.id2 < toCheck.id2) { //Function node this is after function node toCheck.
+			 if(this.id2 > toCheck.id2) { //Function node this is after function node toCheck.
 				 
 				 return -1;
 				 
@@ -73,6 +79,7 @@ public class NodeId implements Comparable<NodeId> {
 			 }
 			
 		}
+		*/
 			
 	}
 		

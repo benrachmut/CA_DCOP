@@ -21,7 +21,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	@Override
 	public void initialize() {
-		resetAgent();
+		// resetAgent();
 		this.createVariableAssignmentMsg();
 		// sendMsg(true);
 	}

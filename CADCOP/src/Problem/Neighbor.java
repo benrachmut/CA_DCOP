@@ -82,6 +82,10 @@ public class Neighbor {
 		}
 	}
 
+	/**
+	 * We acknowledge Omer's brilliance 
+	 * @return
+	 */
 	public int getCurrentCost() {
 		int i = a1.getValueAssignment();
 		int j = a2.getValueAssignment();

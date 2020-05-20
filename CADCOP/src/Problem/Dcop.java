@@ -98,7 +98,7 @@ public abstract class Dcop {
 			ans = new AgentDSASDP(dcopId, D, agentId);
 		}
 		*/
-		if (agentType == 7) {
+		if (agentType == 7 || agentType == 8) {
 		
 			ans = new MaxSumStandardVarible(dcopId, D, agentId);
 		}
@@ -160,17 +160,26 @@ public abstract class Dcop {
 			
 			
 			if (agentType == 7) {
-				
 				af = new MaxSumStandardFunction(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
-				this.agentFunctions.add(af);
-				this.agentsAll.add(af);
-				av1.meetFunction(af.getNodeId());
-				av2.meetFunction(af.getNodeId());
-				af.meetVariables(av1.getNodeId(), av2.getNodeId());
-				printVariablesandFunctionConstraints(av1, av2, af); //To add to code with Ben.
+				
 				
 			
 			}
+			
+			if(agentType == 8) {
+				af = new dfsgsdfgsd
+
+			}
+			
+	
+			
+			this.agentFunctions.add(af);
+			this.agentsAll.add(af);
+			av1.meetFunction(af.getNodeId()); //Add af to the function message of av1. 
+			av2.meetFunction(af.getNodeId()); //Add af to the function message of av2. 
+			af.meetVariables(av1.getNodeId(), av2.getNodeId()); //Add av1 and av2 to the variable message of af. 
+			//printVariablesandFunctionConstraints(av1, av2, af); //To add to code with Ben.
+			
 			
 			 /*
 			if(agentType == 8) {
