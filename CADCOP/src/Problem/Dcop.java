@@ -68,7 +68,7 @@ public abstract class Dcop {
 	public abstract void createNeighbors();
 
 	private void createVariableAgents() {
-		for (int agentId = 0; agentId < agentsVariables.length; agentId++) {
+		for (int agentId = 1; agentId <= agentsVariables.length; agentId++) {
 			agentsVariables[agentId] = createAgentInstance(agentId);
 			this.agentsAll.add(agentsVariables[agentId]);
 		}
