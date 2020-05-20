@@ -27,8 +27,8 @@ public abstract class Mailer {
 	protected Dcop dcop;
 	protected double terminationTime;
 	protected SortedMap<Double, Data> dataMap;
-	private Integer algorithmMsgsCounter;
-	private Integer anytimeMsgsCounter;
+	private Double algorithmMsgsCounter;
+	private Double anytimeMsgsCounter;
 	protected Map<NodeId, List<MsgAlgorithm>> recieversAlgortihmicMsgs;
 	protected Map<NodeId, List<MsgAnyTime>> recieversAnyTimeMsgs;
 
@@ -359,10 +359,10 @@ public abstract class Mailer {
 
 
 	
-	public Integer getAlgorithmMsgsCounter() {
+	public Double getAlgorithmMsgsCounter() {
 		return this.algorithmMsgsCounter;
 	}
-	public Integer getAnytimeMsgsCounter() {
+	public Double getAnytimeMsgsCounter() {
 		return this.anytimeMsgsCounter;
 	}
 	

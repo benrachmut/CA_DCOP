@@ -11,15 +11,15 @@ import Problem.Neighbor;
 public abstract class DataGlobal {
 	// ------**measures from DCOP**-----
 	private Double globalCost;
-	private Integer changeValueAssignmentCounter;
+	private Double changeValueAssignmentCounter;
 
 	// ------**measures from mailer**-----
-	private Integer algorithmMsgsCounter;
+	private Double algorithmMsgsCounter;
 
 	// ------**measures from mailer: any time**-----
 
-	private int anytimeMsgsCounter;
-	private int monotonicy;
+	private Double anytimeMsgsCounter;
+	private Double monotonicy;
 
 	public DataGlobal(Dcop dcop, Mailer mailer) {
 
@@ -33,17 +33,17 @@ public abstract class DataGlobal {
 		this.monotonicy = calcMonotonicy(mailer, globalCost);
 	}
 
-	private static int calcMonotonicy(Mailer mailer, Double globalCost2) {
+	private static Double calcMonotonicy(Mailer mailer, Double globalCost2) {
 		Double lastGlobalCost = mailer.getLastGlobalCost();
 		if (lastGlobalCost >= globalCost2) {
-			return 1;
+			return 1.0;
 		} else {
-			return 0;
+			return 0.0;
 		}
 	}
 
-	private static Integer calcChangeValueAssignmentCounter(AgentVariable[] variableAgents) {
-		Integer ans = 0;
+	private static Double calcChangeValueAssignmentCounter(AgentVariable[] variableAgents) {
+		Double ans = 0.0;
 		for (AgentVariable a : variableAgents) {
 			ans = +a.getChangeValueAssignmentCounter();
 		}

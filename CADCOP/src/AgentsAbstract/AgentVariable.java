@@ -21,7 +21,7 @@ import Messages.MsgAnyTime;
 public abstract class AgentVariable extends Agent {
 
 	private int valueAssignment;
-	private int valueAssignmentChangeCounterCounter;
+	private Double valueAssignmentChangeCounterCounter;
 	protected int firstRandomVariable;
 	protected TreeMap<NodeId, Integer[][]> neighborsConstraint; // id and matrix of constraints
 	protected int[] domainArray;
@@ -97,7 +97,7 @@ public abstract class AgentVariable extends Agent {
 	public void resetAgentGivenParameters() {
 		super.resetAgent();
 		valueAssignment = firstRandomVariable;
-		valueAssignmentChangeCounterCounter = 0;
+		valueAssignmentChangeCounterCounter = 0.0;
 	}
 
 	public int getValueAssignment() {
@@ -238,7 +238,7 @@ public abstract class AgentVariable extends Agent {
 	public Set<NodeId> getNeigborSetId() {
 		return this.neighborsConstraint.keySet();
 	}
-	public int getChangeValueAssignmentCounter() {
+	public Double getChangeValueAssignmentCounter() {
 		// TODO Auto-generated method stub
 		return this.valueAssignmentChangeCounterCounter;
 	}
