@@ -1,6 +1,8 @@
 package AgentsAbstract;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -13,17 +15,12 @@ public abstract class AgentVariableInference extends AgentVariable {
 
 	public AgentVariableInference(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
-		this.functionMsgs = new TreeMap<NodeId, MsgReceive<double[]>>();
+		this.functionMsgs = new TreeMap<NodeId, MsgReceive<double[]>> ();
 	}
 
 	public int getFunctionMsgsSize() {
 
 		return functionMsgs.size();
-
-	}
-
-	public void meetFunction(NodeId nodeId) {
-		this.functionMsgs.put(nodeId, null);
 
 	}
 
@@ -39,24 +36,47 @@ public abstract class AgentVariableInference extends AgentVariable {
 		// TODO Auto-generated method stub
 		return this.nodeId;
 	}
-
+	
+	//To add with Ben.
 	public boolean checkIfNodeIsContained(NodeId nodeId) {
-		if (functionMsgs.containsKey(nodeId)) {
+		
+		if(functionMsgs.containsKey(nodeId)) {
+			
 			return true;
-		} else {
+			
+		}
+		
+		else {
+			
 			return false;
-
+			
 		}
+		
 	}
-
-	public void meetFunction(List<MaxSumStandardFunction> maxSumStandardFunction) {
-
-		for (int i = 0; i < maxSumStandardFunction.size(); i++) {
-
-			functionMsgs.put(maxSumStandardFunction.get(i).getNodeId(), null);
-
+	
+	///// ******* New methods ******* ////
+	
+	//OmerP - New meetFunction method. 
+	public void meetFunction(List<NodeId> nodes) {
+		
+		for(int i = 0 ; i < nodes.size() ; i++) {
+			
+			this.functionMsgs.put(nodes.get(i), null);
+			
 		}
-
+		
 	}
+		
+	//OmerP - New meetFunction method. 
+	public void meetFunction(NodeId nodeId) {
+		
+		functionMsgs.put(nodeId, null);
+		
+	}
+	
+	//-----------------------------------------------------------------------------------------------------------//
 
+	
+	
+	
 }

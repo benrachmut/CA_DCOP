@@ -36,6 +36,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 		this.constraintsTranspose = AgentFunction.turnIntegerToDoubleMatrix(constraintsTranspose);
 
+		updataNodes(getNodeId());
 		// TODO Auto-generated constructor stub
 	}
 	

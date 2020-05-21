@@ -13,6 +13,7 @@ import AgentsAbstract.AgentVariable;
 
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
+import AgentsAbstract.NodeId;
 import Algorithms.MaxSumSplitConstraintFactorGraph;
 import Algorithms.MaxSumStandardFunction;
 import Algorithms.MaxSumStandardVarible;
@@ -51,7 +52,7 @@ public abstract class Dcop {
 		neighbors = new ArrayList<Neighbor>();
 	}
 	
-	public void dcopMeetsMailer(Mailer mailer) {
+	public void DcopMeetsMailer(Mailer mailer) {
 		for (Agent a : agentsAll) {
 			a.meetMailer(mailer);
 		}
@@ -68,7 +69,7 @@ public abstract class Dcop {
 	public abstract void createNeighbors();
 
 	private void createVariableAgents() {
-		for (int agentId = 1; agentId <= agentsVariables.length; agentId++) {
+		for (int agentId = 0; agentId < agentsVariables.length; agentId++) {
 			agentsVariables[agentId] = createAgentInstance(agentId);
 			this.agentsAll.add(agentsVariables[agentId]);
 		}
@@ -78,7 +79,7 @@ public abstract class Dcop {
 	private AgentVariable createAgentInstance(int agentId) {
 		AgentVariable ans = null;
 		int agentType = MainSimulator.agentType;
-		/*
+/*
 		if (agentType == 1) {
 			ans = new AgentDSA_ASY(dcopId, D, agentId);
 		}
@@ -116,8 +117,6 @@ public abstract class Dcop {
 		}
 	}
 
-
-
 	public Dcop initiate() {
 		createNeighbors();
 		//createTrees();
@@ -132,6 +131,8 @@ public abstract class Dcop {
 		
 		int agentType = MainSimulator.agentType;
 
+		//printAllNeighbors();
+		
 		for (Neighbor n : neighbors) {
 			
 			AgentVariableInference av1 = (AgentVariableInference) n.getA1();
@@ -144,58 +145,28 @@ public abstract class Dcop {
 			AgentFunction af = null;
 			
 			if (agentType == 7) {
+				
 				af = new MaxSumStandardFunction(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
+			
 			}
+			
 			if (agentType == 8) {
-				af = new MaxSumSplitConstraintFactorGraph(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
-
-			}
-			
-			this.agentFunctions.add(af);
-			agentsAll.add(af);
-			//av1.meetFunction(af);
-			//av2.meetFunction(af);
-			
-			
-			
-			
-			if (agentType == 7) {
-				af = new MaxSumStandardFunction(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
 				
+				af = new MaxSumSplitConstraintFactorGraph(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose); //Will create a new MaxSumSplitConstraintFactorGraph.
 				
-			
 			}
-			
-			if(agentType == 8) {
-				af = new dfsgsdfgsd
-
-			}
-			
-	
-			
+					
 			this.agentFunctions.add(af);
 			this.agentsAll.add(af);
-			av1.meetFunction(af.getNodeId()); //Add af to the function message of av1. 
-			av2.meetFunction(af.getNodeId()); //Add af to the function message of av2. 
-			af.meetVariables(av1.getNodeId(), av2.getNodeId()); //Add av1 and av2 to the variable message of af. 
-			//printVariablesandFunctionConstraints(av1, av2, af); //To add to code with Ben.
-			
-			
-			 /*
-			if(agentType == 8) {
-			
-				MaxSumSplitConstraintFactorGraph splitFunctionAgent = new MaxSumSplitConstraintFactorGraph(id,D, av1.getId(), av2.getId(), constraints, constraintsTranspose);
-				this.agentFunctions.add(splitFunctionAgent);
-				agentsAll.add(splitFunctionAgent);
-				av1.meetFunction(splitFunctionAgent.getFirstSplit().getNodeId());
-				av1.meetFunction(splitFunctionAgent.getSecondSplit().getNodeId());
-				av2.meetFunction(splitFunctionAgent.getFirstSplit().getNodeId());
-				av2.meetFunction(splitFunctionAgent.getSecondSplit().getNodeId());
-			
-			}*/
-			
+			av1.meetFunction(af.getMyNodes());
+			av2.meetFunction(af.getMyNodes());
+			af.meetVariables(av1.getNodeId(), av2.getNodeId());
 			
 		}
+		
+		binaryDebug();
+		variableNodeDebug();
+		functionNodeDebug();
 		
 	}	
 
@@ -225,13 +196,15 @@ public abstract class Dcop {
 	}
 	
 	
-///// ******* Debug methods ******* ////
+	///// ******* Debug methods ******* ////
 
+	//OmerP - To print all the neighbors list.
 	public void printAllNeighbors() {
 		
 		for(int i = 0 ; i < neighbors.size() ; i++) {
 			
-			System.out.println("AgentVariable:(" + neighbors.get(i).getA1().getId() + ") is constraind with AgentVariable:(" + neighbors.get(i).getA2().getId() + ").\n");
+			System.out.println("AgentVariable:(" + neighbors.get(i).getA1().getNodeId().getId1() + "," + neighbors.get(i).getA1().getNodeId().getId2() + 
+					") is constraind with AgentVariable:(" + neighbors.get(i).getA2().getNodeId().getId1() + "," + neighbors.get(i).getA2().getNodeId().getId2() + ").\n");
 
 		}
 		
@@ -241,27 +214,51 @@ public abstract class Dcop {
 		
 	}
 	
+	//OmerP - Print when variable and function were connected. 
 	public void printVariablesandFunctionConstraints(AgentVariableInference av1, AgentVariableInference av2 , AgentFunction af) {
 		
 		
-		System.out.println("Agent Variable Inference (" + av1.getId() + ") and Agent Variable Inference (" + av2.getId() +
-				") are connected to (" + af.getNodeId().getId1() + "," + af.getNodeId().getId2() + ")\n");
+		System.out.println("Agent Variable Inference (" + av1.getNodeId().getId1() + "," + av1.getNodeId().getId2() 
+				+ ") and Agent Variable Inference (" + av2.getNodeId().getId1() + "," + av2.getNodeId().getId2() + 
+				") are connected to Agent Function (" + af.getNodeId().getId1() + "," + af.getNodeId().getId2() + ").\n");
 		
 		
 		
 		
 	}
 	
+	//OmerP - This method aims to check if for all function node there are two variable nodes at variable message size.
 	public void binaryDebug() {
 		
 		boolean okMessage = true;
 		
 		for(int i = 0 ; i < agentFunctions.size() ; i++) {
 				
-			if(agentFunctions.get(i).getVariableMsgsSize() != 2) {
+			if(MainSimulator.agentType == 7) {
+			
+				if(agentFunctions.get(i).getVariableMsgsSize() != 2) {
 				
-				System.out.println("Severe error !!! " + agentFunctions.get(i).getId() + " has " + agentFunctions.get(i).getVariableMsgsSize() + "neighbors\n");
-				okMessage = false; 
+					System.out.println("Severe error !!! Agent Function (" + agentFunctions.get(i).getNodeId().getId1() + "," + agentFunctions.get(i).getNodeId().getId2() + ") has " + agentFunctions.get(i).getVariableMsgsSize() + " neighbors.\n");
+					okMessage = false; 
+				
+				}
+			
+			}
+			
+			if(MainSimulator.agentType == 8) {
+				
+				MaxSumSplitConstraintFactorGraph maxSplitFunctionNode = (MaxSumSplitConstraintFactorGraph) agentFunctions.get(i); //Casting the get access to getSplitFunctionNodes method. 
+
+				for(int j = 0 ; j < maxSplitFunctionNode.getSplitFunctionNodes().size() ; j++) {
+					
+					if(maxSplitFunctionNode.getSplitFunctionNodes().get(j).getVariableMsgsSize() != 2) {
+						
+						System.out.println("Severe error !!! Agent Function (" + agentFunctions.get(i).getNodeId().getId1() + "," + agentFunctions.get(i).getNodeId().getId2() + ") has " + agentFunctions.get(i).getVariableMsgsSize() + " neighbors.\n");
+						okMessage = false; 
+						
+					}
+					
+				}
 				
 			}
 			
@@ -269,12 +266,13 @@ public abstract class Dcop {
 		
 		if(okMessage) {
 			
-			System.out.println("Factor Graph Check: All Constraints Are Binary.");
+			System.out.println("Factor Graph Check: All Constraints Are Binary.\n");
 		
 		}
 		
 	}
 	
+	//OmerP - This method aims to check if for all variable nodes that they have the number of function nodes as the number of neighbors. 
 	public void functionDebug() {
 		
 		boolean okMessage = true;
@@ -282,8 +280,8 @@ public abstract class Dcop {
 		
 		for(int i = 0 ; i < neighbors.size() ; i++) { //OmerP - will  initialize the checkArray.
 
-			checkArray[neighbors.get(i).getA1().getId()]++; 
-			checkArray[neighbors.get(i).getA2().getId()]++; 
+			checkArray[neighbors.get(i).getA1().getNodeId().getId1()]++; 
+			checkArray[neighbors.get(i).getA2().getNodeId().getId1()]++; 
 
 		}
 		
@@ -312,6 +310,199 @@ public abstract class Dcop {
 		
 	}
 	
+	//OmerP - Will check the each variable node has the number of function nodes as its neighbors. 
+	public void variableNodeDebug() {
+		
+		for (Neighbor n : neighbors) {
+			
+			AgentVariableInference av1 = (AgentVariableInference) n.getA1();
+			AgentVariableInference av2 = (AgentVariableInference) n.getA2();
+			
+			if(MainSimulator.agentType == 7) {
+			
+				NodeId nodeToCheck = new NodeId(av1.getNodeId().getId1(), av2.getNodeId().getId1());
+				
+				if(av1.checkIfNodeIsContained(nodeToCheck)) {
+					
+					printNodeConnection(nodeToCheck,av1, true);
+					
+				} else {
+					
+					printNodeConnection(nodeToCheck,av1, false);
+						
+				}
+				
+				if(av2.checkIfNodeIsContained(nodeToCheck)) {
+					
+					printNodeConnection(nodeToCheck,av2, true);
+					
+				} else {
+					
+					printNodeConnection(nodeToCheck,av2, false);
+				}
+				
+			}
+			
+			if(MainSimulator.agentType == 8) {
+				
+				NodeId nodeToCheckOne = new NodeId(av1.getNodeId().getId1(), av2.getNodeId().getId1());
+				NodeId nodeToCheckTwo = new NodeId(av2.getNodeId().getId1(), av1.getNodeId().getId1());
+
+				if(av1.checkIfNodeIsContained(nodeToCheckOne)) {
+					
+					printNodeConnection(nodeToCheckOne,av1, true);
+					
+				} else {
+					
+					printNodeConnection(nodeToCheckOne,av1, false);
+					
+				}
+				
+				if(av1.checkIfNodeIsContained(nodeToCheckTwo)) {
+					
+					printNodeConnection(nodeToCheckTwo,av1, true);
+					
+				} else {
+					
+					printNodeConnection(nodeToCheckTwo,av1, false);
+					
+				}
+				
+				if(av2.checkIfNodeIsContained(nodeToCheckOne)) {
+					
+					printNodeConnection(nodeToCheckOne,av2, true);
+					
+				} else {
+					
+					printNodeConnection(nodeToCheckOne,av2, false);
+					
+				}
+				
+				if(av2.checkIfNodeIsContained(nodeToCheckTwo)) {
+					
+					printNodeConnection(nodeToCheckTwo,av2, true);
+					
+				} else {
+					
+					printNodeConnection(nodeToCheckTwo,av2, false);
+					
+				}
+				
+			}
+		
+		}
+			
+	}
+	
+	//OmerP - Will check the each function node has the number of variable nodes as its neighbors. 
+	public void functionNodeDebug() {
+		
+		for(int i = 0 ; i < agentFunctions.size() ; i++) {
+			
+			NodeId nodeToCheckOne = new NodeId(agentFunctions.get(i).getNodeId().getId1(), 0);
+			NodeId nodeToCheckTwo = new NodeId(agentFunctions.get(i).getNodeId().getId2(), 0);
+			
+			if(MainSimulator.agentType == 7) {
+			
+				if(agentFunctions.get(i).checkIfNodeIsContained(nodeToCheckOne)) {
+					
+					printNodeConnection(nodeToCheckOne, agentFunctions.get(i), true);
+							
+				} else {
+					
+					printNodeConnection(nodeToCheckOne, agentFunctions.get(i), false);
+					
+				}
+	
+				if(agentFunctions.get(i).checkIfNodeIsContained(nodeToCheckTwo)) {
+					
+					printNodeConnection(nodeToCheckTwo, agentFunctions.get(i), true);
+					
+				} else {
+					
+					printNodeConnection(nodeToCheckTwo, agentFunctions.get(i), false);
+					
+				}
+			
+			}
+			
+			if(MainSimulator.agentType == 8) {
+				
+				MaxSumSplitConstraintFactorGraph maxSplitFunctionNode = (MaxSumSplitConstraintFactorGraph) agentFunctions.get(i); //Casting the get access to getSplitFunctionNodes method. 
+
+				for(int j = 0 ; j < maxSplitFunctionNode.getSplitFunctionNodes().size() ; j++) {
+					
+					if(maxSplitFunctionNode.getSplitFunctionNodes().get(j).checkIfNodeIsContained(nodeToCheckOne)) {
+						
+						System.out.println("NodeId:(" + nodeToCheckOne.getId1() + "," + nodeToCheckOne.getId2() + ") is in Agent Function Inference (" +
+								maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId1()
+								+ "," + maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId2() + ") list.\n");
+						
+					} else {
+						
+						System.out.println("NodeId:(" + nodeToCheckOne.getId1() + "," + nodeToCheckOne.getId2() + ") is NOT Agent Function Inference (" +
+								maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId1() + "," + maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId2() + ") list.\n");
+						
+					}
+					
+					if(maxSplitFunctionNode.getSplitFunctionNodes().get(j).checkIfNodeIsContained(nodeToCheckTwo)) {
+						
+						System.out.println("NodeId:(" + nodeToCheckTwo.getId1() + "," + nodeToCheckTwo.getId2() + ") is in Agent Function Inference (" +
+								maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId1() + "," + maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId2() + ") list.\n");
+						
+					} else {
+						
+						System.out.println("NodeId:(" + nodeToCheckTwo.getId1() + "," + nodeToCheckTwo.getId2() + ") is NOT Agent Function Inference (" +
+								maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId1() + "," + maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId2() + ") list.\n");
+						
+					}
+									
+			}
+		}
+		
+
+		
+	}
 	
 	//-----------------------------------------------------------------------------------------------------------//
+	}
+	
+	///// ******* Print methods ******* ////
+
+	public void printNodeConnection(NodeId nodeId, AgentFunction agentFunction, boolean check) {
+		
+		if(check) {
+		
+		System.out.println("NodeId:(" + nodeId.getId1() + "," + nodeId.getId2() + ") is in Agent Function Inference (" +
+				agentFunction.getNodeId().getId1() + "," + agentFunction.getNodeId().getId2() + ") list.\n");
+		
+		}
+		
+		if(!check) {
+			
+			System.out.println("NodeId:(" + nodeId.getId1() + "," + nodeId.getId2() + ") is NOT in Agent Function Inference (" +
+					agentFunction.getNodeId().getId1() + "," + agentFunction.getNodeId().getId2() + ") list.\n");
+			
+		}
+		
+	}
+	
+	public void printNodeConnection(NodeId nodeId, AgentVariableInference agentVariable, boolean check) {
+		
+		if(check) {
+		
+		System.out.println("NodeId:(" + nodeId.getId1() + "," + nodeId.getId2() + ") is in Agent Function Inference (" +
+				agentVariable.getNodeId().getId1() + "," + agentVariable.getNodeId().getId2() + ") list.\n");
+		
+		}
+		
+		if(!check) {
+			
+			System.out.println("NodeId:(" + nodeId.getId1() + "," + nodeId.getId2() + ") is NOT in Agent Function Inference (" +
+					agentVariable.getNodeId().getId1() + "," + agentVariable.getNodeId().getId2() + ") list.\n");
+			
+		}
+		
+	}
+	
 }
