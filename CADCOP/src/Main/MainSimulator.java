@@ -9,6 +9,7 @@ import java.util.SortedMap;
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariableInference;
+import Data.Statistic;
 import Delays.CreatorDelays;
 import Delays.CreatorDelaysNone;
 import Delays.CreatorDelaysNormal;
