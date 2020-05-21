@@ -51,7 +51,7 @@ public abstract class Dcop {
 		neighbors = new ArrayList<Neighbor>();
 	}
 	
-	public void DcopMeetsMailer(Mailer mailer) {
+	public void dcopMeetsMailer(Mailer mailer) {
 		for (Agent a : agentsAll) {
 			a.meetMailer(mailer);
 		}

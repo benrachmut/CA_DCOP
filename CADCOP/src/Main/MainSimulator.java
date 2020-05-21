@@ -108,6 +108,7 @@ public class MainSimulator {
 		for (Protocol protocol : protocols) {
 			for (Dcop dcop : dcops) {
 				Mailer mailer = getMailer(protocol,  dcop);
+				dcop.dcopMeetsMailer(mailer);
 				mailer.execute();
 				addMailerToDataFrames(protocol, mailer);
 			}
