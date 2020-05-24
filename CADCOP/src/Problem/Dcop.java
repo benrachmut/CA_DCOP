@@ -52,7 +52,7 @@ public abstract class Dcop {
 		neighbors = new ArrayList<Neighbor>();
 	}
 	
-	public void DcopMeetsMailer(Mailer mailer) {
+	public void dcopMeetsMailer(Mailer mailer) {
 		for (Agent a : agentsAll) {
 			a.meetMailer(mailer);
 		}
@@ -69,9 +69,9 @@ public abstract class Dcop {
 	public abstract void createNeighbors();
 
 	private void createVariableAgents() {
-		for (int agentId = 0; agentId < agentsVariables.length; agentId++) {
-			agentsVariables[agentId] = createAgentInstance(agentId);
-			this.agentsAll.add(agentsVariables[agentId]);
+		for (int agentId = 1; agentId <= agentsVariables.length; agentId++) {
+			agentsVariables[agentId-1] = createAgentInstance(agentId);
+			this.agentsAll.add(agentsVariables[agentId-1]);
 		}
 
 	}

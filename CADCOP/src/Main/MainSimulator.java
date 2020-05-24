@@ -27,13 +27,11 @@ import jdk.jshell.TypeDeclSnippet;
 
 public class MainSimulator {
 
-	
 	// ------------------------------**For Data
 	public static List<Mailer> mailerAll = new ArrayList<Mailer>();
 	public static Map<Protocol, List<Mailer>> mailersByProtocol = new HashMap<Protocol, List<Mailer>>();
 	public static Map<Protocol, Statistic> statisticPerProtocol = new HashMap<Protocol, Statistic>();
 
-	
 	// ------------------------------**Algorithmic relevance under imperfect
 	// communication**
 	// true = send only if change, false = send regardless if change took place
@@ -100,14 +98,14 @@ public class MainSimulator {
 	}
 
 	private static void createStatistics() {
-	// TODO Auto-generated method stub
-	
-}
+		// TODO Auto-generated method stub
+
+	}
 
 	private static void runDcops(Dcop[] dcops, List<Protocol> protocols) {
-		for (Protocol protocol : protocols) {
-			for (Dcop dcop : dcops) {
-				Mailer mailer = getMailer(protocol,  dcop);
+		for (Dcop dcop : dcops) {
+			for (Protocol protocol : protocols) {
+				Mailer mailer = getMailer(protocol, dcop);
 				dcop.dcopMeetsMailer(mailer);
 				mailer.execute();
 				addMailerToDataFrames(protocol, mailer);
@@ -119,17 +117,17 @@ public class MainSimulator {
 	private static void addMailerToDataFrames(Protocol protocol, Mailer mailer) {
 		mailerAll.add(mailer);
 		mailersByProtocol.get(protocol).add(mailer);
-		
+
 	}
 
-	private static Mailer getMailer(Protocol protocol,  Dcop dcop) {
+	private static Mailer getMailer(Protocol protocol, Dcop dcop) {
 		Mailer ans;
 		if (isThreadMailer) {
 			ans = new MailerThread(protocol, termination, dcop);
-		}else {
+		} else {
 			ans = new MailerIterations(protocol, termination, dcop);
 		}
-		
+
 		return ans;
 	}
 
@@ -143,7 +141,7 @@ public class MainSimulator {
 				ans.add(p);
 			}
 		}
-		
+
 		for (Protocol protocol : ans) {
 			mailersByProtocol.put(protocol, new ArrayList<Mailer>());
 		}

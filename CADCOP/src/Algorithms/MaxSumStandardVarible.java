@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.NodeId;
@@ -16,7 +17,9 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	///// ******* Variables ******* ////
 
 	private double dampingFactor = 0.9;
-	HashMap<NodeId, double[]> storedMessges = new HashMap<NodeId, double[]>();
+	protected HashMap<NodeId, double[]> storedMessges; 
+	
+	// -----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Control Variables ******* ////
 
@@ -28,6 +31,35 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	public MaxSumStandardVarible(int dcopId, int D, int id1) {
 
 		super(dcopId, D, id1);
+		this.storedMessges = new HashMap<NodeId, double[]>();
+		
+	}
+
+	// -----------------------------------------------------------------------------------------------------------//
+
+	///// ******* Methods to initialize a new run  ******* ////
+
+	//OmerP - To reset the agent if this is a new run. 
+	@Override
+	public void resetAgent() {
+		super.resetAgent();
+		this.functionMsgs = Agent.resetMapToValueNull(this.functionMsgs);
+		this.storedMessges.clear();
+		
+	}
+	
+	// OmerP - Will send new messages for each one of the neighbors upon the
+	public void initialize() {
+
+		for (NodeId i : functionMsgs.keySet()) { // Start loop over the neighbors.
+
+			double[] sentTable = new double[this.domainSize];
+			sentTable = produceEmptyMessage(i, sentTable); // For each specific neighbor, produce an empty message.
+			storeNewMessage(i, sentTable);
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
+			mailer.sendMsg(newMsg);
+			
+		}
 
 	}
 
@@ -35,27 +67,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	///// ******* Main Methods ******* ////
 
-	// OmerP - will send new messages for each one of the neighbors upon the
-	// initiation of the algorithm (iteration = 0). - BUG !!!!
-	public void initialize() {
-
-		chooseFirstValueAssignment();
-
-		for (NodeId i : functionMsgs.keySet()) { // Start loop over the neighbors.
-
-			double[] sentTable = new double[this.domainSize];
-			sentTable = produceEmptyMessage(i, sentTable); // For each specific neighbor, produce an empty message.
-			storedMessges.put(i, sentTable);
-			// Produce new message.
-			// MaxSumMessage newMessage = new MaxSumMessage(this.nodeId, i, sentTable);
-			// Send newMessage.
-
-		}
-
-	}
-
-	// OmerP - new information has arrived and the variable node will update its
-	// value assignment.
+	// OmerP - new information has arrived and the variable node will update its value assignment.
 	public boolean compute() {
 
 		chooseValueAssignment();
@@ -64,16 +76,15 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	}
 
 	// OmerP - will loop over the neighbors and will send to each one of the a
-	// message. - BUG !!!
 	@Override
 	protected void sendMsg() {
 
 		for (NodeId i : functionMsgs.keySet()) { // Start loop over the neighbors.
 
 			double[] sentTable = new double[this.domainSize];
-			sentTable = produceMessage(i, sentTable); // For each specific neighbor, sum all messages excluding the
-														// table of the receiving function node.
-
+			sentTable = produceMessage(i, sentTable); // For each specific neighbor, sum all messages excluding the table of the receiving function node.
+			MsgAlgorithmFactor newMsg = null; 	
+			
 			if (dampingOn) { // If damping is on will generate a damped message.
 
 				sentTable = damping(i, sentTable); // Will produce a damped message.
@@ -82,40 +93,24 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 			if (storedMessageOn) { // If stored message is on.
 
-				if (areDifferentMessages(i, sentTable)) { // Will check if the new message and the last stored message
-															// are the same, if not will send messege.
-
+				if (areDifferentMessages(i, sentTable)) { // Will check if the new message and the last stored message are the same, if not will send message.
+															
 					storeNewMessage(i, sentTable);
-					// Produce new message.
-					// Send newMessage.
+					newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
+					mailer.sendMsg(newMsg);
 
 				}
 
-			} else { // If stored message is off than the new message will be sent.
+				} else { // If stored message is off than the new message will be sent.
 
-				// Produce new message.
-				// Send newMessage.
+					newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
+					mailer.sendMsg(newMsg);
 
 			}
 
 		}
 
 	}
-
-	// OmerP - saved for multi-threading.
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-
-	}
-	/*
-	 * @Override public void recieveAlgorithmicMsgs(List<? extends MsgAlgorithm>
-	 * messages) {
-	 * 
-	 * chooseValueAssignment();
-	 * 
-	 * }
-	 */
 
 	@Override
 	protected double getSenderCurrentTimeStampFromContext(MsgAlgorithm MsgAlgorithm) {
@@ -138,7 +133,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	}
 
 	// -----------------------------------------------------------------------------------------------------------//
-
+	
 	///// ******* Stored Message Methods ******* ////
 
 	protected void storeNewMessage(NodeId nodeid, double[] table) {
@@ -173,6 +168,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	///// ******* Choose Value Assignment Method ******* ////
 
+	//OmerP - Will choose the first value assignment.
 	public void chooseFirstValueAssignment() {
 
 		Random rnd = new Random();
@@ -180,6 +176,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	}
 
+	//OmerP - Will update the value assignment.
 	public void chooseValueAssignment() {
 
 		double[] table = new double[this.domainSize];
@@ -225,7 +222,6 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	}
 
 	// OmerP - produce message to a function node;
-
 	protected double[] produceMessage(NodeId to, double[] table) {
 
 		for (NodeId i : functionMsgs.keySet()) {

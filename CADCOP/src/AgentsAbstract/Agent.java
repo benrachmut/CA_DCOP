@@ -27,7 +27,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		super();
 		this.dcopId = dcopId;
 		this.domainSize = D;
-		this.timeStampCounter = 0;
+		this.timeStampCounter = -1;
 	}
 
 	public int getId() {
@@ -44,7 +44,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	public void resetAgent() {
-		this.timeStampCounter = 0;
+		this.timeStampCounter = -1;
 		resetAgentGivenParameters();
 	}
 
@@ -185,6 +185,11 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public void meetMailer(Mailer mailer) {
 		this.mailer = mailer;
 		this.resetAgent();
+		
+	}
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
 		
 	}
 

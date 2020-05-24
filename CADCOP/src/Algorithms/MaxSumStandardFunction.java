@@ -37,7 +37,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		this.constraintsTranspose = AgentFunction.turnIntegerToDoubleMatrix(constraintsTranspose);
 
 		updataNodes(getNodeId());
-		// TODO Auto-generated constructor stub
+		
 	}
 	
 	public MaxSumStandardFunction(int dcopId, int D, int id1, int id2, Double[][] constraints, Double[][] constraintsTranspose) {
@@ -54,26 +54,10 @@ public class MaxSumStandardFunction extends AgentFunction {
 	///// ******* Main Methods ******* ////
 
 	//OmerP - will send new messages for each one of the neighbors upon the initiation of the algorithm (iteration = 0).
-	@Override
 	public void initialize() {
 			
 	}
-	
-	//OmerP - will send new messages for each one of the neighbors upon the initiation of the algorithm (iteration = 0) - BUG!!!
-	public void initializeSyncFramework() {
 		
-		for(NodeId i: variableMsgs.keySet()) {
-			
-			double[] sentTable = new double[this.domainSize];
-			sentTable = getBestValueTable(getConstraintMatrix());
-			//MaxSumMessage newMessage = new MaxSumMessage(this.nodeId, i, sentTable);
-			storeNewMessage(i, sentTable);
-			//Send newMessage.
-						
-		}
-		
-	}
-	
 	//OmerP - function node don't need to update anything so he will return false. 
 	@Override
 	protected boolean compute() {
@@ -82,16 +66,13 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 	}
 	
-	//OmerP - saved for multi-threading. 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
-	}
-	//OmerP - ???????????
+	//OmerP - To reset the agent if this is a new run. 
 	@Override
 	public void resetAgent() {
-		// TODO Auto-generated method stub
+		
+		super.resetAgent();
+		this.variableMsgs = Agent.resetMapToValueNull(this.variableMsgs);
+		this.storedMessges.clear();
 		
 	}
 	
@@ -103,22 +84,23 @@ public class MaxSumStandardFunction extends AgentFunction {
 			
 			double[] sentTable = new double[this.domainSize];
 			sentTable = produceFunctionMessage(i);
+			MsgAlgorithmFactor newMsg; 		
+
 			
 			if(storedMessageOn) {
 				
 				if(areDifferentMessages(i, sentTable)) {
 					
 					storedMessges.put(i, sentTable);
-					//Produce new message. 
-					//MaxSumMessage newMessage = new MaxSumMessage(this.nodeId, i, sentTable);
-					//Send newMessage.
+					newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
+					mailer.sendMsg(newMsg);
 				
 					}
 				
 				} else { //If stored message is off than the new message will be sent. 
 					
-					//Produce new message. 
-					//Send newMessage.
+					newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
+					mailer.sendMsg(newMsg);
 				
 				}
 			
@@ -241,9 +223,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		double[] onlyConstraint = new double[this.domainSize];
 		
 		onlyConstraint = getBestValueTable(getConstraintMatrix());
-		
-		//Send only this message. 
-				
+						
 	}
 	
 	//OmerP - Will produce function message - NOT FIXED messages!!!
