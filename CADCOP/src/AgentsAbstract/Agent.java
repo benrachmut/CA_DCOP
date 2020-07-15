@@ -12,22 +12,27 @@ import Messages.Msg;
 import Messages.MsgAlgorithm;
 
 public abstract class Agent implements Runnable, Comparable<Agent> {
+
+
+	
 	protected Integer id;
 	protected NodeId nodeId;
-
 
 	protected int domainSize;
 	protected int dcopId;
 	protected int timeStampCounter;
 
-	private boolean isWithTimeStamp;
+	protected boolean isWithTimeStamp;
 	protected Mailer mailer;
+	private Double computationCounter;
 
 	public Agent(int dcopId, int D) {
 		super();
 		this.dcopId = dcopId;
 		this.domainSize = D;
-		this.timeStampCounter = -1;
+		this.timeStampCounter = 0;
+		computationCounter = 0.0;
+
 	}
 
 	public int getId() {
@@ -44,8 +49,11 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	public void resetAgent() {
-		this.timeStampCounter = -1;
+		this.timeStampCounter = 0;
+		computationCounter = 0.0;
 		resetAgentGivenParameters();
+		changeRecieveFlagsToFalse();
+
 	}
 
 	protected abstract void  resetAgentGivenParameters();
@@ -74,9 +82,10 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
 		for (MsgAlgorithm msgAlgorithm : messages) {
 			if (this.isWithTimeStamp) {
-				double currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
+				int currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
 				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
 					updateMessageInContext(msgAlgorithm);
+					
 				}
 			} else {
 				updateMessageInContext(msgAlgorithm);
@@ -89,7 +98,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param MsgAlgorithm, uses it to get the sender's id
 	 * @return last time stamp of message received by sender.
 	 */
-	protected abstract double getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm);
+	protected abstract int getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm);
 
 	/**
 	 * 
@@ -108,6 +117,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 */
 	public boolean reactionToAlgorithmicMsgs() {
 		boolean isUpdate = compute();
+		computationCounter= computationCounter+1;
 		varifyIfMsgsWillBeSent(isUpdate);
 		return isUpdate;
 	}
@@ -131,21 +141,25 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected void varifyIfMsgsWillBeSent(boolean changeContext) {
 		if (isMsgGoingToBeSent(changeContext)) {
 			this.timeStampCounter++;
-			sendMsg();
+			sendMsgs();
 		}
+		changeRecieveFlagsToFalse();
 	}
 
+	protected abstract void changeRecieveFlagsToFalse();
+
 	private boolean isMsgGoingToBeSent(boolean changeContext) {
-		return (changeContext && MainSimulator.sendOnlyIfChange == true) || (MainSimulator.sendOnlyIfChange == false);
+		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) 
+				|| (MainSimulator.sendOnlyIfChange == false);
 	}
 
 	/**
-	 * after varification, loop over neighbors and send them the message using the
+	 * after verification, loop over neighbors and send them the message using the
 	 * mailer
 	 */
 	
 	
-	protected abstract void sendMsg();
+	protected abstract void sendMsgs();
 
 	/**
 	 * reaction to msgs include computation and send message to mailer
@@ -192,5 +206,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	
 
 }

@@ -38,7 +38,7 @@ public class MainSimulator {
 	public static boolean sendOnlyIfChange = false;
 
 	// ------------------------------**Implementation**
-	public static boolean isThreadMailer; // determines the mailers type
+	public static boolean isThreadMailer = false; // determines the mailers type
 	public static double mailerMessagesGaps = 1;
 
 	// ------------------------------**any time**

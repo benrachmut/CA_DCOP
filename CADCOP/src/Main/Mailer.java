@@ -39,7 +39,8 @@ public abstract class Mailer {
 		super();
 		this.dcop = dcop;
 		this.protocol = protocol;
-	
+		this.algorithmMsgsCounter = 0.0;
+		this.anytimeMsgsCounter = 0.0;
 		this.protocol.setSeeds(dcop.getId());
 		this.messageBox = new ArrayList<Msg>();
 		this.terminationTime = terminationTime;
@@ -375,6 +376,13 @@ public abstract class Mailer {
 		Double lastTime = dataMap.lastKey();
 		Data d = dataMap.get(lastTime);
 		return d.getGlobalCost();
+	}
+
+	public Double getLastGlobalAnytimeCost() {
+		Double lastTime = dataMap.lastKey();
+		Data d = dataMap.get(lastTime);
+
+		return d.getGlobalAnytimeCost();
 	}
 	
 	

@@ -1,5 +1,6 @@
 package AgentsAbstract;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -12,11 +13,11 @@ import Messages.MsgValueAssignmnet;
 
 public abstract class AgentVariableSearch extends AgentVariable {
 
-	protected SortedMap<Integer, MsgReceive<Integer>> neighborsVariables; // id, variable
+	protected SortedMap<NodeId, MsgReceive<Integer>> neighborsValueAssignmnet; // id, variable
 
 	public AgentVariableSearch(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
-		// this.neighborsVariables = new TreeMap<Integer, MsgReceive>();
+		this.neighborsValueAssignmnet = new TreeMap<NodeId, MsgReceive<Integer>>();
 	}
 
 	@Override
@@ -29,42 +30,91 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	private void createVariableAssignmentMsg() {
 		for (NodeId reciever : this.getNeigborSetId()) {
-			Msg m = new MsgValueAssignmnet(this.nodeId, reciever, this.getValueAssignmnet(), this.timeStampCounter);
+			Msg m = new MsgValueAssignmnet(this.nodeId, reciever, this.getValueAssignment(), this.timeStampCounter);
 			this.mailer.sendMsg(m);
 		}
 
 	}
 
-
-
 	@Override
 	public void meetNeighbor(int neighborId, Integer[][] constraint) {
 		super.meetNeighbor(neighborId, constraint);
-		this.neighborsVariables.put(neighborId, null);
+		this.neighborsValueAssignmnet.put(new NodeId(neighborId), null);
 	}
 
 	@Override
 	public void resetAgent() {
-		this.neighborsVariables = Agent.resetMapToValueNull(this.neighborsVariables);
-
+		this.neighborsValueAssignmnet = Agent.<NodeId,MsgReceive<Integer>>resetMapToValueNull(this.neighborsValueAssignmnet);
+		resetAgentSpecific();
 	}
 
-	public double getPOVcost() {
-		double ans=0;
-	
-		for (Entry<Integer, MsgReceive<Integer>> e : this.neighborsVariables.entrySet()) {
-			int nId = e.getKey();
-			if (e.getValue().getContext() == null) {
-				return -1;
-			}
-			int nValueAssignmnet = e.getValue().getContext();
+	protected abstract void resetAgentSpecific();
 
-			Integer[][] nConst= this.neighborsConstraint.get(nId);
-			ans+=nConst[this.getValueAssignment()][nValueAssignmnet];
+	public double getCostPerInput(int input) {
+		double ans = 0;
+		for (Entry<NodeId, MsgReceive<Integer>> e : this.neighborsValueAssignmnet.entrySet()) {
+			int nId = e.getKey().getId1();
+			if (e.getValue().getContext() != null) {
+				int nValueAssignmnet = e.getValue().getContext();
+				Integer[][] nConst = this.neighborsConstraint.get(nId);
+				ans += nConst[input][nValueAssignmnet];
+			}
 		}
 		return ans;
 	}
 
+	public double getCostPov() {
+		return getCostPerInput(this.valueAssignment);
+	}
 
+	protected SortedMap<Integer, Double> getCostPerDomain() {
+		SortedMap<Integer, Double> ans = new TreeMap<Integer, Double>();
+		for (int domainCandidate : domainArray) {
+			double sumCostPerAgent = this.getCostPerInput(domainCandidate);
+			ans.put(domainCandidate, sumCostPerAgent);
+		}
+		return ans;
+	}
+
+	protected int getCandidateToChange() {
+		SortedMap<Integer, Double> costPerDomain = this.getCostPerDomain();
+			double minCost = Collections.min(costPerDomain.values());
+			double costOfCurrentValue = costPerDomain.get(this.valueAssignment);
+			if (minCost<=costOfCurrentValue) {
+				return getAlternativeCandidate(minCost,costPerDomain);
+			}
+			return this.valueAssignment;
+	}
+
+	private int getAlternativeCandidate(double minCost, SortedMap<Integer, Double> costPerDomain) {
+		for (Entry<Integer, Double> e : costPerDomain.entrySet()) {
+			if (e.getValue()==minCost&& e.getKey()!= this.valueAssignment) {
+				return e.getKey();
+			}
+		}
+		throw new RuntimeException();
+	}
+	
+	protected void updateMsgInContextValueAssignmnet(MsgAlgorithm msgAlgorithm) {
+		Integer context = (Integer)msgAlgorithm.getContext();
+		int timestamp = msgAlgorithm.getTimeStamp();
+		MsgReceive<Integer> msgReceive = new MsgReceive<Integer>(context, timestamp);
+		this.neighborsValueAssignmnet.put(msgAlgorithm.getSenderId(), msgReceive);
+	}
+	
+	protected int getTimestampOfValueAssignmnets(MsgAlgorithm msgAlgorithm) {
+		NodeId senderNodeId = msgAlgorithm.getSenderId();
+		MsgReceive<Integer> msgReceive= this.neighborsValueAssignmnet.get(senderNodeId);
+		return msgReceive.getTimestamp();
+	}
+	
+	protected void sendValueAssignmnetMsgs() {
+		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
+			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, 
+					this.valueAssignment, this.timeStampCounter);
+			this.mailer.sendMsg(mva);
+		}
+		
+	}
 
 }

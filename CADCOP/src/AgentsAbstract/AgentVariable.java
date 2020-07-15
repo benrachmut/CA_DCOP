@@ -11,17 +11,24 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 
 import com.sun.swing.internal.plaf.synth.resources.synth;
 
 import Main.MainSimulator;
 import Messages.MsgAlgorithm;
 import Messages.MsgAnyTime;
+import Messages.MsgReceive;
 
 public abstract class AgentVariable extends Agent {
-
-	private int valueAssignment;
-	private Double valueAssignmentChangeCounterCounter;
+	
+	public static String AlgorithmName; 
+	
+	public static String algorithmHeader;
+	public static String algorithmData;
+	
+	protected int valueAssignment;
+	private Double valueAssignmentChangeCounter;
 	protected int firstRandomVariable;
 	protected TreeMap<NodeId, Integer[][]> neighborsConstraint; // id and matrix of constraints
 	protected int[] domainArray;
@@ -51,6 +58,7 @@ public abstract class AgentVariable extends Agent {
 		Random r = new Random(132 * id1 + 100 * dcopId);
 		firstRandomVariable = r.nextInt(D);
 		//resetAgent();
+		valueAssignmentChangeCounter = 0.0;
 
 		// -----*DFS*-----
 		dfsSons = new HashSet<NodeId>();
@@ -67,16 +75,37 @@ public abstract class AgentVariable extends Agent {
 		bfsLevelInTree = -1;
 
 	}
+	
+	/**
+	 * update the Algorithm Header string
+	 */
+	public abstract void updateAlgorithmHeader();
+	
+	
+	/**
+	 * update the Algorithm Data string
+	 */
+	public abstract void updateAlgorithmData();
+	
+
+	/**
+	 * update the Algorithm Name string
+	 */
+	public abstract void updateAlgorithmName();
+	
+	
+	
+	
 	protected boolean setValueAssignmnet(int input) {
 		if (this.valueAssignment !=input) {
-			this.valueAssignmentChangeCounterCounter++;
+			this.valueAssignmentChangeCounter++;
 			this.valueAssignment =input;
 			return true;
 		}
 		return false;
 	}
 	
-	protected int getValueAssignmnet() {
+	public int getValueAssignment() {
 		return this.valueAssignment;
 	}
 
@@ -97,12 +126,10 @@ public abstract class AgentVariable extends Agent {
 	public void resetAgentGivenParameters() {
 		super.resetAgent();
 		valueAssignment = firstRandomVariable;
-		valueAssignmentChangeCounterCounter = 0.0;
+		valueAssignmentChangeCounter = 0.0;
 	}
 
-	public int getValueAssignment() {
-		return valueAssignment;
-	}
+	
 
 	
 	public boolean reactionToAlgorithmicMsgs() {
@@ -113,6 +140,8 @@ public abstract class AgentVariable extends Agent {
 		}
 		return isUpdate;
 	}
+	
+
 /*
 	@Override
 	public void run() {
@@ -240,7 +269,7 @@ public abstract class AgentVariable extends Agent {
 	}
 	public Double getChangeValueAssignmentCounter() {
 		// TODO Auto-generated method stub
-		return this.valueAssignmentChangeCounterCounter;
+		return this.valueAssignmentChangeCounter;
 	}
 
 
