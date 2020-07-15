@@ -96,16 +96,19 @@ public class DSA_SY extends DSA_ASY {
 
 	
 	protected void changeRecieveFlagsToFalse() {
-		canComputeFlag = false;
-		resetNeighborRecieveInThisIteration();
-		this.currentIteration = this.currentIteration+1;
-		for (MsgValueAssignmnet mva : futureMsgs) {
-			if (mva.getTimeStamp()>this.currentIteration) {
-				throw new RuntimeException();
+		if (canComputeFlag ) {
+			canComputeFlag = false;
+			resetNeighborRecieveInThisIteration();
+			this.currentIteration = this.currentIteration+1;
+			for (MsgValueAssignmnet mva : futureMsgs) {
+				if (mva.getTimeStamp()>this.currentIteration) {
+					throw new RuntimeException();
+				}
+				this.updateMessageInContext(mva);
 			}
-			this.updateMessageInContext(mva);
+			futureMsgs = new ArrayList<MsgValueAssignmnet>();
 		}
-		futureMsgs = new ArrayList<MsgValueAssignmnet>();
+		
 	}
 
 	private void resetNeighborRecieveInThisIteration() {
