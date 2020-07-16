@@ -20,13 +20,12 @@ import Problem.Dcop;
 
 public class MailerIterations extends Mailer {
 
-	public MailerIterations(Protocol protocol,  double terminationTime, Dcop dcop) {
+	public MailerIterations(Protocol protocol, double terminationTime, Dcop dcop) {
 		super(protocol, terminationTime, dcop);
 	}
 
 	@Override
 	public void execute() {
-
 
 		for (double iteration = 0; iteration < this.terminationTime; iteration++) {
 			agentsReactToMsgs(iteration);
@@ -48,17 +47,16 @@ public class MailerIterations extends Mailer {
 				// compute (abstract method in agents) -->
 				// varifyMsgSent-->
 				// sendMsg(abstract method in agents)
-				//if (didAgentRecieveAlgorithmicMsgInThisIteration(agent)) { // check if needs to add this 
-					agent.reactionToAlgorithmicMsgs();
-				}
-				if (MainSimulator.anyTime) {
-					if (didAgentRecieveAnytimeMsgInThisIteration(agent)) {
-						agent.reactionToAnytimeMsgs();
-					}
-				}
+				// if (didAgentRecieveAlgorithmicMsgInThisIteration(agent)) { // check if needs
+				// to add this
+				agent.reactionToAlgorithmicMsgs();
+			}
+			if (MainSimulator.anyTime) {
+				// if (didAgentRecieveAnytimeMsgInThisIteration(agent)) {
+				agent.reactionToAnytimeMsgs();
+				// }
 			}
 		}
-
 	}
 
 	private boolean didAgentRecieveAnytimeMsgInThisIteration(Agent agent) {
@@ -76,7 +74,6 @@ public class MailerIterations extends Mailer {
 		return false;
 	}
 
-	
 	public List<Msg> handleDelay() {
 		Collections.sort(this.messageBox, new CompMsgByDelay());
 		List<Msg> msgToSend = new ArrayList<Msg>();

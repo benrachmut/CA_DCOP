@@ -22,7 +22,7 @@ public abstract class AgentVariableInference extends AgentVariable {
 
 		return functionMsgs.size();
 
-	}
+	} 
 	
 	@Override
 	public void resetAgentGivenParametersV2() {

@@ -2,6 +2,7 @@ package AgentsAbstract;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -10,11 +11,10 @@ import Main.Mailer;
 import Main.MainSimulator;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
+import Messages.MsgReceive;
 
 public abstract class Agent implements Runnable, Comparable<Agent> {
 
-
-	
 	protected Integer id;
 	protected NodeId nodeId;
 
@@ -56,7 +56,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	}
 
-	protected abstract void  resetAgentGivenParameters();
+	protected abstract void resetAgentGivenParameters();
 
 	// -----------------**methods of algorithms**---------------
 	@Override
@@ -85,7 +85,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				int currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
 				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
 					updateMessageInContext(msgAlgorithm);
-					
+
 				}
 			} else {
 				updateMessageInContext(msgAlgorithm);
@@ -117,7 +117,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 */
 	public boolean reactionToAlgorithmicMsgs() {
 		boolean isUpdate = compute();
-		computationCounter= computationCounter+1;
+		computationCounter = computationCounter + 1;
 		if (isMsgGoingToBeSent(isUpdate)) {
 			this.timeStampCounter++;
 			sendMsgs();
@@ -125,8 +125,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		changeRecieveFlagsToFalse();
 		return isUpdate;
 	}
-	
-	public void reactionToAnytimeMsgs() {}
+
+	public void reactionToAnytimeMsgs() {
+	}
 
 	/**
 	 * After the context was updated by messages received, computation takes place
@@ -142,21 +143,18 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * 
 	 * @param changeContext
 	 */
-	
 
 	protected abstract void changeRecieveFlagsToFalse();
 
 	private boolean isMsgGoingToBeSent(boolean changeContext) {
-		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) 
-				|| (MainSimulator.sendOnlyIfChange == false);
+		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) || (MainSimulator.sendOnlyIfChange == false);
 	}
 
 	/**
 	 * after verification, loop over neighbors and send them the message using the
 	 * mailer
 	 */
-	
-	
+
 	protected abstract void sendMsgs();
 
 	/**
@@ -173,6 +171,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	/**
 	 * in inference needs to return nodeId, else return null
+	 * 
 	 * @return
 	 */
 	public NodeId getNodeId() {
@@ -192,19 +191,28 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	/**
 	 * used by dcop before starting solving dcop
+	 * 
 	 * @param mailer
 	 */
 	public void meetMailer(Mailer mailer) {
 		this.mailer = mailer;
 		this.resetAgent();
-		
+
 	}
+
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
-	
+
+	public static <T> SortedMap<NodeId, T> turnMapWithMsgRecieveToContextValues(
+			SortedMap<NodeId, MsgReceive<T>> input) {
+		SortedMap<NodeId, T> ans = new TreeMap<NodeId, T>();
+		for (Entry<NodeId, MsgReceive<T>> e : input.entrySet()) {
+			ans.put(e.getKey(), e.getValue().getContext());
+		}
+		return ans;
+	}
 
 }
