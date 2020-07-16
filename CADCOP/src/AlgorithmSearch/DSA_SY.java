@@ -48,9 +48,8 @@ public class DSA_SY extends DSA {
 		AgentVariable.AlgorithmName = "DSA_SY";
 	}
 
-
-	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
-		super.updateMessageInContext(msgAlgorithm);
+	@Override
+	protected void updateRecieveMsgFlagTrue(MsgAlgorithm msgAlgorithm) {
 		MsgValueAssignmnet mva = (MsgValueAssignmnet)msgAlgorithm;
 		NodeId sender = mva.getSenderId();
 		int msgTimestamp = mva.getTimeStamp();
@@ -62,12 +61,7 @@ public class DSA_SY extends DSA {
 				throw new RuntimeException();
 			}
 			this.futureMsgs.add(mva);
-		}
-	}
-	
-	@Override
-	protected void updateRecieveMsgFlagTrue(NodeId senderId) {
-		// TODO Auto-generated method stub	
+		}	
 	}
 	
 	private void checkIfCanCompute() {
