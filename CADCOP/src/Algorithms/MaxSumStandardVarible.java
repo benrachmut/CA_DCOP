@@ -41,9 +41,8 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	//OmerP - To reset the agent if this is a new run. 
 	@Override
-	public void resetAgent() {
-		super.resetAgent();
-		this.functionMsgs = Agent.resetMapToValueNull(this.functionMsgs);
+	public void resetAgentGivenParametersV3() {
+		
 		this.storedMessges.clear();
 		
 	}
@@ -77,7 +76,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	// OmerP - will loop over the neighbors and will send to each one of the a
 	@Override
-	protected void sendMsg() {
+	protected void sendMsgs() {
 
 		for (NodeId i : functionMsgs.keySet()) { // Start loop over the neighbors.
 

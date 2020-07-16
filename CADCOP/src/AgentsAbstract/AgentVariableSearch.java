@@ -43,12 +43,12 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	}
 
 	@Override
-	public void resetAgent() {
+	public void resetAgentGivenParametersV2() {
 		this.neighborsValueAssignmnet = Agent.<NodeId,MsgReceive<Integer>>resetMapToValueNull(this.neighborsValueAssignmnet);
-		resetAgentSpecific();
+		resetAgentGivenParametersV3();
 	}
 
-	protected abstract void resetAgentSpecific();
+	protected abstract void resetAgentGivenParametersV3();
 
 	public double getCostPerInput(int input) {
 		double ans = 0;

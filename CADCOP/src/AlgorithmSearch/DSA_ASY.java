@@ -30,19 +30,19 @@ public class DSA_ASY extends AgentVariableSearch {
 	 * reset the rndStochastic
 	 */
 	@Override
-	protected void resetAgentSpecific() {
+	protected void resetAgentGivenParametersV3() {
 		this.rndStochastic = new Random(this.dcopId*10+this.id*100);
 		this.receiveMsgFlag = false;
 	}
 
 	@Override
 	public void updateAlgorithmHeader() {
-		AgentVariable.algorithmHeader = "Stochastic,";
+		AgentVariable.algorithmHeader = "Stochastic";
 	}
 
 	@Override
 	public void updateAlgorithmData() {
-		AgentVariable.algorithmData = this.stochastic+",";
+		AgentVariable.algorithmData = this.stochastic+"";
 	}
 		
 	@Override

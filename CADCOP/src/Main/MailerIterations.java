@@ -48,7 +48,7 @@ public class MailerIterations extends Mailer {
 				// compute (abstract method in agents) -->
 				// varifyMsgSent-->
 				// sendMsg(abstract method in agents)
-				if (didAgentRecieveAlgorithmicMsgInThisIteration(agent)) {
+				//if (didAgentRecieveAlgorithmicMsgInThisIteration(agent)) { // check if needs to add this 
 					agent.reactionToAlgorithmicMsgs();
 				}
 				if (MainSimulator.anyTime) {

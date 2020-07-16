@@ -23,7 +23,8 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 	///// ******* Control Variables ******* ////
 	
-	boolean storedMessageOn = true; 
+	boolean storedMessageOn = true;
+	private boolean flag; 
 	
 	///// ******* Constructor ******* ////
 
@@ -37,6 +38,8 @@ public class MaxSumStandardFunction extends AgentFunction {
 		this.constraintsTranspose = AgentFunction.turnIntegerToDoubleMatrix(constraintsTranspose);
 
 		updataNodes(getNodeId());
+		
+		this.flag = false;
 		
 	}
 	
@@ -66,19 +69,18 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 	}
 	
+	
+	
 	//OmerP - To reset the agent if this is a new run. 
 	@Override
-	public void resetAgent() {
-		
-		super.resetAgent();
+	public void resetAgentGivenParametersV2() {	
 		this.variableMsgs = Agent.resetMapToValueNull(this.variableMsgs);
 		this.storedMessges.clear();
-		
 	}
 	
 	//OmerP - will loop over the neighbors and will send to each one of the a message. - BUG !!!
 	@Override
-	protected void sendMsg() {
+	protected void sendMsgs() {
 		
 		for(NodeId i: variableMsgs.keySet()) {
 			
@@ -126,7 +128,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 		variableMsgs.put(msgAlgorithm.getSenderId(), newMessageReceveid);
 		
-		
+		this.flag = true;
 
 	}
 	
@@ -351,7 +353,14 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 		
 	}
-	
+
+	@Override
+	protected void changeRecieveFlagsToFalse() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 	//-----------------------------------------------------------------------------------------------------------//
 
 

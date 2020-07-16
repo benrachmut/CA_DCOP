@@ -118,7 +118,11 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public boolean reactionToAlgorithmicMsgs() {
 		boolean isUpdate = compute();
 		computationCounter= computationCounter+1;
-		varifyIfMsgsWillBeSent(isUpdate);
+		if (isMsgGoingToBeSent(isUpdate)) {
+			this.timeStampCounter++;
+			sendMsgs();
+		}
+		changeRecieveFlagsToFalse();
 		return isUpdate;
 	}
 	
@@ -138,13 +142,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * 
 	 * @param changeContext
 	 */
-	protected void varifyIfMsgsWillBeSent(boolean changeContext) {
-		if (isMsgGoingToBeSent(changeContext)) {
-			this.timeStampCounter++;
-			sendMsgs();
-		}
-		changeRecieveFlagsToFalse();
-	}
+	
 
 	protected abstract void changeRecieveFlagsToFalse();
 

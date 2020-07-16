@@ -123,15 +123,18 @@ public abstract class AgentVariable extends Agent {
 		return this.neighborsConstraint.size();
 	}
 
+	@Override
 	public void resetAgentGivenParameters() {
-		super.resetAgent();
 		valueAssignment = firstRandomVariable;
 		valueAssignmentChangeCounter = 0.0;
+		resetAgentGivenParametersV2();
 	}
 
 	
 
 	
+	protected abstract void resetAgentGivenParametersV2();
+
 	public boolean reactionToAlgorithmicMsgs() {
 		boolean isUpdate = super.reactionToAlgorithmicMsgs();
 

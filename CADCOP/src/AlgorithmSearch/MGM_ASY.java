@@ -31,7 +31,7 @@ public class MGM_ASY extends AgentVariableSearch{
 	}
 	
 	@Override
-	protected void resetAgentSpecific() {
+	protected void resetAgentGivenParametersV3() {
 		this.neighborsLR = Agent.<NodeId,MsgReceive<Integer>>resetMapToValueNull(this.neighborsLR);
 	
 	}

@@ -35,10 +35,13 @@ public abstract class AgentFunction extends Agent {
 	}
 
 	@Override
-	public void resetAgent() {
-		super.resetAgent();
+	protected void resetAgentGivenParameters() {
 		this.variableMsgs = Agent.resetMapToValueNull(this.variableMsgs);
+		resetAgentGivenParametersV2();
 	}
+	
+
+	protected abstract void resetAgentGivenParametersV2();
 
 	public static Double[][] turnIntegerToDoubleMatrix(Integer[][] input) {
 

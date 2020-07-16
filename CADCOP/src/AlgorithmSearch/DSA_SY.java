@@ -35,8 +35,8 @@ public class DSA_SY extends DSA_ASY {
 
 	
 	@Override
-	protected void resetAgentSpecific() {
-		super.resetAgentSpecific();
+	protected void resetAgentGivenParametersV3() {
+		super.resetAgentGivenParametersV3();
 		
 		resetNeighborRecieveInThisIteration();
 		futureMsgs = new ArrayList<MsgValueAssignmnet>();

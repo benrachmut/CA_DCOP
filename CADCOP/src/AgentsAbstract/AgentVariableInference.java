@@ -23,13 +23,14 @@ public abstract class AgentVariableInference extends AgentVariable {
 		return functionMsgs.size();
 
 	}
-
+	
 	@Override
-	public void resetAgent() {
-		super.resetAgent();
+	public void resetAgentGivenParametersV2() {
 		this.functionMsgs = Agent.resetMapToValueNull(this.functionMsgs);
-
+		resetAgentGivenParametersV3();
 	}
+
+	protected abstract void resetAgentGivenParametersV3();
 
 	@Override
 	public NodeId getNodeId() {
