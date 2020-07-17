@@ -10,21 +10,26 @@ import Messages.MsgValueAssignmnet;
 abstract public class DSA extends AgentVariableSearch {
 	protected double stochastic;
 	protected Random rndStochastic;
+	protected boolean canCompute;
+
 
 	public DSA(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		stochastic = 0.7;
 		this.rndStochastic = new Random(this.dcopId*10+this.id*100);
+		canCompute = false;
 	}
 	
 	public DSA(int dcopId, int D, int id1, double stochastic) {
 		this( dcopId, D,  id1);
 		this.stochastic = stochastic;
+		canCompute = false;
 	}
 	
 	@Override
 	protected void resetAgentGivenParametersV3() {
 		this.rndStochastic = new Random(this.dcopId*10+this.id*100);
+		canCompute = false;
 		resetAgentGivenParametersV4();
 	}
 	
@@ -46,19 +51,27 @@ abstract public class DSA extends AgentVariableSearch {
 			return getTimestampOfValueAssignmnets(msgAlgorithm);
 			
 		}else {
-			System.err.println("dsa agent was asked about timestamp upon wrong instance");
+			throw new RuntimeException();
 		}
-		return 0;
+		
 	}
 	
-	protected boolean computeIfCan() {
-		int candidate = getCandidateToChange();
-		if (candidate == valueAssignment) {
-			return false;
-		}else {
-			return stochasticChange(candidate);
+	
+	@Override
+	protected boolean compute() {
+		if (canCompute) {
+			int candidate = getCandidateToChange();
+			if (candidate == valueAssignment) {
+				return false;
+			}else {
+				return stochasticChange(candidate);
+			}
 		}
+		return false;
 	}
+	
+	
+
 
 	private boolean stochasticChange(int candidate) {
 		double rnd = rndStochastic.nextDouble();
@@ -68,6 +81,18 @@ abstract public class DSA extends AgentVariableSearch {
 		}else {
 			return false;
 		}
+	}
+	
+	@Override
+	protected void sendMsgs() {
+		if (canCompute) {
+			sendValueAssignmnetMsgs();
+		}
+	}
+	
+	
+	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+		updateMsgInContextValueAssignmnet(msgAlgorithm);
 	}
 	
 }

@@ -11,16 +11,13 @@ import Messages.MsgValueAssignmnet;
 
 public class DSA_ASY extends DSA {
 
-	private boolean receiveMsgFlag;
 
 	public DSA_ASY(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
-		this.receiveMsgFlag = false;
 	}
 	
 	public DSA_ASY(int dcopId, int D, int id1, double stochastic) {
 		super( dcopId, D,  id1, stochastic);
-		this.receiveMsgFlag = false;
 	}
 	
 
@@ -32,36 +29,20 @@ public class DSA_ASY extends DSA {
 	
 	@Override
 	protected void updateRecieveMsgFlagTrue(MsgAlgorithm msgAlgorithm) {
-		this.receiveMsgFlag = true;
+		this.canCompute = true;
 	}
 	
 
-	@Override
-	protected boolean compute() {
-		if (receiveMsgFlag) {
-			return computeIfCan();
-		}
-		return false;
-	}
 
-	@Override
-	protected void sendMsgs() {
-		if (receiveMsgFlag) {
-			sendValueAssignmnetMsgs();
-		}
-	}
 
 	@Override
 	protected void changeRecieveFlagsToFalse() {
-		receiveMsgFlag = false;
+		canCompute = false;
 	}
 
 	@Override
 	protected void resetAgentGivenParametersV4() {
-		receiveMsgFlag = false;		
+		// no special fields....
 	}
-
-	
-
 
 }

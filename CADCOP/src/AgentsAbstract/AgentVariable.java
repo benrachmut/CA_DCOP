@@ -135,13 +135,11 @@ public abstract class AgentVariable extends Agent {
 	
 	protected abstract void resetAgentGivenParametersV2();
 
-	public boolean reactionToAlgorithmicMsgs() {
-		boolean isUpdate = super.reactionToAlgorithmicMsgs();
-
-		if (isUpdate && MainSimulator.anyTime) {
+	public void reactionToAlgorithmicMsgs() {
+		super.reactionToAlgorithmicMsgs();
+		if (MainSimulator.anyTime) {
 			sendAnytimeChangeContext();
 		}
-		return isUpdate;
 	}
 	
 

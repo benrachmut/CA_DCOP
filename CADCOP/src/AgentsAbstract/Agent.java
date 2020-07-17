@@ -84,11 +84,12 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			if (this.isWithTimeStamp) {
 				int currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
 				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
-					updateMessageInContext(msgAlgorithm);
+					updateMessageInContextAndTreatFlag(msgAlgorithm);
 
 				}
 			} else {
-				updateMessageInContext(msgAlgorithm);
+				updateMessageInContextAndTreatFlag(msgAlgorithm);
+
 			}
 		}
 	}
@@ -106,6 +107,13 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 *        field
 	 * @return
 	 */
+	
+	
+	protected  void updateMessageInContextAndTreatFlag(MsgAlgorithm msgAlgorithm){
+		updateMessageInContext(msgAlgorithm);
+		updateRecieveMsgFlagTrue(msgAlgorithm);
+	}
+	
 	protected abstract void updateMessageInContext(MsgAlgorithm msgAlgorithm);
 
 	// ------------**Reaction to algorithmic messages methods**------------
@@ -115,7 +123,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param messages
 	 * 
 	 */
-	public boolean reactionToAlgorithmicMsgs() {
+	public void reactionToAlgorithmicMsgs() {
 		boolean isUpdate = compute();
 		computationCounter = computationCounter + 1;
 		if (isMsgGoingToBeSent(isUpdate)) {
@@ -123,9 +131,23 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			sendMsgs();
 		}
 		changeRecieveFlagsToFalse();
-		return isUpdate;
+		
 	}
 
+	private boolean isMsgGoingToBeSent(boolean changeContext) {
+		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) || (MainSimulator.sendOnlyIfChange == false);
+	}
+	
+	
+	/**
+	 * used by reactionToAlgorithmicMsgs and sent under condition of context sent of
+	 * input boolean MainSimulator.sendOnlyIfChange == false
+	 * 
+	 * @param changeContext
+	 */
+
+	protected abstract void changeRecieveFlagsToFalse();
+	
 	public void reactionToAnytimeMsgs() {
 	}
 
@@ -137,18 +159,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 */
 	protected abstract boolean compute();
 
-	/**
-	 * used by reactionToAlgorithmicMsgs and sent under condition of context sent of
-	 * input boolean MainSimulator.sendOnlyIfChange == false
-	 * 
-	 * @param changeContext
-	 */
+	
 
-	protected abstract void changeRecieveFlagsToFalse();
-
-	private boolean isMsgGoingToBeSent(boolean changeContext) {
-		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) || (MainSimulator.sendOnlyIfChange == false);
-	}
+	
 
 	/**
 	 * after verification, loop over neighbors and send them the message using the
@@ -214,5 +227,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 		return ans;
 	}
+	
+	protected abstract void updateRecieveMsgFlagTrue(MsgAlgorithm msgAlgorithm);
+
 
 }

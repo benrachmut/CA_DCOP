@@ -95,15 +95,20 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		throw new RuntimeException();
 	}
 	
-	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+
+	
+	
+	
+	
+	protected void updateMsgInContextValueAssignmnet(MsgAlgorithm msgAlgorithm) {
 		Integer context = (Integer)msgAlgorithm.getContext();
 		int timestamp = msgAlgorithm.getTimeStamp();
 		MsgReceive<Integer> msgReceive = new MsgReceive<Integer>(context, timestamp);
 		this.neighborsValueAssignmnet.put(msgAlgorithm.getSenderId(), msgReceive);
-		updateRecieveMsgFlagTrue(msgAlgorithm);
 	}
 	
-	protected abstract void updateRecieveMsgFlagTrue(MsgAlgorithm msgAlgorithm);
+	
+
 
 	protected int getTimestampOfValueAssignmnets(MsgAlgorithm msgAlgorithm) {
 		NodeId senderNodeId = msgAlgorithm.getSenderId();
@@ -111,6 +116,8 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		return msgReceive.getTimestamp();
 	}
 	
+	
+
 	protected void sendValueAssignmnetMsgs() {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, 
