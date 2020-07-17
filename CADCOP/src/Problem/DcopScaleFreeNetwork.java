@@ -25,7 +25,7 @@ public class DcopScaleFreeNetwork extends Dcop {
 		randomHub = new Random(this.id * 10);
 		randomNotHub = new Random(this.id * 20);
 		randomP2 = new Random(this.id * 30);
-
+		updateNames();
 	}
 
 	public DcopScaleFreeNetwork(int dcopId, int A, int hubs, int neighborsPerAgent, double p2) {

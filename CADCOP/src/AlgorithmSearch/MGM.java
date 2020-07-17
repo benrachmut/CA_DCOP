@@ -32,6 +32,8 @@ public abstract class MGM extends AgentVariableSearch {
 		candidateValueAssignment = -1;
 		computeLr = false;
 		computeVA = false;
+		updateAlgorithmHeader();
+		updateAlgorithmData();
 	}
 
 	@Override

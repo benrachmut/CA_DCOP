@@ -14,10 +14,13 @@ public class DSA_ASY extends DSA {
 
 	public DSA_ASY(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
+		updateAlgorithmName();
+
 	}
 	
 	public DSA_ASY(int dcopId, int D, int id1, double stochastic) {
 		super( dcopId, D,  id1, stochastic);
+		updateAlgorithmName();
 	}
 	
 

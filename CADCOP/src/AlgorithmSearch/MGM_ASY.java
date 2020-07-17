@@ -20,6 +20,8 @@ public class MGM_ASY extends MGM {
 
 	public MGM_ASY(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
+		updateAlgorithmName();
+
 	}
 
 	@Override

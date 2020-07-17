@@ -15,7 +15,7 @@ public class DcopUniform extends Dcop {
 		this.p1 = p1;
 		this.p2 = p2;
 		this.D = D;
-
+		updateNames();
 	}
 
 	public DcopUniform(int dcopId,int A, double p1, double p2) {
@@ -38,5 +38,28 @@ public class DcopUniform extends Dcop {
 			} // for j
 		} // for i
 	}
+	
+	@Override
+	protected void setDcopName() {
+		if (p1>0.3) {
+			Dcop.dcopName = "Dense Random Uniform";
+		}else {
+			Dcop.dcopName = "Sparse Random Uniform";
+		}
+		
+	}
+
+	@Override
+	protected void setDcopHeader() {
+		Dcop.dcopHeader = "p1"+","+"p2"+"Domain Size";
+		
+	}
+
+	@Override
+	protected void setDcopParameters() {
+		Dcop.dcopParameters = this.p1+","+this.p2+","+this.D;
+	}
+
+	
 
 }

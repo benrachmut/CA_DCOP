@@ -39,6 +39,10 @@ public abstract class Dcop {
 	protected List<Agent> agentsAll;
 
 	protected int dcopId;
+	
+	public static String dcopName; 
+	public static String dcopHeader;
+	public static String dcopParameters;
 //	protected List<AgentFunction> functionNodes;
 
 	public Dcop(int dcopId, int A, int D, int costPrameter) {
@@ -50,7 +54,17 @@ public abstract class Dcop {
 		this.agentsAll = new ArrayList<Agent>();
 		createVariableAgents();
 		neighbors = new ArrayList<Neighbor>();
+		
 	}
+	
+	protected void updateNames() {
+		setDcopName();
+		setDcopHeader();
+		setDcopParameters();
+	}
+	protected abstract void setDcopName();
+	protected abstract void setDcopHeader();
+	protected abstract void setDcopParameters();
 	
 	public void dcopMeetsMailer(Mailer mailer) {
 		for (Agent a : agentsAll) {

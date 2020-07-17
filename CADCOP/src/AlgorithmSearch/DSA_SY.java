@@ -18,12 +18,16 @@ public class DSA_SY extends DSA {
 	public DSA_SY(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		resetAgentGivenParametersV4();
+		updateAlgorithmName();
+
 	}
 
 	public DSA_SY(int dcopId, int D, int id1, double stochastic) {
 		super(dcopId, D, id1);
 		this.stochastic = stochastic;
 		resetAgentGivenParametersV4();
+		updateAlgorithmName();
+
 	}
 
 	@Override

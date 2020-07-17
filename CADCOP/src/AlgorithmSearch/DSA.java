@@ -18,6 +18,9 @@ abstract public class DSA extends AgentVariableSearch {
 		stochastic = 0.7;
 		this.rndStochastic = new Random(this.dcopId*10+this.id*100);
 		canCompute = false;
+		updateAlgorithmHeader();
+		updateAlgorithmData();
+		
 	}
 	
 	public DSA(int dcopId, int D, int id1, double stochastic) {

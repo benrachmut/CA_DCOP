@@ -21,7 +21,7 @@ public class MGM_SY extends MGM {
 		super(dcopId, D, id1);
 		this.isWithTimeStamp = false;
 		resetAgentGivenParametersV4();
-
+		updateAlgorithmName();
 	}
 
 	@Override

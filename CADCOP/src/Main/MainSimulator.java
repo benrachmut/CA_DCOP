@@ -89,18 +89,22 @@ public class MainSimulator {
 
 //	public static CreatorDelays creatorDelay;
 //	public static CreatorDowns creatorDown;
-
+	String headerInput = "";
+	String dataInput = "";
 	public static void main(String[] args) {
+		createHeaderInput();
 		Dcop[] dcops = generateDcops();
 		List<Protocol> protocols = createProtocols();
 		runDcops(dcops, protocols);
 		createStatistics();
 	}
 
-	private static void createStatistics() {
+	private static void createHeaderInput() {
 		// TODO Auto-generated method stub
-
+		
 	}
+
+
 
 	private static void runDcops(Dcop[] dcops, List<Protocol> protocols) {
 		for (Dcop dcop : dcops) {

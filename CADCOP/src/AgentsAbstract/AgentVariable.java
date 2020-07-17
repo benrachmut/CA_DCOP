@@ -74,6 +74,8 @@ public abstract class AgentVariable extends Agent {
 		bfsFather = new NodeId(-1);
 		bfsLevelInTree = -1;
 
+		
+		
 	}
 	
 	/**

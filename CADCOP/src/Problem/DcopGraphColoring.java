@@ -7,21 +7,19 @@ public class DcopGraphColoring extends Dcop {
 
 	
 	private double p1;
-	Random randomP1 = new Random(this.id * 100);
-	
-
+	private Random randomP1;
 	
 	public DcopGraphColoring(int dcopId, int A, int D, int costPrameter, double p1) {
 		super(dcopId,A, D, costPrameter);
 		this.p1 = p1;
 		randomP1 = new Random(this.id*10);
-		
+		updateNames();
 	}
 	
 	public DcopGraphColoring(int dcopId,int A, double p1) {
 		this(dcopId, A, 3, 10, p1);
 	}
-
+		
 	@Override
 	public void createNeighbors() {
 		for (int i = 0; i < agentsVariables.length; i++) {
@@ -30,7 +28,6 @@ public class DcopGraphColoring extends Dcop {
 				if (rnd < p1) {
 					AgentVariable a1 = agentsVariables[i];
 					AgentVariable a2 = agentsVariables[j];
-					
 					this.neighbors.add(new Neighbor(a1, a2, D, costParameter, id));
 			
 				} // if neighbors
@@ -38,6 +35,25 @@ public class DcopGraphColoring extends Dcop {
 		} // for i
 		
 	}
+
+	@Override
+	protected void setDcopName() {
+		Dcop.dcopName = "Graph Coloring";
+		
+	}
+
+	@Override
+	protected void setDcopHeader() {
+		Dcop.dcopHeader = "p"+","+"Domain Size";
+		
+	}
+
+	@Override
+	protected void setDcopParameters() {
+		Dcop.dcopParameters = this.p1+","+this.D;
+	}
+
+	
 
 	
 	/*
