@@ -14,6 +14,10 @@ import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
+import AlgorithmSearch.DSA_ASY;
+import AlgorithmSearch.DSA_SY;
+import AlgorithmSearch.MGM_ASY;
+import AlgorithmSearch.MGM_SY;
 import Algorithms.MaxSumSplitConstraintFactorGraph;
 import Algorithms.MaxSumStandardFunction;
 import Algorithms.MaxSumStandardVarible;
@@ -26,7 +30,6 @@ import Trees.DFS;
 import Trees.Tree;
 
 public abstract class Dcop {
-	protected int id;
 
 	// ------- ** for graph use **------
 	protected AgentVariable[] agentsVariables;
@@ -83,9 +86,9 @@ public abstract class Dcop {
 	public abstract void createNeighbors();
 
 	private void createVariableAgents() {
-		for (int agentId = 1; agentId <= agentsVariables.length; agentId++) {
-			agentsVariables[agentId-1] = createAgentInstance(agentId);
-			this.agentsAll.add(agentsVariables[agentId-1]);
+		for (int agentId = 0; agentId < agentsVariables.length; agentId++) {
+			agentsVariables[agentId] = createAgentInstance(agentId);
+			this.agentsAll.add(agentsVariables[agentId]);
 		}
 
 	}
@@ -93,19 +96,20 @@ public abstract class Dcop {
 	private AgentVariable createAgentInstance(int agentId) {
 		AgentVariable ans = null;
 		int agentType = MainSimulator.agentType;
-/*
+
 		if (agentType == 1) {
-			ans = new AgentDSA_ASY(dcopId, D, agentId);
+			ans = new DSA_ASY(dcopId, D, agentId);
 		}
 		if (agentType == 2) {
-			ans = new AgentDSA_SY(dcopId, D, agentId);
+			ans = new DSA_SY(dcopId, D, agentId);
 		}
 		if (agentType == 3) {
-			ans = new AgentMGM_ASY(dcopId, D, agentId);
+			ans = new MGM_ASY(dcopId, D, agentId);
 		}
 		if (agentType == 4) {
-			ans = new AgentMGM_SY(dcopId, D, agentId);
+			ans = new MGM_SY(dcopId, D, agentId);
 		}
+		/*
 		if (agentType == 5) {
 			ans = new AgentAMDLS(dcopId, D, agentId);
 		}
@@ -160,13 +164,13 @@ public abstract class Dcop {
 			
 			if (agentType == 7) {
 				
-				af = new MaxSumStandardFunction(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
+				af = new MaxSumStandardFunction(dcopId,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
 			
 			}
 			
 			if (agentType == 8) {
 				
-				af = new MaxSumSplitConstraintFactorGraph(id,D, av1.getId(), av2.getId(),constraints, constraintsTranspose); //Will create a new MaxSumSplitConstraintFactorGraph.
+				af = new MaxSumSplitConstraintFactorGraph(dcopId,D, av1.getId(), av2.getId(),constraints, constraintsTranspose); //Will create a new MaxSumSplitConstraintFactorGraph.
 				
 			}
 					
@@ -189,7 +193,7 @@ public abstract class Dcop {
 	}
 
 	public int getId() {
-		return this.id;
+		return this.dcopId;
 	}
 
 	public List<Neighbor> getNeighbors() {

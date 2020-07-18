@@ -25,11 +25,11 @@ public boolean equals(Object obj) {
 	
 }
 
-ProtocolDown getDown() {
+public ProtocolDown getDown() {
 	return down;
 }
 
-ProtocolDelay getDelay() {
+public ProtocolDelay getDelay() {
 	return this.delay;
 }
 

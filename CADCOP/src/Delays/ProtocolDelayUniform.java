@@ -32,7 +32,7 @@ public class ProtocolDelayUniform extends ProtocolDelay {
 	
 	protected String getStringParamets() {
 		// TODO Auto-generated method stub
-		return this.ub+",";
+		return this.ub+"";
 	}
 
 	@Override

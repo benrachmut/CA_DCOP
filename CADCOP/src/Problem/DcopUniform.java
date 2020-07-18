@@ -11,7 +11,7 @@ public class DcopUniform extends Dcop {
 
 	public DcopUniform(int dcopId, int A, int D, int costPrameter, double p1, double p2) {
 		super(dcopId,A, D, costPrameter);
-		this.randomP1 = new Random(this.id * 10);
+		this.randomP1 = new Random(this.dcopId * 10);
 		this.p1 = p1;
 		this.p2 = p2;
 		this.D = D;
@@ -32,7 +32,7 @@ public class DcopUniform extends Dcop {
 					AgentVariable a1 = agentsVariables[i];
 					AgentVariable a2 = agentsVariables[j];
 					
-					this.neighbors.add(new Neighbor(a1, a2, D, costParameter, id, p2));
+					this.neighbors.add(new Neighbor(a1, a2, D, costParameter, dcopId, p2));
 			
 				} // if neighbors
 			} // for j

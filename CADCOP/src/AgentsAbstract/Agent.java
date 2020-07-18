@@ -188,7 +188,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @return
 	 */
 	public NodeId getNodeId() {
-		return null;
+		return this.nodeId;
 	}
 
 //-----------------**TO-DO**---------------

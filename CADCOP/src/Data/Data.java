@@ -33,23 +33,35 @@ public class Data {
 		this.monotonicy = calcMonotonicy(mailer, globalCost);
 		this.globalAnytimeCost = calcGlobalAnytimeCost(mailer);
 		this.povCost = calcPovCost(dcop.getVariableAgents());
-	
+
 	}
-	
+
+	public static String header() {
+		String ans ="";
+		if (!MainSimulator.anyTime) {
+			ans = ans+ "Global View" + "," + "Global View Monotonicy" + "," + "Agent View" + "Global Anytime View" + ","
+					+ "Value Assignmnet Counter" + "," + "Algorithm Msgs Counter";
+			
+		} else {
+			throw new RuntimeException();
+		}
+		return ans;
+	}
+
 	private static Double calcPovCost(AgentVariable[] variableAgents) {
 		double ans = 0.0;
 		for (AgentVariable a : variableAgents) {
-			double aPOV = ((AgentVariableSearch)a).getCostPov();
+			double aPOV = ((AgentVariableSearch) a).getCostPov();
 			if (aPOV == -1) {
 				return null;
-			}else {
-			ans += aPOV;
+			} else {
+				ans += aPOV;
 			}
 		}
 		return ans;
 	}
-	
-	private  Double calcMonotonicy(Mailer mailer, Double globalCost2) {
+
+	private Double calcMonotonicy(Mailer mailer, Double globalCost2) {
 		if (time == 0) {
 			return 1.0;
 		}
@@ -66,13 +78,13 @@ public class Data {
 			return this.globalCost;
 		}
 		Double lastAnytimeGlobal = mailer.getLastGlobalAnytimeCost();
-		if (this.globalCost<lastAnytimeGlobal) {
-			return  this.globalCost;
-		}else {
+		if (this.globalCost < lastAnytimeGlobal) {
+			return this.globalCost;
+		} else {
 			return lastAnytimeGlobal;
 		}
 	}
-	
+
 	private static Double calcChangeValueAssignmentCounter(AgentVariable[] variableAgents) {
 		Double ans = 0.0;
 		for (AgentVariable a : variableAgents) {
@@ -89,8 +101,6 @@ public class Data {
 		return ans;
 	}
 
-
-
 	public String getHeader() {
 		return "Global Cost,Change Value Counter,Algorithm Message Counter,Anytime Message Counter,Cost Agent POV,";
 	}
@@ -98,19 +108,15 @@ public class Data {
 	@Override
 	public String toString() {
 		return this.globalCost + "," + this.changeValueAssignmentCounter + "," + this.algorithmMsgsCounter + ","
-				+ this.anytimeMsgsCounter + "," + this.povCost+",";
+				+ this.anytimeMsgsCounter + "," + this.povCost + ",";
 	}
 
 	public Double getGlobalCost() {
 		return this.globalCost;
 	}
 
-
-
 	public Double getGlobalAnytimeCost() {
 		return this.globalAnytimeCost;
 	}
 
-	
-	
 }

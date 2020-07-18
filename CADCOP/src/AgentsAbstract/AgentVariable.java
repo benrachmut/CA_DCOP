@@ -275,6 +275,13 @@ public abstract class AgentVariable extends Agent {
 		return this.valueAssignmentChangeCounter;
 	}
 
+	public Integer[][] getMatrixWithAgent(int i) {
+		if (this.neighborsConstraint.containsKey(new NodeId(i))) {
+			return this.neighborsConstraint.get(new NodeId(i));
+		}
+		return null;
+	}
+
 
 	
 

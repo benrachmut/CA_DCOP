@@ -8,7 +8,9 @@ import java.util.SortedMap;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
+import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableInference;
+import Data.Data;
 import Data.Statistic;
 import Delays.CreatorDelays;
 import Delays.CreatorDelaysNone;
@@ -23,7 +25,6 @@ import Problem.Dcop;
 import Problem.DcopGraphColoring;
 import Problem.DcopScaleFreeNetwork;
 import Problem.DcopUniform;
-import jdk.jshell.TypeDeclSnippet;
 
 public class MainSimulator {
 
@@ -46,7 +47,7 @@ public class MainSimulator {
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 100;
+	public static int end = 2;
 	public static int termination = 1000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
@@ -58,9 +59,9 @@ public class MainSimulator {
 	/*
 	 * 1 = Random uniform; 2 = Graph Coloring; 3 = Scale Free Network
 	 */
-	public static int dcopBenchMark = 1;
+	public static int dcopBenchMark = 3;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.2;// Probability for agents to have constraints
+	public static double dcopUniformP1 = 1;// Probability for agents to have constraints
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
@@ -74,7 +75,7 @@ public class MainSimulator {
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
 	 * 7 = max sum standard
 	 */
-	public static int agentType = 7; // 1= DSA ASY,1= DSA SY
+	public static int agentType = 1; 
 
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
@@ -89,100 +90,29 @@ public class MainSimulator {
 
 //	public static CreatorDelays creatorDelay;
 //	public static CreatorDowns creatorDown;
-	String headerInput = "";
-	String dataInput = "";
+	public static String header = "";
+	
+	public static String protocolDelayHeader = "";
+	public static String protocolDownHeader = "";
+	public static String mailerHeader = "";
+	
+
 	public static void main(String[] args) {
-		createHeaderInput();
 		Dcop[] dcops = generateDcops();
+		printProblemCreationDebug(dcops);
 		List<Protocol> protocols = createProtocols();
 		runDcops(dcops, protocols);
-		createStatistics();
+		createHeaderInput();
+
+		//createStatistics();
 	}
-
-	private static void createHeaderInput() {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-	private static void runDcops(Dcop[] dcops, List<Protocol> protocols) {
-		for (Dcop dcop : dcops) {
-			for (Protocol protocol : protocols) {
-				Mailer mailer = getMailer(protocol, dcop);
-				dcop.dcopMeetsMailer(mailer);
-				mailer.execute();
-				addMailerToDataFrames(protocol, mailer);
-			}
-		}
-
-	}
-
-	private static void addMailerToDataFrames(Protocol protocol, Mailer mailer) {
-		mailerAll.add(mailer);
-		mailersByProtocol.get(protocol).add(mailer);
-
-	}
-
-	private static Mailer getMailer(Protocol protocol, Dcop dcop) {
-		Mailer ans;
-		if (isThreadMailer) {
-			ans = new MailerThread(protocol, termination, dcop);
-		} else {
-			ans = new MailerIterations(protocol, termination, dcop);
-		}
-
-		return ans;
-	}
-
-	private static List<Protocol> createProtocols() {
-		List<ProtocolDelay> delays = getCreatorDelays().createProtocolDelays();
-		List<ProtocolDown> downs = getCreatorDowns().createProtocolDowns();
-		List<Protocol> ans = new ArrayList<Protocol>();
-		for (ProtocolDelay delay : delays) {
-			for (ProtocolDown down : downs) {
-				Protocol p = new Protocol(delay, down);
-				ans.add(p);
-			}
-		}
-
-		for (Protocol protocol : ans) {
-			mailersByProtocol.put(protocol, new ArrayList<Mailer>());
-		}
-		return ans;
-	}
-
-	private static CreatorDown getCreatorDowns() {
-		if (downType == 0) {
-			return new CreatorDownNone();
-		}
-
-		if (downType == 1) {
-			return new CreatorDownConstant();
-		}
-
-		return null;
-	}
-
-	private static CreatorDelays getCreatorDelays() {
-		if (delayType == 0) {
-			return new CreatorDelaysNone();
-		}
-
-		if (delayType == 1) {
-			return new CreatorDelaysNormal();
-		}
-
-		if (delayType == 2) {
-			return new CreatorDelaysUniform();
-		}
-		return null;
-	}
-
+	
+	//------------ 1. DCOP CREATION------------
 	private static Dcop[] generateDcops() {
 		Dcop[] ans = new Dcop[end - start];
-		for (int dcopId = start; dcopId < end; dcopId++) {
-			ans[dcopId] = createDcop(dcopId).initiate();
+		for (int i = 0; i < end - start; i++) {
+			int dcopId = i+start;
+			ans[i] = createDcop(dcopId).initiate();
 		}
 		return ans;
 	}
@@ -222,11 +152,154 @@ public class MainSimulator {
 		return ans;
 	}
 
-	/**
-	 * is agent factor graph? does it have node id?
-	 * 
-	 * @param a
-	 * @return
-	 */
+	
+	//------------ 2. PROTOCOL CREATION------------
+	private static List<Protocol> createProtocols() {
+		List<ProtocolDelay> delays = getCreatorDelays().createProtocolDelays();
+		List<ProtocolDown> downs = getCreatorDowns().createProtocolDowns();
+		List<Protocol> ans = new ArrayList<Protocol>();
+		for (ProtocolDelay delay : delays) {
+			for (ProtocolDown down : downs) {
+				Protocol p = new Protocol(delay, down);
+				ans.add(p);
+			}
+		}
+		for (Protocol protocol : ans) {
+			mailersByProtocol.put(protocol, new ArrayList<Mailer>());
+		}
+		return ans;
+	}
 
+	private static CreatorDown getCreatorDowns() {
+		CreatorDown ans = null;
+
+		if (downType == 0) {
+			ans = new CreatorDownNone();
+		}
+
+		if (downType == 1) {
+			ans = new CreatorDownConstant();
+		}
+		protocolDownHeader = ans.getHeader();
+
+		return ans;
+	}
+
+	private static CreatorDelays getCreatorDelays() {
+		CreatorDelays ans = null;
+		if (delayType == 0) {
+			ans = new CreatorDelaysNone();	
+		}
+
+		if (delayType == 1) {
+			ans = new CreatorDelaysNormal();
+		}
+
+		if (delayType == 2) {
+			ans = new CreatorDelaysUniform();
+		}
+		
+		protocolDelayHeader = ans.getHeader();
+			
+		return ans;
+	}
+
+	//------------ 3. PROTOCOL CREATION------------
+
+	private static void runDcops(Dcop[] dcops, List<Protocol> protocols) {
+		for (Dcop dcop : dcops) {
+			for (Protocol protocol : protocols) {
+				Mailer mailer = getMailer(protocol, dcop);
+				dcop.dcopMeetsMailer(mailer);
+				mailer.execute();
+				addMailerToDataFrames(protocol, mailer);
+			}
+		}
+
+	}
+
+	private static void addMailerToDataFrames(Protocol protocol, Mailer mailer) {
+		mailerAll.add(mailer);
+		mailersByProtocol.get(protocol).add(mailer);
+
+	}
+
+	private static Mailer getMailer(Protocol protocol, Dcop dcop) {
+		Mailer ans;
+		if (isThreadMailer) {
+			ans = new MailerThread(protocol, termination, dcop);
+		} else {
+			ans = new MailerIterations(protocol, termination, dcop);
+		}
+
+		return ans;
+	}
+
+	
+	// 
+	
+	
+	private static void printProblemCreationDebug(Dcop[] dcops) {
+		printAmountOfNeighbors(dcops);
+		printConstraintMatrixs(dcops);
+		
+	}
+
+	private static void printConstraintMatrixs(Dcop[] dcops) {
+		for (Dcop dcop : dcops) {
+			System.out.println("-----Dcop number : "+dcop.getId()+" constraint matrix with agent zero ----");
+			for (AgentVariable a : dcop.getVariableAgents()) {
+				if (a.getId()!=0) {
+					Integer[][] matrix = a.getMatrixWithAgent(0);
+					if (matrix !=null) {
+						System.out.println("\t"+ "agent "+a.getId());
+						print2DArray(matrix);
+					}
+				}
+			}
+		}	
+	}
+
+	private static void print2DArray(Integer[][] matrix) {
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[i].length; j++) {
+				System.out.print("["+matrix[i][j]+"]");
+			}
+			System.out.println();
+		}
+	}
+
+	private static void printAmountOfNeighbors(Dcop[] dcops) {
+		for (Dcop dcop : dcops) {
+			System.out.println("-----Dcop number : "+dcop.getId()+" neighbor count-----");
+			double sumN = 0;
+			for (AgentVariable a : dcop.getVariableAgents()) {
+				int aN = a.neighborSize();
+				System.out.println("\t"+"Agent "+a.getId()+": "+aN);
+				sumN += aN;
+			}
+			System.out.println();
+			System.out.println("The average amount of neighbors per agent is: "+ (sumN/A));
+			System.out.println();
+		}
+		
+	}
+
+	private static void createHeaderInput() {
+		
+		header = Dcop.dcopHeader;
+		if (delayType != 0) {
+			header = header + "," + protocolDelayHeader;
+		}
+		if (downType != 0 ) {
+			header = header + "," + protocolDownHeader;
+		}
+		header = header + Data.header();
+		header = header + AgentVariable.algorithmHeader;
+	}
+
+	
+
+	
+	
 }
