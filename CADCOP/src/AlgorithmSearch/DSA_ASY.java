@@ -31,7 +31,7 @@ public class DSA_ASY extends DSA {
 	
 	
 	@Override
-	protected void updateRecieveMsgFlagTrue(MsgAlgorithm msgAlgorithm) {
+	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
 		this.canCompute = true;
 	}
 	

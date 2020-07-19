@@ -111,7 +111,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	
 	protected  void updateMessageInContextAndTreatFlag(MsgAlgorithm msgAlgorithm){
 		updateMessageInContext(msgAlgorithm);
-		updateRecieveMsgFlagTrue(msgAlgorithm);
+		changeRecieveFlagsToTrue(msgAlgorithm);
 	}
 	
 	protected abstract void updateMessageInContext(MsgAlgorithm msgAlgorithm);
@@ -130,8 +130,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			this.timeStampCounter++;
 			sendMsgs();
 		}
-		changeRecieveFlagsToFalse();
-		
+		changeRecieveFlagsToFalse();	
 	}
 
 	private boolean isMsgGoingToBeSent(boolean changeContext) {
@@ -146,7 +145,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param changeContext
 	 */
 
-	protected abstract void changeRecieveFlagsToFalse();
 	
 	public void reactionToAnytimeMsgs() {
 	}
@@ -228,7 +226,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		return ans;
 	}
 	
-	protected abstract void updateRecieveMsgFlagTrue(MsgAlgorithm msgAlgorithm);
+	protected abstract void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm);
 
+	protected abstract void changeRecieveFlagsToFalse();
 
 }

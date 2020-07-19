@@ -44,7 +44,7 @@ public class DSA_SY extends DSA {
 	}
 
 	@Override
-	protected void updateRecieveMsgFlagTrue(MsgAlgorithm msgAlgorithm) {
+	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
 		MsgValueAssignmnet mva = (MsgValueAssignmnet) msgAlgorithm;
 		NodeId sender = mva.getSenderId();
 		int msgTimestamp = mva.getTimeStamp();

@@ -20,7 +20,6 @@ abstract public class DSA extends AgentVariableSearch {
 		canCompute = false;
 		updateAlgorithmHeader();
 		updateAlgorithmData();
-		
 	}
 	
 	public DSA(int dcopId, int D, int id1, double stochastic) {

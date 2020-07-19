@@ -83,7 +83,7 @@ public class MGM_SY extends MGM {
 
 
 	@Override
-	protected void updateRecieveMsgFlagTrue(MsgAlgorithm msgAlgorithm) {
+	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
 		NodeId sender = msgAlgorithm.getSenderId();
 		int msgTimestamp = msgAlgorithm.getTimeStamp();
 
