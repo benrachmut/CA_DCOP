@@ -44,7 +44,8 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	@Override
 	public void resetAgentGivenParametersV2() {
-		this.neighborsValueAssignmnet = Agent.<NodeId,MsgReceive<Integer>>resetMapToValueNull(this.neighborsValueAssignmnet);
+		this.neighborsValueAssignmnet = Agent
+				.<NodeId, MsgReceive<Integer>>resetMapToValueNull(this.neighborsValueAssignmnet);
 		resetAgentGivenParametersV3();
 	}
 
@@ -53,10 +54,12 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	public int getCostPerInput(int input) {
 		int ans = 0;
 		for (Entry<NodeId, MsgReceive<Integer>> e : this.neighborsValueAssignmnet.entrySet()) {
-			int nId = e.getKey().getId1();
-			if (e.getValue().getContext() != null) {
+			 
+			if (e.getValue() != null) {
+				Object context = e.getValue().getContext();
 				int nValueAssignmnet = e.getValue().getContext();
-				Integer[][] nConst = this.neighborsConstraint.get(nId);
+				
+				Integer[][] nConst = this.neighborsConstraint.get(e.getKey());
 				ans += nConst[input][nValueAssignmnet];
 			}
 		}
@@ -78,55 +81,43 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	protected int getCandidateToChange() {
 		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
-			int minCost = Collections.min(costPerDomain.values());
-			int costOfCurrentValue = costPerDomain.get(this.valueAssignment);
-			if (minCost<=costOfCurrentValue) {
-				return getAlternativeCandidate(minCost,costPerDomain);
-			}
-			return this.valueAssignment;
+		int minCost = Collections.min(costPerDomain.values());
+		int costOfCurrentValue = costPerDomain.get(this.valueAssignment);
+		if (minCost < costOfCurrentValue) {
+			return getAlternativeCandidate(minCost, costPerDomain);
+		}
+		return this.valueAssignment;
 	}
 
 	private int getAlternativeCandidate(int minCost, SortedMap<Integer, Integer> costPerDomain) {
 		for (Entry<Integer, Integer> e : costPerDomain.entrySet()) {
-			if (e.getValue()==minCost&& e.getKey()!= this.valueAssignment) {
+			if (e.getValue() == minCost && e.getKey() != this.valueAssignment) {
 				return e.getKey();
 			}
 		}
 		throw new RuntimeException();
 	}
-	
 
-	
-	
-	
-	
 	protected void updateMsgInContextValueAssignmnet(MsgAlgorithm msgAlgorithm) {
-		Integer context = (Integer)msgAlgorithm.getContext();
+		Integer context = (Integer) msgAlgorithm.getContext();
 		int timestamp = msgAlgorithm.getTimeStamp();
 		MsgReceive<Integer> msgReceive = new MsgReceive<Integer>(context, timestamp);
 		this.neighborsValueAssignmnet.put(msgAlgorithm.getSenderId(), msgReceive);
 	}
-	
-	
-
 
 	protected int getTimestampOfValueAssignmnets(MsgAlgorithm msgAlgorithm) {
 		NodeId senderNodeId = msgAlgorithm.getSenderId();
-		MsgReceive<Integer> msgReceive= this.neighborsValueAssignmnet.get(senderNodeId);
+		MsgReceive<Integer> msgReceive = this.neighborsValueAssignmnet.get(senderNodeId);
 		return msgReceive.getTimestamp();
 	}
-	
-	
 
 	protected void sendValueAssignmnetMsgs() {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
-			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, 
-					this.valueAssignment, this.timeStampCounter);
+			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, this.valueAssignment,
+					this.timeStampCounter);
 			this.mailer.sendMsg(mva);
 		}
-		
+
 	}
-	
-	
 
 }

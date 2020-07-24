@@ -36,8 +36,6 @@ public class DSA_ASY extends DSA {
 	}
 	
 
-
-
 	@Override
 	protected void changeRecieveFlagsToFalse() {
 		canCompute = false;

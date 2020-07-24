@@ -90,6 +90,7 @@ abstract public class DSA extends AgentVariableSearch {
 		if (canCompute) {
 			sendValueAssignmnetMsgs();
 		}
+		
 	}
 	
 	

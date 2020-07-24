@@ -1,6 +1,10 @@
 package Data;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableSearch;
@@ -10,7 +14,7 @@ import Problem.Dcop;
 import Problem.Neighbor;
 
 public class Data {
-	private Double time;
+	private int time;
 	private Double globalCost;
 	private Double globalAnytimeCost;
 	private Double changeValueAssignmentCounter;
@@ -21,7 +25,40 @@ public class Data {
 	private Double monotonicy;
 	private Double povCost;
 
-	public Data(Double time, Dcop dcop, Mailer mailer) {
+	public Data(Entry<Integer, List<Data>> e) {
+		this.time = e.getKey();
+
+		List<List<Double>> colletionPerFields = createColletionsPerField(e.getValue());
+		for (List<Double> datasLists : colletionPerFields) {
+			this.globalCost = calcMean(datasLists.get(0));
+			this.monotonicy = calcMean(datasLists.get(1));
+			this.povCost = calcMean(datasLists.get(2));
+			this.globalAnytimeCost = calcMean(datasLists.get(3));
+			this.changeValueAssignmentCounter = calcMean(datasLists.get(4));
+			this.algorithmMsgsCounter = calcMean(datasLists.get(5));
+		}
+		
+	
+	}
+
+	private List<List<Double>> createColletionsPerField(List<Data> datas) {
+		List<List<Double>> ans = new ArrayList<List<Double>>();
+		for (int i = 0; i < 6; i++) {
+			ans.add(new ArrayList<Double>());
+		}
+		
+		for (Data d : datas) {
+			ans.get(0).add(d.globalCost);
+			ans.get(1).add(d.monotonicy);
+			ans.get(2).add(d.povCost);
+			ans.get(3).add(d.globalAnytimeCost);
+			ans.get(4).add(d.changeValueAssignmentCounter);
+			ans.get(5).add(d.algorithmMsgsCounter);
+		}
+		return ans;
+	}
+
+	public Data(int time, Dcop dcop, Mailer mailer) {
 		this.time = time;
 		this.globalCost = calcGlobalCost(dcop.getNeighbors());
 		this.changeValueAssignmentCounter = calcChangeValueAssignmentCounter(dcop.getVariableAgents());
@@ -36,10 +73,12 @@ public class Data {
 
 	}
 
+
+
 	public static String header() {
 		String ans ="";
 		if (!MainSimulator.anyTime) {
-			ans = ans+ "Global View" + "," + "Global View Monotonicy" + "," + "Agent View" + "Global Anytime View" + ","
+			ans = ans+ "Global View Cost" + "," + "Monotonicy" + "," + "Agent View Cost" + "Global Anytime View Cost" + ","
 					+ "Value Assignmnet Counter" + "," + "Algorithm Msgs Counter";
 			
 		} else {

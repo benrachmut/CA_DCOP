@@ -7,7 +7,7 @@ import Problem.Dcop;
 
 public class MailerThread extends Mailer {
 
-	public MailerThread(Protocol protocol, double terminationTime, Dcop dcop) {
+	public MailerThread(Protocol protocol, int terminationTime, Dcop dcop) {
 		super(protocol, terminationTime, dcop);
 		// TODO Auto-generated constructor stub
 	}

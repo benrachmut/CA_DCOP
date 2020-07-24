@@ -16,11 +16,8 @@ public class Neighbor {
 
 	public Neighbor(AgentVariable a1, AgentVariable a2, int D, int costParameter, int dcopId, double p2) {
 		super();
-		
-		
 		updateVariables(a1,a2,costParameter,D);
 		this.p2 = p2;
-		
 		this.randomP2 = new Random(dcopId * 10 + a1.getId() * 100 + a2.getId() * 1000);
 		this.randomCost = new Random(dcopId * 100 + a1.getId() * 300 + a2.getId() * 1200);
 		createConstraintsWithP2();

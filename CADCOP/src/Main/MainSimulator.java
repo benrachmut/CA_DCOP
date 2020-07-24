@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
@@ -75,12 +77,12 @@ public class MainSimulator {
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
 	 * 7 = max sum standard
 	 */
-	public static int agentType = 1; 
+	public static int agentType = 1;
 
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
 	 */
-	public static int delayType = 1;
+	public static int delayType = 2;
 	public static CreatorDelays creatorDelay;
 
 	/*
@@ -91,27 +93,66 @@ public class MainSimulator {
 //	public static CreatorDelays creatorDelay;
 //	public static CreatorDowns creatorDown;
 	public static String header = "";
-	
+
 	public static String protocolDelayHeader = "";
 	public static String protocolDownHeader = "";
 	public static String mailerHeader = "";
-	
+	public static List<String> lineInExcelMap= new ArrayList<String>();
+
 
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();
-		printProblemCreationDebug(dcops);
+		// printProblemCreationDebug(dcops);
 		List<Protocol> protocols = createProtocols();
 		runDcops(dcops, protocols);
-		createHeaderInput();
+		createData();
 
-		//createStatistics();
+		// createStatistics();
 	}
-	
-	//------------ 1. DCOP CREATION------------
+
+	private static void createData() {
+		createHeaderInput();
+		if (!isThreadMailer) {
+			createIterativeData();
+		}
+
+	}
+
+	private static void createIterativeData() {
+		String dcopString = Dcop.dcopParameters;
+		for (Entry<Protocol, List<Mailer>> e : mailersByProtocol.entrySet()) {
+			String prtocolString = e.getKey().getDelay().toString();
+			SortedMap<Integer, List<Data>> mapBeforeCalcMean = getMeanMapBeforeAvg(e.getValue());
+			SortedMap<Integer, Data> meanMap = createMeanMap(mapBeforeCalcMean);
+		}
+
+	}
+
+	private static SortedMap<Integer, Data> createMeanMap(SortedMap<Integer, List<Data>> input) {
+		SortedMap<Integer, Data> ans = new TreeMap<Integer, Data>();
+		for (Entry<Integer, List<Data>> e : input.entrySet()) {
+			ans.put(e.getKey(), new Data(e));
+		}
+		return ans;
+	}
+
+	private static SortedMap<Integer, List<Data>> getMeanMapBeforeAvg(List<Mailer> mailers) {
+		SortedMap<Integer, List<Data>> ans = new TreeMap<Integer, List<Data>>();
+		for (int i = 0; i < termination; i++) {
+			List<Data> listPerIteration = new ArrayList<Data>();
+			for (Mailer mailer : mailers) {
+				listPerIteration.add(mailer.getDataPerIteration(i));
+			}
+			ans.put(i, listPerIteration);
+		} 
+		return ans;
+	}
+
+	// ------------ 1. DCOP CREATION------------
 	private static Dcop[] generateDcops() {
 		Dcop[] ans = new Dcop[end - start];
 		for (int i = 0; i < end - start; i++) {
-			int dcopId = i+start;
+			int dcopId = i + start;
 			ans[i] = createDcop(dcopId).initiate();
 		}
 		return ans;
@@ -152,8 +193,7 @@ public class MainSimulator {
 		return ans;
 	}
 
-	
-	//------------ 2. PROTOCOL CREATION------------
+	// ------------ 2. PROTOCOL CREATION------------
 	private static List<Protocol> createProtocols() {
 		List<ProtocolDelay> delays = getCreatorDelays().createProtocolDelays();
 		List<ProtocolDown> downs = getCreatorDowns().createProtocolDowns();
@@ -188,7 +228,7 @@ public class MainSimulator {
 	private static CreatorDelays getCreatorDelays() {
 		CreatorDelays ans = null;
 		if (delayType == 0) {
-			ans = new CreatorDelaysNone();	
+			ans = new CreatorDelaysNone();
 		}
 
 		if (delayType == 1) {
@@ -198,21 +238,24 @@ public class MainSimulator {
 		if (delayType == 2) {
 			ans = new CreatorDelaysUniform();
 		}
-		
+
 		protocolDelayHeader = ans.getHeader();
-			
+
 		return ans;
 	}
 
-	//------------ 3. PROTOCOL CREATION------------
+	// ------------ 3. Run the DCOPs------------
 
 	private static void runDcops(Dcop[] dcops, List<Protocol> protocols) {
 		for (Dcop dcop : dcops) {
+			int protocolCounter = -1;
 			for (Protocol protocol : protocols) {
+				protocolCounter += 1;
 				Mailer mailer = getMailer(protocol, dcop);
 				dcop.dcopMeetsMailer(mailer);
 				mailer.execute();
 				addMailerToDataFrames(protocol, mailer);
+				System.out.println("Finish DCOP " + dcop.getId() + " and protocol " + protocolCounter);
 			}
 		}
 
@@ -235,35 +278,48 @@ public class MainSimulator {
 		return ans;
 	}
 
-	
-	// 
-	
-	
+	// ------------ 4. DATA------------
+
+	private static void createHeaderInput() {
+
+		header = Dcop.dcopHeader;
+		if (delayType != 0) {
+			header = header + "," + protocolDelayHeader;
+		}
+		if (downType != 0) {
+			header = header + "," + protocolDownHeader;
+		}
+		header = header + Data.header();
+		header = header + AgentVariable.algorithmHeader;
+	}
+
+	// ------------ 5. Debug------------
+
 	private static void printProblemCreationDebug(Dcop[] dcops) {
 		printAmountOfNeighbors(dcops);
 		printConstraintMatrixs(dcops);
-		
+
 	}
 
 	private static void printConstraintMatrixs(Dcop[] dcops) {
 		for (Dcop dcop : dcops) {
-			System.out.println("-----Dcop number : "+dcop.getId()+" constraint matrix with agent zero ----");
+			System.out.println("-----Dcop number : " + dcop.getId() + " constraint matrix with agent zero ----");
 			for (AgentVariable a : dcop.getVariableAgents()) {
-				if (a.getId()!=0) {
+				if (a.getId() != 0) {
 					Integer[][] matrix = a.getMatrixWithAgent(0);
-					if (matrix !=null) {
-						System.out.println("\t"+ "agent "+a.getId());
+					if (matrix != null) {
+						System.out.println("\t" + "agent " + a.getId());
 						print2DArray(matrix);
 					}
 				}
 			}
-		}	
+		}
 	}
 
 	private static void print2DArray(Integer[][] matrix) {
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[i].length; j++) {
-				System.out.print("["+matrix[i][j]+"]");
+				System.out.print("[" + matrix[i][j] + "]");
 			}
 			System.out.println();
 		}
@@ -271,35 +327,18 @@ public class MainSimulator {
 
 	private static void printAmountOfNeighbors(Dcop[] dcops) {
 		for (Dcop dcop : dcops) {
-			System.out.println("-----Dcop number : "+dcop.getId()+" neighbor count-----");
+			System.out.println("-----Dcop number : " + dcop.getId() + " neighbor count-----");
 			double sumN = 0;
 			for (AgentVariable a : dcop.getVariableAgents()) {
 				int aN = a.neighborSize();
-				System.out.println("\t"+"Agent "+a.getId()+": "+aN);
+				System.out.println("\t" + "Agent " + a.getId() + ": " + aN);
 				sumN += aN;
 			}
 			System.out.println();
-			System.out.println("The average amount of neighbors per agent is: "+ (sumN/A));
+			System.out.println("The average amount of neighbors per agent is: " + (sumN / A));
 			System.out.println();
 		}
-		
+
 	}
 
-	private static void createHeaderInput() {
-		
-		header = Dcop.dcopHeader;
-		if (delayType != 0) {
-			header = header + "," + protocolDelayHeader;
-		}
-		if (downType != 0 ) {
-			header = header + "," + protocolDownHeader;
-		}
-		header = header + Data.header();
-		header = header + AgentVariable.algorithmHeader;
-	}
-
-	
-
-	
-	
 }

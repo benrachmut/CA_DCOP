@@ -41,6 +41,15 @@ public abstract class ProtocolDelay {
 
 	@Override
 	public String toString() {
+		String pc;
+
+		if (imperfectCommunicationScenario) {
+			pc = "Imperfect Communication";
+		}else {
+			pc = "Perfect Communication";
+		}
+		
+		
 		String timeS;
 		if (this.isTimeStamp) {
 			timeS = "With Time Stamp";
@@ -48,7 +57,7 @@ public abstract class ProtocolDelay {
 			timeS = "Without Time Stamp";
 		}
 		
-		return this.imperfectCommunicationScenario+","+timeS+","+this.gamma+","+getStringParamets();
+		return pc+","+timeS+","+this.gamma+","+getStringParamets();
 	}
 
 

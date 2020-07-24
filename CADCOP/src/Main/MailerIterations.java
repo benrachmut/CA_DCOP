@@ -20,16 +20,16 @@ import Problem.Dcop;
 
 public class MailerIterations extends Mailer {
 
-	public MailerIterations(Protocol protocol, double terminationTime, Dcop dcop) {
+	public MailerIterations(Protocol protocol, int terminationTime, Dcop dcop) {
 		super(protocol, terminationTime, dcop);
 	}
 
 	@Override
 	public void execute() {
 
-		for (double iteration = 0; iteration < this.terminationTime; iteration++) {
+		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
 			agentsReactToMsgs(iteration);
-			createData((double) iteration);
+			createData(iteration);
 			List<Msg> msgToSend = this.handleDelay();
 			agentsRecieveMsgs(msgToSend);
 
@@ -81,7 +81,7 @@ public class MailerIterations extends Mailer {
 
 		while (it.hasNext()) {
 			Msg msg = (Msg) it.next();
-			if (msg.getDelay() == 0) {
+			if (msg.getDelay() <= 0) {
 				msgToSend.add(msg);
 				it.remove();
 			} else {
