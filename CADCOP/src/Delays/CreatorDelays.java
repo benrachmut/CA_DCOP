@@ -15,7 +15,7 @@ import Delays.ProtocolDelay;
 public abstract class CreatorDelays  {
 
 	protected boolean[] imperfectCommunicationScenario={true,false};
-	protected boolean[] isTimeStamps = { true, false };
+	protected boolean[] isTimeStamps = { true};
 	protected double[] gammas = {0};
 
 	
@@ -51,7 +51,7 @@ public abstract class CreatorDelays  {
 	protected abstract Collection<? extends ProtocolDelay> createCombinationsDelay(boolean isTimeStamp, double gamma);
 	
 	public String getHeader() {
-		return "Perfect Communication,Time Stamp Use, Message Lost Prob,"+ header();
+		return "Perfect Communication,Timestamp Use, Message Lost Prob,"+ header();
 	}
 
 

@@ -32,7 +32,7 @@ public abstract class CreatorDown {
 	}
 	
 	public String getHeader() {
-		return "Agent Down Scenario, Prob Down Per Approch,"+header();
+		return "";
 	}
 
 

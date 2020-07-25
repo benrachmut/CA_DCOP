@@ -1,6 +1,9 @@
 package Main;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +16,6 @@ import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableInference;
 import Data.Data;
-import Data.Statistic;
 import Delays.CreatorDelays;
 import Delays.CreatorDelaysNone;
 import Delays.CreatorDelaysNormal;
@@ -33,7 +35,6 @@ public class MainSimulator {
 	// ------------------------------**For Data
 	public static List<Mailer> mailerAll = new ArrayList<Mailer>();
 	public static Map<Protocol, List<Mailer>> mailersByProtocol = new HashMap<Protocol, List<Mailer>>();
-	public static Map<Protocol, Statistic> statisticPerProtocol = new HashMap<Protocol, Statistic>();
 
 	// ------------------------------**Algorithmic relevance under imperfect
 	// communication**
@@ -42,14 +43,13 @@ public class MainSimulator {
 
 	// ------------------------------**Implementation**
 	public static boolean isThreadMailer = false; // determines the mailers type
-	public static double mailerMessagesGaps = 1;
 
 	// ------------------------------**any time**
 	public static boolean anyTime = false;
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 2;
+	public static int end = 10;
 	public static int termination = 1000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
@@ -61,9 +61,9 @@ public class MainSimulator {
 	/*
 	 * 1 = Random uniform; 2 = Graph Coloring; 3 = Scale Free Network
 	 */
-	public static int dcopBenchMark = 3;
+	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 1;// Probability for agents to have constraints
+	public static double dcopUniformP1 = 0.1;// Probability for agents to have constraints
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
@@ -92,38 +92,74 @@ public class MainSimulator {
 
 //	public static CreatorDelays creatorDelay;
 //	public static CreatorDowns creatorDown;
-	public static String header = "";
 
 	public static String protocolDelayHeader = "";
 	public static String protocolDownHeader = "";
 	public static String mailerHeader = "";
-	public static List<String> lineInExcelMap= new ArrayList<String>();
 
-
+	public static String header = "";
+	public static Collection<String> lineInExcel = new ArrayList<String>();
+	public static String fileName = "";
+	
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();
 		// printProblemCreationDebug(dcops);
 		List<Protocol> protocols = createProtocols();
 		runDcops(dcops, protocols);
 		createData();
+		createExcel();
 
 		// createStatistics();
 	}
 
-	private static void createData() {
-		createHeaderInput();
-		if (!isThreadMailer) {
-			createIterativeData();
+	private static void createExcel() {
+		BufferedWriter out = null;
+		try {
+			FileWriter s = new FileWriter(fileName + ".csv");
+			out = new BufferedWriter(s);
+			out.write(header);
+			out.newLine();
+
+			for (String o : lineInExcel) {
+				out.write(o);
+				out.newLine();
+			}
+
+			out.close();
+		} catch (Exception e) {
+			System.err.println("Couldn't open the file");
 		}
 
 	}
 
-	private static void createIterativeData() {
+	private static void createData() {
+		createFileName();
+		createHeader();
+		createMeansByProtocol();
+
+	}
+
+	private static void createFileName() {
+		String ans = "A_"+A+", ";
+		ans = ans+"Mailer_"+Mailer.mailerName+", ";
+		ans = ans+"DCOP_"+Dcop.dcopName+", ";
+		ans = ans+"Algorithm_"+AgentVariable.AlgorithmName+", ";
+		ans = ans+"reps_"+(end-start)+", ";
+		fileName = ans;
+	}
+
+	private static void createMeansByProtocol() {
 		String dcopString = Dcop.dcopParameters;
+		String algoString = AgentVariable.AlgorithmName + ","+AgentVariable.algorithmData;
 		for (Entry<Protocol, List<Mailer>> e : mailersByProtocol.entrySet()) {
-			String prtocolString = e.getKey().getDelay().toString();
+			String protocolString = e.getKey().getDelay().toString();
 			SortedMap<Integer, List<Data>> mapBeforeCalcMean = getMeanMapBeforeAvg(e.getValue());
 			SortedMap<Integer, Data> meanMap = createMeanMap(mapBeforeCalcMean);
+
+			for (Entry<Integer, Data> e1 : meanMap.entrySet()) {
+				String tempAns = dcopString + "," + protocolString + "," + algoString + "," + e1.getValue();
+				lineInExcel.add(tempAns);
+			}
 		}
 
 	}
@@ -144,7 +180,7 @@ public class MainSimulator {
 				listPerIteration.add(mailer.getDataPerIteration(i));
 			}
 			ans.put(i, listPerIteration);
-		} 
+		}
 		return ans;
 	}
 
@@ -253,10 +289,14 @@ public class MainSimulator {
 				protocolCounter += 1;
 				Mailer mailer = getMailer(protocol, dcop);
 				dcop.dcopMeetsMailer(mailer);
+				mailer.mailerMeetsDcop(dcop);
 				mailer.execute();
 				addMailerToDataFrames(protocol, mailer);
-				System.out.println("Finish DCOP " + dcop.getId() + " and protocol " + protocolCounter);
+				System.out.println("Finish DCOP: " + dcop.getId() + " ; SCORE: "
+						+ mailer.getDataPerIteration(termination - 1).getGlobalCost() + "; protocol "
+						+ protocol.getDelay());
 			}
+			System.out.println("----------------------------");
 		}
 
 	}
@@ -280,7 +320,7 @@ public class MainSimulator {
 
 	// ------------ 4. DATA------------
 
-	private static void createHeaderInput() {
+	private static void createHeader() {
 
 		header = Dcop.dcopHeader;
 		if (delayType != 0) {
@@ -289,8 +329,9 @@ public class MainSimulator {
 		if (downType != 0) {
 			header = header + "," + protocolDownHeader;
 		}
+		header = header + "Algorithm"+","+AgentVariable.algorithmHeader+",";
 		header = header + Data.header();
-		header = header + AgentVariable.algorithmHeader;
+
 	}
 
 	// ------------ 5. Debug------------

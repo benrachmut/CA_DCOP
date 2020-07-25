@@ -31,6 +31,7 @@ public abstract class Mailer {
 	private Double anytimeMsgsCounter;
 	protected Map<NodeId, List<MsgAlgorithm>> recieversAlgortihmicMsgs;
 	protected Map<NodeId, List<MsgAnyTime>> recieversAnyTimeMsgs;
+	public static String mailerName;
 
 	public Mailer(Protocol protocol, int terminationTime, Dcop dcop) {
 		super();
@@ -42,9 +43,12 @@ public abstract class Mailer {
 		this.messageBox = new ArrayList<Msg>();
 		this.terminationTime = terminationTime;
 		this.dataMap = new TreeMap<Integer, Data>();
+		setMailerName();
 
 	}
 
+	abstract public void setMailerName();
+	
 	public Data getDataPerIteration(int i) {
 		if (dataMap.containsKey(i)) {
 			return this.dataMap.get(i);
@@ -104,11 +108,12 @@ public abstract class Mailer {
 	 * @param dcopId
 	 * @param agents
 	 */
-	public void mailerMeetsDcop(Dcop dcop, List<Agent> agents) {
+	public void mailerMeetsDcop(Dcop dcop) {
 		this.messageBox = new ArrayList<Msg>();
 		this.dcop = dcop;
 		boolean isWithTimeStamp = this.protocol.getDelay().isWithTimeStamp();
-		for (Agent a : agents) {
+	
+		for (Agent a : dcop.getAgents()) {
 			a.setIsWithTimeStamp(isWithTimeStamp);
 		}
 		this.protocol.getDelay().setSeeds(dcop.getId());

@@ -85,7 +85,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				int currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
 				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
 					updateMessageInContextAndTreatFlag(msgAlgorithm);
-
 				}
 			} else {
 				updateMessageInContextAndTreatFlag(msgAlgorithm);
@@ -207,6 +206,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 */
 	public void meetMailer(Mailer mailer) {
 		this.mailer = mailer;
+		
 		this.resetAgent();
 
 	}

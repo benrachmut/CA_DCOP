@@ -108,6 +108,9 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	protected int getTimestampOfValueAssignmnets(MsgAlgorithm msgAlgorithm) {
 		NodeId senderNodeId = msgAlgorithm.getSenderId();
 		MsgReceive<Integer> msgReceive = this.neighborsValueAssignmnet.get(senderNodeId);
+		if (msgReceive == null) {
+			return -1;
+		}
 		return msgReceive.getTimestamp();
 	}
 

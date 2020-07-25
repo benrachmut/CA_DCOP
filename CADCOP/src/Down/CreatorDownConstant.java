@@ -10,7 +10,7 @@ public class CreatorDownConstant extends CreatorDown {
 	
 	@Override
 	protected String header() {
-		return "Counter Non Recieve Message,";
+		return "";
 	}
 
 	@Override

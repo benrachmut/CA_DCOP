@@ -23,5 +23,11 @@ public class MailerThread extends Mailer {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public void setMailerName() {
+		Mailer.mailerName = "Thread";
+		
+	}
 
 }

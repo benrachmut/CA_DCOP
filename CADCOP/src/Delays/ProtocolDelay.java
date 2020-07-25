@@ -52,9 +52,9 @@ public abstract class ProtocolDelay {
 		
 		String timeS;
 		if (this.isTimeStamp) {
-			timeS = "With Time Stamp";
+			timeS = "w Timestamp";
 		}else {
-			timeS = "Without Time Stamp";
+			timeS = "w/o Timestamp";
 		}
 		
 		return pc+","+timeS+","+this.gamma+","+getStringParamets();

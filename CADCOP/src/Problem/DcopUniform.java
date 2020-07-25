@@ -51,7 +51,7 @@ public class DcopUniform extends Dcop {
 
 	@Override
 	protected void setDcopHeader() {
-		Dcop.dcopHeader = "p1"+","+"p2"+"Domain Size";
+		Dcop.dcopHeader = "p1"+","+"p2"+","+"Domain Size";
 		
 	}
 

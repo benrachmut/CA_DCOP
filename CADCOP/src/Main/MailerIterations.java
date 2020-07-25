@@ -91,4 +91,10 @@ public class MailerIterations extends Mailer {
 		return msgToSend;
 	}
 
+	@Override
+	public void setMailerName() {
+		Mailer.mailerName = "Iteration";
+		
+	}
+
 }

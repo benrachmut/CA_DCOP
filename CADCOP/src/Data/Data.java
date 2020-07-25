@@ -29,18 +29,18 @@ public class Data {
 		this.time = e.getKey();
 
 		List<List<Double>> colletionPerFields = createColletionsPerField(e.getValue());
-		for (List<Double> datasLists : colletionPerFields) {
-			this.globalCost = calcMean(datasLists.get(0));
-			this.monotonicy = calcMean(datasLists.get(1));
-			this.povCost = calcMean(datasLists.get(2));
-			this.globalAnytimeCost = calcMean(datasLists.get(3));
-			this.changeValueAssignmentCounter = calcMean(datasLists.get(4));
-			this.algorithmMsgsCounter = calcMean(datasLists.get(5));
-		}
-		
-	
+			
+			this.globalCost = Statistics.mean(colletionPerFields.get(0));
+			this.monotonicy = Statistics.mean(colletionPerFields.get(1));
+			this.povCost = Statistics.mean(colletionPerFields.get(2));
+			this.globalAnytimeCost = Statistics.mean(colletionPerFields.get(3));
+			this.changeValueAssignmentCounter = Statistics.mean(colletionPerFields.get(4));
+			this.algorithmMsgsCounter = Statistics.mean(colletionPerFields.get(5));
 	}
 
+	
+	
+	
 	private List<List<Double>> createColletionsPerField(List<Data> datas) {
 		List<List<Double>> ans = new ArrayList<List<Double>>();
 		for (int i = 0; i < 6; i++) {
@@ -75,17 +75,7 @@ public class Data {
 
 
 
-	public static String header() {
-		String ans ="";
-		if (!MainSimulator.anyTime) {
-			ans = ans+ "Global View Cost" + "," + "Monotonicy" + "," + "Agent View Cost" + "Global Anytime View Cost" + ","
-					+ "Value Assignmnet Counter" + "," + "Algorithm Msgs Counter";
-			
-		} else {
-			throw new RuntimeException();
-		}
-		return ans;
-	}
+
 
 	private static Double calcPovCost(AgentVariable[] variableAgents) {
 		double ans = 0.0;
@@ -97,7 +87,7 @@ public class Data {
 				ans += aPOV;
 			}
 		}
-		return ans;
+		return ans/2.0;
 	}
 
 	private Double calcMonotonicy(Mailer mailer, Double globalCost2) {
@@ -140,14 +130,34 @@ public class Data {
 		return ans;
 	}
 
-	public String getHeader() {
-		return "Global Cost,Change Value Counter,Algorithm Message Counter,Anytime Message Counter,Cost Agent POV,";
+	
+	
+	public static String header() {
+		String ans ="";
+		if (!MainSimulator.anyTime) {
+			ans = ans+ "Iteration"+","
+					+"Global View Cost" + "," 
+					+ "Monotonicy" + "," 
+					+ "Agent View Cost" +","
+					+"Global Anytime Cost" +  ","
+					+ "Value Assignmnet Counter" + "," 
+					+ "Algorithm Msgs Counter";
+			
+		} else {
+			throw new RuntimeException();
+		}
+		return ans;
 	}
 
 	@Override
 	public String toString() {
-		return this.globalCost + "," + this.changeValueAssignmentCounter + "," + this.algorithmMsgsCounter + ","
-				+ this.anytimeMsgsCounter + "," + this.povCost + ",";
+		return this.time+","
+				+this.globalCost + "," 
+				+this.monotonicy + "," 
+				+ this.povCost+ "," 
+				+ this.globalAnytimeCost + "," 
+				+ this.changeValueAssignmentCounter + ","
+				+ this.algorithmMsgsCounter;
 	}
 
 	public Double getGlobalCost() {
