@@ -87,9 +87,11 @@ public abstract class MGM extends AgentVariableSearch {
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 		if (msgAlgorithm instanceof MsgValueAssignmnet) {
 			updateMsgInContextValueAssignmnet(msgAlgorithm);
+			return;
 		}
 		if (msgAlgorithm instanceof MsgLR) {
 			updateMsgInContextLR(msgAlgorithm);
+			return;
 		}
 
 		else {

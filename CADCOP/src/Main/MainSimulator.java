@@ -49,8 +49,8 @@ public class MainSimulator {
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 10;
-	public static int termination = 1000;
+	public static int end = 100;
+	public static int termination = 5000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
 	public static int A = 50; // amount of agents
@@ -61,7 +61,7 @@ public class MainSimulator {
 	/*
 	 * 1 = Random uniform; 2 = Graph Coloring; 3 = Scale Free Network
 	 */
-	public static int dcopBenchMark = 1;
+	public static int dcopBenchMark = 3;
 	// 1 = Random uniform
 	public static double dcopUniformP1 = 0.1;// Probability for agents to have constraints
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
@@ -144,12 +144,14 @@ public class MainSimulator {
 		ans = ans+"Mailer_"+Mailer.mailerName+", ";
 		ans = ans+"DCOP_"+Dcop.dcopName+", ";
 		ans = ans+"Algorithm_"+AgentVariable.AlgorithmName+", ";
-		ans = ans+"reps_"+(end-start)+", ";
+		ans = ans+"reps_"+(end-start);
 		fileName = ans;
 	}
 
 	private static void createMeansByProtocol() {
-		String dcopString = Dcop.dcopParameters;
+		String dcopString = Dcop.dcopName;
+		//String dcopString = "";
+
 		String algoString = AgentVariable.AlgorithmName + ","+AgentVariable.algorithmData;
 		for (Entry<Protocol, List<Mailer>> e : mailersByProtocol.entrySet()) {
 			String protocolString = e.getKey().getDelay().toString();
@@ -157,7 +159,7 @@ public class MainSimulator {
 			SortedMap<Integer, Data> meanMap = createMeanMap(mapBeforeCalcMean);
 
 			for (Entry<Integer, Data> e1 : meanMap.entrySet()) {
-				String tempAns = dcopString + "," + protocolString + "," + algoString + "," + e1.getValue();
+				String tempAns =  dcopString + "," + protocolString + "," + algoString + "," + e1.getValue();
 				lineInExcel.add(tempAns);
 			}
 		}
@@ -322,9 +324,10 @@ public class MainSimulator {
 
 	private static void createHeader() {
 
-		header = Dcop.dcopHeader;
+		header = "DCOP";
+		
 		if (delayType != 0) {
-			header = header + "," + protocolDelayHeader;
+			header = header+","+protocolDelayHeader;
 		}
 		if (downType != 0) {
 			header = header + "," + protocolDownHeader;

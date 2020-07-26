@@ -51,6 +51,10 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	protected abstract void resetAgentGivenParametersV3();
 
+	public double getCostPov() {
+		return getCostPerInput(this.valueAssignment);
+	}
+	
 	public int getCostPerInput(int input) {
 		int ans = 0;
 		for (Entry<NodeId, MsgReceive<Integer>> e : this.neighborsValueAssignmnet.entrySet()) {
@@ -66,9 +70,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		return ans;
 	}
 
-	public double getCostPov() {
-		return getCostPerInput(this.valueAssignment);
-	}
+
 
 	protected SortedMap<Integer, Integer> getCostPerDomain() {
 		SortedMap<Integer, Integer> ans = new TreeMap<Integer, Integer>();

@@ -522,5 +522,14 @@ public abstract class Dcop {
 		}
 		
 	}
+
+	public AgentVariable getVariableAgents(int i) {
+		for (AgentVariable av : agentsVariables) {
+			if (av.getId() == i) {
+				return av;
+			}
+		}
+		throw new RuntimeException();
+	}
 	
 }

@@ -51,12 +51,10 @@ public class DSA_SY extends DSA {
 		if (msgTimestamp == currentIteration) {
 			this.isNeighborInThisIteration.put(sender, true);
 			checkIfCanCompute();
-		} else {
-			if (msgTimestamp > 1) {
-				throw new RuntimeException();
-			}
-			this.futureMsgs.add(mva);
-		}
+		} /*
+			 * else { if (msgTimestamp > 1) { throw new RuntimeException(); }
+			 */
+		this.futureMsgs.add(mva);
 	}
 
 	private void checkIfCanCompute() {
@@ -73,7 +71,7 @@ public class DSA_SY extends DSA {
 		if (this.canCompute) {
 			canCompute = false;
 			resetNeighborRecieveInThisIteration();
-			this.currentIteration = this.currentIteration + 1;
+			this.currentIteration = this.currentIteration + 1;				
 			for (MsgValueAssignmnet mva : futureMsgs) {
 				if (mva.getTimeStamp() > this.currentIteration) {
 					throw new RuntimeException();
@@ -90,9 +88,5 @@ public class DSA_SY extends DSA {
 			this.isNeighborInThisIteration.put(nodeId, false);
 		}
 	}
-
-
-	
-	
 
 }
