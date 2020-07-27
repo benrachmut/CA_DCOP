@@ -9,6 +9,7 @@ import Messages.MsgValueAssignmnet;
 
 abstract public class DSA extends AgentVariableSearch {
 	protected double stochastic;
+	protected double rndForDebug; //for debug
 	protected Random rndStochastic;
 	protected boolean canCompute;
 
@@ -33,6 +34,7 @@ abstract public class DSA extends AgentVariableSearch {
 		this.rndStochastic = new Random(this.dcopId*10+this.id*100);
 		canCompute = false;
 		resetAgentGivenParametersV4();
+		rndForDebug = 0;
 	}
 	
 	protected abstract void resetAgentGivenParametersV4();
@@ -63,20 +65,25 @@ abstract public class DSA extends AgentVariableSearch {
 	protected boolean compute() {
 		if (canCompute) {
 			int candidate = getCandidateToChange();
+			//printForDebug();
+
 			if (candidate == valueAssignment) {
 				return false;
 			}else {
 				return stochasticChange(candidate);
 			}
-		}
+			}
 		return false;
 	}
 	
 	
 
 
+
+
 	private boolean stochasticChange(int candidate) {
 		double rnd = rndStochastic.nextDouble();
+		this.rndForDebug = rnd;
 		if (rnd < stochastic) {
 			this.valueAssignment = candidate;
 			return true;
@@ -96,6 +103,12 @@ abstract public class DSA extends AgentVariableSearch {
 	
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 		updateMsgInContextValueAssignmnet(msgAlgorithm);
+	}
+	
+	@Override
+	protected boolean getDidComputeInThisIteration() {
+		// TODO Auto-generated method stub
+		return canCompute;
 	}
 	
 }

@@ -48,12 +48,12 @@ public class MainSimulator {
 	public static boolean anyTime = false;
 
 	// ------------------------------**Experiment Repetitions**
-	public static int start = 0;
-	public static int end = 100;
-	public static int termination = 5000;
+	public static int start = 1;
+	public static int end = 2;
+	public static int termination = 50;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 50; // amount of agents
+	public static int A = 3; // amount of agents
 	public static int D = -1; // if D or costParameter < 0 use default
 	public static int costParameter = -1; // if D or costParameter < 0 use default
 
@@ -61,9 +61,9 @@ public class MainSimulator {
 	/*
 	 * 1 = Random uniform; 2 = Graph Coloring; 3 = Scale Free Network
 	 */
-	public static int dcopBenchMark = 3;
+	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.1;// Probability for agents to have constraints
+	public static double dcopUniformP1 = 1;// Probability for agents to have constraints
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
@@ -77,7 +77,7 @@ public class MainSimulator {
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
 	 * 7 = max sum standard
 	 */
-	public static int agentType = 1;
+	public static int agentType = 2;
 
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
@@ -293,6 +293,11 @@ public class MainSimulator {
 				dcop.dcopMeetsMailer(mailer);
 				mailer.mailerMeetsDcop(dcop);
 				mailer.execute();
+				/*
+				for (AgentVariable a : dcop.getVariableAgents()) {
+					System.out.println(a.getId()+","+a.getTimestamp());
+				}
+				*/
 				addMailerToDataFrames(protocol, mailer);
 				System.out.println("Finish DCOP: " + dcop.getId() + " ; SCORE: "
 						+ mailer.getDataPerIteration(termination - 1).getGlobalCost() + "; protocol "

@@ -282,6 +282,11 @@ public abstract class AgentVariable extends Agent {
 		return null;
 	}
 
+	public int getTimestamp() {
+		// TODO Auto-generated method stub
+		return this.timeStampCounter;
+	}
+
 
 	
 

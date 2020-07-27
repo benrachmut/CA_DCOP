@@ -135,7 +135,11 @@ public class NodeId implements Comparable<NodeId> {
 
 
 
-
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return this.id1+"";
+	}
 	
 	
 	

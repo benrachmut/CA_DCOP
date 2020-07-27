@@ -83,6 +83,12 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		for (MsgAlgorithm msgAlgorithm : messages) {
 			if (this.isWithTimeStamp) {
 				int currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
+				/*
+				if (this.id==25 && msgAlgorithm.getSenderId().getId1()==12) {
+					System.out.println(4);
+				}
+				*/
+				
 				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
 					updateMessageInContextAndTreatFlag(msgAlgorithm);
 				}
@@ -124,13 +130,17 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 */
 	public void reactionToAlgorithmicMsgs() {
 		boolean isUpdate = compute();
-		computationCounter = computationCounter + 1;
 		if (isMsgGoingToBeSent(isUpdate)) {
-			this.timeStampCounter++;
-			sendMsgs();
+			if (getDidComputeInThisIteration()) {
+				computationCounter = computationCounter + 1;
+				this.timeStampCounter = this.timeStampCounter+1;
+				sendMsgs();
+				changeRecieveFlagsToFalse();
+			}
 		}
-		changeRecieveFlagsToFalse();	
 	}
+
+	protected abstract boolean getDidComputeInThisIteration();
 
 	private boolean isMsgGoingToBeSent(boolean changeContext) {
 		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) || (MainSimulator.sendOnlyIfChange == false);

@@ -211,6 +211,12 @@ public abstract class MGM extends AgentVariableSearch {
 		
 	}
 	
+	@Override
+	protected boolean getDidComputeInThisIteration() {
+		// TODO Auto-generated method stub
+		return computeLr || computeVA;
+	}
+	
 	
 	
 

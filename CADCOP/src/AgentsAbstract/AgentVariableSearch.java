@@ -120,6 +120,11 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, this.valueAssignment,
 					this.timeStampCounter);
+			/*
+			if (timeStampCounter == 2 && id == 23 && recieverNodeId.getId1()==3) {
+				System.out.println(4);
+			}
+			*/
 			this.mailer.sendMsg(mva);
 		}
 
