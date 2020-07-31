@@ -84,11 +84,10 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			if (this.isWithTimeStamp) {
 				int currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
 				/*
-				if (this.id==25 && msgAlgorithm.getSenderId().getId1()==12) {
-					System.out.println(4);
-				}
-				*/
-				
+				 * if (this.id==25 && msgAlgorithm.getSenderId().getId1()==12) {
+				 * System.out.println(4); }
+				 */
+
 				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
 					updateMessageInContextAndTreatFlag(msgAlgorithm);
 				}
@@ -112,13 +111,12 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 *        field
 	 * @return
 	 */
-	
-	
-	protected  void updateMessageInContextAndTreatFlag(MsgAlgorithm msgAlgorithm){
+
+	protected void updateMessageInContextAndTreatFlag(MsgAlgorithm msgAlgorithm) {
 		updateMessageInContext(msgAlgorithm);
 		changeRecieveFlagsToTrue(msgAlgorithm);
 	}
-	
+
 	protected abstract void updateMessageInContext(MsgAlgorithm msgAlgorithm);
 
 	// ------------**Reaction to algorithmic messages methods**------------
@@ -133,7 +131,10 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		if (isMsgGoingToBeSent(isUpdate)) {
 			if (getDidComputeInThisIteration()) {
 				computationCounter = computationCounter + 1;
-				this.timeStampCounter = this.timeStampCounter+1;
+				this.timeStampCounter = this.timeStampCounter + 1;
+				/*
+				 * if (this.id == 2) { System.out.println("from agent"); }
+				 */
 				sendMsgs();
 				changeRecieveFlagsToFalse();
 			}
@@ -145,8 +146,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	private boolean isMsgGoingToBeSent(boolean changeContext) {
 		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) || (MainSimulator.sendOnlyIfChange == false);
 	}
-	
-	
+
 	/**
 	 * used by reactionToAlgorithmicMsgs and sent under condition of context sent of
 	 * input boolean MainSimulator.sendOnlyIfChange == false
@@ -154,7 +154,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param changeContext
 	 */
 
-	
 	public void reactionToAnytimeMsgs() {
 	}
 
@@ -165,10 +164,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @return if statues changed after context was updated
 	 */
 	protected abstract boolean compute();
-
-	
-
-	
 
 	/**
 	 * after verification, loop over neighbors and send them the message using the
@@ -216,7 +211,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 */
 	public void meetMailer(Mailer mailer) {
 		this.mailer = mailer;
-		
+
 		this.resetAgent();
 
 	}
@@ -227,15 +222,19 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	}
 
-	public static <T> SortedMap<NodeId, T> turnMapWithMsgRecieveToContextValues(
-			SortedMap<NodeId, MsgReceive<T>> input) {
-		SortedMap<NodeId, T> ans = new TreeMap<NodeId, T>();
-		for (Entry<NodeId, MsgReceive<T>> e : input.entrySet()) {
-			ans.put(e.getKey(), e.getValue().getContext());
+	public static  SortedMap<NodeId, Integer> turnMapWithMsgRecieveToContextValues(
+			SortedMap<NodeId, MsgReceive<Integer>> input) {
+		SortedMap<NodeId, Integer> ans = new TreeMap<NodeId, Integer>();
+		for (Entry<NodeId, MsgReceive<Integer>> e : input.entrySet()) {
+			if (e.getValue() == null) {
+				ans.put(e.getKey(), -1);
+			} else {
+				ans.put(e.getKey(), e.getValue().getContext());
+			}
 		}
 		return ans;
 	}
-	
+
 	protected abstract void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm);
 
 	protected abstract void changeRecieveFlagsToFalse();

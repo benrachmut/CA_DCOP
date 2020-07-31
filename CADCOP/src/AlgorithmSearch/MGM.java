@@ -24,7 +24,7 @@ public abstract class MGM extends AgentVariableSearch {
 
 	protected boolean computeLr;
 	protected boolean computeVA;
-	
+
 	public MGM(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		neighborsLR = new TreeMap<NodeId, MsgReceive<Integer>>();
@@ -80,6 +80,9 @@ public abstract class MGM extends AgentVariableSearch {
 	private int getTimestampOfLR(MsgAlgorithm msgAlgorithm) {
 		NodeId senderNodeId = msgAlgorithm.getSenderId();
 		MsgReceive<Integer> msgReceive = this.neighborsLR.get(senderNodeId);
+		if (msgReceive == null) {
+			return -1;
+		}
 		return msgReceive.getTimestamp();
 	}
 
@@ -108,15 +111,16 @@ public abstract class MGM extends AgentVariableSearch {
 
 	@Override
 	protected boolean compute() {
-		if (computeLr) {
-			return computeMyLR();
-		}
+		boolean ans1 = false;
 		if (computeVA) {
-			return computeChangeInValueAssignment();
+			ans1 =  computeChangeInValueAssignment();
 		}
-		return false;
+		boolean ans2 = false;
+		if (computeLr) {
+			ans2 =  computeMyLR();
+		}
+		return ans1 || ans2;
 	}
-
 
 	private boolean computeMyLR() {
 		int candidate = getCandidateToChange();
@@ -138,7 +142,7 @@ public abstract class MGM extends AgentVariableSearch {
 	}
 
 	private boolean changeLr(int lrToCheck) {
-		if (lrToCheck <= 0) {
+		if (lrToCheck < 0) {
 			throw new RuntimeException();
 		}
 		if (this.lr != lrToCheck) {
@@ -160,15 +164,28 @@ public abstract class MGM extends AgentVariableSearch {
 		SortedMap<NodeId, Integer> lrInfoPerNeighbor = Agent
 				.<Integer>turnMapWithMsgRecieveToContextValues(this.neighborsLR);
 		int maxLrOfNeighbors = Collections.max(lrInfoPerNeighbor.values());
+		/*
+		if (this.id==3) {
+			System.out.println("from mgm");
+		}
+		*/
 		if (this.lr > maxLrOfNeighbors) {
 			this.valueAssignment = this.candidateValueAssignment;
 			return true;
 		}
-		if (this.lr == maxLrOfNeighbors) {
+		
+		if (this.lr == maxLrOfNeighbors && maxLrOfNeighbors !=0) {
 			Set<NodeId> competitors = getCompetitors(maxLrOfNeighbors, lrInfoPerNeighbor);
-			NodeId bestCompetitor = Collections.min(competitors);
+			NodeId bestCompetitor = Collections.max(competitors);
 			if (this.nodeId.getId1() < bestCompetitor.getId1()) {
-				this.valueAssignment = this.candidateValueAssignment;
+				/*
+				if (this.id==1) {
+					System.out.println("from mgm");
+				}
+				*/
+				if (this.candidateValueAssignment != -1) {
+					this.valueAssignment = this.candidateValueAssignment;
+				}
 				return true;
 			} else {
 				return false;
@@ -187,38 +204,40 @@ public abstract class MGM extends AgentVariableSearch {
 		return ans;
 	}
 
-	
 	@Override
 	protected void sendMsgs() {
-		if (computeLr) {
-			if (lr == -1) {
-				throw new RuntimeException();
-			}
-			sendLRmsgs();
-		}
 		if (computeVA) {
 			sendValueAssignmnetMsgs();
 		}
 		
+		if (computeLr) {
+			if (lr > -1) {
+				sendLRmsgs();
+			}else {
+				throw new RuntimeException();
+			}
+		}
+		
+
 	}
 
 	private void sendLRmsgs() {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
-			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, 
-					this.lr, this.timeStampCounter);
-			this.mailer.sendMsg(mva);
+			MsgLR mlr = new MsgLR(this.nodeId, recieverNodeId, this.lr, this.timeStampCounter);
+			this.mailer.sendMsg(mlr);
 		}
-		
+
 	}
-	
+
 	@Override
 	protected boolean getDidComputeInThisIteration() {
 		// TODO Auto-generated method stub
 		return computeLr || computeVA;
 	}
-	
-	
-	
 
+	public int getLR() {
+		// TODO Auto-generated method stub
+		return this.lr;
+	}
 
 }

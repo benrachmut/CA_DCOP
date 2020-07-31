@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.sun.org.apache.bcel.internal.generic.LREM;
+
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.NodeId;
 import Messages.MsgAlgorithm;
@@ -14,8 +16,9 @@ import Messages.MsgValueAssignmnet;
 public class MGM_SY extends MGM {
 	private SortedMap<NodeId, Boolean> isFromNeighborLr;
 	private SortedMap<NodeId, Boolean> isFromNeighborValueAssignmnent;
-	private int currentIteration;
-	private Collection<MsgLR> futureMsgs;
+	// private int currentIteration;
+	// private Collection<MsgLR> futureMsgs;
+	private boolean currentPhaseWaitForVA;
 
 	public MGM_SY(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
@@ -30,10 +33,10 @@ public class MGM_SY extends MGM {
 
 		resetFromNeighborLr();
 		resetFromNeighborValueAssignmnent();
-
-		this.isWithTimeStamp = false;
-		this.currentIteration = 0;
-		futureMsgs = new ArrayList<MsgLR>();
+		currentPhaseWaitForVA = true;
+		this.isWithTimeStamp = true;
+		// this.currentIteration = 0;
+		// futureMsgs = new ArrayList<MsgLR>();
 
 	}
 
@@ -59,16 +62,61 @@ public class MGM_SY extends MGM {
 	}
 
 	@Override
+	protected void updateMessageInContext(MsgAlgorithm m) {
+		boolean shouldUpdateInContext1 = (m instanceof MsgLR && this.currentPhaseWaitForVA == false);
+		boolean shouldUpdateInContext2 = (m instanceof MsgValueAssignmnet
+				&& this.currentPhaseWaitForVA == true);
+		boolean shouldUpdateInContext = shouldUpdateInContext1 || shouldUpdateInContext2;
+
+		if (shouldUpdateInContext) {
+			super.updateMessageInContext(m);
+		}else {
+			MsgAlgorithm copiedM = null;
+			if (m instanceof MsgLR) {
+				copiedM = new MsgLR(m);
+			}else {
+				copiedM = new MsgValueAssignmnet(m);
+
+			}
+			mailer.sendMsgWitoutDelay(copiedM);
+			m.setContext(null);
+		}
+
+	}
+
+	
+	@Override
+	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
+		if (msgAlgorithm.getContext() != null) {
+			NodeId sender = msgAlgorithm.getSenderId();
+			int msgTimestamp = msgAlgorithm.getTimeStamp();
+			if (msgAlgorithm instanceof MsgLR) {
+				this.isFromNeighborLr.put(sender, true);
+				checkIfCanComputeVA();
+			}
+			if (msgAlgorithm instanceof MsgValueAssignmnet) {
+				this.isFromNeighborValueAssignmnent.put(sender, true);
+				checkIfCanComputeLR();
+			}	
+		}	
+	}
+	
+	
+	@Override
 	protected void changeRecieveFlagsToFalse() {
 		if (this.computeLr) {
 			this.computeLr = false;
 			resetFromNeighborValueAssignmnent();
+			currentPhaseWaitForVA = false;
 		}
 		if (this.computeVA) {
 			this.computeVA = false;
 			resetFromNeighborLr();
+			currentPhaseWaitForVA = true;
+
+			
 		}
-		
+/*
 		this.currentIteration = this.currentIteration + 1;
 		for (MsgLR msg : futureMsgs) {
 			if (msg.getTimeStamp() > this.currentIteration) {
@@ -77,32 +125,10 @@ public class MGM_SY extends MGM {
 			this.updateMessageInContextAndTreatFlag(msg);
 		}
 		futureMsgs = new ArrayList<MsgLR>();
-
+*/
 	}
+
 	
-
-
-	@Override
-	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
-		NodeId sender = msgAlgorithm.getSenderId();
-		int msgTimestamp = msgAlgorithm.getTimeStamp();
-
-		if (msgTimestamp == currentIteration) {
-			if (msgAlgorithm instanceof MsgLR) {
-				this.isFromNeighborLr.put(sender, true);
-				checkIfCanComputeVA();
-			}
-			if (msgAlgorithm instanceof MsgValueAssignmnet) {
-				this.isFromNeighborValueAssignmnent.put(sender, true);
-				checkIfCanComputeLR();
-			}
-		}else {
-			if (msgTimestamp > 1 || msgAlgorithm instanceof MsgLR == false) {
-				throw new RuntimeException();
-			}
-			this.futureMsgs.add((MsgLR)msgAlgorithm);
-		}
-	}
 
 	private void checkIfCanComputeLR() {
 		for (Boolean b : this.isFromNeighborValueAssignmnent.values()) {
@@ -111,7 +137,7 @@ public class MGM_SY extends MGM {
 			}
 		}
 		computeLr = true;
-		
+
 	}
 
 	private void checkIfCanComputeVA() {
@@ -122,8 +148,5 @@ public class MGM_SY extends MGM {
 		}
 		computeVA = true;
 	}
-	
-	
-
 
 }

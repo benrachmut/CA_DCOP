@@ -71,21 +71,30 @@ public abstract class Mailer {
 	 * @param m
 	 */
 	public void sendMsg(Msg m) {
-
+		changeMsgsCounter(m);		
+		int d = createDelay();
+		if (d != -1) {
+			m.setDelay(d);
+			this.messageBox.add(m);
+		}
+	}
+	
+	public void sendMsgWitoutDelay(MsgAlgorithm m) {
+		m.setDelay(0);
+		this.messageBox.add(m);
+		
+	}
+	
+	private void changeMsgsCounter(Msg m) {
 		if (m instanceof MsgAlgorithm) {
 			this.algorithmMsgsCounter++;
 		}
 		if (m instanceof MsgAnyTime) {
 			this.anytimeMsgsCounter++;
-		}
-
-		double d = createDelay();
-		if (d != -1) {
-			m.setDelay(d);
-			this.messageBox.add(m);
-		}
-
+		}		
 	}
+
+	
 
 	private int createDelay() {
 		Double d = this.protocol.getDelay().createDelay();
@@ -366,5 +375,7 @@ public abstract class Mailer {
 
 		return d.getGlobalAnytimeCost();
 	}
+
+	
 
 }

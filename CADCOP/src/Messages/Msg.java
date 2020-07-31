@@ -6,10 +6,10 @@ public abstract class Msg<Identity> {
 
 	private NodeId sender;
 	private NodeId reciever;
-	private Object context;
+	protected Object context;
 	private int timestamp;
 	
-	private Double delay;
+	private Integer delay;
 	
 	
 	
@@ -25,7 +25,7 @@ public abstract class Msg<Identity> {
 
 
 
-	public void setDelay(double d) {
+	public void setDelay(Integer d) {
 		this.delay = d;
 		
 	}
@@ -43,7 +43,7 @@ public abstract class Msg<Identity> {
 	public NodeId getSenderId() {
 		return sender;
 	}
-	public Double getDelay() {
+	public Integer getDelay() {
 		return this.delay;
 	}
 

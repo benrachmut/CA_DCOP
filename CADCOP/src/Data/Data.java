@@ -78,6 +78,12 @@ public class Data {
 			this.anytimeMsgsCounter = mailer.getAnytimeMsgsCounter();
 		}
 		this.monotonicy = calcMonotonicy(mailer, globalCost);
+		/*
+		if (this.monotonicy!=1.0) {
+			System.out.println("from data");
+		}
+		*/
+		
 		this.globalAnytimeCost = calcGlobalAnytimeCost(mailer);
 		this.povCost = calcPovCost(dcop.getVariableAgents());
 		

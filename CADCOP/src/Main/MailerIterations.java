@@ -12,6 +12,7 @@ import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
 import AlgorithmSearch.DSA_SY;
+import AlgorithmSearch.MGM;
 import Comparators.CompMsgByDelay;
 import Data.Data;
 import Delays.ProtocolDelay;
@@ -29,16 +30,42 @@ public class MailerIterations extends Mailer {
 
 	@Override
 	public void execute() {
-		printHeaderForDebugDSA_SY();
+		//printHeaderForDebugDSA_SY();
+		//printHeaderForDegbugMgm();
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
 			agentsReactToMsgs(iteration);
+			//printForDegbugMgm(iteration);
+			//printForDebugDSA_SY(iteration);
 			createData(iteration);
-			printForDebugDSA_SY(iteration);
 			List<Msg> msgToSend = this.handleDelay();
 			agentsRecieveMsgs(msgToSend);
 
 		}
 
+	}
+
+	private void printHeaderForDegbugMgm() {
+		String ans ="iteration"+",";
+		for (AgentVariable a : dcop.getVariableAgents()) {
+			ans =ans+ "a"+a.getId()+" VA"+",";
+		}
+		for (AgentVariable a : dcop.getVariableAgents()) {
+			ans =ans+"a"+a.getId()+" LR"+",";
+		}
+		
+		System.out.println(ans);
+		
+	}
+
+	private void printForDegbugMgm(int iteration) {
+		String ans =iteration+",";
+		for (AgentVariable a : dcop.getVariableAgents()) {
+			ans = ans+a.getValueAssignment()+",";
+		}
+		for (AgentVariable a : dcop.getVariableAgents()) {
+			ans = ans+((MGM)a).getLR()+",";
+		}
+		System.out.println(ans);
 	}
 
 	private void printHeaderForDebugDSA_SY() {
@@ -74,7 +101,7 @@ public class MailerIterations extends Mailer {
 		System.out.println(ans);
 	}
 
-	private void agentsReactToMsgs(double iteration) {
+	private void agentsReactToMsgs(int iteration) {
 
 		for (Agent agent : dcop.getAgents()) {
 			if (iteration == 0) {

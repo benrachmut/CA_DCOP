@@ -7,4 +7,8 @@ public class MsgLR extends MsgAlgorithm {
 		super(sender, reciever, context, timeStamp);
 		// TODO Auto-generated constructor stub
 	}
+
+	public MsgLR(MsgAlgorithm m) {
+		this(m.getSenderId(), m.getRecieverId(), m.getContext(), m.getTimeStamp());
+	}
 }

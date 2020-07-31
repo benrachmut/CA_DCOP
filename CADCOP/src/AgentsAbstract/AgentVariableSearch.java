@@ -1,10 +1,13 @@
 package AgentsAbstract;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import Messages.Msg;
 import Messages.MsgAlgorithm;
@@ -54,15 +57,15 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	public double getCostPov() {
 		return getCostPerInput(this.valueAssignment);
 	}
-	
+
 	public int getCostPerInput(int input) {
 		int ans = 0;
 		for (Entry<NodeId, MsgReceive<Integer>> e : this.neighborsValueAssignmnet.entrySet()) {
-			 
+
 			if (e.getValue() != null) {
 				Object context = e.getValue().getContext();
 				int nValueAssignmnet = e.getValue().getContext();
-				
+
 				Integer[][] nConst = this.neighborsConstraint.get(e.getKey());
 				ans += nConst[input][nValueAssignmnet];
 			}
@@ -70,13 +73,13 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		return ans;
 	}
 
-
-
 	protected SortedMap<Integer, Integer> getCostPerDomain() {
 		SortedMap<Integer, Integer> ans = new TreeMap<Integer, Integer>();
 		for (int domainCandidate : domainArray) {
+
 			int sumCostPerAgent = this.getCostPerInput(domainCandidate);
 			ans.put(domainCandidate, sumCostPerAgent);
+
 		}
 		return ans;
 	}
@@ -85,19 +88,31 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
 		int minCost = Collections.min(costPerDomain.values());
 		int costOfCurrentValue = costPerDomain.get(this.valueAssignment);
-		if (minCost < costOfCurrentValue) {
-			return getAlternativeCandidate(minCost, costPerDomain);
+		if (minCost <= costOfCurrentValue) {
+			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
+			if (alternatives.isEmpty()) {
+				return this.valueAssignment;
+			}
+			return alternatives.first();
 		}
 		return this.valueAssignment;
+
 	}
 
-	private int getAlternativeCandidate(int minCost, SortedMap<Integer, Integer> costPerDomain) {
+	private SortedSet<Integer> getAlternativeCandidate(int minCost, SortedMap<Integer, Integer> costPerDomain) {
+		SortedSet<Integer>ans= new TreeSet<Integer>();
 		for (Entry<Integer, Integer> e : costPerDomain.entrySet()) {
-			if (e.getValue() == minCost && e.getKey() != this.valueAssignment) {
-				return e.getKey();
+			int cost = e.getValue();
+			int valueAssignmnet = e.getKey();
+			if ( cost== minCost) {
+				ans.add(valueAssignmnet);
 			}
 		}
-		throw new RuntimeException();
+		if (ans.contains(this.valueAssignment)) {
+			ans.remove(this.valueAssignment);
+		}
+		
+		return ans;
 	}
 
 	protected void updateMsgInContextValueAssignmnet(MsgAlgorithm msgAlgorithm) {
@@ -121,10 +136,9 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, this.valueAssignment,
 					this.timeStampCounter);
 			/*
-			if (timeStampCounter == 2 && id == 23 && recieverNodeId.getId1()==3) {
-				System.out.println(4);
-			}
-			*/
+			 * if (timeStampCounter == 2 && id == 23 && recieverNodeId.getId1()==3) {
+			 * System.out.println(4); }
+			 */
 			this.mailer.sendMsg(mva);
 		}
 

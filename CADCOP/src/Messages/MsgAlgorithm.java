@@ -9,6 +9,10 @@ public class MsgAlgorithm extends Msg{
 		// TODO Auto-generated constructor stub
 	}
 
+	public void setContext(Object input) {
+		this.context = input;
+	}
+
 	
 
 

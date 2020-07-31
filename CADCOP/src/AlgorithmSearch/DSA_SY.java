@@ -1,7 +1,5 @@
 package AlgorithmSearch;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -14,7 +12,6 @@ import Messages.MsgValueAssignmnet;
 
 public class DSA_SY extends DSA {
 	private SortedMap<NodeId, Boolean> isNeighborInThisIteration;
-	private Collection<MsgAlgorithm> futureMsgs;
 
 	public DSA_SY(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
@@ -35,7 +32,7 @@ public class DSA_SY extends DSA {
 	protected void resetAgentGivenParametersV4() {
 		resetNeighborRecieveInThisIteration();
 		this.isWithTimeStamp = true;
-		futureMsgs = new ArrayList<MsgAlgorithm>();
+		// futureMsgs = new ArrayList<MsgAlgorithm>();
 	}
 
 	@Override
@@ -45,30 +42,26 @@ public class DSA_SY extends DSA {
 
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
-		int counter = 0;
-		if (this.id == 1 ) {
-			counter+=1;
-			System.out.println(counter);
-		}
-		
+
 		int currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
-		if (msgAlgorithm.getTimeStamp() == currentDateInContext + 1) {
+		if (msgAlgorithm.getTimeStamp() == currentDateInContext + 1 && 
+				this.timeStampCounter == msgAlgorithm.getTimeStamp()) {
 			super.updateMessageInContext(msgAlgorithm);
 		} else {
-			this.futureMsgs.add(msgAlgorithm);
+			MsgAlgorithm copiedMsg = new MsgValueAssignmnet(msgAlgorithm);
+			this.mailer.sendMsgWitoutDelay(copiedMsg);
+			msgAlgorithm.setContext(null) ;
 		}
 	}
 
 	@Override
 	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
-		MsgValueAssignmnet mva = (MsgValueAssignmnet) msgAlgorithm;
-		NodeId sender = mva.getSenderId();
-
-		if (!futureMsgs.contains(msgAlgorithm)) {
+		if (msgAlgorithm.getContext() != null) {
+			MsgValueAssignmnet mva = (MsgValueAssignmnet) msgAlgorithm;
+			NodeId sender = mva.getSenderId();
 			this.isNeighborInThisIteration.put(sender, true);
 			checkIfCanCompute();
 		}
-
 	}
 
 	private void checkIfCanCompute() {
@@ -89,7 +82,7 @@ public class DSA_SY extends DSA {
 		if (this.canCompute) {
 			canCompute = false;
 			resetNeighborRecieveInThisIteration();
-
+/*
 			if (!futureMsgs.isEmpty()) {
 				for (MsgAlgorithm mva : futureMsgs) {
 					if (mva.getTimeStamp() != this.timeStampCounter) {
@@ -106,6 +99,7 @@ public class DSA_SY extends DSA {
 			}
 
 			futureMsgs = new ArrayList<MsgAlgorithm>();
+		*/
 		}
 	}
 
