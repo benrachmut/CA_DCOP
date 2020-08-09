@@ -61,12 +61,14 @@ public class MainSimulator {
 	/*
 	 * 1 = Random uniform; 2 = Graph Coloring; 3 = Scale Free Network
 	 */
-	public static int dcopBenchMark = 1;
+	public static int dcopBenchMark = 2;
 	// 1 = Random uniform
 	public static double dcopUniformP1 = 0.6;// 0.1,0.6
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
+	public static int costLb = 10;
+	public static int costUb = 100;
 	// 3 = Graph Coloring
 	public static int dcopScaleHubs = 10; // number of agents with central weight
 	public static int dcopScaleNeighbors = 3; // number of neighbors (not including policy of hubs
@@ -77,7 +79,7 @@ public class MainSimulator {
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
 	 * 7 = max sum standard
 	 */
-	public static int agentType = 4;
+	public static int agentType = 1;
 
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
@@ -103,7 +105,7 @@ public class MainSimulator {
 	
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();
-		// printProblemCreationDebug(dcops);
+		//printProblemCreationDebug(dcops);
 		List<Protocol> protocols = createProtocols();
 		runDcops(dcops, protocols);
 		createData();
@@ -206,6 +208,7 @@ public class MainSimulator {
 
 			if (dcopBenchMark == 2) {
 				ans = new DcopGraphColoring(dcopId, A, dcopGraphColoringP1);
+				//int dcopId, int A, int D, int costLb, int costUb, double p1
 			}
 
 			if (dcopBenchMark == 3) {
@@ -219,7 +222,7 @@ public class MainSimulator {
 			}
 
 			if (dcopBenchMark == 2) {
-				ans = new DcopGraphColoring(dcopId, A, D, costParameter, dcopGraphColoringP1);
+				ans = new DcopGraphColoring(dcopId, A, D, costLb, costUb, dcopGraphColoringP1);
 			}
 
 			if (dcopBenchMark == 3) {

@@ -13,6 +13,8 @@ public class Neighbor {
 	private int costParameter;
 	private double p2;
 	private Random randomP2, randomCost;
+	private int costLb;
+	private int costUb;
 
 	public Neighbor(AgentVariable a1, AgentVariable a2, int D, int costParameter, int dcopId, double p2) {
 		super();
@@ -24,7 +26,24 @@ public class Neighbor {
 		neighborsMeetings();
 	}
 	
+	public Neighbor(AgentVariable a1, AgentVariable a2, int D, int costLb,int costUb, int dcopId) {
+		updateVariables(a1,a2,costLb, costUb,D);
+		this.randomCost = new Random(dcopId * 100 + a1.getId() * 300 + a2.getId() * 1200);
+		createConstraintsForEquality();
+		neighborsMeetings();
+	}
 
+	private void updateVariables(AgentVariable a1, AgentVariable a2, int costLb, int costUb, int D) {
+		this.a1 = a1;
+		this.a2 = a2;
+		this.costLb = costLb;
+		this.costUb = costUb;
+
+
+		this.constraints = new Integer[D][D];
+		this.constraintsTranspose= new Integer[D][D];
+		
+	}
 
 	public Integer[][] getConstraints() {
 		return constraints;
@@ -34,11 +53,7 @@ public class Neighbor {
 		return constraintsTranspose;
 	}
 
-	public Neighbor(AgentVariable a1, AgentVariable a2, int D, int costParameter, int dcopId) {
-		updateVariables(a1,a2,costParameter,D);
-		createConstraintsForEquality();
-		neighborsMeetings();
-	}
+
 	private void updateVariables(AgentVariable a1, AgentVariable a2, int costParameter, int D) {
 		this.a1 = a1;
 		this.a2 = a2;
@@ -53,8 +68,9 @@ public class Neighbor {
 		for (int i = 0; i < constraints.length; i++) {
 			for (int j = 0; j < constraints[i].length; j++) {
 				if (j==i) {
-					constraints[i][j] = costParameter;
-					constraintsTranspose[j][i] = costParameter;
+					int rndCost = costLb + randomCost.nextInt(costUb - costLb);
+					constraints[i][j] = rndCost;
+					constraintsTranspose[j][i] = rndCost;
 				}
 				else {
 					constraints[i][j] = 0;

@@ -14,17 +14,18 @@ public class DcopScaleFreeNetwork extends Dcop {
 	private int hubs;
 	private int neighborsPerAgent;
 	private double p2;
-
+	private int costParameter;
 	private Random randomHub, randomNotHub, randomP2;
 
 	public DcopScaleFreeNetwork(int dcopId,int A, int D, int costPrameter, int hubs, int neighborsPerAgent, double p2) {
-		super(dcopId, A, D, costPrameter);
+		super(dcopId, A, D);
 		this.hubs = hubs;
 		this.neighborsPerAgent = neighborsPerAgent;
 		this.p2 = p2;
 		randomHub = new Random(this.dcopId * 10);
 		randomNotHub = new Random(this.dcopId * 20);
 		randomP2 = new Random(this.dcopId * 30);
+		this.costParameter = costPrameter;
 		updateNames();
 	}
 

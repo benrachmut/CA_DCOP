@@ -8,16 +8,19 @@ public class DcopGraphColoring extends Dcop {
 	
 	private double p1;
 	private Random randomP1;
+	private int costLb,costUb;
 	
-	public DcopGraphColoring(int dcopId, int A, int D, int costPrameter, double p1) {
-		super(dcopId,A, D, costPrameter);
+	public DcopGraphColoring(int dcopId, int A, int D, int costLb, int costUb, double p1) {
+		super(dcopId,A, D);
 		this.p1 = p1;
 		randomP1 = new Random(this.dcopId*10);
+		this.costLb = costLb;
+		this.costUb = costUb;
 		updateNames();
 	}
 	
 	public DcopGraphColoring(int dcopId,int A, double p1) {
-		this(dcopId, A, 3, 10, p1);
+		this(dcopId, A, 3, 10,20, p1);
 	}
 		
 	@Override
@@ -28,7 +31,7 @@ public class DcopGraphColoring extends Dcop {
 				if (rnd < p1) {
 					AgentVariable a1 = agentsVariables[i];
 					AgentVariable a2 = agentsVariables[j];
-					this.neighbors.add(new Neighbor(a1, a2, D, costParameter, dcopId));
+					this.neighbors.add(new Neighbor( a1,  a2,  D,  costLb, costUb,  dcopId));
 			
 				} // if neighbors
 			} // for j

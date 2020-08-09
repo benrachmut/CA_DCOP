@@ -8,13 +8,15 @@ public class DcopUniform extends Dcop {
 	private Random randomP1;
 	private double p1;
 	private double p2;
+	private int costParameter;
 
-	public DcopUniform(int dcopId, int A, int D, int costPrameter, double p1, double p2) {
-		super(dcopId,A, D, costPrameter);
+	public DcopUniform(int dcopId, int A, int D, int costParamters, double p1, double p2) {
+		super(dcopId,A, D);
 		this.randomP1 = new Random(this.dcopId * 10);
 		this.p1 = p1;
 		this.p2 = p2;
 		this.D = D;
+		this.costParameter = costParamters; 
 		updateNames();
 	}
 

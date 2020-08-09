@@ -35,7 +35,6 @@ public abstract class Dcop {
 	protected AgentVariable[] agentsVariables;
 	protected List<Neighbor> neighbors;
 	protected int D;
-	protected int costParameter;
 
 	// ------- ** for factor graph use **------
 	protected List<AgentFunction> agentFunctions;
@@ -48,9 +47,8 @@ public abstract class Dcop {
 	public static String dcopParameters;
 //	protected List<AgentFunction> functionNodes;
 
-	public Dcop(int dcopId, int A, int D, int costPrameter) {
+	public Dcop(int dcopId, int A, int D) {
 		this.D = D;
-		this.costParameter = costPrameter;
 		this.agentFunctions = new ArrayList<AgentFunction>();
 		this.dcopId = dcopId;
 		agentsVariables = new AgentVariable[A];
