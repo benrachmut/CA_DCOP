@@ -21,6 +21,7 @@ import AlgorithmSearch.MGM_SY;
 import AlgorithmsInference.MaxSumSplitConstraintFactorGraph;
 import AlgorithmsInference.MaxSumStandardFunction;
 import AlgorithmsInference.MaxSumStandardVarible;
+import AlgorithmsInference.MaxSumStandardVaribleSync;
 import Comparators.CompAgentVariableByNeighborSize;
 import Main.Mailer;
 import Main.MainSimulator;
@@ -115,10 +116,19 @@ public abstract class Dcop {
 			ans = new AgentDSASDP(dcopId, D, agentId);
 		}
 		*/
-		if (agentType == 7 || agentType == 8) {
-		
+		if (agentType == 7){
 			ans = new MaxSumStandardVarible(dcopId, D, agentId);
 		}
+		
+		if (agentType == 8){
+			ans = new MaxSumStandardVaribleSync(dcopId, D, agentId);
+		}
+		/*
+		if (agentType == 9){
+			ans = new MaxSumSplitConstraintFactorGraph(dcopId, D, agentId);
+		}
+		*/
+		
 
 		return ans;
 	}

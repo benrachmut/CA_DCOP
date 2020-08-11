@@ -49,11 +49,11 @@ public class MainSimulator {
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 100;
+	public static int end = 1;
 	public static int termination = 5000;//5000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 50; // amount of agents
+	public static int A = 3; // amount of agents
 	public static int D = -1; // if D or costParameter < 0 use default
 	public static int costParameter = -1; // if D or costParameter < 0 use default
 
@@ -77,9 +77,9 @@ public class MainSimulator {
 	// ------------------------------**Algorithm Selection**
 	/*
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
-	 * 7 = max sum standard
+	 * 7 = maxsum asynch; 8 = maxsum synch; 9 = split constraint factor 
 	 */
-	public static int agentType = 1;
+	public static int agentType = 8;
 
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
