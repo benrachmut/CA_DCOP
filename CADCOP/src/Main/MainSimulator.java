@@ -68,7 +68,7 @@ public class MainSimulator {
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
 	public static int costLb = 10;
-	public static int costUb = 100;
+	public static int costUb = 20;
 	// 3 = Graph Coloring
 	public static int dcopScaleHubs = 10; // number of agents with central weight
 	public static int dcopScaleNeighbors = 3; // number of neighbors (not including policy of hubs

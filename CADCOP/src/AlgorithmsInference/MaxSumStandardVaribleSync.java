@@ -1,4 +1,4 @@
-package Algorithms;
+package AlgorithmsInference;
 
 import java.util.HashMap;
 
@@ -12,7 +12,7 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 
 	///// ******* Variables ******* ////
 
-	protected HashMap<NodeId, Double> neighborsMessageIteration; 
+	protected HashMap<NodeId, Integer> neighborsMessageIteration; 
 	protected int currentIteration;
 
 	// -----------------------------------------------------------------------------------------------------------//
@@ -21,26 +21,41 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 
 	public MaxSumStandardVaribleSync(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
+		this.neighborsMessageIteration = new HashMap<NodeId, Integer>();
 		initiatNeighborsMessageIteration();
+		this.currentIteration = 0;
 
-		
-		
-		// TODO Auto-generated constructor stub
 	}
 
 	// -----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Main Methods ******* ////
 
-	//OmerP - To reset the agent if this is a new run. 
+	// OmerP - new information has arrived and the variable node will update its value assignment.
 	@Override
-	public void resetAgent() {
-		super.resetAgent();
-		this.functionMsgs = Agent.resetMapToValueNull(this.functionMsgs);
-		this.neighborsMessageIteration.clear();
+	public boolean compute() {
+
+		if(allMsgsForIterationReceived()) {
+			
+			produceNewMessages();
+			chooseValueAssignment();
+			
+		}
 		
+		return true;
+
 	}
 	
+	//OmerP - to reset after each run.
+	@Override
+	public void resetAgentGivenParametersV4() {
+		
+		clearHashMapIntValues(neighborsMessageIteration);
+		this.currentIteration = 0;
+		
+	}
+		
+	//OmerP - update messages. 
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
@@ -58,29 +73,23 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 	
 	// OmerP - will loop over the neighbors and will send to each one of the a
 	@Override
-	protected void sendMsg() {
+	protected void sendMsgs() {
 
-		if(allMsgsForIterationReceived()){
-		
-			for (NodeId i : functionMsgs.keySet()) { // Start loop over the neighbors.
-	
-				double[] sentTable = new double[this.domainSize];
-				sentTable = produceMessage(i, sentTable); // For each specific neighbor, sum all messages excluding the table of the receiving function node.
-				MsgAlgorithmFactor newMsg; 		
+		for (NodeId i : functionMsgs.keySet()) {
+			
+			mailer.sendMsg(messagesToBeSent.get(i));
+			
+			if(storedMessageOn) {
 				
-				if (dampingOn) { // If damping is on will generate a damped message.
-	
-					sentTable = damping(i, sentTable); // Will produce a damped message.
-					
-				}
-	
-				newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
-				mailer.sendMsg(newMsg);
-					
-				}
-	
+				storeNewMessage(i, messagesToBeSent.get(i).getContext());
+				
 			}
+			
+		}
 
+		messagesToBeSent.clear();
+		currentIteration++; 
+		
 	}
 	
 	// -----------------------------------------------------------------------------------------------------------//
@@ -89,8 +98,6 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 
 	//OmerP - Will initiate the list at the constructor for synchronous run. 
 	public void initiatNeighborsMessageIteration() {
-		
-		this.neighborsMessageIteration = new HashMap<NodeId, Double>();
 		
 		for(NodeId i: functionMsgs.keySet()) {
 			
@@ -103,25 +110,17 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 	//OmerP - To check if all the messages at the same iteration was received. 
 	protected boolean allMsgsForIterationReceived() {
 		
-		int msgsForIterationReceived = 0;
-		
 		for(NodeId i: neighborsMessageIteration.keySet()) {
 			
-			if(neighborsMessageIteration.get(i) == currentIteration) {
+			if(neighborsMessageIteration.get(i) != currentIteration) {
 				
-				msgsForIterationReceived++; 
+				return false; 
 				
 			}
 			
 		}
-		
-		if(msgsForIterationReceived == this.neighborsMessageIteration.size()) {
-		
-			return true;
-			
-		}
-		
-		return false; 
+				
+		return true; 
 	}
 	
 }

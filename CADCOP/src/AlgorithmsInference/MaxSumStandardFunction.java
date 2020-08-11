@@ -1,4 +1,4 @@
-package Algorithms;
+package AlgorithmsInference;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,31 +15,28 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 	///// ******* Variables ******* ////
 
+	private boolean receiveMessageFlag;
 	protected Double[][] constraints; 
 	protected Double[][] constraintsTranspose; 
-	HashMap<NodeId, double[]> storedMessges = new HashMap<NodeId, double[]>();
+	HashMap<NodeId, double[]> storedMessgesTable = new HashMap<NodeId, double[]>();
+	HashMap<NodeId, MsgAlgorithmFactor> messagesToBeSent = new HashMap<NodeId, MsgAlgorithmFactor>(); 
 
 	//-----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Control Variables ******* ////
 	
 	boolean storedMessageOn = true;
-	private boolean flag; 
-	
+	 
 	///// ******* Constructor ******* ////
 
 	//OmerP - Constructor for regular factor graph. 
 	public MaxSumStandardFunction(int dcopId, int D, int id1, int id2, Integer[][] constraints, Integer[][] constraintsTranspose) {
 		
 		super(dcopId, D, id1, id2);
-		
 		this.constraints = AgentFunction.turnIntegerToDoubleMatrix(constraints);
-		
 		this.constraintsTranspose = AgentFunction.turnIntegerToDoubleMatrix(constraintsTranspose);
-
 		updataNodes(getNodeId());
-		
-		this.flag = false;
+		this.receiveMessageFlag = false;
 		
 	}
 	
@@ -65,53 +62,67 @@ public class MaxSumStandardFunction extends AgentFunction {
 	@Override
 	protected boolean compute() {
 		
+		if(receiveMessageFlag) {
+			
+			produceNewMessages(); 
+			
+			return true; 
+			
+		}
+		
 		return false; 
 		
 	}
 	
-	
-	
 	//OmerP - To reset the agent if this is a new run. 
 	@Override
 	public void resetAgentGivenParametersV2() {	
-		this.variableMsgs = Agent.resetMapToValueNull(this.variableMsgs);
-		this.storedMessges.clear();
+		this.storedMessgesTable.clear();
+		messagesToBeSent.clear();
+		resetAgentGivenParametersV3();
+		
 	}
 	
-	//OmerP - will loop over the neighbors and will send to each one of the a message. - BUG !!!
-	@Override
-	protected void sendMsgs() {
+	public void resetAgentGivenParametersV3() {}
+	
+	//OmerP - produce new messages. 
+	protected void produceNewMessages() {
 		
 		for(NodeId i: variableMsgs.keySet()) {
 			
 			double[] sentTable = new double[this.domainSize];
 			sentTable = produceFunctionMessage(i);
-			MsgAlgorithmFactor newMsg; 		
-
-			
-			if(storedMessageOn) {
-				
-				if(areDifferentMessages(i, sentTable)) {
-					
-					storedMessges.put(i, sentTable);
-					newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
-					mailer.sendMsg(newMsg);
-				
-					}
-				
-				} else { //If stored message is off than the new message will be sent. 
-					
-					newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
-					mailer.sendMsg(newMsg);
-				
-				}
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
+			messagesToBeSent.put(i, newMsg);
 			
 		}
 			
 	}
 	
+	//OmerP - will loop over the neighbors and will send to each one of the a message.
 	@Override
-	protected double getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm) {
+	protected void sendMsgs() {
+		
+		for(NodeId i: messagesToBeSent.keySet()) {
+			
+			mailer.sendMsg(messagesToBeSent.get(i));
+			
+			if(storedMessageOn) {
+				
+				storedMessgesTable.put(i, messagesToBeSent.get(i).getContext());
+				
+			}
+				
+		}
+		
+		changeRecieveFlagsToFalse();
+		messagesToBeSent.clear();
+		
+		
+	}
+	
+	@Override
+	protected int getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm) {
 		
 		return msgAlgorithm.getTimeStamp();
 
@@ -120,17 +131,18 @@ public class MaxSumStandardFunction extends AgentFunction {
 	//OmerP - will get the message and update context in HashMap.
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
-
-
+		
 		double[] contextFix = (double[]) msgAlgorithm.getContext(); //will cast the message object as a double[].
 		
 		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithm.getTimeStamp()); //
 		
 		variableMsgs.put(msgAlgorithm.getSenderId(), newMessageReceveid);
 		
-		this.flag = true;
+		changeRecieveFlagsToTrue(msgAlgorithm);
 
 	}
+	
+	//-----------------------------------------------------------------------------------------------------------//
 	
 	///// ******* ConstraintMatrix ******* //// 
 			
@@ -218,17 +230,8 @@ public class MaxSumStandardFunction extends AgentFunction {
 	//-----------------------------------------------------------------------------------------------------------//
 
     ///// ******* Send Messages ******* ////
-
-	//OmerP - Will produce a message from the constraint matrix without the addition of messages - FIXED.
-	protected void produceOnlyConstraint() {
-		
-		double[] onlyConstraint = new double[this.domainSize];
-		
-		onlyConstraint = getBestValueTable(getConstraintMatrix());
-						
-	}
 	
-	//OmerP - Will produce function message - NOT FIXED messages!!!
+	//OmerP - Will produce function message
 	protected double[] produceFunctionMessage(NodeId to) {
 		
 		double[] sentMessage = new double[this.domainSize]; //The message that will be sent.
@@ -254,7 +257,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 		if(storedMessageOn) {
 			
-			storedMessges.put(nodeId, table);
+			storedMessgesTable.put(nodeId, table);
 			
 		}
 		
@@ -345,21 +348,50 @@ public class MaxSumStandardFunction extends AgentFunction {
 			
 		}
 		
-		for(NodeId i : storedMessges.keySet()) {
+		for(NodeId i : storedMessgesTable.keySet()) {
 			
-			storedMessges.replace(i, storedMessges.get(i), null); //OmerP - will put null instead of the value that was stored. 
+			storedMessgesTable.replace(i, storedMessgesTable.get(i), null); //OmerP - will put null instead of the value that was stored. 
 			
 		}
 		
 		
 	}
 
+    ///// ******* Flags Methods ******* ////
+
+	//OmerP - Flag that should be down after the all the messages were sent. 
 	@Override
 	protected void changeRecieveFlagsToFalse() {
-		// TODO Auto-generated method stub
+		
+		this.receiveMessageFlag = false;
 		
 	}
 
+	//OmerP - Flag that should be raised when a message was received. 
+	@Override
+	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
+
+		this.receiveMessageFlag = true;
+		
+	}
+
+	@Override
+	protected boolean getDidComputeInThisIteration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	//OmerP - will clear the HashMap from values double. 
+	protected void clearHashMapIntValues(HashMap<NodeId, Integer> hashMapToClear) {
+		
+		for(NodeId i: hashMapToClear.keySet()) {
+			
+			hashMapToClear.put(i, null);
+			
+		}
+		
+	}
+	
 
 	//-----------------------------------------------------------------------------------------------------------//
 

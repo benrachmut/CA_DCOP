@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import Algorithms.MaxSumStandardFunction;
+import AlgorithmsInference.MaxSumStandardFunction;
 import Messages.MsgReceive;
 
 public abstract class AgentVariableInference extends AgentVariable {

@@ -1,4 +1,4 @@
-package Algorithms;
+package AlgorithmsInference;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.Random;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
+import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.NodeId;
 import Messages.MsgAlgorithm;
@@ -16,22 +17,26 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	///// ******* Variables ******* ////
 
+	private boolean receiveMessageFlag; 
 	private double dampingFactor = 0.9;
 	protected HashMap<NodeId, double[]> storedMessges; 
-	
+	HashMap<NodeId, MsgAlgorithmFactor> messagesToBeSent;
+
 	// -----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Control Variables ******* ////
 
 	boolean dampingOn = true;
 	boolean storedMessageOn = true;
-
+	
 	///// ******* Constructor ******* ////
 
 	public MaxSumStandardVarible(int dcopId, int D, int id1) {
 
 		super(dcopId, D, id1);
 		this.storedMessges = new HashMap<NodeId, double[]>();
+		this.messagesToBeSent = new HashMap<NodeId, MsgAlgorithmFactor>();
+		this.receiveMessageFlag  = false; 
 		
 	}
 
@@ -44,21 +49,16 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	public void resetAgentGivenParametersV3() {
 		
 		this.storedMessges.clear();
-		
+		this.messagesToBeSent.clear();
+		resetAgentGivenParametersV4();
 	}
+	
+	public void resetAgentGivenParametersV4() {}
 	
 	// OmerP - Will send new messages for each one of the neighbors upon the
 	public void initialize() {
 
-		for (NodeId i : functionMsgs.keySet()) { // Start loop over the neighbors.
-
-			double[] sentTable = new double[this.domainSize];
-			sentTable = produceEmptyMessage(i, sentTable); // For each specific neighbor, produce an empty message.
-			storeNewMessage(i, sentTable);
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
-			mailer.sendMsg(newMsg);
-			
-		}
+		produceEmptyMessage();
 
 	}
 
@@ -69,7 +69,13 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	// OmerP - new information has arrived and the variable node will update its value assignment.
 	public boolean compute() {
 
-		chooseValueAssignment();
+		if(receiveMessageFlag) {
+			
+			produceNewMessages();
+			chooseValueAssignment();
+			
+		}
+		
 		return true;
 
 	}
@@ -78,46 +84,24 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	@Override
 	protected void sendMsgs() {
 
-		for (NodeId i : functionMsgs.keySet()) { // Start loop over the neighbors.
-
-			double[] sentTable = new double[this.domainSize];
-			sentTable = produceMessage(i, sentTable); // For each specific neighbor, sum all messages excluding the table of the receiving function node.
-			MsgAlgorithmFactor newMsg = null; 	
+		for (NodeId i : functionMsgs.keySet()) {
 			
-			if (dampingOn) { // If damping is on will generate a damped message.
-
-				sentTable = damping(i, sentTable); // Will produce a damped message.
-
+			mailer.sendMsg(messagesToBeSent.get(i));
+			
+			if(storedMessageOn) {
+				
+				storeNewMessage(i, messagesToBeSent.get(i).getContext());
+				
 			}
-
-			if (storedMessageOn) { // If stored message is on.
-
-				if (areDifferentMessages(i, sentTable)) { // Will check if the new message and the last stored message are the same, if not will send message.
-															
-					storeNewMessage(i, sentTable);
-					newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
-					mailer.sendMsg(newMsg);
-
-				}
-
-				} else { // If stored message is off than the new message will be sent.
-
-					newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
-					mailer.sendMsg(newMsg);
-
-			}
-
+			
 		}
-
+		
+		messagesToBeSent.clear();
+		changeRecieveFlagsToFalse();
+		
 	}
-
-	@Override
-	protected double getSenderCurrentTimeStampFromContext(MsgAlgorithm MsgAlgorithm) {
-
-		return MsgAlgorithm.getTimeStamp();
-
-	}
-
+	
+	//OmerP - when a message received will update the context and flag that a message was received.
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
@@ -128,11 +112,51 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithm.getTimeStamp()); //
 
 		functionMsgs.put(newMessage.getSenderId(), newMessageReceveid);
+		
+		changeRecieveFlagsToTrue(msgAlgorithm);
 
 	}
-
-	// -----------------------------------------------------------------------------------------------------------//
 	
+	// -----------------------------------------------------------------------------------------------------------//
+
+	///// ******* Produce Messages Methods ******* ////
+
+	//OmerP - will produce new messages. 
+	protected void produceNewMessages() {
+		
+		for (NodeId i : functionMsgs.keySet()) {
+			
+			double[] sentTable = new double[this.domainSize];
+			sentTable = produceMessage(i, sentTable); // For each specific neighbor, sum all messages excluding the table of the receiving function node.
+			
+			if(dampingOn) {
+				
+				sentTable = damping(i, sentTable); // Will produce a damped message.
+				
+			}
+			
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
+			messagesToBeSent.put(i, newMsg);
+			
+		}
+		
+	}
+	
+	//OmerP - will produce empty messages. 
+	protected void produceEmptyMessage() {
+		
+		for (NodeId i : functionMsgs.keySet()) { // Start loop over the neighbors.
+		
+			double[] sentTable = new double[this.domainSize];
+			sentTable = produceEmptyTable(i, sentTable); // For each specific neighbor, produce an empty message.
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0); //Create new factor message.
+			messagesToBeSent.put(i, newMsg); //Store the message in the message to by sent HashMap. 
+				
+		}
+	}
+	
+	// -----------------------------------------------------------------------------------------------------------//
+
 	///// ******* Stored Message Methods ******* ////
 
 	protected void storeNewMessage(NodeId nodeid, double[] table) {
@@ -208,7 +232,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	///// ******* Arithmetic Messages ******* ////
 
 	// OmerP - produce an empty message for the first iteration.
-	protected double[] produceEmptyMessage(NodeId to, double[] table) {
+	protected double[] produceEmptyTable(NodeId to, double[] table) {
 
 		for (int i = 0; i < table.length; i++) {
 
@@ -326,4 +350,95 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	// -----------------------------------------------------------------------------------------------------------//
 
+	///// ******* Printing Data ******* ////
+
+	@Override
+	public void updateAlgorithmHeader() {
+		
+		AgentVariable.algorithmHeader = "MaxSum";
+		
+	}
+
+	@Override
+	public void updateAlgorithmData() {
+		
+		AgentVariable.algorithmData = this.dampingFactor + "";
+		
+	}
+
+	@Override
+	public void updateAlgorithmName() {
+		
+		AgentVariable.AlgorithmName = "MaxSum";
+		
+	}
+
+	// -----------------------------------------------------------------------------------------------------------//
+
+	///// ******* Flags Methods ******* ////
+	
+	@Override
+	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
+		
+		this.receiveMessageFlag = true;
+
+		
+	}
+
+	@Override
+	protected void changeRecieveFlagsToFalse() {
+		
+		this.receiveMessageFlag = false;
+		
+		
+	}
+
+	// -----------------------------------------------------------------------------------------------------------//
+
+	///// ******* Getters ******* ////
+
+	@Override
+	protected int getSenderCurrentTimeStampFromContext(MsgAlgorithm MsgAlgorithm) {
+
+		return MsgAlgorithm.getTimeStamp();
+
+	}
+
+	// -----------------------------------------------------------------------------------------------------------//
+	
+	///// ******* Clear HashMap without loosing ket ******* ////
+	
+	//OmerP - will clear the HashMap from values double. 
+	protected void clearHashMapDoubleValues(HashMap<NodeId, double[]> hashMapToClear) {
+		
+		for(NodeId i: hashMapToClear.keySet()) {
+			
+			hashMapToClear.put(i, null);
+			
+		}
+		
+	}
+	
+	//OmerP - will clear the HashMap from values double. 
+	protected void clearHashMapIntValues(HashMap<NodeId, Integer> hashMapToClear) {
+		
+		for(NodeId i: hashMapToClear.keySet()) {
+			
+			hashMapToClear.put(i, null);
+			
+		}
+		
+	}
+
+	@Override
+	protected boolean getDidComputeInThisIteration() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	// -----------------------------------------------------------------------------------------------------------//
+	
+	
+	
+	
 }
