@@ -77,10 +77,8 @@ public abstract class Mailer {
 			m.setDelay(d);
 			this.messageBox.add(m);
 		}
-		updateMailerClockUponMsgRecieved(m);
 	}
 	
-	protected abstract void updateMailerClockUponMsgRecieved(Msg m);
 
 	public void sendMsgWitoutDelay(MsgAlgorithm m) {
 		m.setDelay(0);

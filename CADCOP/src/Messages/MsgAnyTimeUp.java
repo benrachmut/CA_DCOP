@@ -5,8 +5,8 @@ import AgentsAbstract.NodeId;
 public class MsgAnyTimeUp extends MsgAnyTime {
 
 	public MsgAnyTimeUp(NodeId sender, NodeId reciever, Permutation context, int timeStamp,
-			int timeCreated) {
-		super(sender, reciever, context, timeStamp);
+			int time) {
+		super(sender, reciever, context, timeStamp, time);
 		// TODO Auto-generated constructor stub
 	}
 	

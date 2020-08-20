@@ -1,6 +1,7 @@
 package AgentsAbstract;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -12,6 +13,7 @@ import Main.MainSimulator;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgReceive;
+import Messages.MsgsTimeComparator;
 
 public abstract class Agent implements Runnable, Comparable<Agent> {
 
@@ -26,7 +28,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected Mailer mailer;
 	private Double computationCounter;
 	private boolean stopThreadCondition;
-
+	protected int time;
+	
+	
 	public Agent(int dcopId, int D) {
 		super();
 		this.dcopId = dcopId;
@@ -34,6 +38,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		this.timeStampCounter = 0;
 		computationCounter = 0.0;
 		stopThreadCondition = false;
+		this.time = 0;
 
 	}
 
@@ -51,6 +56,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	public void resetAgent() {
+		this.time = 0;
 		this.timeStampCounter = 0;
 		computationCounter = 0.0;
 		stopThreadCondition = false;
@@ -83,6 +89,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	// ------------**Receive Algorithmic Msgs methods**------------
 
 	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+		
+		
 		for (MsgAlgorithm msgAlgorithm : messages) {
 			if (this.isWithTimeStamp) {
 				int currentDateInContext;
@@ -102,11 +110,26 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				}
 			} else {
 				updateMessageInContextAndTreatFlag(msgAlgorithm);
-
-			}
-			
-			
+			}	
 		}
+		updateAgentTime(messages);
+	}
+
+	protected void updateAgentTime(List<? extends Msg> messages) {
+		Msg msgWithMaxTime = Collections.max(messages, new MsgsTimeComparator());
+		int maxTime = msgWithMaxTime.getTime();
+		if (this.time<maxTime) {
+			int oldTime = this.time;
+			this.time = maxTime;
+			if (MainSimulator.isThreadDebug) {
+				System.out.println("agent "+this.id+" changed time from "+oldTime+" to "+this.time);
+			}
+		}else {
+			System.err.println("something is wrong with agent "+this.id+" time");
+			throw new RuntimeException();
+		}
+		
+		
 	}
 
 	/**
@@ -143,6 +166,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			if (getDidComputeInThisIteration()) {
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
+				this.time = this.time+1;
 				sendMsgs();
 				changeRecieveFlagsToFalse();
 			}
@@ -244,6 +268,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				return;
 			}
 		}
+		System.out.println("agent "+this.id+" is about to react to msgs");
 		this.reactionToAlgorithmicMsgs();
 	}
 

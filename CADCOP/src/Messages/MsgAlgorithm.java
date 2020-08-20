@@ -4,14 +4,18 @@ import AgentsAbstract.NodeId;
 
 public class MsgAlgorithm extends Msg{
 
-	public MsgAlgorithm(NodeId sender, NodeId reciever, Object context, int timeStamp) {
-		super(sender, reciever, context, timeStamp);
+	
+	public MsgAlgorithm(NodeId sender, NodeId reciever, Object context, int timeStamp, int time) {
+		super(sender, reciever, context, timeStamp,time);
 		// TODO Auto-generated constructor stub
 	}
+	
 
 	public void setContext(Object input) {
 		this.context = input;
 	}
+
+
 
 	
 

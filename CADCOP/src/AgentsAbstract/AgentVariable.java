@@ -174,7 +174,8 @@ public abstract class AgentVariable extends Agent {
 */
 	// --------------**TO-DO**--------------------
 	public synchronized void recieveAnyTimeMsgs(List<? extends MsgAnyTime> messages) {
-		// TODO Auto-generated method stub
+		updateAgentTime(messages);
+
 	}
 
 	public synchronized void reactionToAnytimeMsgs() {

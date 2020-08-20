@@ -7,19 +7,20 @@ public abstract class Msg<Identity> {
 	private NodeId sender;
 	private NodeId reciever;
 	protected Object context;
+	protected int time;
 	private int timestamp;
 	
 	private Integer delay;
 	
-	
-	
-	public Msg(NodeId sender, NodeId reciever, Object context, int timeStamp) {
+	public Msg(NodeId sender, NodeId reciever, Object context, int timeStamp, int time) {
 		super();
 		this.sender = sender;
 		this.reciever = reciever;
 		this.context = context;
 		this.timestamp = timeStamp;
+		this.time = time;
 	}
+	
 
 
 
@@ -47,15 +48,15 @@ public abstract class Msg<Identity> {
 		return this.delay;
 	}
 
-
-
-
-
 	public Object getContext() {
 		return context;
 	}
 	
-	
+
+	public int getTime() {
+		// TODO Auto-generated method stub
+		return this.time;
+	}
 	
 	
 	

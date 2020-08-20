@@ -223,7 +223,7 @@ public abstract class MGM extends AgentVariableSearch {
 
 	private void sendLRmsgs() {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
-			MsgLR mlr = new MsgLR(this.nodeId, recieverNodeId, this.lr, this.timeStampCounter);
+			MsgLR mlr = new MsgLR(this.nodeId, recieverNodeId, this.lr, this.timeStampCounter, this.time);
 			this.mailer.sendMsg(mlr);
 		}
 

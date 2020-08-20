@@ -25,19 +25,10 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	@Override
 	public void initialize() {
-		// resetAgent();
-		this.createVariableAssignmentMsg();
-		// sendMsg(true);
+		this.sendValueAssignmnetMsgs();
 	}
-	// public void receiveAnytimeMessage (List<? extends MsgAnytime> messages) {---}
 
-	private void createVariableAssignmentMsg() {
-		for (NodeId reciever : this.getNeigborSetId()) {
-			Msg m = new MsgValueAssignmnet(this.nodeId, reciever, this.getValueAssignment(), this.timeStampCounter);
-			this.mailer.sendMsg(m);
-		}
-
-	}
+	
 
 	@Override
 	public void meetNeighbor(int neighborId, Integer[][] constraint) {
@@ -134,7 +125,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	protected void sendValueAssignmnetMsgs() {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, this.valueAssignment,
-					this.timeStampCounter);
+					this.timeStampCounter, this.time);
 			/*
 			 * if (timeStampCounter == 2 && id == 23 && recieverNodeId.getId1()==3) {
 			 * System.out.println(4); }
@@ -143,5 +134,14 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		}
 
 	}
+	/*
+	private void createVariableAssignmentMsg() {
+		for (NodeId reciever : this.getNeigborSetId()) {
+			Msg m = new MsgValueAssignmnet(this.nodeId, reciever, this.getValueAssignment(), this.timeStampCounter, this.time);
+			this.mailer.sendMsg(m);
+		}
+
+	}
+	*/
 
 }

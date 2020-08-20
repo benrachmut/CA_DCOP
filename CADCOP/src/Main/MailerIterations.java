@@ -39,9 +39,7 @@ public class MailerIterations extends Mailer {
 			createData(iteration);
 			List<Msg> msgToSend = this.handleDelay();
 			agentsRecieveMsgs(msgToSend);
-
 		}
-
 	}
 
 	private void printHeaderForDegbugMgm() {
@@ -129,7 +127,7 @@ public class MailerIterations extends Mailer {
 		return false;
 	}
 
-	public List<Msg> handleDelay() {
+	public synchronized List<Msg> handleDelay() {
 		Collections.sort(this.messageBox, new CompMsgByDelay());
 		List<Msg> msgToSend = new ArrayList<Msg>();
 		Iterator it = this.messageBox.iterator();
@@ -152,10 +150,6 @@ public class MailerIterations extends Mailer {
 
 	}
 
-	@Override
-	protected void updateMailerClockUponMsgRecieved(Msg m) {
-		//this method is meant to be used only by mailer thread
-		
-	}
+
 
 }

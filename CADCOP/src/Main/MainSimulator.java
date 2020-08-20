@@ -42,15 +42,15 @@ public class MainSimulator {
 	public static boolean sendOnlyIfChange = false;
 
 	// ------------------------------**Implementation**
-	public static boolean isThreadMailer = false; // determines the mailers type
-
+	public static boolean isThreadMailer = true; // determines the mailers type
+	public static boolean isThreadDebug = true;
 	// ------------------------------**any time**
 	public static boolean anyTime = false;
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 1;
-	public static int termination = 5000;//5000;
+	public static int termination = 50;//5000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
 	public static int A = 3; // amount of agents
@@ -63,7 +63,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.6;// 0.1,0.6
+	public static double dcopUniformP1 = 1;// 0.1,0.6
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
@@ -104,6 +104,8 @@ public class MainSimulator {
 	public static String fileName = "";
 	
 	public static void main(String[] args) {
+		
+		System.out.println("ccccc");
 		Dcop[] dcops = generateDcops();
 		//printProblemCreationDebug(dcops);
 		List<Protocol> protocols = createProtocols();
@@ -337,11 +339,13 @@ public class MainSimulator {
 		header = "DCOP";
 		
 		if (delayType != 0) {
-			header = header+","+protocolDelayHeader;
+			header = header+","+protocolDelayHeader+",";
 		}
+		/*
 		if (downType != 0) {
 			header = header + "," + protocolDownHeader;
 		}
+		*/
 		header = header + "Algorithm"+","+AgentVariable.algorithmHeader+",";
 		header = header + Data.header();
 
