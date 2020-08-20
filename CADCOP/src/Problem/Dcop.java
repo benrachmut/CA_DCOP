@@ -20,6 +20,7 @@ import AlgorithmSearch.MGM_ASY;
 import AlgorithmSearch.MGM_SY;
 import AlgorithmsInference.MaxSumSplitConstraintFactorGraph;
 import AlgorithmsInference.MaxSumStandardFunction;
+import AlgorithmsInference.MaxSumStandardFunctionSync;
 import AlgorithmsInference.MaxSumStandardVarible;
 import AlgorithmsInference.MaxSumStandardVaribleSync;
 import Comparators.CompAgentVariableByNeighborSize;
@@ -157,8 +158,6 @@ public abstract class Dcop {
 		
 		int agentType = MainSimulator.agentType;
 
-		//printAllNeighbors();
-		
 		for (Neighbor n : neighbors) {
 			
 			AgentVariableInference av1 = (AgentVariableInference) n.getA1();
@@ -172,11 +171,19 @@ public abstract class Dcop {
 			
 			if (agentType == 7) {
 				
-				af = new MaxSumStandardFunction(dcopId,D, av1.getId(), av2.getId(),constraints, constraintsTranspose);
+				af = new MaxSumStandardFunction(dcopId,D, av1.getId(), av2.getId(),constraints);
 			
 			}
 			
-			if (agentType == 8) {
+			if(agentType == 8) {
+				
+				af = new MaxSumStandardFunctionSync(dcopId,D, av1.getId(), av2.getId(),constraints);
+
+			}
+			
+			
+			
+			if (agentType == 9) {
 				
 				af = new MaxSumSplitConstraintFactorGraph(dcopId,D, av1.getId(), av2.getId(),constraints, constraintsTranspose); //Will create a new MaxSumSplitConstraintFactorGraph.
 				
@@ -190,9 +197,9 @@ public abstract class Dcop {
 			
 		}
 		
+		printAllNeighbors();
 		binaryDebug();
-		variableNodeDebug();
-		functionNodeDebug();
+		
 		
 	}	
 
@@ -234,10 +241,6 @@ public abstract class Dcop {
 
 		}
 		
-		
-
-		
-		
 	}
 	
 	//OmerP - Print when variable and function were connected. 
@@ -260,7 +263,7 @@ public abstract class Dcop {
 		
 		for(int i = 0 ; i < agentFunctions.size() ; i++) {
 				
-			if(MainSimulator.agentType == 7) {
+			if((MainSimulator.agentType == 7) || (MainSimulator.agentType == 8)) {
 			
 				if(agentFunctions.get(i).getVariableMsgsSize() != 2) {
 				
@@ -271,7 +274,7 @@ public abstract class Dcop {
 			
 			}
 			
-			if(MainSimulator.agentType == 8) {
+			if(MainSimulator.agentType == 9) {
 				
 				MaxSumSplitConstraintFactorGraph maxSplitFunctionNode = (MaxSumSplitConstraintFactorGraph) agentFunctions.get(i); //Casting the get access to getSplitFunctionNodes method. 
 
@@ -492,6 +495,7 @@ public abstract class Dcop {
 	
 	//-----------------------------------------------------------------------------------------------------------//
 	}
+	
 	
 	///// ******* Print methods ******* ////
 

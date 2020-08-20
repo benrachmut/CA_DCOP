@@ -287,10 +287,4 @@ public abstract class AgentVariable extends Agent {
 		return this.timeStampCounter;
 	}
 
-
-	
-
-	
-
-
 }

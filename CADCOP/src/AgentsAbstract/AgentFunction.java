@@ -17,6 +17,8 @@ public abstract class AgentFunction extends Agent {
 	protected SortedMap<NodeId, MsgReceive<double[]>> variableMsgs;
 	protected List<NodeId> nodes; 
 	
+	///// ******* Constructor ******* ////
+
 	public AgentFunction(int dcopId, int D, int id1, int id2) {
 		super(dcopId, D);
 		this.nodeId = new NodeId(id1, id2);
@@ -25,14 +27,20 @@ public abstract class AgentFunction extends Agent {
 	
 	}
 
-	public int getVariableMsgsSize() {
-		return variableMsgs.size();
-	}
+	//-----------------------------------------------------------------------------------------------------------//
 
-	@Override
-	public NodeId getNodeId() {
-		return this.nodeId;
+	///// ******* Initialize Methods ******* ////
+
+	public void meetVariables(NodeId VariableOneNodeId, NodeId VariableTwoNodeId) {
+		
+		this.variableMsgs.put(VariableOneNodeId, null);
+		this.variableMsgs.put(VariableTwoNodeId, null);
+
 	}
+	
+	//-----------------------------------------------------------------------------------------------------------//
+	
+	///// ******* Reset Methods ******* ////
 
 	@Override
 	protected void resetAgentGivenParameters() {
@@ -40,12 +48,15 @@ public abstract class AgentFunction extends Agent {
 		resetAgentGivenParametersV2();
 	}
 	
-
 	protected abstract void resetAgentGivenParametersV2();
 
-	public static Double[][] turnIntegerToDoubleMatrix(Integer[][] input) {
+	//-----------------------------------------------------------------------------------------------------------//
 
-		Double[][] ans = new Double[input.length][input[0].length];
+	///// ******* Constraint Methods ******* ////
+
+	public static double[][] turnIntegerToDoubleMatrix(Integer[][] input) {
+
+		double[][] ans = new double[input.length][input[0].length];
 
 		for (int i = 0; i < ans.length; i++) {
 			for (int j = 0; j < ans[i].length; j++) {
@@ -56,11 +67,35 @@ public abstract class AgentFunction extends Agent {
 		return ans;
 	}
 	
-	public void meetVariables(NodeId VariableOneNodeId, NodeId VariableTwoNodeId) {
+	public static double[][] transposeConstraintMatrix(double[][] input){
 		
-		this.variableMsgs.put(VariableOneNodeId, null);
-		this.variableMsgs.put(VariableTwoNodeId, null);
+		double[][] ans = new double[input.length][input.length];
 
+			for(int i = 0 ; i < ans.length ; i++) {
+				
+				for(int j = 0 ; j < ans.length ; j++) {
+				
+					ans[j][i] = input[i][j];
+							
+				}
+				
+			}
+		
+		return ans; 
+		
+	}
+	
+	//-----------------------------------------------------------------------------------------------------------//
+
+	///// ******* Getters ******* ////
+
+	public int getVariableMsgsSize() {
+		return variableMsgs.size();
+	}
+
+	@Override
+	public NodeId getNodeId() {
+		return this.nodeId;
 	}
 
 	public boolean checkIfNodeIsContained(NodeId nodeId) {
@@ -79,7 +114,9 @@ public abstract class AgentFunction extends Agent {
 		
 	}
 	
-	
+	//-----------------------------------------------------------------------------------------------------------//
+
+		
 	///// ******* New methods ******* ////
 	
 	//OmerP - Will return the all the nodes. 

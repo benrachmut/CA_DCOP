@@ -36,6 +36,8 @@ public class NodeId implements Comparable<NodeId> {
 	
     ///// ******* Compare and Equals ******* ////
 	
+
+	
 	@Override
 	public int compareTo(NodeId toCheck) {
 		// TODO Auto-generated method stub
@@ -132,9 +134,15 @@ public class NodeId implements Comparable<NodeId> {
 		
 		return false;
 	}
-
-
-
+	
+	@Override
+	public int hashCode() {
+	     int hash = 17; 
+	     hash = 31 * hash + this.id1;
+	     hash = 31 * hash + this.id2;
+	     return hash;
+	 }
+	
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub

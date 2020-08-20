@@ -1,5 +1,6 @@
 package AlgorithmsInference;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -26,8 +27,8 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	///// ******* Control Variables ******* ////
 
-	boolean dampingOn = true;
-	boolean storedMessageOn = true;
+	boolean dampingOn = false;
+	boolean storedMessageOn = false;
 	
 	///// ******* Constructor ******* ////
 
@@ -37,6 +38,9 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 		this.storedMessges = new HashMap<NodeId, double[]>();
 		this.messagesToBeSent = new HashMap<NodeId, MsgAlgorithmFactor>();
 		this.receiveMessageFlag  = false; 
+		updateAlgorithmHeader();
+		updateAlgorithmData();
+		updateAlgorithmName();
 		
 	}
 
@@ -59,7 +63,8 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	public void initialize() {
 
 		produceEmptyMessage();
-
+		sendMsgs();
+		
 	}
 
 	// -----------------------------------------------------------------------------------------------------------//
@@ -88,6 +93,8 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 			
 			mailer.sendMsg(messagesToBeSent.get(i));
 			
+			printSentdMessage(messagesToBeSent.get(i));
+			
 			if(storedMessageOn) {
 				
 				storeNewMessage(i, messagesToBeSent.get(i).getContext());
@@ -105,13 +112,13 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
-		MsgAlgorithmFactor newMessage = (MsgAlgorithmFactor) msgAlgorithm; // Will do casting for the msgAlgorithm.
+		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
+		
+		double[] contextFix = (double[]) msgAlgorithmFactor.getContext(); // will cast the message object as a double[].
 
-		double[] contextFix = (double[]) newMessage.getContext(); // will cast the message object as a double[].
+		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithmFactor.getTimeStamp()); //
 
-		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithm.getTimeStamp()); //
-
-		functionMsgs.put(newMessage.getSenderId(), newMessageReceveid);
+		functionMsgs.put(msgAlgorithmFactor.getSenderId(), newMessageReceveid);
 		
 		changeRecieveFlagsToTrue(msgAlgorithm);
 
@@ -137,6 +144,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 			
 			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
 			messagesToBeSent.put(i, newMsg);
+			printStoredMessage(newMsg);
 			
 		}
 		
@@ -152,6 +160,8 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0); //Create new factor message.
 			messagesToBeSent.put(i, newMsg); //Store the message in the message to by sent HashMap. 
 				
+			printStoredMessage(newMsg);
+			
 		}
 	}
 	
@@ -224,6 +234,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 		}
 
 		setValueAssignmnet(valueAssignment); 
+		printValueAssignment(valueAssignment);
 
 	}
 
@@ -251,8 +262,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 			if (!(i.compareTo(to) == 0)) {
 
-				sumMessages(table, functionMsgs.get(i).getContext());
-
+				table = sumMessages(table, functionMsgs.get(i).getContext());
 			}
 
 		}
@@ -400,7 +410,9 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	@Override
 	protected int getSenderCurrentTimeStampFromContext(MsgAlgorithm MsgAlgorithm) {
 
-		return MsgAlgorithm.getTimeStamp();
+		int timestamp = functionMsgs.get(MsgAlgorithm.getSenderId()).getTimestamp(); //OmerP - will get the timestamp of the messages. 
+		
+		return timestamp; 
 
 	}
 
@@ -433,10 +445,44 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	@Override
 	protected boolean getDidComputeInThisIteration() {
 		// TODO Auto-generated method stub
-		return false;
+		return receiveMessageFlag;
 	}
 	
 	// -----------------------------------------------------------------------------------------------------------//
+	
+	///// ******* Print Messages ******* ////
+
+	protected void printStoredMessage(MsgAlgorithmFactor msg) {
+		
+		System.out.println("VariableNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") STORED a message for FunctionNode ("
+				
+				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
+		
+	}
+	
+	protected void printSentdMessage(MsgAlgorithmFactor msg) {
+		
+		System.out.println("VariableNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") SENT a message for FunctionNode ("
+				
+				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
+		
+	}
+	
+	protected void printReceivedMessage(MsgAlgorithmFactor msg) {
+		
+		System.out.println("VariableNode:(" + msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") RECEIVED a message from FunctionNode ("
+				
+				+ msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
+		
+	}
+	
+	protected void printValueAssignment(int valueAssignment) {
+		
+		System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + ") value assignment is:" + valueAssignment +".\n");
+		
+	}
+	
+	
 	
 	
 	

@@ -25,6 +25,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected boolean isWithTimeStamp;
 	protected Mailer mailer;
 	private Double computationCounter;
+	private boolean stopThreadCondition;
 
 	public Agent(int dcopId, int D) {
 		super();
@@ -32,6 +33,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		this.domainSize = D;
 		this.timeStampCounter = 0;
 		computationCounter = 0.0;
+		stopThreadCondition = false;
 
 	}
 
@@ -51,6 +53,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public void resetAgent() {
 		this.timeStampCounter = 0;
 		computationCounter = 0.0;
+		stopThreadCondition = false;
 		resetAgentGivenParameters();
 		changeRecieveFlagsToFalse();
 
@@ -82,7 +85,13 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
 		for (MsgAlgorithm msgAlgorithm : messages) {
 			if (this.isWithTimeStamp) {
-				int currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
+				int currentDateInContext;
+				try {
+					currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
+
+				} catch (NullPointerException e) {
+					currentDateInContext = -1;
+				}
 				/*
 				 * if (this.id==25 && msgAlgorithm.getSenderId().getId1()==12) {
 				 * System.out.println(4); }
@@ -95,6 +104,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				updateMessageInContextAndTreatFlag(msgAlgorithm);
 
 			}
+			
+			
 		}
 	}
 
@@ -132,9 +143,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			if (getDidComputeInThisIteration()) {
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
-				/*
-				 * if (this.id == 2) { System.out.println("from agent"); }
-				 */
 				sendMsgs();
 				changeRecieveFlagsToFalse();
 			}
@@ -218,11 +226,28 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-
+		resetAgent();
+		initialize();
+		while (stopThreadCondition == false) {
+			waitUntilMsgsRecieved();
+		}
 	}
 
-	public static  SortedMap<NodeId, Integer> turnMapWithMsgRecieveToContextValues(
+	private synchronized void waitUntilMsgsRecieved() {
+		while (getDidComputeInThisIteration() == true) {
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			if (stopThreadCondition == true) {
+				return;
+			}
+		}
+		this.reactionToAlgorithmicMsgs();
+	}
+
+	public static SortedMap<NodeId, Integer> turnMapWithMsgRecieveToContextValues(
 			SortedMap<NodeId, MsgReceive<Integer>> input) {
 		SortedMap<NodeId, Integer> ans = new TreeMap<NodeId, Integer>();
 		for (Entry<NodeId, MsgReceive<Integer>> e : input.entrySet()) {
@@ -238,5 +263,10 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected abstract void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm);
 
 	protected abstract void changeRecieveFlagsToFalse();
+
+	public synchronized void setStopThreadCondition() {
+		this.stopThreadCondition = true;
+
+	}
 
 }

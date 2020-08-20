@@ -10,11 +10,9 @@ public class MsgAlgorithmFactor extends MsgAlgorithm{
 		
 	}
 
-
-	
-
 	public double[] getContext() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return (double[]) this.context;
+		
 	}
 }

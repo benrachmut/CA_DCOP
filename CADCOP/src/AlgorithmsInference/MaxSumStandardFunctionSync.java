@@ -1,5 +1,6 @@
 package AlgorithmsInference;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import AgentsAbstract.Agent;
@@ -14,17 +15,18 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 
 	protected HashMap<NodeId, Integer> neighborsMessageIteration; 
 	protected int currentIteration;
-
+	 
 	//-----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Constructor ******* ////
 
-	public MaxSumStandardFunctionSync(int dcopId, int D, int id1, int id2, Double[][] constraints, Double[][] constraintsTranspose) {
+	public MaxSumStandardFunctionSync(int dcopId, int D, int id1, int id2, Integer[][] constraints) {
 		
-		super(dcopId, D, id1, id2, constraints, constraintsTranspose);
+		super(dcopId, D, id1, id2, constraints);
 		this.neighborsMessageIteration = new HashMap<NodeId, Integer>();
 		initiatNeighborsMessageIteration();
 		this.currentIteration = 0; 
+		
 		
 	}
 
@@ -44,16 +46,26 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
-		double[] contextFix = (double[]) msgAlgorithm.getContext(); //will cast the message object as a double[].
 		
-		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithm.getTimeStamp()); //
+		MsgAlgorithmFactor msgAlgorithmFactor;
+		if (msgAlgorithm instanceof MsgAlgorithmFactor) {
+			 msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
+
+		}
+		else {
+			throw new RuntimeException();
+		}
+		
+		double[] contextFix = msgAlgorithmFactor.getContext(); //will cast the message object as a double[].
+		
+		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithmFactor.getTimeStamp()); //
 				
-		MsgAlgorithmFactor newMessage = (MsgAlgorithmFactor) msgAlgorithm; // Will do casting for the msgAlgorithm.
-
-		variableMsgs.put(newMessage.getSenderId(), newMessageReceveid);
+		variableMsgs.put(msgAlgorithmFactor.getSenderId(), newMessageReceveid);
 		
-		neighborsMessageIteration.put(newMessage.getSenderId(), msgAlgorithm.getTimeStamp());
-
+		printReceivedMessage(msgAlgorithmFactor);
+		
+		neighborsMessageIteration.put(msgAlgorithmFactor.getSenderId(), msgAlgorithm.getTimeStamp());
+		
 	}
 		
 	//OmerP - will send new messages for each one of the neighbors upon the initiation of the algorithm (iteration = 0)
@@ -61,6 +73,7 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 	public void initialize() {
 		
 		produceOnlyConstraintMessages();
+		sendMsgs();
 							
 	}
 	
@@ -87,6 +100,8 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 			
 			mailer.sendMsg(messagesToBeSent.get(i));
 			
+			printSentMessage(messagesToBeSent.get(i));
+			
 			if(storedMessageOn) {
 				
 				storedMessgesTable.put(i, messagesToBeSent.get(i).getContext());
@@ -97,8 +112,6 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 		
 		
 		messagesToBeSent.clear();
-		currentIteration++; 
-		
 		
 	} 
 	
@@ -108,6 +121,22 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 		clearHashMapIntValues(neighborsMessageIteration);
 		this.currentIteration = 0;
 		
+	}
+	
+	//OmerP - produce new messages. 
+	@Override
+	protected void produceNewMessages() {
+		
+		for(NodeId i: variableMsgs.keySet()) {
+			
+			double[] sentTable = new double[this.domainSize];
+			sentTable = produceFunctionMessage(i);
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.currentIteration);
+			messagesToBeSent.put(i, newMsg);
+			printStoredMessage(newMsg);
+			
+		}
+			
 	}
 	
 	//-----------------------------------------------------------------------------------------------------------//
@@ -137,7 +166,8 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 			}
 			
 		}
-				
+		
+		this.currentIteration++;
 		return true; 
 	
 	}
@@ -148,15 +178,65 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 		for(NodeId i: variableMsgs.keySet()) {
 			
 			double[] sentTable = new double[this.domainSize];
-			sentTable = getBestValueTable(getConstraintMatrix());
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
+			double[][] constraintMatrix = new double[this.domainSize][this.domainSize];
+			constraintMatrix = neighborsConstraintMatrix.get(i);
+			sentTable = getBestValueTable(constraintMatrix);
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.timeStampCounter);
 			messagesToBeSent.put(i, newMsg);
+			//printStoredMessage(newMsg);
 							
 		}
 		
 	}
 	
+	protected boolean checkIfAllMessagesArrivedToAdvanceCouner(int messagesArriveCounter) {
+		
+		int number = this.getVariableMsgsSize(); 
+		
+		if(messagesArriveCounter == number) {
+			
+			return true;
+			
+		}
+		
+		return false; 
+		
+	}
 	
+	///// ******* Setters  ******* ////
+	
+
+	
+	// -----------------------------------------------------------------------------------------------------------//
+	
+	///// ******* Tests and Prints Methods ******* ////
+
+	@Override
+	protected void printStoredMessage(MsgAlgorithmFactor msg) {
+		
+		System.out.println("Iteration:" + currentIteration + ", FunctionNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") STORED a message for VariableNode ("
+				
+				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
+		
+	}
+	
+	@Override
+	protected void printSentMessage(MsgAlgorithmFactor msg) {
+		
+		System.out.println("Iteration:" + currentIteration + ",FunctionNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") SENT a message for VariableNode ("
+				
+				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
+		
+	}
+	
+	@Override
+	protected void printReceivedMessage(MsgAlgorithmFactor msg) {
+		
+		System.out.println("Iteration:" + currentIteration + ",FunctionNode:(" + msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") RECEIVED a message from VariableNode ("
+				
+				+ msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
+		
+	}
 	
 	
 	

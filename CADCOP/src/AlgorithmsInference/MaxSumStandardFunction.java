@@ -1,5 +1,6 @@
 package AlgorithmsInference;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,36 +17,36 @@ public class MaxSumStandardFunction extends AgentFunction {
 	///// ******* Variables ******* ////
 
 	private boolean receiveMessageFlag;
-	protected Double[][] constraints; 
-	protected Double[][] constraintsTranspose; 
 	HashMap<NodeId, double[]> storedMessgesTable = new HashMap<NodeId, double[]>();
 	HashMap<NodeId, MsgAlgorithmFactor> messagesToBeSent = new HashMap<NodeId, MsgAlgorithmFactor>(); 
-
+	HashMap<NodeId, double[][]> neighborsConstraintMatrix = new HashMap<NodeId, double[][]>(); 
+	
 	//-----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Control Variables ******* ////
 	
-	boolean storedMessageOn = true;
+	boolean storedMessageOn = false;
 	 
-	///// ******* Constructor ******* ////
+	///// ******* Constructors and Initialization Methods ******* ////
 
 	//OmerP - Constructor for regular factor graph. 
-	public MaxSumStandardFunction(int dcopId, int D, int id1, int id2, Integer[][] constraints, Integer[][] constraintsTranspose) {
+	public MaxSumStandardFunction(int dcopId, int D, int id1, int id2, Integer[][] constraints) {
 		
 		super(dcopId, D, id1, id2);
-		this.constraints = AgentFunction.turnIntegerToDoubleMatrix(constraints);
-		this.constraintsTranspose = AgentFunction.turnIntegerToDoubleMatrix(constraintsTranspose);
+		initializeNeighborsConstraintMatrix(id1, id2, constraints);
 		updataNodes(getNodeId());
 		this.receiveMessageFlag = false;
 		
 	}
 	
-	public MaxSumStandardFunction(int dcopId, int D, int id1, int id2, Double[][] constraints, Double[][] constraintsTranspose) {
+	//Will Initialize the constraint matrix. 
+	protected void initializeNeighborsConstraintMatrix(int id1, int id2 , Integer[][] constraints) {
 		
-		super(dcopId, D, id1, id2);
-		this.constraints = constraints; 
-		this.constraintsTranspose = constraintsTranspose;
-
+		NodeId av1 = new NodeId(id1);
+		NodeId av2 = new NodeId(id2);
+		neighborsConstraintMatrix.put(av1, turnIntegerToDoubleMatrix(constraints));
+		neighborsConstraintMatrix.put(av2, transposeConstraintMatrix(turnIntegerToDoubleMatrix(constraints)));
+		//checkIfTransposedCorrectly(neighborsConstraintMatrix.get(av1), neighborsConstraintMatrix.get(av2)); //This is for debug. 
 		
 	}
 	
@@ -94,6 +95,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 			sentTable = produceFunctionMessage(i);
 			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
 			messagesToBeSent.put(i, newMsg);
+			printStoredMessage(newMsg);
 			
 		}
 			
@@ -106,6 +108,8 @@ public class MaxSumStandardFunction extends AgentFunction {
 		for(NodeId i: messagesToBeSent.keySet()) {
 			
 			mailer.sendMsg(messagesToBeSent.get(i));
+			
+			printSentMessage(messagesToBeSent.get(i));
 			
 			if(storedMessageOn) {
 				
@@ -124,7 +128,11 @@ public class MaxSumStandardFunction extends AgentFunction {
 	@Override
 	protected int getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm) {
 		
-		return msgAlgorithm.getTimeStamp();
+		int timestamp = variableMsgs.get(msgAlgorithm.getSenderId()).getTimestamp(); //OmerP - will get the timestamp of the messages. 
+		
+		return timestamp; 
+		
+		
 
 	}
 
@@ -132,11 +140,13 @@ public class MaxSumStandardFunction extends AgentFunction {
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 		
-		double[] contextFix = (double[]) msgAlgorithm.getContext(); //will cast the message object as a double[].
+		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
+
+		double[] contextFix = (double[]) msgAlgorithmFactor.getContext(); //will cast the message object as a double[].
 		
-		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithm.getTimeStamp()); //
+		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithmFactor.getTimeStamp()); //
 		
-		variableMsgs.put(msgAlgorithm.getSenderId(), newMessageReceveid);
+		variableMsgs.put(msgAlgorithmFactor.getSenderId(), newMessageReceveid);
 		
 		changeRecieveFlagsToTrue(msgAlgorithm);
 
@@ -186,7 +196,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 	}
 	
 	//OmerP - Get the best value of the matrix - FIXED.
-	protected double[] getBestValueTable(Double[][] constraintMatrix) {
+	protected double[] getBestValueTable(double[][] constraintMatrix) {
 		
 		double[] table = new double[this.domainSize];
 		
@@ -213,18 +223,23 @@ public class MaxSumStandardFunction extends AgentFunction {
 	}
 	
 	//OmerP - Add an table to the matrix - FIXED. 
-	protected void addTableToMatrix(double[] receivedTable, Double[][] constraintMatrix){
+	protected double[][] addTableToMatrix(double[] receivedTable, double[][] constraintMatrix){
+		
+		double[][] returenedMatrix = new double[this.domainSize][this.domainSize];
+		
 		
 		for(int i = 0; i < this.domainSize ; i++) {
 			
 			for(int j = 0; j < this.domainSize ; j++) {
 				
-				constraintMatrix[i][j] = constraintMatrix[i][j] + receivedTable[j];
+				returenedMatrix[i][j] = constraintMatrix[i][j] + receivedTable[j];
 				
 			}
 			
 		}
 	
+		return returenedMatrix;
+		
 	}
 	
 	//-----------------------------------------------------------------------------------------------------------//
@@ -235,12 +250,11 @@ public class MaxSumStandardFunction extends AgentFunction {
 	protected double[] produceFunctionMessage(NodeId to) {
 		
 		double[] sentMessage = new double[this.domainSize]; //The message that will be sent.
-		Double[][] constraintMatrix = getConstraintMatrix(); //The constraint matrix. 
-		
-		
+		double[][] constraintMatrix = neighborsConstraintMatrix.get(to);
+				
 		if(getOtherNodeIdMessage(to) != null) { //If the message that the other variable node sent is not Null.
 			
-			addTableToMatrix(getOtherNodeIdMessage(to), constraintMatrix); //Will add the second variable node message to the constraint matrix.
+			constraintMatrix = addTableToMatrix(getOtherNodeIdMessage(to), constraintMatrix); //Will add the second variable node message to the constraint matrix.
 			
 		}
 		
@@ -303,13 +317,6 @@ public class MaxSumStandardFunction extends AgentFunction {
 	//-----------------------------------------------------------------------------------------------------------//
 	
     ///// ******* Getters ******* ////
-
-	//OmerP - will return the constraint matrix - FIXED. 
-	public Double[][] getConstraintMatrix(){
-		
-		return constraints; 
-		
-	}
 	
 	//OmerP - will return the message that is from the other variable node. 
 	protected double[] getOtherNodeIdMessage(NodeId to) {
@@ -356,7 +363,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 		
 	}
-
+	
     ///// ******* Flags Methods ******* ////
 
 	//OmerP - Flag that should be down after the all the messages were sent. 
@@ -377,8 +384,8 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 	@Override
 	protected boolean getDidComputeInThisIteration() {
-		// TODO Auto-generated method stub
-		return false;
+
+		return receiveMessageFlag;
 	}
 
 	//OmerP - will clear the HashMap from values double. 
@@ -395,5 +402,71 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 	//-----------------------------------------------------------------------------------------------------------//
 
+	///// ******* Tests and Prints Methods ******* ////
 
+	protected void printStoredMessage(MsgAlgorithmFactor msg) {
+		
+		System.out.println("FunctionNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") STORED a message for VariableNode ("
+				
+				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
+		
+	}
+	
+	protected void printSentMessage(MsgAlgorithmFactor msg) {
+		
+		System.out.println("FunctionNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") SENT a message for VariableNode ("
+				
+				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
+		
+	}
+	
+	protected void printReceivedMessage(MsgAlgorithmFactor msg) {
+		
+		System.out.println("FunctionNode:(" + msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") RECEIVED a message from VariableNode ("
+				
+				+ msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
+		
+	}
+	
+	
+	
+	
+	//OmerP - A method to check that the creation of the transpose matrix went correctly. 
+	protected void checkIfTransposedCorrectly(double[][] constraint , double[][] constraintTranspose) {
+		
+		if(constraint.length != constraintTranspose.length) {
+			
+			System.out.println("Constraint matrix and constraint transpose are not in the same size.\n");
+			
+		}
+		
+		
+		for(int i = 0; i < constraint.length ; i++) {
+			
+			for(int j = 0; j < constraint.length ; j++) {
+				
+				if(Double.compare(constraint[i][j], constraintTranspose[j][i]) != 0) {
+					
+					System.out.println("Bug in transposing matrix");
+					break;
+				
+				}
+	
+			}
+			
+		}
+		
+		System.out.println("Constraint:" + Arrays.deepToString(constraint) + ".\n");
+		System.out.println("Transpose Constraint:" + Arrays.deepToString(constraintTranspose) + ".\n");
+		System.out.println("Transpose is OK.\n");
+		
+		
+	}
+	
+	//-----------------------------------------------------------------------------------------------------------//
+
+
+	
+
+	
 }

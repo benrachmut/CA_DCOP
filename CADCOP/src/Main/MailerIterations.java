@@ -108,18 +108,9 @@ public class MailerIterations extends Mailer {
 				agent.resetAgent();
 				agent.initialize(); // abstract method in agents
 			} else {
-				// compute (abstract method in agents) -->
-				// varifyMsgSent-->
-				// sendMsg(abstract method in agents)
-				// if (didAgentRecieveAlgorithmicMsgInThisIteration(agent)) { // check if needs
-				// to add this
 				agent.reactionToAlgorithmicMsgs();
 			}
-			if (MainSimulator.anyTime) {
-				// if (didAgentRecieveAnytimeMsgInThisIteration(agent)) {
-				agent.reactionToAnytimeMsgs();
-				// }
-			}
+		
 		}
 	}
 
@@ -159,6 +150,12 @@ public class MailerIterations extends Mailer {
 	public void setMailerName() {
 		Mailer.mailerName = "Iteration";
 
+	}
+
+	@Override
+	protected void updateMailerClockUponMsgRecieved(Msg m) {
+		//this method is meant to be used only by mailer thread
+		
 	}
 
 }

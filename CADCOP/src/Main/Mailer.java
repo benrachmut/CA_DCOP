@@ -70,19 +70,21 @@ public abstract class Mailer {
 	 * 
 	 * @param m
 	 */
-	public void sendMsg(Msg m) {
+	public synchronized void sendMsg(Msg m) {
 		changeMsgsCounter(m);		
 		int d = createDelay();
 		if (d != -1) {
 			m.setDelay(d);
 			this.messageBox.add(m);
 		}
+		updateMailerClockUponMsgRecieved(m);
 	}
 	
+	protected abstract void updateMailerClockUponMsgRecieved(Msg m);
+
 	public void sendMsgWitoutDelay(MsgAlgorithm m) {
 		m.setDelay(0);
 		this.messageBox.add(m);
-		
 	}
 	
 	private void changeMsgsCounter(Msg m) {
