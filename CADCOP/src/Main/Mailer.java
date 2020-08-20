@@ -55,7 +55,9 @@ public abstract class Mailer {
 		}
 		else {
 			while(true) {
+				
 				i = i-1;
+				
 				if (dataMap.containsKey(i)) {
 					return this.dataMap.get(i);
 				}
@@ -73,6 +75,10 @@ public abstract class Mailer {
 	public synchronized void sendMsg(Msg m) {
 		changeMsgsCounter(m);		
 		int d = createDelay();
+		if (m.getSenderId().getId1() == 0 && MainSimulator.isThreadDebug) {
+			System.out.println("msg sent from "+m.getSenderId().getId1()+" to "+m.getRecieverId().getId1()+" is given delay "+d);
+		}
+		
 		if (d != -1) {
 			m.setDelay(d);
 			this.messageBox.add(m);
@@ -364,16 +370,29 @@ public abstract class Mailer {
 	}
 
 	public Double getLastGlobalCost() {
+		try {
 		Integer lastTime = dataMap.lastKey();
 		Data d = dataMap.get(lastTime);
 		return d.getGlobalCost();
+		}catch (Exception e) {
+			return 0.0;
+		}
+		
 	}
 
 	public Double getLastGlobalAnytimeCost() {
+		try {
 		Integer lastTime = dataMap.lastKey();
 		Data d = dataMap.get(lastTime);
-
 		return d.getGlobalAnytimeCost();
+		}catch (Exception e) {
+			return 0.0;
+		}
+	}
+
+	public Integer getFirstKeyInData() {
+		// TODO Auto-generated method stub
+		return this.dataMap.firstKey();
 	}
 
 	

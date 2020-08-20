@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+
+import com.sun.swing.internal.plaf.synth.resources.synth;
 
 import AgentsAbstract.Agent;
 import Messages.Msg;
@@ -21,18 +24,15 @@ public class MailerThread extends Mailer implements Runnable {
 		time = 0;
 		this.agentsThreads = new HashSet<Thread>();
 		clockUpdatedFromMsgPlacedInBoxFlag = false;
+
 	}
 
 	@Override
 	public void execute() {
-		createAndStartAgentThreads();
-		createAndStartMailerThreads();
+		System.out.println("wont be used");
 	}
 
-	private void createAndStartMailerThreads() {
-		Thread selfThread = new Thread(this);
-		selfThread.start();
-	}
+	
 
 	private void createAndStartAgentThreads() {
 		for (Agent a : this.dcop.getAgents()) {
@@ -45,37 +45,39 @@ public class MailerThread extends Mailer implements Runnable {
 
 	@Override
 	public void run() {
+		
+		createAndStartAgentThreads();
+
 		while (this.time < this.terminationTime) {
 			synchronized (this) {
 				while (this.messageBox.isEmpty()) {
+
 					if (MainSimulator.isThreadDebug) {
-						System.out.println("mailer msg box is empty at time"+this.time);
-					}	
+						System.out.println("mailer went to sleep");
+					}
 					try {
-							wait();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+						wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
-				createData(this.time);
-				shouldUpdateClockBecuaseNoMsgsRecieved();
-				List<Msg> msgToSend = this.handleDelay();
-				agentsRecieveMsgs(msgToSend);
-				clockUpdatedFromMsgPlacedInBoxFlag = false;
 			}
+			createData(this.time);
+			shouldUpdateClockBecuaseNoMsgsRecieved();
+			List<Msg> msgToSend = this.handleDelay();
+			agentsRecieveMsgs(msgToSend);
+			clockUpdatedFromMsgPlacedInBoxFlag = false;
+
 		}
 		killAgents();
 	}
 
-	private void shouldUpdateClockBecuaseNoMsgsRecieved() {
+	private synchronized void shouldUpdateClockBecuaseNoMsgsRecieved() {
 		if (clockUpdatedFromMsgPlacedInBoxFlag == false) {
 			Msg minTimeMsg = Collections.min(messageBox, new MsgsTimeComparator());
 			int minTime = minTimeMsg.getTime();
 			int oldTime = time;
 			this.time = minTime;
-			if (MainSimulator.isThreadDebug) {
-				System.out.println("mailer did not recieve new messages. mailer time moved from "+oldTime+" to "+this.time);
-			}
 		}
 	}
 
@@ -83,51 +85,66 @@ public class MailerThread extends Mailer implements Runnable {
 	public synchronized void sendMsg(Msg m) {
 		super.sendMsg(m);
 		updateMailerClockUponMsgRecieved(m);
+		int timeToSendByMailer = this.time + m.getDelay();
+
+		m.setTime(timeToSendByMailer);
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("the time msg will be sent is " + timeToSendByMailer + " from "
+					+ m.getSenderId().getId1() + " to " + m.getRecieverId().getId1());
+		}
 		clockUpdatedFromMsgPlacedInBoxFlag = true;
-		notifyAll();
+
+		this.notifyAll();
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("mailer woke up");
+		}
 	}
 
-	private void killAgents() {
+	private  void killAgents() {
 		for (Agent a : this.dcop.getAgents()) {
 			a.setStopThreadCondition();
-			a.notifyAll();
 		}
 	}
 
 	protected void updateMailerClockUponMsgRecieved(Msg m) {
-		int timeMsg = m.getTimeStamp();
+
+		int timeMsg = m.getTime();
 		if (this.time <= timeMsg) {
-			int oldTime =  this.time;
+			int oldTime = this.time;
 			this.time = timeMsg;
-			
-			if (MainSimulator.isThreadDebug) {
-				System.out.println("mailer time is updated from "+ oldTime + "to "+this.time+" because time of sender a"+m.getSenderId().getId1()+" is "+m.getTime());
-			}
-		}else {
-			System.err.println("something went wrong with mailer's time with threads");
-			throw new RuntimeException();
 		}
-		
-		
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("the time of mailer is updated to " + this.time);
+		}
+
+		// else {
+		// System.err.println("time Msg is "+timeMsg+" and mailer time is "+this.time+
+		// ". something went wrong with mailer's time with threads");
+		// throw new RuntimeException();
+		// }
+
 	}
 
 	@Override
 	protected synchronized List<Msg> handleDelay() {
+
 		List<Msg> toSend = new ArrayList<Msg>();
 		for (Msg msg : messageBox) {
 			if (msg.getTime() <= this.time) {
+				if (MainSimulator.isThreadDebug) {
+					System.out.println("msg is sent at time " + this.time + " from " + msg.getSenderId().getId1()
+							+ " to " + msg.getRecieverId().getId1());
+				}
+
 				toSend.add(msg);
 			}
 		}
 		this.messageBox.removeAll(toSend);
-		
 		if (MainSimulator.isThreadDebug) {
-			String toprint = "";
 			for (Msg msg : toSend) {
-				toprint = toprint+ msg.getTime()+", ";
+				System.out.println("delivered " + msg);
+
 			}
-			
-			System.out.println("mailer time is "+ this.time +" so msgs with times: "+ toprint+" were sent");
 		}
 		return toSend;
 	}

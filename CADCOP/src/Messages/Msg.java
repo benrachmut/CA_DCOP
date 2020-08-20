@@ -57,6 +57,21 @@ public abstract class Msg<Identity> {
 		// TODO Auto-generated method stub
 		return this.time;
 	}
+
+
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "from "+this.sender.getId1()+" to "+ this.reciever.getId1()+ " time "+this.time;
+	}
+
+
+
+	public void setTime(int timeToSendByMailer) {
+		this.time = timeToSendByMailer;
+		
+	}
 	
 	
 	

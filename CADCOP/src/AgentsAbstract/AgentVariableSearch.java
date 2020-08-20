@@ -9,6 +9,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import Main.MainSimulator;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgReceive;
@@ -123,13 +124,18 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	}
 
 	protected void sendValueAssignmnetMsgs() {
+		
+		if (MainSimulator.isThreadDebug ) {
+			System.out.println("Agent "+this.id+" is sending msgs at time "+this.time);
+		}
+		
+		if (MainSimulator.isWhatAgentDebug && this.id == 1) {
+			System.out.println("sending msgs");
+		}
+		
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, this.valueAssignment,
 					this.timeStampCounter, this.time);
-			/*
-			 * if (timeStampCounter == 2 && id == 23 && recieverNodeId.getId1()==3) {
-			 * System.out.println(4); }
-			 */
 			this.mailer.sendMsg(mva);
 		}
 

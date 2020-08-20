@@ -29,8 +29,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	private Double computationCounter;
 	private boolean stopThreadCondition;
 	protected int time;
-	
-	
+
 	public Agent(int dcopId, int D) {
 		super();
 		this.dcopId = dcopId;
@@ -56,7 +55,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	public void resetAgent() {
-		this.time = 0;
+		this.time = 1;
 		this.timeStampCounter = 0;
 		computationCounter = 0.0;
 		stopThreadCondition = false;
@@ -88,9 +87,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	// ------------**Receive Algorithmic Msgs methods**------------
 
-	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
-		
-		
+	public synchronized void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+
 		for (MsgAlgorithm msgAlgorithm : messages) {
 			if (this.isWithTimeStamp) {
 				int currentDateInContext;
@@ -110,26 +108,29 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				}
 			} else {
 				updateMessageInContextAndTreatFlag(msgAlgorithm);
-			}	
+			}
 		}
 		updateAgentTime(messages);
+		this.notifyAll();
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("agent "+this.id+ " woke up");
+		}
+		if (MainSimulator.isWhatAgentDebug && this.id == 1) {
+			System.out.println("agent "+this.id+ " woke up");
+		}
 	}
 
 	protected void updateAgentTime(List<? extends Msg> messages) {
 		Msg msgWithMaxTime = Collections.max(messages, new MsgsTimeComparator());
 		int maxTime = msgWithMaxTime.getTime();
-		if (this.time<maxTime) {
+		if (this.time <= maxTime) {
 			int oldTime = this.time;
 			this.time = maxTime;
-			if (MainSimulator.isThreadDebug) {
-				System.out.println("agent "+this.id+" changed time from "+oldTime+" to "+this.time);
-			}
-		}else {
-			System.err.println("something is wrong with agent "+this.id+" time");
-			throw new RuntimeException();
-		}
-		
-		
+		} //else {
+			//System.err.println("max time of msg is " + maxTime + " and time of agent " + this.id + " is " + this.time);
+			//throw new RuntimeException();
+		//}
+
 	}
 
 	/**
@@ -160,14 +161,26 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param messages
 	 * 
 	 */
-	public void reactionToAlgorithmicMsgs() {
+	public synchronized void reactionToAlgorithmicMsgs() {
+		if (MainSimulator.isWhatAgentDebug && this.id == 1) {
+			System.out.println("reacting to algorithmic msgs");
+		}
 		boolean isUpdate = compute();
 		if (isMsgGoingToBeSent(isUpdate)) {
 			if (getDidComputeInThisIteration()) {
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
-				this.time = this.time+1;
+				this.time = this.time + 1;
+				
+				if (MainSimulator.isWhatAgentDebug && this.id ==1) {
+					System.out.println("before send msgs");
+				}
+				
 				sendMsgs();
+
+				if (MainSimulator.isWhatAgentDebug && this.id ==1) {
+					System.out.println("changing to false");
+				}
 				changeRecieveFlagsToFalse();
 			}
 		}
@@ -202,7 +215,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * mailer
 	 */
 
-	protected abstract void sendMsgs();
+	protected  abstract void sendMsgs();
 
 	/**
 	 * reaction to msgs include computation and send message to mailer
@@ -258,8 +271,14 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	private synchronized void waitUntilMsgsRecieved() {
-		while (getDidComputeInThisIteration() == true) {
+		if (getDidComputeInThisIteration() == false) {
 			try {
+				if (MainSimulator.isThreadDebug) {
+					System.out.println("agent "+this.id+ " went to sleep");
+				}
+				if (MainSimulator.isWhatAgentDebug && this.id == 1) {
+					System.out.println("agent "+this.id+ " went to sleep");
+				}
 				this.wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -268,7 +287,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				return;
 			}
 		}
-		System.out.println("agent "+this.id+" is about to react to msgs");
 		this.reactionToAlgorithmicMsgs();
 	}
 
@@ -291,6 +309,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	public synchronized void setStopThreadCondition() {
 		this.stopThreadCondition = true;
+		this.notifyAll();
 
 	}
 
