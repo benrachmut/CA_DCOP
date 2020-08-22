@@ -11,6 +11,7 @@ import com.sun.swing.internal.plaf.synth.resources.synth;
 
 import AgentsAbstract.Agent;
 import Messages.Msg;
+import Messages.MsgAlgorithm;
 import Messages.MsgsTimeComparator;
 import Problem.Dcop;
 
@@ -50,7 +51,7 @@ public class MailerThread extends Mailer implements Runnable {
 
 		while (this.time < this.terminationTime) {
 			synchronized (this) {
-				while (this.messageBox.isEmpty()) {
+				while (this.messageBox.isEmpty()  || !notOnlyArtificial()) {
 
 					if (MainSimulator.isThreadDebug) {
 						System.out.println("mailer went to sleep");
@@ -62,6 +63,8 @@ public class MailerThread extends Mailer implements Runnable {
 					}
 				}
 			}
+			
+			
 			createData(this.time);
 			shouldUpdateClockBecuaseNoMsgsRecieved();
 			List<Msg> msgToSend = this.handleDelay();
@@ -72,8 +75,21 @@ public class MailerThread extends Mailer implements Runnable {
 		killAgents();
 	}
 
+	private boolean notOnlyArtificial() {
+		for (Msg msg : messageBox) {
+			if (msg instanceof MsgAlgorithm) {
+				boolean isArtificial = ((MsgAlgorithm)msg).getArtificialMsg();
+				if (isArtificial == false) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	private synchronized void shouldUpdateClockBecuaseNoMsgsRecieved() {
 		if (clockUpdatedFromMsgPlacedInBoxFlag == false) {
+			
 			Msg minTimeMsg = Collections.min(messageBox, new MsgsTimeComparator());
 			int minTime = minTimeMsg.getTime();
 			int oldTime = time;
@@ -84,6 +100,27 @@ public class MailerThread extends Mailer implements Runnable {
 	@Override
 	public synchronized void sendMsg(Msg m) {
 		super.sendMsg(m);
+		updateMailerClockUponMsgRecieved(m);
+		//int timeToSendByMailer = this.time + m.getDelay();
+		if (m instanceof MsgAlgorithm) {
+			((MsgAlgorithm)m).setArtificialMsg(true);
+		}
+		//m.setTime(timeToSendByMailer);
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("the time msg will be sent is " + m.getTime() + " from "
+					+ m.getSenderId().getId1() + " to " + m.getRecieverId().getId1());
+		}
+
+		this.notifyAll();
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("mailer woke up");
+		}
+	}
+	
+	
+	public synchronized void sendMsgWitoutDelay(MsgAlgorithm m) {
+		super.sendMsgWitoutDelay(m);
+		
 		updateMailerClockUponMsgRecieved(m);
 		int timeToSendByMailer = this.time + m.getDelay();
 
@@ -98,6 +135,8 @@ public class MailerThread extends Mailer implements Runnable {
 		if (MainSimulator.isThreadDebug) {
 			System.out.println("mailer woke up");
 		}
+		
+		
 	}
 
 	private  void killAgents() {

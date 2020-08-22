@@ -44,7 +44,7 @@ public class MainSimulator {
 
 	// ------------------------------**Implementation**
 	public static boolean isThreadMailer = true; // determines the mailers type
-	public static boolean isThreadDebug = true;
+	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
 	// ------------------------------**any time**
 	public static boolean anyTime = false;
@@ -52,10 +52,10 @@ public class MainSimulator {
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 1;
-	public static int termination = 50;// 5000;
+	public static int termination = 5000;// 5000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 2; // amount of agents
+	public static int A = 20; // amount of agents
 	public static int D = -1; // if D or costParameter < 0 use default
 	public static int costParameter = -1; // if D or costParameter < 0 use default
 
@@ -65,7 +65,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.1;// 0.1,0.6
+	public static double dcopUniformP1 = 1;// 0.1,0.6
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
@@ -81,7 +81,7 @@ public class MainSimulator {
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
 	 * 7 = maxsum asynch; 8 = maxsum synch; 9 = split constraint factor
 	 */
-	public static int agentType = 2;
+	public static int agentType = 1;
 
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform

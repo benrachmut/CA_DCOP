@@ -9,7 +9,6 @@ public abstract class Msg<Identity> {
 	protected Object context;
 	protected int time;
 	private int timestamp;
-	
 	private Integer delay;
 	
 	public Msg(NodeId sender, NodeId reciever, Object context, int timeStamp, int time) {
