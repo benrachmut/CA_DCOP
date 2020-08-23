@@ -18,4 +18,8 @@ public class MsgValueAssignmnet extends MsgAlgorithm {
 		*/
 	}
 
+	public MsgValueAssignmnet(NodeId nodeId) {
+		super(nodeId);
+	}
+
 }

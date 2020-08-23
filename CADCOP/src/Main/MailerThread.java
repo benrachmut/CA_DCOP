@@ -51,7 +51,7 @@ public class MailerThread extends Mailer implements Runnable {
 
 		while (this.time < this.terminationTime) {
 			synchronized (this) {
-				while (this.messageBox.isEmpty()  || !notOnlyArtificial()) {
+				while (this.messageBox.isEmpty()  ) {
 
 					if (MainSimulator.isThreadDebug) {
 						System.out.println("mailer went to sleep");
@@ -75,17 +75,7 @@ public class MailerThread extends Mailer implements Runnable {
 		killAgents();
 	}
 
-	private boolean notOnlyArtificial() {
-		for (Msg msg : messageBox) {
-			if (msg instanceof MsgAlgorithm) {
-				boolean isArtificial = ((MsgAlgorithm)msg).getArtificialMsg();
-				if (isArtificial == false) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+
 
 	private synchronized void shouldUpdateClockBecuaseNoMsgsRecieved() {
 		if (clockUpdatedFromMsgPlacedInBoxFlag == false) {

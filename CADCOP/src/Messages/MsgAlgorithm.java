@@ -13,6 +13,12 @@ public class MsgAlgorithm extends Msg{
 	}
 	
 
+	public MsgAlgorithm(NodeId creator) {
+		this(creator, creator,null, 0,0);
+		isArtificialMsg = true;
+	}
+
+
 	public void setContext(Object input) {
 		this.context = input;
 	}
@@ -23,11 +29,13 @@ public class MsgAlgorithm extends Msg{
 	}
 
 
-	public boolean getArtificialMsg() {
+	public boolean isArtificialMsg() {
 		// TODO Auto-generated method stub
 		return this.isArtificialMsg;
 	}
 
+
+	
 
 
 	

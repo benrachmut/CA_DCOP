@@ -169,8 +169,20 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		if (isMsgGoingToBeSent(isUpdate)) {
 			if (getDidComputeInThisIteration()) {
 				computationCounter = computationCounter + 1;
+				
+				
+				
 				this.timeStampCounter = this.timeStampCounter + 1;
 				this.time = this.time + 1;
+			
+				
+				if (MainSimulator.isSynchDebug) {
+					/*
+					if (this.id == 2 && this.timeStampCounter == 4) {
+						System.out.println("mailer: A2 sends at timestamp 4 22222");
+					}
+					*/
+				}
 				
 				if (MainSimulator.isWhatAgentDebug && this.id ==1) {
 					System.out.println("before send msgs");

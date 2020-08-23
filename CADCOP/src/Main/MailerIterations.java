@@ -128,6 +128,7 @@ public class MailerIterations extends Mailer {
 	}
 
 	public synchronized List<Msg> handleDelay() {
+		
 		Collections.sort(this.messageBox, new CompMsgByDelay());
 		List<Msg> msgToSend = new ArrayList<Msg>();
 		Iterator it = this.messageBox.iterator();

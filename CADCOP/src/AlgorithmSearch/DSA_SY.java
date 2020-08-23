@@ -1,17 +1,20 @@
 package AlgorithmSearch;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
+import java.util.SortedSet;
+import java.util.TreeSet;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.NodeId;
+import Main.MainSimulator;
 import Messages.MsgAlgorithm;
 import Messages.MsgReceive;
-import Messages.MsgValueAssignmnet;
+import Messages.MsgsTimestampComparator;
 
 public class DSA_SY extends DSA {
-	private SortedMap<NodeId, Boolean> isNeighborInThisIteration;
+	private Collection<MsgAlgorithm> future;
 
 	public DSA_SY(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
@@ -30,9 +33,9 @@ public class DSA_SY extends DSA {
 
 	@Override
 	protected void resetAgentGivenParametersV4() {
-		resetNeighborRecieveInThisIteration();
-		this.isWithTimeStamp = true;
-		// futureMsgs = new ArrayList<MsgAlgorithm>();
+		// resetNeighborRecieveInThisIteration();
+		this.isWithTimeStamp = false;
+		this.future = new ArrayList<MsgAlgorithm>();
 	}
 
 	@Override
@@ -43,71 +46,102 @@ public class DSA_SY extends DSA {
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
-		int currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
-		if (msgAlgorithm.getTimeStamp() == currentDateInContext + 1 && 
-				this.timeStampCounter == msgAlgorithm.getTimeStamp()) {
+		if (MainSimulator.isSynchDebug) {
+			/*
+			 * if (this.id == 0 && msgAlgorithm.getSenderId().getId1() == 2 &&
+			 * msgAlgorithm.getTimeStamp() == 4 ) {
+			 * System.out.println("DSA_SY msg placed at future"); }
+			 */
+		}
+
+		if (this.timeStampCounter == msgAlgorithm.getTimeStamp()) {
 			super.updateMessageInContext(msgAlgorithm);
 		} else {
-			MsgAlgorithm copiedMsg = new MsgValueAssignmnet(msgAlgorithm);
-			this.mailer.sendMsgWitoutDelay(copiedMsg);
-			msgAlgorithm.setContext(null) ;
+
+			this.future.add(msgAlgorithm);
 		}
 	}
 
 	@Override
 	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
-		if (msgAlgorithm.getContext() != null) {
-			MsgValueAssignmnet mva = (MsgValueAssignmnet) msgAlgorithm;
-			NodeId sender = mva.getSenderId();
-			this.isNeighborInThisIteration.put(sender, true);
-			checkIfCanCompute();
-		}
-	}
 
-	private void checkIfCanCompute() {
-		/*
-		 * if (this.timeStampCounter == 1 && this.id == 3) {
-		 * System.out.println(this.timeStampCounter); }
-		 */
-		for (Boolean b : this.isNeighborInThisIteration.values()) {
-			if (b == false) {
+		for (MsgReceive<Integer> m : this.neighborsValueAssignmnet.values()) {
+			int msgTimestamp = 0;
+			
+			if (m == null) {
+				return;
+			}
+			
+			else {
+				msgTimestamp = m.getTimestamp();
+			}
+
+			if (msgTimestamp != this.timeStampCounter) {
 				return;
 			}
 		}
 		canCompute = true;
+
 	}
 
 	@Override
 	protected void changeRecieveFlagsToFalse() {
 		if (this.canCompute) {
 			canCompute = false;
-			resetNeighborRecieveInThisIteration();
-/*
-			if (!futureMsgs.isEmpty()) {
-				for (MsgAlgorithm mva : futureMsgs) {
-					if (mva.getTimeStamp() != this.timeStampCounter) {
-						throw new RuntimeException();
-					}
-					super.updateMessageInContext(mva);
-				}
-
-				for (MsgAlgorithm mva : futureMsgs) {
-					changeRecieveFlagsToTrue(mva);
-				}
-
-				reactionToAlgorithmicMsgs();
-			}
-
-			futureMsgs = new ArrayList<MsgAlgorithm>();
-		*/
+			// resetNeighborRecieveInThisIteration();
 		}
 	}
 
-	private void resetNeighborRecieveInThisIteration() {
-		this.isNeighborInThisIteration = new TreeMap<NodeId, Boolean>();
-		for (NodeId nodeId : this.neighborsConstraint.keySet()) {
-			this.isNeighborInThisIteration.put(nodeId, false);
+	@Override
+	protected boolean compute() {
+		boolean ans = super.compute();
+		/*
+		if (canCompute) {
+
+			if (MainSimulator.isSynchDebug) {
+
+				System.out.println("-------------------------------------------------");
+				System.out.println("A_" + this.id + " with value " + this.valueAssignment + " status at timestamp "
+						+ this.timeStampCounter + " is:");
+				for (Entry<NodeId, MsgReceive<Integer>> e : this.neighborsValueAssignmnet.entrySet()) {
+					if (e.getValue() != null) {
+						System.out.println("\t" + "A_" + e.getKey().getId1() + ": " + "[<V," + e.getValue().getContext()
+								+ ">;<T," + e.getValue().getTimestamp() + ">]");
+					}
+				}
+			}
 		}
+		*/
+
+		return ans;
+
+	}
+
+	@Override
+	protected void sendMsgs() {
+		if (canCompute) {
+			sendValueAssignmnetMsgs();
+			releaseFutureMsgs();
+		}
+	}
+
+	private void releaseFutureMsgs() {
+		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
+		for (MsgAlgorithm m : this.future) {
+			if (m.getTimeStamp() == this.timeStampCounter) {
+				toRelease.add(m);
+				updateMessageInContext(m);
+
+				if (MainSimulator.isSynchDebug) {
+					/*
+					 * if (this.id == 0 && m.getSenderId().getId1() == 2 && this.timeStampCounter ==
+					 * 4 ) { System.out.println("DSA_SY placed in context"); }
+					 */
+				}
+
+			}
+		}
+		this.future.removeAll(toRelease);
 	}
 
 	public String getStringForDebug() {
