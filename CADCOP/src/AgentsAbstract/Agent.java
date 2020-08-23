@@ -19,7 +19,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	protected Integer id;
 	protected NodeId nodeId;
-
+	private boolean finishInit; 
+	
 	protected int domainSize;
 	protected int dcopId;
 	protected int timeStampCounter;
@@ -61,6 +62,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		stopThreadCondition = false;
 		resetAgentGivenParameters();
 		changeRecieveFlagsToFalse();
+		finishInit = false;
 
 	}
 
@@ -89,6 +91,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	public synchronized void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
 
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("A" + this.id + "is about to update context and check to change");
+		}
 		for (MsgAlgorithm msgAlgorithm : messages) {
 			if (this.isWithTimeStamp) {
 				int currentDateInContext;
@@ -98,11 +103,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				} catch (NullPointerException e) {
 					currentDateInContext = -1;
 				}
-				/*
-				 * if (this.id==25 && msgAlgorithm.getSenderId().getId1()==12) {
-				 * System.out.println(4); }
-				 */
-
 				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
 					updateMessageInContextAndTreatFlag(msgAlgorithm);
 				}
@@ -110,14 +110,13 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				updateMessageInContextAndTreatFlag(msgAlgorithm);
 			}
 		}
+
 		updateAgentTime(messages);
 		this.notifyAll();
 		if (MainSimulator.isThreadDebug) {
-			System.out.println("agent "+this.id+ " woke up");
+			System.out.println("agent " + this.id + " woke up");
 		}
-		if (MainSimulator.isWhatAgentDebug && this.id == 1) {
-			System.out.println("agent "+this.id+ " woke up");
-		}
+
 	}
 
 	protected void updateAgentTime(List<? extends Msg> messages) {
@@ -126,11 +125,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		if (this.time <= maxTime) {
 			int oldTime = this.time;
 			this.time = maxTime;
-		} //else {
-			//System.err.println("max time of msg is " + maxTime + " and time of agent " + this.id + " is " + this.time);
-			//throw new RuntimeException();
-		//}
-
+		}
 	}
 
 	/**
@@ -148,8 +143,10 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 */
 
 	protected void updateMessageInContextAndTreatFlag(MsgAlgorithm msgAlgorithm) {
-		updateMessageInContext(msgAlgorithm);
-		changeRecieveFlagsToTrue(msgAlgorithm);
+			updateMessageInContext(msgAlgorithm);
+			changeRecieveFlagsToTrue(msgAlgorithm);
+	
+		
 	}
 
 	protected abstract void updateMessageInContext(MsgAlgorithm msgAlgorithm);
@@ -161,30 +158,24 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param messages
 	 * 
 	 */
-	public synchronized void reactionToAlgorithmicMsgs() {
-		if (MainSimulator.isWhatAgentDebug && this.id == 1) {
-			System.out.println("reacting to algorithmic msgs");
-		}
+	public void reactionToAlgorithmicMsgs() {
+
+		
+		
 		boolean isUpdate = compute();
 		if (isMsgGoingToBeSent(isUpdate)) {
 			if (getDidComputeInThisIteration()) {
 				computationCounter = computationCounter + 1;
-				
-				
-				
 				this.timeStampCounter = this.timeStampCounter + 1;
 				this.time = this.time + 1;
-			
-				
-				if (MainSimulator.isWhatAgentDebug && this.id ==1) {
-					System.out.println("before send msgs");
-				}
-				
-				sendMsgs();
 
-				if (MainSimulator.isWhatAgentDebug && this.id ==1) {
-					System.out.println("changing to false");
+				if (MainSimulator.isThreadDebug) {
+					System.out.println("A "+this.id+" change timestamp from " +(this.timeStampCounter-1)+" to "+this.timeStampCounter);
 				}
+				sendMsgs();
+				
+			
+
 				changeRecieveFlagsToFalse();
 			}
 		}
@@ -219,7 +210,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * mailer
 	 */
 
-	protected  abstract void sendMsgs();
+	protected abstract void sendMsgs();
 
 	/**
 	 * reaction to msgs include computation and send message to mailer
@@ -267,21 +258,42 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	@Override
 	public void run() {
-		resetAgent();
-		initialize();
+
+		//resetAgent();
+		//initialize();
+		//afterInit();
+		
+			
+		
+		
+		
 		while (stopThreadCondition == false) {
 			waitUntilMsgsRecieved();
 		}
 	}
 
+	private synchronized void afterInit() {
+		while (finishInit) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	public synchronized void updateToContinueAfterInit() {
+		finishInit = true;
+		this.notifyAll();
+	}
+
 	private synchronized void waitUntilMsgsRecieved() {
-		if (getDidComputeInThisIteration() == false) {
+		while (getDidComputeInThisIteration() == false) {
 			try {
 				if (MainSimulator.isThreadDebug) {
-					System.out.println("agent "+this.id+ " went to sleep");
-				}
-				if (MainSimulator.isWhatAgentDebug && this.id == 1) {
-					System.out.println("agent "+this.id+ " went to sleep");
+					System.out.println("agent " + this.id + " went to sleep");
 				}
 				this.wait();
 			} catch (InterruptedException e) {
@@ -290,6 +302,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			if (stopThreadCondition == true) {
 				return;
 			}
+		}
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("A"+this.id+" is able to react to msgs");
 		}
 		this.reactionToAlgorithmicMsgs();
 	}

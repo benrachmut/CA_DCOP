@@ -46,12 +46,21 @@ public class DSA_SY extends DSA {
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
-		
-
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("A" + this.id + " with timestamp " + this.timeStampCounter
+					+ " is about to check if it can update context of msg: " + msgAlgorithm);
+		}
 		if (this.timeStampCounter == msgAlgorithm.getTimeStamp()) {
+			if (MainSimulator.isThreadDebug) {
+				System.out.println("A" + this.id + " with timestamp " + this.timeStampCounter
+						+ " update the msg in context: " + msgAlgorithm);
+			}
 			super.updateMessageInContext(msgAlgorithm);
 		} else {
-
+			if (MainSimulator.isThreadDebug) {
+				System.out.println("A" + this.id + " with timestamp " + this.timeStampCounter + " save msg for future: "
+						+ msgAlgorithm);
+			}
 			this.future.add(msgAlgorithm);
 		}
 	}
@@ -63,8 +72,7 @@ public class DSA_SY extends DSA {
 			int msgTimestamp = 0;
 			if (m == null) {
 				return;
-			}
-			else {
+			} else {
 				msgTimestamp = m.getTimestamp();
 			}
 			if (msgTimestamp != this.timeStampCounter) {
@@ -82,7 +90,6 @@ public class DSA_SY extends DSA {
 		}
 	}
 
-
 	@Override
 	protected void sendMsgs() {
 		if (canCompute) {
@@ -97,8 +104,6 @@ public class DSA_SY extends DSA {
 			if (m.getTimeStamp() == this.timeStampCounter) {
 				toRelease.add(m);
 				updateMessageInContext(m);
-
-				
 
 			}
 		}

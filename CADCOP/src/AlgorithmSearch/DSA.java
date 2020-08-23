@@ -4,6 +4,7 @@ import java.util.Random;
 
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableSearch;
+import Main.MainSimulator;
 import Messages.MsgAlgorithm;
 import Messages.MsgValueAssignmnet;
 
@@ -62,12 +63,17 @@ abstract public class DSA extends AgentVariableSearch {
 	@Override
 	protected boolean compute() {
 		if (canCompute) {
+			if (MainSimulator.isThreadDebug) {
+				System.out.println("A"+this.id+" is about to compute at timestamp "+this.timeStampCounter);
+			}
 			int candidate = getCandidateToChange();
 			if (candidate == valueAssignment) {
 				return false;
 			} else {
 				return stochasticChange(candidate);
 			}
+			
+			
 		}
 		return false;
 	}

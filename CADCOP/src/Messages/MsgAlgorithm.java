@@ -33,6 +33,8 @@ public class MsgAlgorithm extends Msg{
 		// TODO Auto-generated method stub
 		return this.isArtificialMsg;
 	}
+	
+	
 
 
 	
