@@ -194,18 +194,6 @@ public abstract class Mailer {
 			if (recieverAgent == null) {
 				System.err.println("from mailer: something is wrong with finding the recieverAgent");
 			}
-			
-			if (MainSimulator.isSynchDebug) {
-				/*
-				for (MsgAlgorithm msg : msgsAlgorithm) {
-					if (msg.getRecieverId().getId1() == 0 && msg.getSenderId().getId1() == 2 && msg.getTimeStamp() == 4) {
-						System.out.println(msg);
-					}
-				}
-				*/
-				
-			}
-			
 			recieverAgent.receiveAlgorithmicMsgs(msgsForAnAgnet);
 		}
 	

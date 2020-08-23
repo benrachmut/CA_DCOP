@@ -46,13 +46,7 @@ public class DSA_SY extends DSA {
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
-		if (MainSimulator.isSynchDebug) {
-			/*
-			 * if (this.id == 0 && msgAlgorithm.getSenderId().getId1() == 2 &&
-			 * msgAlgorithm.getTimeStamp() == 4 ) {
-			 * System.out.println("DSA_SY msg placed at future"); }
-			 */
-		}
+		
 
 		if (this.timeStampCounter == msgAlgorithm.getTimeStamp()) {
 			super.updateMessageInContext(msgAlgorithm);
@@ -67,15 +61,12 @@ public class DSA_SY extends DSA {
 
 		for (MsgReceive<Integer> m : this.neighborsValueAssignmnet.values()) {
 			int msgTimestamp = 0;
-			
 			if (m == null) {
 				return;
 			}
-			
 			else {
 				msgTimestamp = m.getTimestamp();
 			}
-
 			if (msgTimestamp != this.timeStampCounter) {
 				return;
 			}
@@ -88,34 +79,9 @@ public class DSA_SY extends DSA {
 	protected void changeRecieveFlagsToFalse() {
 		if (this.canCompute) {
 			canCompute = false;
-			// resetNeighborRecieveInThisIteration();
 		}
 	}
 
-	@Override
-	protected boolean compute() {
-		boolean ans = super.compute();
-		/*
-		if (canCompute) {
-
-			if (MainSimulator.isSynchDebug) {
-
-				System.out.println("-------------------------------------------------");
-				System.out.println("A_" + this.id + " with value " + this.valueAssignment + " status at timestamp "
-						+ this.timeStampCounter + " is:");
-				for (Entry<NodeId, MsgReceive<Integer>> e : this.neighborsValueAssignmnet.entrySet()) {
-					if (e.getValue() != null) {
-						System.out.println("\t" + "A_" + e.getKey().getId1() + ": " + "[<V," + e.getValue().getContext()
-								+ ">;<T," + e.getValue().getTimestamp() + ">]");
-					}
-				}
-			}
-		}
-		*/
-
-		return ans;
-
-	}
 
 	@Override
 	protected void sendMsgs() {
@@ -132,12 +98,7 @@ public class DSA_SY extends DSA {
 				toRelease.add(m);
 				updateMessageInContext(m);
 
-				if (MainSimulator.isSynchDebug) {
-					/*
-					 * if (this.id == 0 && m.getSenderId().getId1() == 2 && this.timeStampCounter ==
-					 * 4 ) { System.out.println("DSA_SY placed in context"); }
-					 */
-				}
+				
 
 			}
 		}
