@@ -53,7 +53,7 @@ public class MainSimulator {
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 200;
+	public static int end = 100;
 	public static int termination = 5000;// 5000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
