@@ -13,7 +13,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
-import com.sun.swing.internal.plaf.synth.resources.synth;
 
 import Main.MainSimulator;
 import Messages.MsgAlgorithm;

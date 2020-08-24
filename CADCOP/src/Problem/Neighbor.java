@@ -28,8 +28,7 @@ public class Neighbor {
 	
 	public Neighbor(AgentVariable a1, AgentVariable a2, int D, int costLb,int costUb, int dcopId) {
 		updateVariables(a1,a2,costLb, costUb,D);
-		//this.randomCost = new Random(dcopId * 100 + a1.getId() * 300 + a2.getId() * 1200);
-		//this.randomCost = this.randomCost
+		this.randomCost = new Random(dcopId * 100 + a1.getId() * 300 + a2.getId() * 1200);
 		createConstraintsForEquality();
 		neighborsMeetings();
 	}
@@ -70,8 +69,8 @@ public class Neighbor {
 			for (int j = 0; j < constraints[i].length; j++) {
 				if (j==i) {
 					int rndCost = costLb + randomCost.nextInt(costUb - costLb);
-					constraints[i][j] = costUb;
-					constraintsTranspose[j][i] = costUb;
+					constraints[i][j] = rndCost;
+					constraintsTranspose[j][i] = rndCost;
 				}
 				else {
 					constraints[i][j] = 0;

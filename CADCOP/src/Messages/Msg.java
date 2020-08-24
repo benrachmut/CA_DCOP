@@ -9,6 +9,7 @@ public abstract class Msg<Identity> {
 	protected Object context;
 	protected int time;
 	private int timestamp;
+	
 	private Integer delay;
 	
 	public Msg(NodeId sender, NodeId reciever, Object context, int timeStamp, int time) {
@@ -62,7 +63,7 @@ public abstract class Msg<Identity> {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "from "+this.sender.getId1()+" to "+ this.reciever.getId1()+ " timestamp "+this.timestamp;
+		return "from "+this.sender.getId1()+" to "+ this.reciever.getId1()+ " time "+this.time;
 	}
 
 

@@ -11,7 +11,6 @@ import AgentsAbstract.NodeId;
 import Main.MainSimulator;
 import Messages.MsgAlgorithm;
 import Messages.MsgReceive;
-import Messages.MsgsTimestampComparator;
 
 public class DSA_SY extends DSA {
 	private Collection<MsgAlgorithm> future;

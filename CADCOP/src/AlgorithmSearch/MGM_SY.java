@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import com.sun.org.apache.bcel.internal.generic.LREM;
 
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.NodeId;

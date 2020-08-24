@@ -48,53 +48,59 @@ public abstract class Mailer {
 	}
 
 	abstract public void setMailerName();
-
+	
 	public Data getDataPerIteration(int i) {
 		if (dataMap.containsKey(i)) {
 			return this.dataMap.get(i);
-		} else {
-			while (true) {
-
-				i = i - 1;
-
+		}
+		else {
+			while(true) {
+				
+				i = i-1;
+				
 				if (dataMap.containsKey(i)) {
 					return this.dataMap.get(i);
 				}
-				if (i < 0) {
+				if (i<0) {
 					throw new RuntimeException();
 				}
 			}
 		}
 	}
-
 	/**
 	 * used by agents when creating messages
 	 * 
 	 * @param m
 	 */
 	public synchronized void sendMsg(Msg m) {
-		changeMsgsCounter(m);
+		changeMsgsCounter(m);		
 		int d = createDelay();
-
+		if (m.getSenderId().getId1() == 0 && MainSimulator.isThreadDebug) {
+			System.out.println("msg sent from "+m.getSenderId().getId1()+" to "+m.getRecieverId().getId1()+" is given delay "+d);
+		}
+		
 		if (d != -1) {
 			m.setDelay(d);
 			this.messageBox.add(m);
 		}
 	}
+	
 
 	public void sendMsgWitoutDelay(MsgAlgorithm m) {
 		m.setDelay(0);
 		this.messageBox.add(m);
 	}
-
+	
 	private void changeMsgsCounter(Msg m) {
 		if (m instanceof MsgAlgorithm) {
 			this.algorithmMsgsCounter++;
 		}
 		if (m instanceof MsgAnyTime) {
 			this.anytimeMsgsCounter++;
-		}
+		}		
 	}
+
+	
 
 	private int createDelay() {
 		Double d = this.protocol.getDelay().createDelay();
@@ -121,7 +127,7 @@ public abstract class Mailer {
 		this.messageBox = new ArrayList<Msg>();
 		this.dcop = dcop;
 		boolean isWithTimeStamp = this.protocol.getDelay().isWithTimeStamp();
-
+	
 		for (Agent a : dcop.getAgents()) {
 			a.setIsWithTimeStamp(isWithTimeStamp);
 		}
@@ -188,11 +194,9 @@ public abstract class Mailer {
 			if (recieverAgent == null) {
 				System.err.println("from mailer: something is wrong with finding the recieverAgent");
 			}
-
 			recieverAgent.receiveAlgorithmicMsgs(msgsForAnAgnet);
-
 		}
-
+	
 	}
 
 	/**
@@ -367,21 +371,21 @@ public abstract class Mailer {
 
 	public Double getLastGlobalCost() {
 		try {
-			Integer lastTime = dataMap.lastKey();
-			Data d = dataMap.get(lastTime);
-			return d.getGlobalCost();
-		} catch (Exception e) {
+		Integer lastTime = dataMap.lastKey();
+		Data d = dataMap.get(lastTime);
+		return d.getGlobalCost();
+		}catch (Exception e) {
 			return 0.0;
 		}
-
+		
 	}
 
 	public Double getLastGlobalAnytimeCost() {
 		try {
-			Integer lastTime = dataMap.lastKey();
-			Data d = dataMap.get(lastTime);
-			return d.getGlobalAnytimeCost();
-		} catch (Exception e) {
+		Integer lastTime = dataMap.lastKey();
+		Data d = dataMap.get(lastTime);
+		return d.getGlobalAnytimeCost();
+		}catch (Exception e) {
 			return 0.0;
 		}
 	}
@@ -390,5 +394,7 @@ public abstract class Mailer {
 		// TODO Auto-generated method stub
 		return this.dataMap.firstKey();
 	}
+
+	
 
 }

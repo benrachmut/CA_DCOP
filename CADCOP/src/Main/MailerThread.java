@@ -7,11 +7,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import com.sun.swing.internal.plaf.synth.resources.synth;
 
 import AgentsAbstract.Agent;
 import Messages.Msg;
-import Messages.MsgAlgorithm;
 import Messages.MsgsTimeComparator;
 import Problem.Dcop;
 
@@ -86,10 +84,8 @@ public class MailerThread extends Mailer implements Runnable {
 	}
 
 
-
 	private synchronized void shouldUpdateClockBecuaseNoMsgsRecieved() {
 		if (clockUpdatedFromMsgPlacedInBoxFlag == false) {
-			
 			Msg minTimeMsg = Collections.min(messageBox, new MsgsTimeComparator());
 			int minTime = minTimeMsg.getTime();
 			int oldTime = time;
@@ -101,34 +97,19 @@ public class MailerThread extends Mailer implements Runnable {
 	public synchronized void sendMsg(Msg m) {
 		super.sendMsg(m);
 		updateMailerClockUponMsgRecieved(m);
-		//int timeToSendByMailer = this.time + m.getDelay();
-		if (m instanceof MsgAlgorithm) {
-			((MsgAlgorithm)m).setArtificialMsg(true);
-		}
-		//m.setTime(timeToSendByMailer);
-		
-
-		this.notifyAll();
-		
-	}
-	
-	
-	public synchronized void sendMsgWitoutDelay(MsgAlgorithm m) {
-		super.sendMsgWitoutDelay(m);
-		
-		updateMailerClockUponMsgRecieved(m);
 		int timeToSendByMailer = this.time + m.getDelay();
 
 		m.setTime(timeToSendByMailer);
-	
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("the time msg will be sent is " + timeToSendByMailer + " from "
+					+ m.getSenderId().getId1() + " to " + m.getRecieverId().getId1());
+		}
 		clockUpdatedFromMsgPlacedInBoxFlag = true;
 
 		this.notifyAll();
 		if (MainSimulator.isThreadDebug) {
 			System.out.println("mailer woke up");
 		}
-		
-		
 	}
 
 	private  void killAgents() {
@@ -138,11 +119,22 @@ public class MailerThread extends Mailer implements Runnable {
 	}
 
 	protected void updateMailerClockUponMsgRecieved(Msg m) {
+
 		int timeMsg = m.getTime();
 		if (this.time <= timeMsg) {
 			int oldTime = this.time;
 			this.time = timeMsg;
 		}
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("the time of mailer is updated to " + this.time);
+		}
+
+		// else {
+		// System.err.println("time Msg is "+timeMsg+" and mailer time is "+this.time+
+		// ". something went wrong with mailer's time with threads");
+		// throw new RuntimeException();
+		// }
+
 	}
 
 	@Override
@@ -151,13 +143,21 @@ public class MailerThread extends Mailer implements Runnable {
 		List<Msg> toSend = new ArrayList<Msg>();
 		for (Msg msg : messageBox) {
 			if (msg.getTime() <= this.time) {
-			
+				if (MainSimulator.isThreadDebug) {
+					System.out.println("msg is sent at time " + this.time + " from " + msg.getSenderId().getId1()
+							+ " to " + msg.getRecieverId().getId1());
+				}
 
 				toSend.add(msg);
 			}
 		}
 		this.messageBox.removeAll(toSend);
-	
+		if (MainSimulator.isThreadDebug) {
+			for (Msg msg : toSend) {
+				System.out.println("delivered " + msg);
+
+			}
+		}
 		return toSend;
 	}
 

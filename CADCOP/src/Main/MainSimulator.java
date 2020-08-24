@@ -46,15 +46,13 @@ public class MainSimulator {
 	public static boolean isThreadMailer = true; // determines the mailers type
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
-	
-	//public static boolean isSynchDebug = false;
 	// ------------------------------**any time**
 	public static boolean anyTime = false;
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 100;
-	public static int termination = 5000;// 5000;
+	public static int termination = 2003;// 5000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
 	public static int A = 50; // amount of agents
@@ -71,8 +69,8 @@ public class MainSimulator {
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
-	public static int costLb = 0;
-	public static int costUb = 10;
+	public static int costLb = 10;
+	public static int costUb = 20;
 	// 3 = Graph Coloring
 	public static int dcopScaleHubs = 10; // number of agents with central weight
 	public static int dcopScaleNeighbors = 3; // number of neighbors (not including policy of hubs
@@ -83,7 +81,7 @@ public class MainSimulator {
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
 	 * 7 = maxsum asynch; 8 = maxsum synch; 9 = split constraint factor
 	 */
-	public static int agentType = 1;
+	public static int agentType = 4;
 
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
@@ -147,11 +145,13 @@ public class MainSimulator {
 	}
 
 	private static void createFileName() {
-		String ans = "Algorithm_" + AgentVariable.AlgorithmName + ", ";
-		ans = ans + "DCOP_" + Dcop.dcopName + ", ";
-		ans = ans + "Mailer_" + Mailer.mailerName + ", ";
-		ans = ans + "A_" + A + ", ";
-		ans = ans + "reps_" + (end - start);
+		String ans = "Algorithm_" + AgentVariable.AlgorithmName + ",";
+		ans = ans + "DCOP_" + Dcop.dcopName + ",";
+		ans = ans + "Mailer_" + Mailer.mailerName + ",";
+		ans = ans + "A_" + A + ",";
+		ans = ans + "Reps_" + (end - start)+",";
+		ans = ans + "Time_" + (termination);
+
 		fileName = ans;
 	}
 
