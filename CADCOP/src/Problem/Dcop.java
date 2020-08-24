@@ -14,6 +14,7 @@ import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
+import AlgorithmSearch.AMDLS_v1;
 import AlgorithmSearch.DSA_ASY;
 import AlgorithmSearch.DSA_SY;
 import AlgorithmSearch.MGM_ASY;
@@ -24,12 +25,11 @@ import AlgorithmsInference.MaxSumStandardFunctionSync;
 import AlgorithmsInference.MaxSumStandardVarible;
 import AlgorithmsInference.MaxSumStandardVaribleSync;
 import Comparators.CompAgentVariableByNeighborSize;
+import Formation.DFS;
+import Formation.Formation;
 import Main.Mailer;
 import Main.MainSimulator;
 import Messages.Msg;
-import Trees.BFS;
-import Trees.DFS;
-import Trees.Tree;
 
 public abstract class Dcop {
 
@@ -56,10 +56,12 @@ public abstract class Dcop {
 		agentsVariables = new AgentVariable[A];
 		this.agentsAll = new ArrayList<Agent>();
 		createVariableAgents();
+
 		neighbors = new ArrayList<Neighbor>();
 		
 	}
 	
+
 	protected void updateNames() {
 		setDcopName();
 		setDcopHeader();
@@ -109,6 +111,7 @@ public abstract class Dcop {
 		if (agentType == 4) {
 			ans = new MGM_SY(dcopId, D, agentId);
 		}
+
 		/*
 		if (agentType == 5) {
 			ans = new AgentAMDLS(dcopId, D, agentId);
@@ -130,23 +133,47 @@ public abstract class Dcop {
 		}
 		*/
 		
+		if (agentType == 10) {
+			ans = new AMDLS_v1(dcopId, D, agentId);
+		}
+		/*
+		if (agentType == 11) {
+			ans = new AMDLS_v1(dcopId, D, agentId);
+		}
+		
+		if (agentType == 12) {
+			ans = new AMDLS_v1(dcopId, D, agentId);
+		}
+		
+		if (agentType == 13) {
+			ans = new AMDLS_v1(dcopId, D, agentId);
+		}
+		*/
 
 		return ans;
 	}
 
-	public void createTrees() {
-		Collection<Tree>trees = new HashSet<Tree>();
-		trees.add(new DFS(this.agentsVariables, new CompAgentVariableByNeighborSize()));
-		trees.add(new BFS(this.agentsVariables, new CompAgentVariableByNeighborSize()));
+	
 
-		for (Tree tree : trees) {
-			tree.initiateTree();
+	
+	private void createFormations() {
+		Formation dfs = new DFS(agentsVariables);
+		dfs.execute();
+		
+		
+		int agentType = MainSimulator.agentType;
+
+		if (agentType==10 || agentType==11) {
+			dfs.setAboveBelow();
 		}
+		
+		if (agentType==12 || agentType==13) {
+		}
+		
 	}
-
 	public Dcop initiate() {
 		createNeighbors();
-		//createTrees();
+		createFormations();
 
 		if (isInferenceAgent()) {
 			createFactorGraph();
