@@ -3,27 +3,43 @@ package Formation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.NodeId;
-import AlgorithmSearch.AMDLS_v1;
+import AlgorithmSearch.AMDLS;
+import Main.MainSimulator;
 
 public class DFS extends Formation {
 
 	private Map<NodeId,Integer>numberInTree;
+	protected Map<AgentVariable, Boolean> visited;
+
 	public DFS(AgentVariable[] input_a) {
 		super(input_a);
+		this.visited = initColorMap(); 
+
 		numberInTree = new TreeMap<NodeId,Integer>();
 		for (AgentVariable a : this.agents) {
 			numberInTree.put(a.getNodeId(), -1);
 		}
 	}
+	private Map<AgentVariable, Boolean> initColorMap() {
+		Map<AgentVariable, Boolean> ans = new HashMap<AgentVariable, Boolean>();
+		for (AgentVariable agentField : agents) {
+			ans.put(agentField, false);
+		}
+
+		return ans;
+	}
+
 
 	
 	//-----------set above and below------------
@@ -31,8 +47,8 @@ public class DFS extends Formation {
 	public void setAboveBelow() {
 		for (AgentVariable a : agents) {
 			int aLevel = this.numberInTree.get(a.getNodeId());
-			Set<NodeId> above = new HashSet<NodeId>();
-			Set<NodeId> below = new HashSet<NodeId>();
+			Set<NodeId> above = new TreeSet<NodeId>();
+			Set<NodeId> below = new TreeSet<NodeId>();
 			Set<NodeId> nIds = a.getNeigborSetId();
 			
 			for (NodeId nodeId : nIds) {
@@ -48,9 +64,11 @@ public class DFS extends Formation {
 					throw new RuntimeException("something is wrong with psaudo tree");
 				}
 			}
+			if (MainSimulator.agentType==5) {
+				((AMDLS)a).setBelow(below);
+				((AMDLS)a).setAbove(above);
+			}
 			
-			((AMDLS_v1)a).setBelow(below);
-			((AMDLS_v1)a).setAbove(below);
 
 		}
 		
@@ -88,7 +106,7 @@ public class DFS extends Formation {
 		}
 		else {
 			AgentVariable father = getAgentByNodeId(currentA.getDfsFather());
-			int level = this.numberInTree.get(father)+1;
+			int level = this.numberInTree.get(father.getNodeId())+1;
 			this.numberInTree.put(currentA.getNodeId(), level);
 		}
 		this.visited.put(currentA, true);

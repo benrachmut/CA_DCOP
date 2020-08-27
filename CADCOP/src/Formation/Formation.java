@@ -14,15 +14,15 @@ import AgentsAbstract.NodeId;
 
 public abstract class Formation {
 	protected Collection<AgentVariable> agents;
-	protected Map<AgentVariable, Boolean> visited;
 
 	public Formation( AgentVariable[] input_a) {
 		this.agents = createAfList(input_a);
-		this.visited = initColorMap(); 
 	}
 	
 	public abstract void setAboveBelow();
 	
+	public abstract void execute();
+
 	protected AgentVariable getAgentByNodeId(NodeId nodeId ) {
 		for (AgentVariable a : agents) {
 			if (a.getNodeId().getId1() == nodeId.getId1()) {
@@ -32,15 +32,7 @@ public abstract class Formation {
 		return null;
 	}
 	
-	private Map<AgentVariable, Boolean> initColorMap() {
-		Map<AgentVariable, Boolean> ans = new HashMap<AgentVariable, Boolean>();
-		for (AgentVariable agentField : agents) {
-			ans.put(agentField, false);
-		}
-
-		return ans;
-	}
-
+	
 	private Collection<AgentVariable> createAfList(AgentVariable[] aFieldInput) {
 		Collection<AgentVariable> ans = new ArrayList<AgentVariable>();
 
@@ -50,5 +42,4 @@ public abstract class Formation {
 		return ans;
 	}
 	
-	public abstract void execute();
 }

@@ -52,10 +52,10 @@ public class MainSimulator {
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 100;
-	public static int termination = 2003;// 5000;
+	public static int termination =  10000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 10; // amount of agents
+	public static int A = 50; // amount of agents
 	public static int D = -1; // if D or costParameter < 0 use default
 	public static int costParameter = -1; // if D or costParameter < 0 use default
 
@@ -65,7 +65,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.3;// 0.1,0.6
+	public static double dcopUniformP1 = 0.1;// 0.1,0.6
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
@@ -78,12 +78,13 @@ public class MainSimulator {
 
 	// ------------------------------**Algorithm Selection**
 	/*
-	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; ; 6 = DSA_SDP ;
+	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
 	 * 7 = maxsum asynch; 8 = maxsum synch; 9 = split constraint factor;
-	 * 10 = AMDLS_V1; 11 = AMDLS_V2; 12 = AMDLS_COLOR_V1; 13 = AMDLS_COLOR_V2;
+	 * 
 	 */
-	public static int agentType = 10;
+	public static int agentType = 5;
 
+	public static boolean isAMDLSdebug = false;
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
 	 */
@@ -146,8 +147,11 @@ public class MainSimulator {
 	}
 
 	private static void createFileName() {
-		String ans = "Algorithm_" + AgentVariable.AlgorithmName + ",";
-		ans = ans + "DCOP_" + Dcop.dcopName + ",";
+		String ans = "Algorithm_" + AgentVariable.AlgorithmName ;
+		if (!AgentVariable.algorithmData.equals("")) {
+			ans = ans+"("+AgentVariable.algorithmData+")";
+		}
+		ans = ","+ans + "DCOP_" + Dcop.dcopName + ",";
 		ans = ans + "Mailer_" + Mailer.mailerName + ",";
 		ans = ans + "A_" + A + ",";
 		ans = ans + "Reps_" + (end - start)+",";

@@ -84,19 +84,16 @@ public class DSA_SY extends DSA {
 
 	@Override
 	protected void changeRecieveFlagsToFalse() {
-		if (this.canCompute) {
 			canCompute = false;
-		}
+		
 	}
 
 	@Override
 	protected void sendMsgs() {
-		if (canCompute) {
 			sendValueAssignmnetMsgs();
 			releaseFutureMsgs();
-		}
+		
 	}
-
 	private void releaseFutureMsgs() {
 		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
 		for (MsgAlgorithm m : this.future) {

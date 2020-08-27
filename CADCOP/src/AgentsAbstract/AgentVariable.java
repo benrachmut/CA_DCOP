@@ -57,7 +57,7 @@ public abstract class AgentVariable extends Agent {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "A"+this.id+"_|N|="+this.neighborSize();
+		return "A"+this.id;
 	}
 	/**
 	 * update the Algorithm Header string

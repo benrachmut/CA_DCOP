@@ -61,15 +61,15 @@ abstract public class DSA extends AgentVariableSearch {
 
 	@Override
 	protected boolean compute() {
-		if (canCompute) {
+		//if (canCompute) {
 			int candidate = getCandidateToChange();
 			if (candidate == valueAssignment) {
 				return false;
 			} else {
 				return stochasticChange(candidate);
 			}
-		}
-		return false;
+		//}
+		//return false;
 	}
 
 	private boolean stochasticChange(int candidate) {
@@ -85,9 +85,9 @@ abstract public class DSA extends AgentVariableSearch {
 
 	@Override
 	protected void sendMsgs() {
-		if (canCompute) {
+		
 			sendValueAssignmnetMsgs();
-		}
+		
 
 	}
 
@@ -97,7 +97,6 @@ abstract public class DSA extends AgentVariableSearch {
 
 	@Override
 	protected boolean getDidComputeInThisIteration() {
-		// TODO Auto-generated method stub
 		return canCompute;
 	}
 

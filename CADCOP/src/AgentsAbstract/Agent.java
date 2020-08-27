@@ -94,15 +94,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				int currentDateInContext;
 				try {
 					currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
-
 				} catch (NullPointerException e) {
 					currentDateInContext = -1;
 				}
-				/*
-				 * if (this.id==25 && msgAlgorithm.getSenderId().getId1()==12) {
-				 * System.out.println(4); }
-				 */
-
 				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
 					updateMessageInContextAndTreatFlag(msgAlgorithm);
 				}
@@ -149,6 +143,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	protected void updateMessageInContextAndTreatFlag(MsgAlgorithm msgAlgorithm) {
 		updateMessageInContext(msgAlgorithm);
+
 		changeRecieveFlagsToTrue(msgAlgorithm);
 	}
 
@@ -165,9 +160,10 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		if (MainSimulator.isWhatAgentDebug && this.id == 1) {
 			System.out.println("reacting to algorithmic msgs");
 		}
+		if (getDidComputeInThisIteration()) {
+
 		boolean isUpdate = compute();
 		if (isMsgGoingToBeSent(isUpdate)) {
-			if (getDidComputeInThisIteration()) {
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
 				this.time = this.time + 1;
@@ -239,10 +235,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 //-----------------**TO-DO**---------------
-	protected boolean terminationCondition() {
-		// TO-DO
-		return false;
-	}
+
 
 	public void setIsWithTimeStamp(boolean input) {
 		this.isWithTimeStamp = input;
