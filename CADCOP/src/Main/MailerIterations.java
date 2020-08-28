@@ -11,7 +11,7 @@ import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
-import AlgorithmSearch.DSA_SY;
+import AlgorithmSearch.DSA_C_SY;
 import AlgorithmSearch.MGM;
 import Comparators.CompMsgByDelay;
 import Data.Data;
@@ -70,7 +70,7 @@ public class MailerIterations extends Mailer {
 		String ans = "Iteration,Global_Cost,";
 		for (int i = 0; i < dcop.getVariableAgents().length; i++) {
 			AgentVariable av = dcop.getVariableAgents()[i];
-			if (av instanceof DSA_SY) {
+			if (av instanceof DSA_C_SY) {
 				int currentId = av.getId();
 				ans = ans+currentId+"_rnd"+","+currentId+"_value,";
 				for (NodeId nNodeId : av.getNeigborSetId()) {
@@ -88,8 +88,8 @@ public class MailerIterations extends Mailer {
 
 		for (int i = 0; i < dcop.getVariableAgents().length; i++) {
 			AgentVariable av = dcop.getVariableAgents()[i];
-			if (av instanceof DSA_SY) {
-				DSA_SY a = (DSA_SY) av;
+			if (av instanceof DSA_C_SY) {
+				DSA_C_SY a = (DSA_C_SY) av;
 				ans = ans+a.getStringForDebug();
 			} else {
 				System.out.println("should not use printForDebugDSA_SY");

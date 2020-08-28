@@ -9,16 +9,16 @@ import AgentsAbstract.NodeId;
 import Messages.MsgAlgorithm;
 import Messages.MsgValueAssignmnet;
 
-public class DSA_ASY extends DSA {
+public class DSA_C_ASY extends DSA_C {
 
 
-	public DSA_ASY(int dcopId, int D, int id1) {
+	public DSA_C_ASY(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		updateAlgorithmName();
 
 	}
 	
-	public DSA_ASY(int dcopId, int D, int id1, double stochastic) {
+	public DSA_C_ASY(int dcopId, int D, int id1, double stochastic) {
 		super( dcopId, D,  id1, stochastic);
 		updateAlgorithmName();
 	}

@@ -15,8 +15,10 @@ import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
 import AlgorithmSearch.AMDLS;
-import AlgorithmSearch.DSA_ASY;
-import AlgorithmSearch.DSA_SY;
+import AlgorithmSearch.DSA_C_ASY;
+import AlgorithmSearch.DSA_C_SY;
+import AlgorithmSearch.DSA_SDP_ASY;
+import AlgorithmSearch.DSA_SDP_SY;
 import AlgorithmSearch.MGM_ASY;
 import AlgorithmSearch.MGM_SY;
 import AlgorithmsInference.MaxSumSplitConstraintFactorGraph;
@@ -103,10 +105,10 @@ public abstract class Dcop {
 		int agentType = MainSimulator.agentType;
 
 		if (agentType == 1) {
-			ans = new DSA_ASY(dcopId, D, agentId);
+			ans = new DSA_C_ASY(dcopId, D, agentId);
 		}
 		if (agentType == 2) {
-			ans = new DSA_SY(dcopId, D, agentId);
+			ans = new DSA_C_SY(dcopId, D, agentId);
 		}
 		if (agentType == 3) {
 			ans = new MGM_ASY(dcopId, D, agentId);
@@ -132,6 +134,12 @@ public abstract class Dcop {
 		 * if (agentType == 9){ ans = new MaxSumSplitConstraintFactorGraph(dcopId, D,
 		 * agentId); }
 		 */
+		if (agentType == 10) {
+			ans = new DSA_SDP_ASY(dcopId, D, agentId);
+		}
+		if (agentType == 11) {
+			ans = new DSA_SDP_SY(dcopId, D, agentId);
+		}
 
 		return ans;
 	}

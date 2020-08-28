@@ -52,7 +52,7 @@ public class MainSimulator {
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 100;
-	public static int termination =  10000;
+	public static int termination =  5000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
 	public static int A = 50; // amount of agents
@@ -78,11 +78,11 @@ public class MainSimulator {
 
 	// ------------------------------**Algorithm Selection**
 	/*
-	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = DSA_SDP ;
+	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ;
 	 * 7 = maxsum asynch; 8 = maxsum synch; 9 = split constraint factor;
-	 * 
+	 * 10 = DSA_SDP-ASY; 11 = DSA_SDP-SY
 	 */
-	public static int agentType = 5;
+	public static int agentType = 11;
 
 	public static boolean isAMDLSdebug = false;
 	/*
@@ -151,7 +151,8 @@ public class MainSimulator {
 		if (!AgentVariable.algorithmData.equals("")) {
 			ans = ans+"("+AgentVariable.algorithmData+")";
 		}
-		ans = ","+ans + "DCOP_" + Dcop.dcopName + ",";
+		ans = ans+",";
+		ans = ans+","+ "DCOP_" + Dcop.dcopName + ",";
 		ans = ans + "Mailer_" + Mailer.mailerName + ",";
 		ans = ans + "A_" + A + ",";
 		ans = ans + "Reps_" + (end - start)+",";

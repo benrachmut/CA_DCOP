@@ -7,13 +7,13 @@ import AgentsAbstract.AgentVariableSearch;
 import Messages.MsgAlgorithm;
 import Messages.MsgValueAssignmnet;
 
-abstract public class DSA extends AgentVariableSearch {
+abstract public class DSA_C extends AgentVariableSearch {
 	protected double stochastic;
 	protected double rndForDebug; // for debug
 	protected Random rndStochastic;
 	protected boolean canCompute;
 
-	public DSA(int dcopId, int D, int id1) {
+	public DSA_C(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		stochastic = 0.7;
 		this.rndStochastic = new Random(this.dcopId * 10 + this.id * 100);
@@ -22,7 +22,7 @@ abstract public class DSA extends AgentVariableSearch {
 		updateAlgorithmData();
 	}
 
-	public DSA(int dcopId, int D, int id1, double stochastic) {
+	public DSA_C(int dcopId, int D, int id1, double stochastic) {
 		this(dcopId, D, id1);
 		this.stochastic = stochastic;
 		canCompute = false;
@@ -32,8 +32,9 @@ abstract public class DSA extends AgentVariableSearch {
 	protected void resetAgentGivenParametersV3() {
 		this.rndStochastic = new Random(this.dcopId * 10 + this.id * 100);
 		canCompute = false;
-		resetAgentGivenParametersV4();
 		rndForDebug = 0;
+
+		resetAgentGivenParametersV4();
 	}
 
 	protected abstract void resetAgentGivenParametersV4();
@@ -72,7 +73,7 @@ abstract public class DSA extends AgentVariableSearch {
 		//return false;
 	}
 
-	private boolean stochasticChange(int candidate) {
+	protected boolean stochasticChange(int candidate) {
 		double rnd = rndStochastic.nextDouble();
 		this.rndForDebug = rnd;
 		if (rnd < stochastic) {
