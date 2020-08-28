@@ -52,7 +52,7 @@ public class MainSimulator {
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 100;
-	public static int termination =  5000;
+	public static int termination =  5001;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
 	public static int A = 50; // amount of agents
