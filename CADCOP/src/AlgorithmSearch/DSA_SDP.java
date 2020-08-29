@@ -94,11 +94,21 @@ public abstract class DSA_SDP extends DSA_C {
 
 	private double calcRatio() {
 		SortedMap<Integer, Integer> costPerDomain = getCostPerDomain();
-		int current_cost = Collections.min(costPerDomain.values());
-		int selectedValue = getSelectedValue(current_cost, costPerDomain);
-		costPerDomain.remove(selectedValue);
-		double new_cost = Collections.min(costPerDomain.values());
-		double ans = Math.abs(current_cost - new_cost) / current_cost;
+
+		int current_cost = costPerDomain.get(this.valueAssignment); 
+		
+		costPerDomain.remove(this.valueAssignment);
+		
+		int new_cost = Collections.min(costPerDomain.values());
+		//int selectedValue = getSelectedValue(current_cost, costPerDomain);
+		//costPerDomain.remove(selectedValue);
+		//double new_cost = Collections.min(costPerDomain.values());
+		double ans = 0;
+		try {
+		 ans = Math.abs(current_cost - new_cost) / current_cost;
+		}catch(ArithmeticException e){
+			ans = 0;
+		}
 		return ans;
 
 	}

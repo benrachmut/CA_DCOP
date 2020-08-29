@@ -52,7 +52,7 @@ public class MainSimulator {
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 100;
-	public static int termination =  5001;
+	public static int termination =  1000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
 	public static int A = 50; // amount of agents
@@ -84,6 +84,7 @@ public class MainSimulator {
 	 */
 	public static int agentType = 11;
 
+	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
@@ -148,11 +149,13 @@ public class MainSimulator {
 
 	private static void createFileName() {
 		String ans = "Algorithm_" + AgentVariable.AlgorithmName ;
+		
 		if (!AgentVariable.algorithmData.equals("")) {
-			ans = ans+"("+AgentVariable.algorithmData+")";
+			ans = ans+"("+AgentVariable.algorithmData+"),";
+		}else {
+			ans = ans+",";
 		}
-		ans = ans+",";
-		ans = ans+","+ "DCOP_" + Dcop.dcopName + ",";
+		ans = ans + "DCOP_" + Dcop.dcopName + ",";
 		ans = ans + "Mailer_" + Mailer.mailerName + ",";
 		ans = ans + "A_" + A + ",";
 		ans = ans + "Reps_" + (end - start)+",";
