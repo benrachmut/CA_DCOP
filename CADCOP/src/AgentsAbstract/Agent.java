@@ -26,7 +26,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	protected boolean isWithTimeStamp;
 	protected Mailer mailer;
-	private Double computationCounter;
+	protected Double computationCounter;
 	private boolean stopThreadCondition;
 	protected int time;
 
@@ -88,7 +88,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	// ------------**Receive Algorithmic Msgs methods**------------
 
 	public synchronized void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
-
+	
+		
 		for (MsgAlgorithm msgAlgorithm : messages) {
 			if (this.isWithTimeStamp) {
 				int currentDateInContext;
@@ -104,14 +105,18 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				updateMessageInContextAndTreatFlag(msgAlgorithm);
 			}
 		}
+		
+	
+		
+		
+		
+		
 		updateAgentTime(messages);
 		this.notifyAll();
 		if (MainSimulator.isThreadDebug) {
 			System.out.println("agent "+this.id+ " woke up");
 		}
-		if (MainSimulator.isWhatAgentDebug && this.id == 1) {
-			System.out.println("agent "+this.id+ " woke up");
-		}
+	
 	}
 
 	protected void updateAgentTime(List<? extends Msg> messages) {
@@ -142,6 +147,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 */
 
 	protected void updateMessageInContextAndTreatFlag(MsgAlgorithm msgAlgorithm) {
+		
 		updateMessageInContext(msgAlgorithm);
 
 		changeRecieveFlagsToTrue(msgAlgorithm);
@@ -156,14 +162,13 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param messages
 	 * 
 	 */
-	public synchronized void reactionToAlgorithmicMsgs() {
-		if (MainSimulator.isWhatAgentDebug && this.id == 1) {
-			System.out.println("reacting to algorithmic msgs");
-		}
+	public synchronized boolean reactionToAlgorithmicMsgs() {
+
 		if (getDidComputeInThisIteration()) {
 
 		boolean isUpdate = compute();
 		if (isMsgGoingToBeSent(isUpdate)) {
+				
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
 				this.time = this.time + 1;
@@ -179,12 +184,14 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				}
 				changeRecieveFlagsToFalse();
 			}
+		return isUpdate;
 		}
+		return false;
 	}
 
 	protected abstract boolean getDidComputeInThisIteration();
 
-	private boolean isMsgGoingToBeSent(boolean changeContext) {
+	protected boolean isMsgGoingToBeSent(boolean changeContext) {
 		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) || (MainSimulator.sendOnlyIfChange == false);
 	}
 

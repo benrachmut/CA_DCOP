@@ -100,9 +100,7 @@ public abstract class DSA_SDP extends DSA_C {
 		costPerDomain.remove(this.valueAssignment);
 		
 		int new_cost = Collections.min(costPerDomain.values());
-		//int selectedValue = getSelectedValue(current_cost, costPerDomain);
-		//costPerDomain.remove(selectedValue);
-		//double new_cost = Collections.min(costPerDomain.values());
+
 		double ans = 0;
 		try {
 		 ans = Math.abs(current_cost - new_cost) / current_cost;

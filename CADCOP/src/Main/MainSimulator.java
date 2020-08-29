@@ -82,7 +82,7 @@ public class MainSimulator {
 	 * 7 = maxsum asynch; 8 = maxsum synch; 9 = split constraint factor;
 	 * 10 = DSA_SDP-ASY; 11 = DSA_SDP-SY
 	 */
-	public static int agentType = 11;
+	public static int agentType = 10;
 
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;

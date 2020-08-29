@@ -155,8 +155,10 @@ public abstract class Mailer {
 
 		iterateOverMsgToSend(msgToSend, msgsAnyTime, msgsAlgorithm);
 		handleMsgAlgorithm(msgsAlgorithm);
-		handleMsgAnytime(msgsAnyTime);
-
+		
+		if (MainSimulator.anyTime) {
+			handleMsgAnytime(msgsAnyTime);
+		}
 	}
 
 	/**

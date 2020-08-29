@@ -30,12 +30,8 @@ public class MailerIterations extends Mailer {
 
 	@Override
 	public void execute() {
-		//printHeaderForDebugDSA_SY();
-		//printHeaderForDegbugMgm();
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
 			agentsReactToMsgs(iteration);
-			//printForDegbugMgm(iteration);
-			//printForDebugDSA_SY(iteration);
 			createData(iteration);
 			List<Msg> msgToSend = this.handleDelay();
 			agentsRecieveMsgs(msgToSend);
@@ -108,8 +104,13 @@ public class MailerIterations extends Mailer {
 			} else {
 				agent.reactionToAlgorithmicMsgs();
 			}
-		
 		}
+		if (MainSimulator.anyTime) {
+			for (AgentVariable agentVariable : dcop.getVariableAgents()) {
+				agentVariable.sendAnytimeMsgs();
+			}
+		}
+		
 	}
 
 	private boolean didAgentRecieveAnytimeMsgInThisIteration(Agent agent) {
