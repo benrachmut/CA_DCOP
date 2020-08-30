@@ -106,8 +106,10 @@ public class MailerIterations extends Mailer {
 			}
 		}
 		if (MainSimulator.anyTime) {
-			for (AgentVariable agentVariable : dcop.getVariableAgents()) {
-				agentVariable.sendAnytimeMsgs();
+			for (AgentVariable a : dcop.getVariableAgents()) {
+				if (a instanceof AgentVariableSearch) {
+					((AgentVariableSearch)a).sendAnytimeMsgs();
+				}
 			}
 		}
 		

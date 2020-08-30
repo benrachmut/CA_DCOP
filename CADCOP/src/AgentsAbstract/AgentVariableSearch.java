@@ -1,9 +1,11 @@
 package AgentsAbstract;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -12,16 +14,32 @@ import java.util.TreeSet;
 import Main.MainSimulator;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
+import Messages.MsgAnyTime;
+import Messages.MsgAnyTimeDown;
+import Messages.MsgAnyTimeUp;
 import Messages.MsgReceive;
 import Messages.MsgValueAssignmnet;
 
 public abstract class AgentVariableSearch extends AgentVariable {
 
 	protected SortedMap<NodeId, MsgReceive<Integer>> neighborsValueAssignmnet; // id, variable
+	protected List<Context> anytimeUpToSend;
+	protected List<Context> anytimeDownToSend;
+	private Integer anytimeValueAssignmnet;
+	private MsgReceive<Context> anytimeBestContext;
+	private Set<Context> contextInMemory;
 
+	
 	public AgentVariableSearch(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		this.neighborsValueAssignmnet = new TreeMap<NodeId, MsgReceive<Integer>>();
+		anytimeUpToSend = new ArrayList<Context>();
+		anytimeDownToSend = new ArrayList<Context>();
+		anytimeValueAssignmnet = null;
+		anytimeBestContext = null;
+		if (MainSimulator.anyTime) {
+			this.isWithTimeStamp = true;
+		}
 	}
 
 	@Override
@@ -41,6 +59,12 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	public void resetAgentGivenParametersV2() {
 		this.neighborsValueAssignmnet = Agent
 				.<NodeId, MsgReceive<Integer>>resetMapToValueNull(this.neighborsValueAssignmnet);
+		anytimeValueAssignmnet = null;
+
+		anytimeUpToSend = new ArrayList<Context>();
+		anytimeDownToSend = new ArrayList<Context>();
+		anytimeBestContext = null;
+
 		resetAgentGivenParametersV3();
 	}
 
@@ -139,6 +163,124 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			this.mailer.sendMsg(mva);
 		}
 
+	}
+	
+	
+	@Override
+	public synchronized boolean reactionToAlgorithmicMsgs() {
+		boolean isValueAssignmnetChange = super.reactionToAlgorithmicMsgs();
+		if (MainSimulator.anyTime) {
+			if (isValueAssignmnetChange) {
+				Context context_i = createMyContext();
+				placeContextInMemory(context_i);
+			}
+		}
+		return isValueAssignmnetChange;
+
+	}
+
+	public synchronized void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+		Context context_i_beforeMsgUpdate = null;
+
+		if (MainSimulator.anyTime) {
+			if (!messages.isEmpty()) {
+				context_i_beforeMsgUpdate = createMyContext();
+			}
+		}
+
+		super.receiveAlgorithmicMsgs(messages);
+
+		if (MainSimulator.anyTime) {
+			if (isWithTimeStamp) {
+				if (!messages.isEmpty()) {
+					Context context_i_AfterMsgUpdate = createMyContext();
+					if (!context_i_beforeMsgUpdate.isSameValueAssignmnets(context_i_AfterMsgUpdate)) {
+						placeContextInMemory(context_i_AfterMsgUpdate);
+					}
+				}
+			}
+		}
+
+	}
+	
+	private Context createMyContext() {
+		
+		TreeMap<Integer, Integer> m = new TreeMap<Integer, Integer>();
+		for (Entry<NodeId, MsgReceive<Integer>> e : this.neighborsValueAssignmnet.entrySet()) {
+			m.put(e.getKey().getId1(), e.getValue().getContext());
+		}
+		
+		int myCost = this.getCostPerDomain().get(this.valueAssignment);
+		
+		return new Context(m, this.id, myCost);
+	}
+	
+	// --------------**TO-DO**--------------------
+	public synchronized void recieveAnyTimeMsgs(List<? extends MsgAnyTime> messages) {
+
+		for (MsgAnyTime msgAnyTime : messages) {
+			if (msgAnyTime instanceof MsgAnyTimeUp) {
+				placeContextInMemory((Context) msgAnyTime.getContext());
+			}
+			if (msgAnyTime instanceof MsgAnyTimeDown) {
+				MsgAnyTimeDown down = (MsgAnyTimeDown)msgAnyTime;
+				int ts = down.getTimeStamp();
+				Context c= (Context)down.getContext();
+				MsgReceive<Context> mr = new MsgReceive<Context>(c, ts);
+				if (this.anytimeBestContext.getTimestamp()<ts) {
+					anytimeBestContext = mr;
+					this.anytimeValueAssignmnet = c.getValueAssignmnet(this.id);
+					this.anytimeDownToSend.add(c);
+				}
+				
+				
+			}
+		}
+
+		updateAgentTime(messages);
+
+	}
+	
+	
+	private boolean placeContextInMemory(Context input) {
+		if (contextHasNulls()) {
+			return false;
+		}
+		
+		Collection<Context> toAdd = new ArrayList<Context>();
+		//Collection<Context> toDelete = new ArrayList<Context>();
+
+		for (Context context : this.contextInMemory) {	
+			Context combined = context.combineWith(input);
+			if (combined!=null ) {
+				toAdd.add(combined);
+				//toDelete.add(context);
+			}
+		}
+		//this.contextInMemory.removeAll(toDelete);
+		
+		
+		
+		this.contextInMemory.add(input);
+		
+	}
+
+	public void sendAnytimeMsgs() {
+		for (Context c : anytimeUpToSend) {
+			Msg m = new MsgAnyTimeUp(this.nodeId, this.anytimeFather, c, this.timeStampCounter, this.time);
+			mailer.sendMsg(m);
+		}
+		
+		this.anytimeUpToSend.clear();
+
+		for (Context c : anytimeDownToSend) {
+			for (NodeId son : this.anytimeSons) {
+				Msg m = new MsgAnyTimeUp(this.nodeId, son, c, this.timeStampCounter, this.time);
+				mailer.sendMsg(m);
+			}
+		}
+		
+		this.anytimeDownToSend.clear();
 	}
 	/*
 	private void createVariableAssignmentMsg() {

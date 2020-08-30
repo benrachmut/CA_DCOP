@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import Main.MainSimulator;
+import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgAnyTime;
 import Messages.MsgAnyTimeDown;
@@ -33,9 +34,7 @@ public abstract class AgentVariable extends Agent {
 	protected TreeMap<NodeId, Integer[][]> neighborsConstraint; // id and matrix of constraints
 	protected int[] domainArray;
 
-	
-	protected List<Context>anytimeUpToSend;
-	protected List<Context>anytimeDownToSend;
+
 
 	// ----------**Formations**----------
 	// -----*DFS*-----
@@ -44,7 +43,6 @@ public abstract class AgentVariable extends Agent {
 	// -----*Any time*-----
 	protected NodeId anytimeFather;
 	protected Set<NodeId> anytimeSons;
-	
 
 	public AgentVariable(int dcopId, int D, int id1) {
 		super(dcopId, D);
@@ -58,23 +56,20 @@ public abstract class AgentVariable extends Agent {
 		// resetAgent();
 		valueAssignmentChangeCounter = 0.0;
 		this.dfsSons = new HashSet<NodeId>();
-		this.anytimeSons= new HashSet<NodeId>();
-		anytimeUpToSend = new ArrayList<Context>();
-		anytimeDownToSend= new ArrayList<Context>();
+		this.anytimeSons = new HashSet<NodeId>();
+	
 	}
 
 	@Override
 	public String toString() {
 		return "A" + this.id;
 	}
-	
-	
+
 	@Override
 	public void resetAgentGivenParameters() {
 		valueAssignment = firstRandomVariable;
 		valueAssignmentChangeCounter = 0.0;
-		anytimeUpToSend = new ArrayList<Context>();
-		anytimeDownToSend= new ArrayList<Context>();
+
 
 		resetAgentGivenParametersV2();
 	}
@@ -121,48 +116,12 @@ public abstract class AgentVariable extends Agent {
 		return this.neighborsConstraint.size();
 	}
 
-	
-
 	protected abstract void resetAgentGivenParametersV2();
 
-	@Override
-	public synchronized boolean reactionToAlgorithmicMsgs() {
-		boolean isValueAssignmnetChange = super.reactionToAlgorithmicMsgs();
-		if (MainSimulator.anyTime) {
-			if (isValueAssignmnetChange ) {
-				Context context_i = createContext();
-				placeContextInMemory(context_i);
-			}
-		}
-		return isValueAssignmnetChange;
-		
-	}
 	
-	public synchronized void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
-		Context context_i_beforeMsgUpdate = null;
 
-		if (MainSimulator.anyTime) {
-			if (!messages.isEmpty()) {
-				context_i_beforeMsgUpdate = createContext();
-			}
-		}
-		
-		
-		super.receiveAlgorithmicMsgs(messages);
-		
-		if (MainSimulator.anyTime) {
-			if (isWithTimeStamp) {
-				if (!messages.isEmpty()) {
-					Context context_i_AfterMsgUpdate = createContext();
-					if (!context_i_beforeMsgUpdate.equals(context_i_AfterMsgUpdate)) {
-						placeContextInMemory(context_i_AfterMsgUpdate);
-					}
-				}
-			}
-		}
 	
-	}
-	
+
 	/*
 	 * public synchronized void reactionToAlgorithmicMsgs() {
 	 * 
@@ -182,6 +141,8 @@ public abstract class AgentVariable extends Agent {
 	 * System.out.println("changing to false"); } changeRecieveFlagsToFalse(); } } }
 	 */
 
+	
+
 	/*
 	 * @Override public void run() { initialize(); while (terminationCondition()) {
 	 * synchronized (this) { while (msgBoxAlgorithmic.isEmpty() &&
@@ -195,31 +156,8 @@ public abstract class AgentVariable extends Agent {
 	 * }
 	 * 
 	 */
-	// --------------**TO-DO**--------------------
-	public synchronized void recieveAnyTimeMsgs(List<? extends MsgAnyTime> messages) {
-		
-		for (MsgAnyTime msgAnyTime : messages) {
-			if (msgAnyTime instanceof MsgAnyTimeUp) {
-				placeContextInMemory((Context)msgAnyTime.getContext());
-			}
-			if (msgAnyTime instanceof MsgAnyTimeDown) {
-				
-			}
-		}
-		
-		updateAgentTime(messages);
 
-	}
 
-	public synchronized void reactionToAnytimeMsgs() {
-		// TODO Auto-generated method stub
-
-	}
-
-	private void sendAnytimeChangeContext() {
-		// TODO Auto-generated method stub
-
-	}
 
 	// ------------- **TREE METHODS**-------------
 
@@ -258,5 +196,7 @@ public abstract class AgentVariable extends Agent {
 		// TODO Auto-generated method stub
 		return this.dfsFather;
 	}
+
+	
 
 }

@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentVariable;
+import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
 import Data.Data;
 import Delays.ProtocolDelay;
@@ -352,7 +353,7 @@ public abstract class Mailer {
 				System.err.println("from mailer: something is wrong with finding the recieverAgent");
 			}
 			if (recieverAgent instanceof AgentVariable) {
-				((AgentVariable) recieverAgent).recieveAnyTimeMsgs(msgsForAnAgnet);
+				((AgentVariableSearch) recieverAgent).recieveAnyTimeMsgs(msgsForAnAgnet);
 			}
 
 		}
