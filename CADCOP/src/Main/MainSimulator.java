@@ -48,9 +48,11 @@ public class MainSimulator {
 	public static boolean isWhatAgentDebug = false;
 	// ------------------------------**any time**
 	public static boolean anyTime = false;
-	
-	// 1 = no memoryLimit, 2 =  
-	public static int memoryHuerstic = 1;
+	public static boolean deleteAfterCombine = false;
+	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
+	public static int anytimeMemoryHuerstic = 1;
+	public static int anytimeMemoryLimitedSize = 300;
+
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 100;
