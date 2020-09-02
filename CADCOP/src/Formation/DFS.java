@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import AgentsAbstract.AgentVariable;
+import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
 import AlgorithmSearch.AMDLS;
 import Main.MainSimulator;
@@ -67,6 +68,12 @@ public class DFS extends Formation {
 			if (MainSimulator.agentType==5) {
 				((AMDLS)a).setBelow(below);
 				((AMDLS)a).setAbove(above);
+			}
+			
+			if (MainSimulator.isAnytime && MainSimulator.anytimeFormation==1) {
+				if (a instanceof AgentVariableSearch) {
+					((AgentVariableSearch) a).setBelowAnytime(below);
+				}
 			}
 			
 

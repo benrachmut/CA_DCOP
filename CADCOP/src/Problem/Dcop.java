@@ -160,6 +160,15 @@ public abstract class Dcop {
 				formations[1].setAboveBelow();
 			}
 		}
+		if (MainSimulator.isAnytime && is search) {
+				if (is dfs) {
+					need to set anytimefather and son using dfs 
+
+				}
+			
+		}
+		
+		
 	}
 
 	public Dcop initiate() {

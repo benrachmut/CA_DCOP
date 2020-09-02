@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentVariable;
+import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
 import AlgorithmSearch.AMDLS;
 import Main.MainSimulator;
@@ -58,11 +59,11 @@ public class ColorFormation extends Formation {
 					foundEqualColor = true;
 				}
 			}
-			
+
 			if (!foundEqualColor) {
 				flag = true;
 			}
-			
+
 		}
 		return colorTry;
 	}
@@ -71,7 +72,7 @@ public class ColorFormation extends Formation {
 		Set<AgentVariable> ans = new HashSet<AgentVariable>();
 		Set<NodeId> neightborsA = a.getNeigborSetId();
 		for (NodeId nId : neightborsA) {
-			
+
 			for (Entry<AgentVariable, Integer> e : colorOfAgent.entrySet()) {
 				if (e.getKey().getNodeId().equals(nId)) {
 					if (e.getValue() != -1) {
@@ -79,7 +80,7 @@ public class ColorFormation extends Formation {
 					}
 				}
 			}
-			
+
 		}
 		return ans;
 	}
@@ -105,35 +106,33 @@ public class ColorFormation extends Formation {
 
 	@Override
 	public void setAboveBelow() {
-		for (AgentVariable  a  : agents) {
-			 Set<NodeId> below = new TreeSet<NodeId>();
-			 Set<NodeId> above = new TreeSet<NodeId>();
-			
+		for (AgentVariable a : agents) {
+			Set<NodeId> below = new TreeSet<NodeId>();
+			Set<NodeId> above = new TreeSet<NodeId>();
+
 			int agentHeight = this.colorOfAgent.get(a);
 			for (NodeId nId : a.getNeigborSetId()) {
 				for (AgentVariable nAgent : agents) {
 					if (nAgent.getNodeId().equals(nId)) {
 						int neighborHeight = this.colorOfAgent.get(nAgent);
 						if (agentHeight == neighborHeight) {
-							throw new RuntimeException( "something is wrong with coloring, should not happen");
+							throw new RuntimeException("something is wrong with coloring, should not happen");
 						}
 						if (agentHeight < neighborHeight) {
 							below.add(nId);
-						}else {
+						} else {
 							above.add(nId);
 						}
 					}
 				}
 			}
-		if (MainSimulator.agentType == 5) {
-			((AMDLS)a).setAbove(above);
-			((AMDLS)a).setBelow(below);
+			if (MainSimulator.agentType == 5) {
+				((AMDLS) a).setAbove(above);
+				((AMDLS) a).setBelow(below);
+			}
 
 		}
-		}
-		
 
-		
 	}
 
 }

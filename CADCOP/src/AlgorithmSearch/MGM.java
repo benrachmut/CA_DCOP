@@ -164,11 +164,6 @@ public abstract class MGM extends AgentVariableSearch {
 		SortedMap<NodeId, Integer> lrInfoPerNeighbor = Agent
 				.<Integer>turnMapWithMsgRecieveToContextValues(this.neighborsLR);
 		int maxLrOfNeighbors = Collections.max(lrInfoPerNeighbor.values());
-		/*
-		if (this.id==3) {
-			System.out.println("from mgm");
-		}
-		*/
 		if (this.lr > maxLrOfNeighbors) {
 			this.valueAssignment = this.candidateValueAssignment;
 			return true;
@@ -178,11 +173,6 @@ public abstract class MGM extends AgentVariableSearch {
 			Set<NodeId> competitors = getCompetitors(maxLrOfNeighbors, lrInfoPerNeighbor);
 			NodeId bestCompetitor = Collections.max(competitors);
 			if (this.nodeId.getId1() < bestCompetitor.getId1()) {
-				/*
-				if (this.id==1) {
-					System.out.println("from mgm");
-				}
-				*/
 				if (this.candidateValueAssignment != -1) {
 					this.valueAssignment = this.candidateValueAssignment;
 				}

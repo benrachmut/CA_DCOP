@@ -105,7 +105,7 @@ public class MailerIterations extends Mailer {
 				agent.reactionToAlgorithmicMsgs();
 			}
 		}
-		if (MainSimulator.anyTime) {
+		if (MainSimulator.isAnytime) {
 			for (AgentVariable a : dcop.getVariableAgents()) {
 				if (a instanceof AgentVariableSearch) {
 					((AgentVariableSearch)a).sendAnytimeMsgs();

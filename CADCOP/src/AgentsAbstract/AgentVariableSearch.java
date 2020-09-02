@@ -24,12 +24,22 @@ import Messages.MsgValueAssignmnet;
 public abstract class AgentVariableSearch extends AgentVariable {
 
 	protected SortedMap<NodeId, MsgReceive<Integer>> neighborsValueAssignmnet; // id, variable
+
+	// ------Anytime
+	
+	protected NodeId anytimeFather;
+	protected Set<NodeId> anytimeSons;
+	
 	protected List<Context> anytimeUpToSend;
 	protected List<Context> anytimeDownToSend;
+	
+
 	private Integer anytimeValueAssignmnet;
 	private MsgReceive<Context> anytimeBestContext;
 	private List<Context> contextInMemory;
 	private Random randContext;
+
+	private Set<NodeId> belowAnytime;
 
 	public AgentVariableSearch(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
@@ -39,8 +49,8 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		anytimeValueAssignmnet = null;
 		anytimeBestContext = null;
 		contextInMemory = new ArrayList<Context>();
-		randContext = new Random(this.id*10+dcopId*153);
-		if (MainSimulator.anyTime) {
+		randContext = new Random(this.id * 10 + dcopId * 153);
+		if (MainSimulator.isAnytime) {
 			this.isWithTimeStamp = true;
 		}
 	}
@@ -66,7 +76,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		anytimeUpToSend = new ArrayList<Context>();
 		anytimeDownToSend = new ArrayList<Context>();
 		anytimeBestContext = null;
-		randContext = new Random(this.id*10+dcopId*153);
+		randContext = new Random(this.id * 10 + dcopId * 153);
 
 		resetAgentGivenParametersV3();
 	}
@@ -171,7 +181,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	@Override
 	public synchronized boolean reactionToAlgorithmicMsgs() {
 		boolean isValueAssignmnetChange = super.reactionToAlgorithmicMsgs();
-		if (MainSimulator.anyTime) {
+		if (MainSimulator.isAnytime) {
 			if (isValueAssignmnetChange) {
 				Context context_i = createMyContext();
 				placeContextInMemory(context_i);
@@ -184,7 +194,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	public synchronized void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
 		Context context_i_beforeMsgUpdate = null;
 
-		if (MainSimulator.anyTime) {
+		if (MainSimulator.isAnytime) {
 			if (!messages.isEmpty()) {
 				context_i_beforeMsgUpdate = createMyContext();
 			}
@@ -192,7 +202,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 		super.receiveAlgorithmicMsgs(messages);
 
-		if (MainSimulator.anyTime) {
+		if (MainSimulator.isAnytime) {
 			if (isWithTimeStamp) {
 				if (!messages.isEmpty()) {
 					Context context_i_AfterMsgUpdate = createMyContext();
@@ -231,7 +241,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 				MsgReceive<Context> mr = new MsgReceive<Context>(c, ts);
 				if (this.anytimeBestContext.getTimestamp() < ts) {
 					anytimeBestContext = mr;
-					this.anytimeValueAssignmnet = c.getValueAssignmnet(this.id);
+					this.anytimeValueAssignmnet = c.getValueAssignmentPerAgent(this.id);
 					this.anytimeDownToSend.add(c);
 				}
 
@@ -242,14 +252,58 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	}
 
-	private boolean placeContextInMemory(Context input) {
+	private void placeContextInMemory(Context input) {
 		if (contextHasNulls()) {
-			return false;
+			return;
 		}
-
 		Collection<Context> toAdd = new ArrayList<Context>();
 		Collection<Context> toDelete = new ArrayList<Context>();
+		getConextToAdd(input, toAdd, toDelete);
 
+		Collection<Context> toSend = new ArrayList<Context>();
+		whichContextsShouldBeSent(toAdd, toSend);
+
+		addGivenHeuristic(toAdd);
+
+	}
+
+	private void whichContextsShouldBeSent(Collection<Context> toAdd, Collection<Context> toSend) {
+		for (Context context : toAdd) {
+			if (contextIncludesCostOfAllBelowAndMe(context)) {
+				toSend.add(context);
+			}
+		}
+
+	}
+
+	private boolean contextIncludesCostOfAllBelowAndMe(Context context) {
+		boolean isIIncluded = context.getCost(this.id)!=null;
+		if (!isIIncluded) {
+			return false;
+		}
+		boolean allBelowMeIncluded = isAllBelowMeIncluded(context);
+		return r;
+	}
+
+	private void addGivenHeuristic(Collection<Context> toAdd) {
+		int memoryHeurstic = MainSimulator.anytimeMemoryHuerstic;
+		if (memoryHeurstic == 1) {
+			for (Context c : toAdd) {
+				this.contextInMemory.add(c);
+			}
+		} else {
+			int limitedMemorySize = MainSimulator.anytimeMemoryLimitedSize;
+			for (int i = 0; i < toAdd.size(); i++) {
+				selectContextAndToRemove();
+			}
+			for (Context c : toAdd) {
+				contextInMemory.add(c);
+			}
+		}
+
+	}
+
+	private void getConextToAdd(Context input, Collection<Context> toAdd, Collection<Context> toDelete) {
 		for (Context context : this.contextInMemory) {
 			Context combined = context.combineWith(input);
 			if (combined != null) {
@@ -260,29 +314,9 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			}
 		}
 		toAdd.add(input);
-
 		if (MainSimulator.deleteAfterCombine) {
 			this.contextInMemory.removeAll(toDelete);
 		}
-
-		int memoryHeurstic = MainSimulator.anytimeMemoryHuerstic;
-		if (memoryHeurstic == 1) {
-			for (Context c : toAdd) {
-				this.contextInMemory.add(c);
-			}
-		} else {
-
-			int limitedMemorySize = MainSimulator.anytimeMemoryLimitedSize;
-
-			for (int i = 0; i < toAdd.size(); i++) {
-				selectContextAndToRemove();
-				
-			}
-			for (Context c : toAdd) {
-				contextInMemory.add(c);
-			}
-		}
-
 	}
 
 	private boolean contextHasNulls() {
@@ -299,7 +333,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
 		Context c = null;
 		if (anytimeMemoryHuerstic == 2) {
-			stop here
+			c = Collections.min(this.contextInMemory, new contextSimilarityComparator(this.createMyContext()));
 		}
 		if (anytimeMemoryHuerstic == 3) {
 			c = this.contextInMemory.get(0);
@@ -309,7 +343,6 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			c = this.contextInMemory.get(rndIndex);
 		}
 		this.contextInMemory.remove(c);
-		
 	}
 
 	public void sendAnytimeMsgs() {
@@ -337,5 +370,10 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	 * 
 	 * }
 	 */
+
+	public void setBelowAnytime(Set<NodeId> below) {
+		this.belowAnytime = below;
+
+	}
 
 }

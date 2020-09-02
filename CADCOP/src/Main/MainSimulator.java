@@ -47,7 +47,10 @@ public class MainSimulator {
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
 	// ------------------------------**any time**
-	public static boolean anyTime = false;
+	public static boolean isAnytime = false;
+	
+	// 1 = DFS; 2 = BFS 
+	public static int anytimeFormation = 1;
 	public static boolean deleteAfterCombine = false;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
 	public static int anytimeMemoryHuerstic = 1;

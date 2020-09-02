@@ -40,9 +40,8 @@ public abstract class AgentVariable extends Agent {
 	// -----*DFS*-----
 	protected NodeId dfsFather;
 	protected Set<NodeId> dfsSons;
-	// -----*Any time*-----
-	protected NodeId anytimeFather;
-	protected Set<NodeId> anytimeSons;
+
+
 
 	public AgentVariable(int dcopId, int D, int id1) {
 		super(dcopId, D);
@@ -56,7 +55,6 @@ public abstract class AgentVariable extends Agent {
 		// resetAgent();
 		valueAssignmentChangeCounter = 0.0;
 		this.dfsSons = new HashSet<NodeId>();
-		this.anytimeSons = new HashSet<NodeId>();
 	
 	}
 
