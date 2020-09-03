@@ -93,12 +93,11 @@ public class Context {
 			if (!isSameValueAssignmnets(other)) {
 				return false;
 			}
-			
+
 			return true;
 		}
 		return false;
 	}
-
 
 	private boolean isSameVariables(Context other) {
 		for (Integer key : this.valueAssignmentPerAgent.keySet()) {
@@ -177,12 +176,12 @@ public class Context {
 
 	public int similarScore(Context relativeTo) {
 		int counter = 0;
-		Set<Integer>sameIds=this.sameIdsWithOther(relativeTo);
+		Set<Integer> sameIds = this.sameIdsWithOther(relativeTo);
 		for (Integer id : sameIds) {
 			int myValue = this.valueAssignmentPerAgent.get(id);
 			int otherValue = relativeTo.getValueAssignmentPerAgent(id);
 			if (myValue == otherValue) {
-				counter = counter+1;
+				counter = counter + 1;
 			}
 		}
 		return counter;
@@ -193,6 +192,17 @@ public class Context {
 			return this.costPerAgent.get(id);
 		}
 		return null;
+	}
+
+	public int getTotalCost() {
+		Integer ans = 0;
+		for (Integer cost : this.costPerAgent.values()) {
+			if (cost == null) {
+				throw new RuntimeException("use method when not all agents are included");
+			}
+			ans = ans+cost;
+		}
+		return ans;
 	}
 
 }

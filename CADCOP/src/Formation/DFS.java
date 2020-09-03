@@ -20,18 +20,19 @@ import Main.MainSimulator;
 
 public class DFS extends Formation {
 
-	private Map<NodeId,Integer>numberInTree;
+	private Map<NodeId, Integer> numberInTree;
 	protected Map<AgentVariable, Boolean> visited;
 
 	public DFS(AgentVariable[] input_a) {
 		super(input_a);
-		this.visited = initColorMap(); 
+		this.visited = initColorMap();
 
-		numberInTree = new TreeMap<NodeId,Integer>();
+		numberInTree = new TreeMap<NodeId, Integer>();
 		for (AgentVariable a : this.agents) {
 			numberInTree.put(a.getNodeId(), -1);
 		}
 	}
+
 	private Map<AgentVariable, Boolean> initColorMap() {
 		Map<AgentVariable, Boolean> ans = new HashMap<AgentVariable, Boolean>();
 		for (AgentVariable agentField : agents) {
@@ -41,47 +42,31 @@ public class DFS extends Formation {
 		return ans;
 	}
 
+	// -----------set above and below------------
 
-	
-	//-----------set above and below------------
-	
-	public void setAboveBelow() {
-		for (AgentVariable a : agents) {
-			int aLevel = this.numberInTree.get(a.getNodeId());
-			Set<NodeId> above = new TreeSet<NodeId>();
-			Set<NodeId> below = new TreeSet<NodeId>();
-			Set<NodeId> nIds = a.getNeigborSetId();
-			
-			for (NodeId nodeId : nIds) {
-				int levelOfN = this.numberInTree.get(nodeId);
-			
-				if (levelOfN<aLevel) {
-					above.add(nodeId);
-				}
-				if (levelOfN>aLevel) {
-					below.add(nodeId);
-				}
-				if (levelOfN==aLevel) {
-					throw new RuntimeException("something is wrong with psaudo tree");
-				}
-			}
-			if (MainSimulator.agentType==5) {
-				((AMDLS)a).setBelow(below);
-				((AMDLS)a).setAbove(above);
-			}
-			
-			if (MainSimulator.isAnytime && MainSimulator.anytimeFormation==1) {
-				if (a instanceof AgentVariableSearch) {
-					((AgentVariableSearch) a).setBelowAnytime(below);
-				}
-			}
-			
+	public void setAboveBelow(AgentVariable a, Set<NodeId> above, Set<NodeId> below) {
 
+		int aLevel = this.numberInTree.get(a.getNodeId());
+
+		Set<NodeId> nIds = a.getNeigborSetId();
+
+		for (NodeId nodeId : nIds) {
+			int levelOfN = this.numberInTree.get(nodeId);
+
+			if (levelOfN < aLevel) {
+				above.add(nodeId);
+			}
+			if (levelOfN > aLevel) {
+				below.add(nodeId);
+			}
+			if (levelOfN == aLevel) {
+				throw new RuntimeException("something is wrong with psaudo tree");
+			}
 		}
 		
 
 	}
-	
+
 	private Collection<AgentVariable> getFathers() {
 		Collection<AgentVariable> ans = new ArrayList<AgentVariable>();
 		for (AgentVariable a : this.agents) {
@@ -91,13 +76,8 @@ public class DFS extends Formation {
 		}
 		return ans;
 	}
-	
-	
-	
-	//-----------execute------------
 
-	
-
+	// -----------execute------------
 
 	@Override
 	public void execute() {
@@ -106,14 +86,13 @@ public class DFS extends Formation {
 			execute(notVisited);
 		}
 	}
-	
+
 	private void execute(AgentVariable currentA) {
 		if (currentA.getDfsFather() == null) {
 			this.numberInTree.put(currentA.getNodeId(), 0);
-		}
-		else {
+		} else {
 			AgentVariable father = getAgentByNodeId(currentA.getDfsFather());
-			int level = this.numberInTree.get(father.getNodeId())+1;
+			int level = this.numberInTree.get(father.getNodeId()) + 1;
 			this.numberInTree.put(currentA.getNodeId(), level);
 		}
 		this.visited.put(currentA, true);
@@ -127,10 +106,6 @@ public class DFS extends Formation {
 		}
 	}
 
-	
-	
-
-
 	private List<AgentVariable> getSons(AgentVariable currntA) {
 		Set<NodeId> nSetId = currntA.getNeigborSetId();
 		List<AgentVariable> sons = getNeighborsOfAgents(nSetId);
@@ -139,7 +114,6 @@ public class DFS extends Formation {
 		return sons;
 	}
 
-	
 	private List<AgentVariable> getNeighborsOfAgents(Set<NodeId> nSetId) {
 		List<AgentVariable> ans = new ArrayList<AgentVariable>();
 		for (NodeId nId : nSetId) {
@@ -149,8 +123,7 @@ public class DFS extends Formation {
 				}
 			}
 		}
-		
-		
+
 		return ans;
 	}
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -151,30 +152,41 @@ public abstract class Dcop {
 			f.execute();
 		}
 
-		int agentType = MainSimulator.agentType;
+		handleFormationForAMDLS(formations);
+		handleFormationForSearchAnytime(formations);
+	}
 
-		if (agentType == 5) {
-			
-			
-			
-			if (AMDLS.structureColor) {
-				formations[0].setAboveBelow();
-			} else {
-				formations[1].setAboveBelow();
+	private void handleFormationForSearchAnytime(Formation[] formations) {
+		if (MainSimulator.isAnytime && this.isSearchAlgorithm()) {
+			Set<NodeId> above = new HashSet<NodeId>();
+			Set<NodeId> below = new HashSet<NodeId>();
+			for (AgentVariable a : agentsVariables) {
+				
+				if (MainSimulator.anytimeFormation==1) {
+					formations[1].setAboveBelow(a, above, below);
+					((AgentVariableSearch)a).turnDFStoAnytimeStructure(below);
+				}
 			}
 		}
-		if (MainSimulator.isAnytime && this.isSearchAlgorithm()) {
-				if (MainSimulator.anytimeFormation==1) {
-					formations[1].setAboveBelow();
-					for (AgentVariable a : this.agentsVariables) {
-						a.
-					}
 
+	}
+
+	private void handleFormationForAMDLS(Formation[] formations) {
+
+		if (MainSimulator.agentType == 5) {
+			Set<NodeId> above = new HashSet<NodeId>();
+			Set<NodeId> below = new HashSet<NodeId>();
+			for (AgentVariable a : agentsVariables) {
+				if (AMDLS.structureColor) {
+					formations[0].setAboveBelow(a, above, below);
+				} else {
+					formations[1].setAboveBelow(a, above, below);
 				}
-			
+				((AMDLS) a).setBelow(below);
+				((AMDLS) a).setAbove(above);
+			}
 		}
-		
-		
+
 	}
 
 	public Dcop initiate() {

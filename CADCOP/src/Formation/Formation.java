@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -19,7 +20,7 @@ public abstract class Formation {
 		this.agents = createAfList(input_a);
 	}
 	
-	public abstract void setAboveBelow();
+	public abstract void setAboveBelow(AgentVariable a, Set<NodeId> above, Set<NodeId> below);
 	
 	public abstract void execute();
 

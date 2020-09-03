@@ -24,34 +24,47 @@ public class Data {
 	private Double anytimeMsgsCounter;
 	private Double monotonicy;
 	private Double povCost;
-	
+
 	private Double globalPovABSDelta;
 	private Double agentZeroGlobalCost;
 	private Double agentZeroPOVCost;
+
+	// ----**Anytime measures**----
+	private Double topAgentsAnytimeContextCost;
+	private Double anytimeCost;
+	private Double topContextCounters;
 
 	public Data(Entry<Integer, List<Data>> e) {
 		this.time = e.getKey();
 
 		List<List<Double>> colletionPerFields = createColletionsPerField(e.getValue());
-			
-			this.globalCost = Statistics.mean(colletionPerFields.get(0));
-			this.monotonicy = Statistics.mean(colletionPerFields.get(1));
-			this.povCost = Statistics.mean(colletionPerFields.get(2));
-			this.globalAnytimeCost = Statistics.mean(colletionPerFields.get(3));
-			this.changeValueAssignmentCounter = Statistics.mean(colletionPerFields.get(4));
-			this.algorithmMsgsCounter = Statistics.mean(colletionPerFields.get(5));
-			this.agentZeroGlobalCost = Statistics.mean(colletionPerFields.get(6));
-			this.agentZeroPOVCost = Statistics.mean(colletionPerFields.get(7));
-			this.globalPovABSDelta = Statistics.mean(colletionPerFields.get(8));
+
+		this.globalCost = Statistics.mean(colletionPerFields.get(0));
+		this.monotonicy = Statistics.mean(colletionPerFields.get(1));
+		this.povCost = Statistics.mean(colletionPerFields.get(2));
+		this.globalAnytimeCost = Statistics.mean(colletionPerFields.get(3));
+		this.changeValueAssignmentCounter = Statistics.mean(colletionPerFields.get(4));
+		this.algorithmMsgsCounter = Statistics.mean(colletionPerFields.get(5));
+		this.agentZeroGlobalCost = Statistics.mean(colletionPerFields.get(6));
+		this.agentZeroPOVCost = Statistics.mean(colletionPerFields.get(7));
+		this.globalPovABSDelta = Statistics.mean(colletionPerFields.get(8));
+		if (MainSimulator.isAnytime) {
+			this.topAgentsAnytimeContextCost = Statistics.mean(colletionPerFields.get(9));
+			this.anytimeCost = Statistics.mean(colletionPerFields.get(10));
+			this.topContextCounters = Statistics.mean(colletionPerFields.get(11));
+		}
 	}
 
-	
-	
-	
 	private List<List<Double>> createColletionsPerField(List<Data> datas) {
 		List<List<Double>> ans = new ArrayList<List<Double>>();
+		if (MainSimulator.isAnytime) {
+			for (int i = 0; i < 10+3; i++) {
+				ans.add(new ArrayList<Double>());
+			}
+		}else {
 		for (int i = 0; i < 10; i++) {
 			ans.add(new ArrayList<Double>());
+		}
 		}
 		for (Data d : datas) {
 			ans.get(0).add(d.globalCost);
@@ -63,6 +76,11 @@ public class Data {
 			ans.get(6).add(d.agentZeroGlobalCost);
 			ans.get(7).add(d.agentZeroPOVCost);
 			ans.get(8).add(d.globalPovABSDelta);
+			if (MainSimulator.isAnytime) {
+				ans.get(9).add(d.topAgentsAnytimeContextCost);
+				ans.get(10).add(d.anytimeCost);
+				ans.get(11).add(d.topContextCounters);
+			}
 
 		}
 		return ans;
@@ -78,37 +96,74 @@ public class Data {
 			this.anytimeMsgsCounter = mailer.getAnytimeMsgsCounter();
 		}
 		this.monotonicy = calcMonotonicy(mailer, globalCost);
-		/*
-		if (this.monotonicy!=1.0) {
-			System.out.println("from data");
-		}
-		*/
-		
 		this.globalAnytimeCost = calcGlobalAnytimeCost(mailer);
 		this.povCost = calcPovCost(dcop.getVariableAgents());
-		
-		
 		this.globalPovABSDelta = Math.abs(this.povCost - this.globalCost);
-		
 		this.agentZeroGlobalCost = calcAgentZeroGlobalCost(0, dcop.getNeighbors());
-		this.agentZeroPOVCost = calcAgentZeroPOVCost(0,dcop.getVariableAgents(0));
-
+		this.agentZeroPOVCost = calcAgentZeroPOVCost(0, dcop.getVariableAgents(0));
+		if (MainSimulator.isAnytime) {
+			if (mailer.getDcop().isSearchAlgorithm()) {
+				this.topAgentsAnytimeContextCost = calcTopAgentsAnytimeContextCost(mailer);
+				this.anytimeCost = calcAnytimeCost(dcop.getNeighbors());
+				this.topContextCounters = calcTopContextCounters(mailer);
+			}
+		}
 	}
 
+	private Double calcAnytimeCost(List<Neighbor> neighbors) {
+		Double ans = 0.0;
+		for (Neighbor n : neighbors) {
+			Integer costOfN = n.getCurrentAnytimeCost();
+			if (costOfN == null) {
+				return null;
+			} else
+				ans = ans + costOfN;
+		}
+		return ans;
+	}
 
+	private Double calcTopContextCounters(Mailer mailer) {
+		Collection<AgentVariableSearch> anytimeTopsAgents = getTopAgents(mailer.getDcop());
+		Double ans = 0.0;
+		for (AgentVariableSearch a : anytimeTopsAgents) {
+			int CounterOfContext = a.getCounterOfContext();
+			ans = ans + CounterOfContext;
+		}
+		return ans;
+	}
 
+	private Double calcTopAgentsAnytimeContextCost(Mailer mailer) {
+		Collection<AgentVariableSearch> anytimeTopsAgents = getTopAgents(mailer.getDcop());
+		Double ans = 0.0;
+		for (AgentVariableSearch a : anytimeTopsAgents) {
+			Double costOfContext = a.getCostOfBestContext();
+			if (costOfContext == null) {
+				return null;
+			}
+			ans = ans + costOfContext;
+		}
+		return ans;
+	}
 
+	private Collection<AgentVariableSearch> getTopAgents(Dcop dcop) {
+		AgentVariable[] avs = dcop.getVariableAgents();
+		Collection<AgentVariableSearch> ans = new ArrayList<AgentVariableSearch>();
+		for (AgentVariable a : avs) {
+			AgentVariableSearch as = (AgentVariableSearch) a;
+			if (as.isAnytimeTop()) {
+				ans.add(as);
+			}
+		}
+		return ans;
+	}
 
 	private Double calcAgentZeroPOVCost(int i, AgentVariable av) {
 		if (av instanceof AgentVariableSearch) {
 			return ((AgentVariableSearch) av).getCostPov();
-		}else {
+		} else {
 			return 0.0;
 		}
 	}
-
-
-
 
 	private Double calcAgentZeroGlobalCost(int id1, List<Neighbor> neighbors) {
 		double ans = 0;
@@ -120,13 +175,10 @@ public class Data {
 		return ans;
 	}
 
-
-
-
 	private static Double calcPovCost(AgentVariable[] variableAgents) {
 		double ans = 0.0;
 		for (AgentVariable a : variableAgents) {
-			
+
 			if (a instanceof AgentVariableSearch) {
 				double aPOV = ((AgentVariableSearch) a).getCostPov();
 				if (aPOV == -1) {
@@ -134,12 +186,12 @@ public class Data {
 				} else {
 					ans += aPOV;
 				}
-			}else {
+			} else {
 				return 0.0;
 			}
-	
+
 		}
-		return ans/2.0;
+		return ans / 2.0;
 	}
 
 	private Double calcMonotonicy(Mailer mailer, Double globalCost2) {
@@ -182,41 +234,25 @@ public class Data {
 		return ans;
 	}
 
-	
-	
 	public static String header() {
-		String ans ="";
-		if (!MainSimulator.isAnytime) {
-			ans = ans+ "Iteration"+","
-					+"Global View Cost" + "," 
-					+ "Monotonicy" + "," 
-					+ "Agent View Cost" +","
-					+ "Global Anytime Cost" +  ","
-					+ "Value Assignmnet Counter" + "," 
-					+ "Algorithm Msgs Counter" + "," 
-					+ "Global View Cost Agent Zero"+ "," 
-					+ "Agent View Cost Agent Zero"+ ","
-					+ "Abs Delta Global and POV";
-		} else {
-			throw new RuntimeException();
+		String ans = "";
+
+		ans = ans + "Iteration" + "," + "Global View Cost" + "," + "Monotonicy" + "," + "Agent View Cost" + ","
+				+ "Global Anytime Cost" + "," + "Value Assignmnet Counter" + "," + "Algorithm Msgs Counter" + ","
+				+ "Global View Cost Agent Zero" + "," + "Agent View Cost Agent Zero" + "," + "Abs Delta Global and POV";
+		if (MainSimulator.isAnytime) {
+			ans = ans + "," + "Anytime top agents best context cost" + "," + "Anytime Cost" + ","
+					+ "Contexts of all agents reported";
 		}
 		return ans;
 	}
 
 	@Override
 	public String toString() {
-		return this.time+","
-				+this.globalCost + "," 
-				+this.monotonicy + "," 
-				+ this.povCost+ "," 
-				+ this.globalAnytimeCost + "," 
-				+ this.changeValueAssignmentCounter + ","
-				+ this.algorithmMsgsCounter+ ","
-				+ this.agentZeroGlobalCost+ ","
-				+ this.agentZeroPOVCost+ ","
-				+ this.globalPovABSDelta;
-		
-		
+		return this.time + "," + this.globalCost + "," + this.monotonicy + "," + this.povCost + ","
+				+ this.globalAnytimeCost + "," + this.changeValueAssignmentCounter + "," + this.algorithmMsgsCounter
+				+ "," + this.agentZeroGlobalCost + "," + this.agentZeroPOVCost + "," + this.globalPovABSDelta;
+
 	}
 
 	public Double getGlobalCost() {

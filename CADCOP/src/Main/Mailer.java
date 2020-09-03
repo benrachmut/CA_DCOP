@@ -398,6 +398,11 @@ public abstract class Mailer {
 		return this.dataMap.firstKey();
 	}
 
+	public Dcop getDcop() {
+		return this.dcop;
+		
+	}
+
 	
 
 }

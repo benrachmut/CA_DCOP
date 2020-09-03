@@ -3,6 +3,7 @@ import java.util.Random;
 
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariable;
+import AgentsAbstract.AgentVariableSearch;
 
 public class Neighbor {
 	private AgentVariable a1, a2;
@@ -118,6 +119,16 @@ public class Neighbor {
 	
 	public AgentVariable getA2() {
 		return a2;
+	}
+
+	public Integer getCurrentAnytimeCost() {
+		Integer i =((AgentVariableSearch)a1).getValueAssignment();
+		Integer j = ((AgentVariableSearch)a2).getValueAssignment();
+		
+		if (i==null || j==null) {
+			return null;
+		}
+		return this.constraints[i][j];
 	}
 	
 

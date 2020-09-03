@@ -5,6 +5,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
+
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
@@ -25,33 +28,32 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	protected SortedMap<NodeId, MsgReceive<Integer>> neighborsValueAssignmnet; // id, variable
 
-	// ------Anytime
-	
+	// ------Anytime----
 	protected NodeId anytimeFather;
 	protected Set<NodeId> anytimeSons;
 	private Set<NodeId> belowAnytime;
-
-	
-	
 	protected List<Context> anytimeUpToSend;
-	protected List<Context> anytimeDownToSend;
-	
-
+	// protected List<Context> anytimeDownToSend;
 	private Integer anytimeValueAssignmnet;
-	private MsgReceive<Context> anytimeBestContext;
+	private Context anytimeBestContext;
 	private List<Context> contextInMemory;
 	private Random randContext;
+	private Context bestContexFound;
+	private boolean hasAnytimeNews;
 
+	private int topAnytimeCounter;
 
 	public AgentVariableSearch(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		this.neighborsValueAssignmnet = new TreeMap<NodeId, MsgReceive<Integer>>();
 		anytimeUpToSend = new ArrayList<Context>();
-		anytimeDownToSend = new ArrayList<Context>();
+		bestContexFound = null;
 		anytimeValueAssignmnet = null;
 		anytimeBestContext = null;
+		hasAnytimeNews = false;
 		contextInMemory = new ArrayList<Context>();
 		randContext = new Random(this.id * 10 + dcopId * 153);
+		topAnytimeCounter = 0;
 		if (MainSimulator.isAnytime) {
 			this.isWithTimeStamp = true;
 		}
@@ -74,11 +76,13 @@ public abstract class AgentVariableSearch extends AgentVariable {
 				.<NodeId, MsgReceive<Integer>>resetMapToValueNull(this.neighborsValueAssignmnet);
 		anytimeValueAssignmnet = null;
 		contextInMemory = new ArrayList<Context>();
+		topAnytimeCounter = 0;
 
 		anytimeUpToSend = new ArrayList<Context>();
-		anytimeDownToSend = new ArrayList<Context>();
+		bestContexFound = null;
 		anytimeBestContext = null;
 		randContext = new Random(this.id * 10 + dcopId * 153);
+		hasAnytimeNews = false;
 
 		resetAgentGivenParametersV3();
 	}
@@ -102,6 +106,10 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			}
 		}
 		return ans;
+	}
+	
+	public int getValueAssignmentOfAnytime() {
+		return this.anytimeValueAssignmnet;
 	}
 
 	protected SortedMap<Integer, Integer> getCostPerDomain() {
@@ -229,7 +237,6 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		return new Context(m, this.id, myCost);
 	}
 
-	// --------------**TO-DO**--------------------
 	public synchronized void recieveAnyTimeMsgs(List<? extends MsgAnyTime> messages) {
 
 		for (MsgAnyTime msgAnyTime : messages) {
@@ -238,15 +245,18 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			}
 			if (msgAnyTime instanceof MsgAnyTimeDown) {
 				MsgAnyTimeDown down = (MsgAnyTimeDown) msgAnyTime;
-				int ts = down.getTimeStamp();
 				Context c = (Context) down.getContext();
-				MsgReceive<Context> mr = new MsgReceive<Context>(c, ts);
-				if (this.anytimeBestContext.getTimestamp() < ts) {
-					anytimeBestContext = mr;
-					this.anytimeValueAssignmnet = c.getValueAssignmentPerAgent(this.id);
-					this.anytimeDownToSend.add(c);
+				if (this.bestContexFound == null) {
+					this.bestContexFound = c;
+					this.hasAnytimeNews = true;
+				} else {
+					int costOfContextRecived = c.getTotalCost();
+					int costOfBestContextFound = bestContexFound.getTotalCost();
+					if (costOfContextRecived < costOfBestContextFound) {
+						bestContexFound = c;
+						this.hasAnytimeNews = true;
+					}
 				}
-
 			}
 		}
 
@@ -260,31 +270,62 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		}
 		Collection<Context> toAdd = new ArrayList<Context>();
 		Collection<Context> toDelete = new ArrayList<Context>();
+
 		getConextToAdd(input, toAdd, toDelete);
-
-		Collection<Context> toSend = new ArrayList<Context>();
-		whichContextsShouldBeSent(toAdd, toSend);
-
+		Collection<Context> toSendUp = new ArrayList<Context>();
+		whichContextsShouldBeSent(toAdd, toSendUp);
 		addGivenHeuristic(toAdd);
 
 	}
 
-	private void whichContextsShouldBeSent(Collection<Context> toAdd, Collection<Context> toSend) {
+	private void whichContextsShouldBeSent(Collection<Context> toAdd, Collection<Context> toSendUp) {
 		for (Context context : toAdd) {
-			if (contextIncludesCostOfAllBelowAndMe(context)) {
-				toSend.add(context);
+			if (this.isAnytimeTop()) {
+				this.topAnytimeCounter = this.topAnytimeCounter + 1;
+				handleContextAdditionForTreeTop(context);
+
+			} // if top
+			else {
+				toSendUp.add(context);
+			}
+		} // for toAdd
+		toAdd.removeAll(toSendUp);
+	}
+
+	private void handleContextAdditionForTreeTop(Context context) {
+		if (bestContexFound == null) {
+			bestContexFound = context;
+			this.hasAnytimeNews = true;
+		} else {
+			int costOfCandidateContext = context.getTotalCost();
+			int costOfBestContext = this.bestContexFound.getTotalCost();
+			if (costOfBestContext > costOfCandidateContext) {
+				bestContexFound = context;
+				this.hasAnytimeNews = true;
 			}
 		}
 
 	}
 
+	public boolean isAnytimeTop() {
+		return this.anytimeFather == null;
+	}
+
 	private boolean contextIncludesCostOfAllBelowAndMe(Context context) {
-		boolean isIIncluded = context.getCost(this.id)!=null;
+		boolean isIIncluded = context.getCost(this.id) != null;
 		if (!isIIncluded) {
 			return false;
 		}
-		boolean allBelowMeIncluded = isAllBelowMeIncluded(context);
-		return r;
+		return isAllBelowMeIncluded(context);
+	}
+
+	private boolean isAllBelowMeIncluded(Context context) {
+		for (NodeId nodeId : this.belowAnytime) {
+			if (context.getCost(nodeId.getId1()) == null) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private void addGivenHeuristic(Collection<Context> toAdd) {
@@ -355,14 +396,14 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 		this.anytimeUpToSend.clear();
 
-		for (Context c : anytimeDownToSend) {
+		if (hasAnytimeNews) {
 			for (NodeId son : this.anytimeSons) {
-				Msg m = new MsgAnyTimeUp(this.nodeId, son, c, this.timeStampCounter, this.time);
+				Msg m = new MsgAnyTimeUp(this.nodeId, son, this.bestContexFound, this.timeStampCounter, this.time);
 				mailer.sendMsg(m);
 			}
 		}
+		hasAnytimeNews = false;
 
-		this.anytimeDownToSend.clear();
 	}
 	/*
 	 * private void createVariableAssignmentMsg() { for (NodeId reciever :
@@ -373,9 +414,23 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	 * }
 	 */
 
-	public void setBelowAnytime(Set<NodeId> below) {
+	public void turnDFStoAnytimeStructure(Set<NodeId> below) {
 		this.belowAnytime = below;
+		this.anytimeSons = dfsSons;
+		this.anytimeFather = dfsFather;
+	}
 
+	public Double getCostOfBestContext() {
+		if (bestContexFound == null) {
+			return null;
+		} else {
+			double ans = this.bestContexFound.getTotalCost();
+			return ans;
+		}
+	}
+
+	public int getCounterOfContext() {
+		return this.topAnytimeCounter;
 	}
 
 }
