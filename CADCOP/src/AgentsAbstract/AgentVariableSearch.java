@@ -29,6 +29,9 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	
 	protected NodeId anytimeFather;
 	protected Set<NodeId> anytimeSons;
+	private Set<NodeId> belowAnytime;
+
+	
 	
 	protected List<Context> anytimeUpToSend;
 	protected List<Context> anytimeDownToSend;
@@ -39,7 +42,6 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	private List<Context> contextInMemory;
 	private Random randContext;
 
-	private Set<NodeId> belowAnytime;
 
 	public AgentVariableSearch(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);

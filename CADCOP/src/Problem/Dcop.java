@@ -154,15 +154,21 @@ public abstract class Dcop {
 		int agentType = MainSimulator.agentType;
 
 		if (agentType == 5) {
+			
+			
+			
 			if (AMDLS.structureColor) {
 				formations[0].setAboveBelow();
 			} else {
 				formations[1].setAboveBelow();
 			}
 		}
-		if (MainSimulator.isAnytime && is search) {
-				if (is dfs) {
-					need to set anytimefather and son using dfs 
+		if (MainSimulator.isAnytime && this.isSearchAlgorithm()) {
+				if (MainSimulator.anytimeFormation==1) {
+					formations[1].setAboveBelow();
+					for (AgentVariable a : this.agentsVariables) {
+						a.
+					}
 
 				}
 			

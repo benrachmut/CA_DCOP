@@ -74,7 +74,7 @@ public class Data {
 		this.changeValueAssignmentCounter = calcChangeValueAssignmentCounter(dcop.getVariableAgents());
 		this.algorithmMsgsCounter = mailer.getAlgorithmMsgsCounter();
 
-		if (MainSimulator.anyTime) {
+		if (MainSimulator.isAnytime) {
 			this.anytimeMsgsCounter = mailer.getAnytimeMsgsCounter();
 		}
 		this.monotonicy = calcMonotonicy(mailer, globalCost);
@@ -186,7 +186,7 @@ public class Data {
 	
 	public static String header() {
 		String ans ="";
-		if (!MainSimulator.anyTime) {
+		if (!MainSimulator.isAnytime) {
 			ans = ans+ "Iteration"+","
 					+"Global View Cost" + "," 
 					+ "Monotonicy" + "," 
