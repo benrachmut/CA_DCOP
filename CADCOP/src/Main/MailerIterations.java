@@ -31,6 +31,9 @@ public class MailerIterations extends Mailer {
 	@Override
 	public void execute() {
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
+			if (MainSimulator.isAnytimeDebug) {
+				System.out.println("-------ITERATION_"+iteration+"-------");
+			}
 			agentsReactToMsgs(iteration);
 			createData(iteration);
 			List<Msg> msgToSend = this.handleDelay();

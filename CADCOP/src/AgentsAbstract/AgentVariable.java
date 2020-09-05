@@ -60,7 +60,7 @@ public abstract class AgentVariable extends Agent {
 
 	@Override
 	public String toString() {
-		return "A" + this.id;
+		return "A_" + this.id;
 	}
 
 	@Override
@@ -194,6 +194,8 @@ public abstract class AgentVariable extends Agent {
 		// TODO Auto-generated method stub
 		return this.dfsFather;
 	}
+
+	
 
 	
 

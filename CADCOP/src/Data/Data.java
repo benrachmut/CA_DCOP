@@ -136,13 +136,15 @@ public class Data {
 		Collection<AgentVariableSearch> anytimeTopsAgents = getTopAgents(mailer.getDcop());
 		Double ans = 0.0;
 		for (AgentVariableSearch a : anytimeTopsAgents) {
+			try {
 			Double costOfContext = a.getCostOfBestContext();
-			if (costOfContext == null) {
+			ans = ans + costOfContext;
+			}catch (RuntimeException e) {
 				return null;
 			}
-			ans = ans + costOfContext;
+			
 		}
-		return ans;
+		return ans/2.0;
 	}
 
 	private Collection<AgentVariableSearch> getTopAgents(Dcop dcop) {
@@ -249,6 +251,15 @@ public class Data {
 
 	@Override
 	public String toString() {
+		if (MainSimulator.isAnytime) {
+		return	this.time + "," + this.globalCost + "," + this.monotonicy + "," + this.povCost + ","
+					+ this.globalAnytimeCost + "," + this.changeValueAssignmentCounter + "," + this.algorithmMsgsCounter
+					+ "," + this.agentZeroGlobalCost + "," + this.agentZeroPOVCost + "," + this.globalPovABSDelta+ 
+					"," +this.topAgentsAnytimeContextCost+ "," +this.anytimeCost+ "," +this.topContextCounters;
+		
+		}
+		
+		
 		return this.time + "," + this.globalCost + "," + this.monotonicy + "," + this.povCost + ","
 				+ this.globalAnytimeCost + "," + this.changeValueAssignmentCounter + "," + this.algorithmMsgsCounter
 				+ "," + this.agentZeroGlobalCost + "," + this.agentZeroPOVCost + "," + this.globalPovABSDelta;

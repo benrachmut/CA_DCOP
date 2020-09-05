@@ -184,7 +184,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				}
 				changeRecieveFlagsToFalse();
 			}
-		return isUpdate;
+			return isUpdate;
 		}
 		return false;
 	}

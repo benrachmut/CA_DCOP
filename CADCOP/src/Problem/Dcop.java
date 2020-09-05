@@ -155,21 +155,49 @@ public abstract class Dcop {
 		handleFormationForAMDLS(formations);
 		handleFormationForSearchAnytime(formations);
 		
-		if (MainSimulator.isAnytimeDebug) {
-			System.out.println("--------Agent Formation");
-			for (AgentVariable a : this.agentsVariables) {
-				
-				((AgentVariableSearch) a).getDfsFather();
-			}
+		if (MainSimulator.isAnytime && MainSimulator.isAnytimeDebug) {
+			formationPrinting();
+			System.out.println();
 		}
 	}
 
+	private void formationPrinting() {
+		System.out.println("--------Agents neighbors-------");
+
+		for (AgentVariable a : this.agentsVariables) {
+			System.out.println("**"+a+"**");
+			System.out.println(a.getNeigborSetId());
+
+		}
+		
+		System.out.println("--------Agents Anytime Formation-------");
+		for (AgentVariable a : this.agentsVariables) {
+			AgentVariableSearch as = (AgentVariableSearch) a;
+			System.out.println("**"+as+"**");
+			if (as.getAnytimeFather()==null) {
+				System.out.println("father: is TOP");
+			}else {
+				System.out.println("father: "+as.getAnytimeFather());
+			}
+			System.out.println("sons: "+as.getAnytimeSons());
+		}
+		
+		System.out.println("--------Agents Anytime Formation Below-------");
+		for (AgentVariable a : this.agentsVariables) {
+			AgentVariableSearch as = (AgentVariableSearch) a;
+			System.out.println("**"+as+"**");
+			System.out.println("below agents:"+as.getBelowAnytime());
+		}
+	}
+	
+
+
 	private void handleFormationForSearchAnytime(Formation[] formations) {
 		if (MainSimulator.isAnytime && this.isSearchAlgorithm()) {
-			Set<NodeId> above = new HashSet<NodeId>();
-			Set<NodeId> below = new HashSet<NodeId>();
+			
 			for (AgentVariable a : agentsVariables) {
-				
+				Set<NodeId> above = new HashSet<NodeId>();
+				Set<NodeId> below = new HashSet<NodeId>();
 				if (MainSimulator.anytimeFormation==1) {
 					formations[1].setAboveBelow(a, above, below);
 					((AgentVariableSearch)a).turnDFStoAnytimeStructure(below);

@@ -9,9 +9,13 @@ import java.util.TreeSet;
 public class Context {
 	private TreeMap<Integer, Integer> valueAssignmentPerAgent;
 	private TreeMap<Integer, Integer> costPerAgent;
-
-	public Context(TreeMap<Integer, Integer> valueAssignmentPerAgent, int myId, int myCost) {
+	private int contextId;
+	private String reasonForCreation;
+	private static int contextCounter;
+	public Context(TreeMap<Integer, Integer> valueAssignmentPerAgent, int myId, int myValue, int myCost) {
+		
 		this.valueAssignmentPerAgent = valueAssignmentPerAgent;
+		this.valueAssignmentPerAgent.put(myId,myValue);
 		this.costPerAgent = new TreeMap<Integer, Integer>();
 		for (Entry<Integer, Integer> e : valueAssignmentPerAgent.entrySet()) {
 			if (e.getKey() == myId) {
@@ -20,11 +24,20 @@ public class Context {
 				costPerAgent.put(e.getKey(), null);
 			}
 		}
+		contextCounter=contextCounter+1;
+		this.contextId = contextCounter;
+		reasonForCreation = "A_"+myId+": created self context";
 	}
 
-	public Context(TreeMap<Integer, Integer> valueAssignmentPerAgent, TreeMap<Integer, Integer> costs) {
+	public Context(TreeMap<Integer, Integer> valueAssignmentPerAgent, TreeMap<Integer, Integer> costs, int id1,int id2) {
 		this.valueAssignmentPerAgent = valueAssignmentPerAgent;
 		this.costPerAgent = costs;
+		contextCounter=contextCounter+1;
+		this.contextId = contextCounter;
+
+		reasonForCreation = "combine between context: "+id1+" and "+id2;
+
+
 	}
 
 	public boolean isConsistentWith(Context other) {
@@ -122,13 +135,24 @@ public class Context {
 		if (!this.isConsistentWith(input)) {
 			return null;
 		}
-		if (this.equals(input)) {
+		if (this.equals(input) && this.sameCosts(input)) {
 			return null;
 		} else {
 			TreeMap<Integer, Integer> vam = createValueAssignmnetMapCombineWith(input);
 			TreeMap<Integer, Integer> costs = createCostsMapCombineWith(input);
-			return new Context(vam, costs);
+			return new Context(vam, costs, this.contextId,input.contextId);
 		}
+	}
+
+	private boolean sameCosts(Context input) {
+		for (Entry<Integer, Integer> e : this.costPerAgent.entrySet()) {
+			Integer thisCost = e.getValue();
+			Integer otherCost = input.getCost(e.getKey());
+			if (!((thisCost == null && otherCost == null)|| thisCost == otherCost)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private TreeMap<Integer, Integer> createCostsMapCombineWith(Context input) {
@@ -203,6 +227,13 @@ public class Context {
 			ans = ans+cost;
 		}
 		return ans;
+	}
+	@Override
+	public String toString() {
+		return this.reasonForCreation+"\n"+
+				"context index__:"+ contextCounter+"\n"+
+				"Value Assignment Per Agent__:"+this.valueAssignmentPerAgent+"\n"+
+				"Cost Per Agent__:"+this.costPerAgent;
 	}
 
 }

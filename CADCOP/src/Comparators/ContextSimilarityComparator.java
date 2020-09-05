@@ -1,11 +1,13 @@
-package AgentsAbstract;
+package Comparators;
 
 import java.util.Comparator;
 
-public class contextSimilarityComparator implements Comparator<Context> {
+import AgentsAbstract.Context;
+
+public class ContextSimilarityComparator implements Comparator<Context> {
 	
 	private Context relativeTo;
-	public contextSimilarityComparator(Context createMyContext) {
+	public ContextSimilarityComparator(Context createMyContext) {
 		this.relativeTo = createMyContext;
 	}
 

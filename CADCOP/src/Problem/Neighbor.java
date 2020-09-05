@@ -122,8 +122,8 @@ public class Neighbor {
 	}
 
 	public Integer getCurrentAnytimeCost() {
-		Integer i =((AgentVariableSearch)a1).getValueAssignment();
-		Integer j = ((AgentVariableSearch)a2).getValueAssignment();
+		Integer i =((AgentVariableSearch)a1).getValueAssignmentOfAnytime();
+		Integer j = ((AgentVariableSearch)a2).getValueAssignmentOfAnytime();
 		
 		if (i==null || j==null) {
 			return null;
