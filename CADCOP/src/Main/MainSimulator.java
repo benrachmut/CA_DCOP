@@ -48,7 +48,7 @@ public class MainSimulator {
 	public static boolean isWhatAgentDebug = false;
 	// ------------------------------**any time**
 	public static boolean isAnytime = false;
-	
+	public static boolean isAnytimeDebug = true;
 	// 1 = DFS; 2 = BFS 
 	public static int anytimeFormation = 1;
 	public static boolean deleteAfterCombine = false;
@@ -62,7 +62,7 @@ public class MainSimulator {
 	public static int termination =  1000;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 50; // amount of agents
+	public static int A = 3; // amount of agents
 	public static int D = -1; // if D or costParameter < 0 use default
 	public static int costParameter = -1; // if D or costParameter < 0 use default
 
@@ -72,7 +72,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.1;// 0.1,0.6
+	public static double dcopUniformP1 = 1;// 0.1,0.6
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints

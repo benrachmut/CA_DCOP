@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.TreeSet;import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
@@ -154,6 +154,14 @@ public abstract class Dcop {
 
 		handleFormationForAMDLS(formations);
 		handleFormationForSearchAnytime(formations);
+		
+		if (MainSimulator.isAnytimeDebug) {
+			System.out.println("--------Agent Formation");
+			for (AgentVariable a : this.agentsVariables) {
+				
+				((AgentVariableSearch) a).getDfsFather();
+			}
+		}
 	}
 
 	private void handleFormationForSearchAnytime(Formation[] formations) {
