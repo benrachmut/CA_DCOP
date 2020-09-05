@@ -59,10 +59,10 @@ public class MainSimulator {
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 1;
-	public static int termination =  50;
+	public static int termination =  200;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 10; // amount of agents
+	public static int A = 20; // amount of agents
 	public static int D = -1; // if D or costParameter < 0 use default
 	public static int costParameter = -1; // if D or costParameter < 0 use default
 

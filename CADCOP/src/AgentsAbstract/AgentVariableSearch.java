@@ -18,6 +18,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import Main.MailerIterations;
 import Main.MainSimulator;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
@@ -35,7 +36,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	protected NodeId anytimeFather;
 	protected Set<NodeId> anytimeSons;
 	private Set<NodeId> belowAnytime;
-	protected List<Context> anytimeUpToSend;
+	protected Set<Context> anytimeUpToSend;
 	// protected List<Context> anytimeDownToSend;
 	private Integer anytimeValueAssignmnet;
 	private Context anytimeBestContext;
@@ -49,7 +50,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	public AgentVariableSearch(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		this.neighborsValueAssignmnet = new TreeMap<NodeId, MsgReceive<Integer>>();
-		anytimeUpToSend = new ArrayList<Context>();
+		anytimeUpToSend = new HashSet<Context>();
 		bestContexFound = null;
 		anytimeValueAssignmnet = null;
 		anytimeBestContext = null;
@@ -65,6 +66,13 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	@Override
 	public void initialize() {
 		this.sendValueAssignmnetMsgs();
+
+		if (MainSimulator.isAnytime) {
+			if (this.neighborsValueAssignmnet.isEmpty()) {
+				this.bestContexFound = createMyContext();
+				this.anytimeValueAssignmnet = this.bestContexFound.getValueAssignmentPerAgent(this.id);
+			}
+		}
 	}
 
 	@Override
@@ -81,7 +89,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		contextInMemory = new ArrayList<Context>();
 		topAnytimeCounter = 0;
 
-		anytimeUpToSend = new ArrayList<Context>();
+		anytimeUpToSend = new HashSet<Context>();
 		bestContexFound = null;
 		anytimeBestContext = null;
 		randContext = new Random(this.id * 10 + dcopId * 153);
@@ -198,10 +206,12 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			if (isValueAssignmnetChange) {
 				Context context_i = createMyContext();
 				if (MainSimulator.isAnytime && MainSimulator.isAnytimeDebug) {
-					System.out.println(context_i);
-					System.out.println();
+					// System.out.println(context_i);
+					// System.out.println();
 				}
-				placeContextInMemory(context_i);
+				if (context_i!=null) {
+					placeContextInMemory(context_i);
+				}
 			}
 		}
 		return isValueAssignmnetChange;
@@ -227,15 +237,16 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			if (isWithTimeStamp) {
 				if (!messages.isEmpty()) {
 					Context context_i_AfterMsgUpdate = null;
-					try {
-						context_i_AfterMsgUpdate = createMyContext();
-					} catch (NullPointerException e) {
 
+					context_i_AfterMsgUpdate = createMyContext();
+
+					if (context_i_AfterMsgUpdate != null) {
+						if ((context_i_AfterMsgUpdate != null && context_i_beforeMsgUpdate == null)
+								|| !context_i_beforeMsgUpdate.isSameValueAssignmnets(context_i_AfterMsgUpdate)) {
+							placeContextInMemory(context_i_AfterMsgUpdate);
+						}
 					}
-					if ((context_i_AfterMsgUpdate != null && context_i_beforeMsgUpdate == null)
-							|| !context_i_beforeMsgUpdate.isSameValueAssignmnets(context_i_AfterMsgUpdate)) {
-						placeContextInMemory(context_i_AfterMsgUpdate);
-					}
+
 				}
 			}
 		}
@@ -245,8 +256,12 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	private Context createMyContext() {
 
 		TreeMap<Integer, Integer> m = new TreeMap<Integer, Integer>();
-		for (Entry<NodeId, MsgReceive<Integer>> e : this.neighborsValueAssignmnet.entrySet()) {
-			m.put(e.getKey().getId1(), e.getValue().getContext());
+		try {
+			for (Entry<NodeId, MsgReceive<Integer>> e : this.neighborsValueAssignmnet.entrySet()) {
+				m.put(e.getKey().getId1(), e.getValue().getContext());
+			}
+		} catch (NullPointerException e) {
+			return null;
 		}
 
 		int myCost = this.getCostPerDomain().get(this.valueAssignment);
@@ -258,10 +273,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 		for (MsgAnyTime msgAnyTime : messages) {
 			if (msgAnyTime instanceof MsgAnyTimeUp) {
-				if (MainSimulator.isAnytimeDebug) {
-					System.out.println();
-				}
-				
+
 				placeContextInMemory((Context) msgAnyTime.getContext());
 			}
 			if (msgAnyTime instanceof MsgAnyTimeDown) {
@@ -269,14 +281,14 @@ public abstract class AgentVariableSearch extends AgentVariable {
 				Context c = (Context) down.getContext();
 				if (this.bestContexFound == null) {
 					this.bestContexFound = c;
-					this.anytimeValueAssignmnet=c.getValueAssignmentPerAgent(this.id);
+					this.anytimeValueAssignmnet = c.getValueAssignmentPerAgent(this.id);
 					this.hasAnytimeNews = true;
 				} else {
 					int costOfContextRecived = c.getTotalCost();
 					int costOfBestContextFound = bestContexFound.getTotalCost();
 					if (costOfContextRecived < costOfBestContextFound) {
 						bestContexFound = c;
-						this.anytimeValueAssignmnet=c.getValueAssignmentPerAgent(this.id);
+						this.anytimeValueAssignmnet = c.getValueAssignmentPerAgent(this.id);
 						this.hasAnytimeNews = true;
 					}
 				}
@@ -288,29 +300,30 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	}
 
 	private void placeContextInMemory(Context input) {
-		
 
 		if (contextHasNulls()) {
 			return;
 		}
-		Collection<Context> toAdd = new ArrayList<Context>();
+		Set<Context> toAdd = new HashSet<Context>();
 		Collection<Context> toDelete = new ArrayList<Context>();
 
 		getConextToAdd(input, toAdd, toDelete);
-		Collection<Context> toSendUp = new ArrayList<Context>();
+		Set<Context> toSendUp = new HashSet<Context>();
 		whichContextsShouldBeSent(toAdd, toSendUp);
 		addGivenHeuristic(toAdd);
 
 	}
 
-	private void whichContextsShouldBeSent(Collection<Context> toAdd, Collection<Context> toSendUp) {
+	private void whichContextsShouldBeSent(Set<Context> toAdd, Set<Context> toSendUp) {
 		for (Context context : toAdd) {
 			if (this.isAnytimeTop()) {
 				handleContextAdditionForTreeTop(context);
 			} // if top
 			else {
 				if (contextIncludesCostOfAllBelowAndMe(context)) {
-					toSendUp.add(context);
+					if (!toSendUp.contains(context)) {
+						toSendUp.add(context);
+					}
 				}
 			}
 		} // for toAdd
@@ -378,15 +391,15 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	}
 
-	private void getConextToAdd(Context input, Collection<Context> toAdd, Collection<Context> toDelete) {
+	private void getConextToAdd(Context input, Set<Context> toAdd, Collection<Context> toDelete) {
 
 		for (Context context : this.contextInMemory) {
 			Context combined = context.combineWith(input);
-			if (combined != null) {
+			if (combined != null && !this.contextInMemory.contains(input)) {
 				toAdd.add(combined);
 				if (MainSimulator.isAnytime && MainSimulator.isAnytimeDebug) {
-					System.out.println(combined);
-					System.out.println();
+					// System.out.println(combined);
+					// System.out.println();
 				}
 
 				if (MainSimulator.deleteAfterCombine) {
@@ -433,6 +446,10 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	public void sendAnytimeMsgs() {
 		for (Context c : anytimeUpToSend) {
+
+			if (MainSimulator.isAnytimeDebug && this.id == 1) {
+				// System.out.println();
+			}
 			Msg m = new MsgAnyTimeUp(this.nodeId, this.anytimeFather, c, this.timeStampCounter, this.time);
 			mailer.sendMsg(m);
 		}

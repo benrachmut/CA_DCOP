@@ -24,6 +24,8 @@ import Problem.Dcop;
 
 public class MailerIterations extends Mailer {
 
+	public static int m_iteration;
+	
 	public MailerIterations(Protocol protocol, int terminationTime, Dcop dcop) {
 		super(protocol, terminationTime, dcop);
 	}
@@ -31,8 +33,12 @@ public class MailerIterations extends Mailer {
 	@Override
 	public void execute() {
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
+			m_iteration = iteration;
 			if (MainSimulator.isAnytimeDebug) {
 				System.out.println("-------ITERATION_"+iteration+"-------");
+				if (iteration==10) {
+					System.out.println();
+				}
 			}
 			agentsReactToMsgs(iteration);
 			createData(iteration);

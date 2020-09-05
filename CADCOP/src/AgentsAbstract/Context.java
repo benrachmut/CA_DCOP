@@ -6,16 +6,19 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import Main.MainSimulator;
+
 public class Context {
 	private TreeMap<Integer, Integer> valueAssignmentPerAgent;
 	private TreeMap<Integer, Integer> costPerAgent;
 	private int contextId;
 	private String reasonForCreation;
 	private static int contextCounter;
+
 	public Context(TreeMap<Integer, Integer> valueAssignmentPerAgent, int myId, int myValue, int myCost) {
-		
+
 		this.valueAssignmentPerAgent = valueAssignmentPerAgent;
-		this.valueAssignmentPerAgent.put(myId,myValue);
+		this.valueAssignmentPerAgent.put(myId, myValue);
 		this.costPerAgent = new TreeMap<Integer, Integer>();
 		for (Entry<Integer, Integer> e : valueAssignmentPerAgent.entrySet()) {
 			if (e.getKey() == myId) {
@@ -24,19 +27,19 @@ public class Context {
 				costPerAgent.put(e.getKey(), null);
 			}
 		}
-		contextCounter=contextCounter+1;
+		contextCounter = contextCounter + 1;
 		this.contextId = contextCounter;
-		reasonForCreation = "A_"+myId+": created self context";
+		reasonForCreation = "A_" + myId + ": created self context";
 	}
 
-	public Context(TreeMap<Integer, Integer> valueAssignmentPerAgent, TreeMap<Integer, Integer> costs, int id1,int id2) {
+	public Context(TreeMap<Integer, Integer> valueAssignmentPerAgent, TreeMap<Integer, Integer> costs, int id1,
+			int id2) {
 		this.valueAssignmentPerAgent = valueAssignmentPerAgent;
 		this.costPerAgent = costs;
-		contextCounter=contextCounter+1;
+		contextCounter = contextCounter + 1;
 		this.contextId = contextCounter;
 
-		reasonForCreation = "combine between context: "+id1+" and "+id2;
-
+		reasonForCreation = "combine between context: " + id1 + " and " + id2;
 
 	}
 
@@ -106,6 +109,10 @@ public class Context {
 			if (!isSameValueAssignmnets(other)) {
 				return false;
 			}
+			if (!this.sameCosts(other)) {
+				return false;
+
+			}
 
 			return true;
 		}
@@ -132,27 +139,44 @@ public class Context {
 	}
 
 	public Context combineWith(Context input) {
+
 		if (!this.isConsistentWith(input)) {
 			return null;
 		}
-		if (this.equals(input) && this.sameCosts(input)) {
+		if (input.contextId == 122 && MainSimulator.isAnytimeDebug) {
+			System.out.println();
+		}
+		if (this.equals(input) ) {
 			return null;
 		} else {
 			TreeMap<Integer, Integer> vam = createValueAssignmnetMapCombineWith(input);
 			TreeMap<Integer, Integer> costs = createCostsMapCombineWith(input);
-			return new Context(vam, costs, this.contextId,input.contextId);
+			return new Context(vam, costs, this.contextId, input.contextId);
 		}
 	}
 
 	private boolean sameCosts(Context input) {
+
 		for (Entry<Integer, Integer> e : this.costPerAgent.entrySet()) {
 			Integer thisCost = e.getValue();
 			Integer otherCost = input.getCost(e.getKey());
-			if (!((thisCost == null && otherCost == null)|| thisCost == otherCost)) {
+
+			if (thisCost == null && otherCost != null) {
 				return false;
 			}
+
+			if (thisCost != null && otherCost == null) {
+				return false;
+			}
+			if (thisCost == null && otherCost == null) {
+
+			} else if(!thisCost.equals(otherCost)) {
+				throw new RuntimeException("something doesnt make sense when aggergating costs");
+			}
+
 		}
 		return true;
+
 	}
 
 	private TreeMap<Integer, Integer> createCostsMapCombineWith(Context input) {
@@ -173,7 +197,7 @@ public class Context {
 				cost = otherCost;
 			}
 			if (myCost != null && otherCost != null) {
-				if (myCost != otherCost) {
+				if (!myCost.equals(otherCost)) {
 					throw new RuntimeException("something doesnt make sense when aggergating costs");
 				}
 			}
@@ -224,16 +248,16 @@ public class Context {
 			if (cost == null) {
 				throw new RuntimeException("use method when not all agents are included");
 			}
-			ans = ans+cost;
+			ans = ans + cost;
 		}
 		return ans;
 	}
+
 	@Override
 	public String toString() {
-		return this.reasonForCreation+"\n"+
-				"context index__:"+ contextCounter+"\n"+
-				"Value Assignment Per Agent__:"+this.valueAssignmentPerAgent+"\n"+
-				"Cost Per Agent__:"+this.costPerAgent;
+		return this.reasonForCreation + "\n" + "context index__:" + contextCounter + "\n"
+				+ "Value Assignment Per Agent__:" + this.valueAssignmentPerAgent + "\n" + "Cost Per Agent__:"
+				+ this.costPerAgent;
 	}
 
 }
