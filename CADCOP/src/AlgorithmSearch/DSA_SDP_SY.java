@@ -71,8 +71,7 @@ public class DSA_SDP_SY extends DSA_SDP {
 	@Override
 	protected void sendMsgs() {
 			sendValueAssignmnetMsgs();
-			releaseFutureMsgs();
-		
+			releaseFutureMsgs();	
 	}
 	private void releaseFutureMsgs() {
 		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();

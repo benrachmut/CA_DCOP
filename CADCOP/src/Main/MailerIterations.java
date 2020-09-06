@@ -10,6 +10,7 @@ import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
+import AgentsAbstract.Context;
 import AgentsAbstract.NodeId;
 import AlgorithmSearch.DSA_C_SY;
 import AlgorithmSearch.MGM;
@@ -35,16 +36,32 @@ public class MailerIterations extends Mailer {
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
 			m_iteration = iteration;
 			if (MainSimulator.isAnytimeDebug) {
-				if (iteration%100==0) {
+				if (iteration%10==0) {
 					System.out.println("-------ITERATION_"+iteration+"-------");
 				}
 				
 			}
-			agentsReactToMsgs(iteration);
+			
+			
+			
+			
+			agentsReactToMsgs(iteration);		
 			createData(iteration);
-			List<Msg> msgToSend = this.handleDelay();
+			List<Msg> msgToSend = this.handleDelay();	
 			agentsRecieveMsgs(msgToSend);
+			
 		}
+	}
+
+
+
+	private void printContexts() {
+		for (AgentVariable a : this.dcop.getVariableAgents()) {
+			AgentVariableSearch as = (AgentVariableSearch) a;
+			Context c = as.createMyContext();
+			System.out.println(c);
+		}
+		
 	}
 
 	private void printHeaderForDegbugMgm() {
@@ -115,6 +132,7 @@ public class MailerIterations extends Mailer {
 			}
 		}
 		if (MainSimulator.isAnytime) {
+			
 			for (AgentVariable a : dcop.getVariableAgents()) {
 				if (a instanceof AgentVariableSearch) {
 					((AgentVariableSearch)a).sendAnytimeMsgs();

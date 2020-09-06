@@ -168,20 +168,10 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 		boolean isUpdate = compute();
 		if (isMsgGoingToBeSent(isUpdate)) {
-				
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
 				this.time = this.time + 1;
-				
-				if (MainSimulator.isWhatAgentDebug && this.id ==1) {
-					System.out.println("before send msgs");
-				}
-				
 				sendMsgs();
-
-				if (MainSimulator.isWhatAgentDebug && this.id ==1) {
-					System.out.println("changing to false");
-				}
 				changeRecieveFlagsToFalse();
 			}
 			return isUpdate;

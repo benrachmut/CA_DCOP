@@ -75,7 +75,7 @@ public abstract class Mailer {
 	 */
 	public synchronized void sendMsg(Msg m) {
 		changeMsgsCounter(m);		
-		int d = createDelay();
+		int d = createDelay(m instanceof MsgAlgorithm);
 		if (m.getSenderId().getId1() == 0 && MainSimulator.isThreadDebug) {
 			System.out.println("msg sent from "+m.getSenderId().getId1()+" to "+m.getRecieverId().getId1()+" is given delay "+d);
 		}
@@ -103,8 +103,8 @@ public abstract class Mailer {
 
 	
 
-	private int createDelay() {
-		Double d = this.protocol.getDelay().createDelay();
+	private int createDelay(boolean isAlgorithmicMsg) {
+		Double d = this.protocol.getDelay().createDelay(isAlgorithmicMsg);
 		if (d == null) {
 			return -1;
 		}
@@ -153,10 +153,8 @@ public abstract class Mailer {
 	protected void agentsRecieveMsgs(List<Msg> msgToSend) {
 		List<MsgAnyTime> msgsAnyTime = new ArrayList<MsgAnyTime>();
 		List<MsgAlgorithm> msgsAlgorithm = new ArrayList<MsgAlgorithm>();
-
 		iterateOverMsgToSend(msgToSend, msgsAnyTime, msgsAlgorithm);
 		handleMsgAlgorithm(msgsAlgorithm);
-		
 		if (MainSimulator.isAnytime) {
 			handleMsgAnytime(msgsAnyTime);
 		}
@@ -193,7 +191,6 @@ public abstract class Mailer {
 			NodeId recieverId = e.getKey();
 			List<MsgAlgorithm> msgsForAnAgnet = e.getValue();
 			Agent recieverAgent = getAgentByNodeId(recieverId);
-
 			if (recieverAgent == null) {
 				System.err.println("from mailer: something is wrong with finding the recieverAgent");
 			}
@@ -342,7 +339,7 @@ public abstract class Mailer {
 		return ans;
 	}
 
-	// -----** TODO **--------
+	
 	private void handleMsgAnytime(List<MsgAnyTime> msgsAnyTime) {
 		this.recieversAnyTimeMsgs = getRecieversByNodeIdAnyTime(msgsAnyTime);
 		for (Entry<NodeId, List<MsgAnyTime>> e : recieversAnyTimeMsgs.entrySet()) {
@@ -352,6 +349,11 @@ public abstract class Mailer {
 			if (recieverAgent == null) {
 				System.err.println("from mailer: something is wrong with finding the recieverAgent");
 			}
+			
+			
+			
+			
+			
 			if (recieverAgent instanceof AgentVariable) {
 				((AgentVariableSearch) recieverAgent).recieveAnyTimeMsgs(msgsForAnAgnet);
 			}
@@ -359,6 +361,16 @@ public abstract class Mailer {
 		}
 	}
 
+	
+	protected boolean isAnytimeUpToSend() {
+		for (AgentVariable a : this.dcop.getVariableAgents()) {
+			AgentVariableSearch as = (AgentVariableSearch)a;
+			if (as.getAnytimeUpToSendSize()!=0) {
+				return true;
+			}
+		}
+		return false;
+	}
 	public Double getAlgorithmMsgsCounter() {
 		return this.algorithmMsgsCounter;
 	}

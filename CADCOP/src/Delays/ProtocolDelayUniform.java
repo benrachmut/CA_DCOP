@@ -5,7 +5,7 @@ import java.util.Random;
 public class ProtocolDelayUniform extends ProtocolDelay {
 
 	private double ub;
-	private Random rndUniform;
+	private Random rndAlgoUniform, rndAnytimeUniform;
 	public ProtocolDelayUniform( boolean isTimeStamp, double gamma, double ub) {
 		super(true, isTimeStamp,gamma);
 
@@ -20,13 +20,21 @@ public class ProtocolDelayUniform extends ProtocolDelay {
 		ub = 0;
 	}
 	@Override
-	protected Double createDelayGivenParameters() {
-		return rndUniform.nextDouble()*ub;
+	protected Double createDelayGivenParameters(boolean isAlgoMsg) {
+		Random whichRandom;
+		if (isAlgoMsg) {
+			whichRandom = rndAlgoUniform;
+		}else {
+			whichRandom = rndAnytimeUniform;
+		}
+		
+		return whichRandom.nextDouble()*ub;
 	}
 
 	@Override
 	protected void setSeedsGivenParameters(int dcopId) {
-		rndUniform = new Random(dcopId);
+		rndAlgoUniform = new Random(dcopId);
+		rndAnytimeUniform = new Random(dcopId*142);
 		
 	}
 	

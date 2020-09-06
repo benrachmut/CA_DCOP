@@ -52,17 +52,17 @@ public class MainSimulator {
 	public static boolean isAnytimeDebug = true;
 	// 1 = DFS; 2 = BFS
 	public static int anytimeFormation = 1;
-	public static boolean deleteAfterCombine = true;
+	public static boolean deleteAfterCombine = false;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
-	public static int anytimeMemoryHuerstic = 1;
-	public static int anytimeMemoryLimitedSize = 300;
+	public static int anytimeMemoryHuerstic = 2;
+	public static int anytimeMemoryLimitedSize = 100;
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 1;
+	public static int end = 100;
 	public static int end_temp = start;
-	public static int termination = 2500;
-	private static int everyHowManyExcel = 10;
+	public static int termination = 3000;
+	private static int everyHowManyExcel = 5;
 
 	public static int[] toDeleteFromAvg = {68,78}; // p1=1 A=20 no memory
 
@@ -77,7 +77,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.1;// 0.1,0.6
+	public static double dcopUniformP1 = 0.2;// 0.1,0.6
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints

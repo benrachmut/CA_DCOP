@@ -5,7 +5,7 @@ import java.util.Random;
 public class ProtocolDelayNormal extends ProtocolDelay {
 
 	private double sigma, mu;
-	private Random rndUNormal;
+	private Random rndUNormalAlgo, rndUNormalAnytime;
 
 	public ProtocolDelayNormal(boolean isTimeStamp, double gamma, double sigma, double mu) {
 		super(true, isTimeStamp, gamma);
@@ -21,8 +21,14 @@ public class ProtocolDelayNormal extends ProtocolDelay {
 	}
 	
 	@Override
-	protected  Double createDelayGivenParameters() {
-		double ans =  rndUNormal.nextGaussian() * sigma + mu;
+	protected  Double createDelayGivenParameters(boolean isAlgoMsg) {
+		Random whichRand;
+		if (isAlgoMsg) {
+			whichRand = rndUNormalAlgo;
+		}else {
+			whichRand =rndUNormalAnytime;
+		}
+		double ans =  whichRand.nextGaussian() * sigma + mu;
 		if (ans<0) {
 			return 0.0;
 		}
@@ -33,7 +39,8 @@ public class ProtocolDelayNormal extends ProtocolDelay {
 
 	@Override
 	protected void setSeedsGivenParameters(int dcopId) {
-		rndUNormal = new Random(dcopId);
+		rndUNormalAlgo = new Random(dcopId);
+		rndUNormalAnytime = new Random(dcopId*213);
 	}
 
 	@Override

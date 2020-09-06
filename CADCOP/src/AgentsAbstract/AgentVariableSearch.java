@@ -3,6 +3,7 @@ package AgentsAbstract;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -24,6 +25,7 @@ import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgAnyTime;
 import Messages.MsgAnyTimeDown;
+import Messages.MsgAnyTimeDownTopFound;
 import Messages.MsgAnyTimeUp;
 import Messages.MsgReceive;
 import Messages.MsgValueAssignmnet;
@@ -36,7 +38,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	protected NodeId anytimeFather;
 	protected Set<NodeId> anytimeSons;
 	private Set<NodeId> belowAnytime;
-	protected Set<Context> anytimeUpToSend;
+	protected List<Context> anytimeUpToSend;
 	// protected List<Context> anytimeDownToSend;
 	private Integer anytimeValueAssignmnet;
 	private Context anytimeBestContext;
@@ -47,10 +49,15 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	private int topAnytimeCounter;
 
+	private Set<Context> fullContextFound;
+	private Set<Context> newFullContextFoundToSend;
+
 	public AgentVariableSearch(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		this.neighborsValueAssignmnet = new TreeMap<NodeId, MsgReceive<Integer>>();
-		anytimeUpToSend = new HashSet<Context>();
+		anytimeUpToSend = new ArrayList<Context>();
+		fullContextFound = new HashSet<Context>();
+		newFullContextFoundToSend = new HashSet<Context>();
 		bestContexFound = null;
 		anytimeValueAssignmnet = null;
 		anytimeBestContext = null;
@@ -88,8 +95,9 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		anytimeValueAssignmnet = null;
 		contextInMemory = new ArrayList<Context>();
 		topAnytimeCounter = 0;
-
-		anytimeUpToSend = new HashSet<Context>();
+		fullContextFound = new HashSet<Context>();
+		newFullContextFoundToSend = new HashSet<Context>();
+		anytimeUpToSend = new ArrayList<Context>();
 		bestContexFound = null;
 		anytimeBestContext = null;
 		randContext = new Random(this.id * 10 + dcopId * 153);
@@ -169,6 +177,11 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		Integer context = (Integer) msgAlgorithm.getContext();
 		int timestamp = msgAlgorithm.getTimeStamp();
 		MsgReceive<Integer> msgReceive = new MsgReceive<Integer>(context, timestamp);
+		/*
+		 * if (MainSimulator.isSDPdebug && this.id==4 && msgReceive.getContext()==1 ) {
+		 * System.out.println("from search"); }
+		 */
+
 		this.neighborsValueAssignmnet.put(msgAlgorithm.getSenderId(), msgReceive);
 	}
 
@@ -183,20 +196,11 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	protected void sendValueAssignmnetMsgs() {
 
-		if (MainSimulator.isThreadDebug) {
-			System.out.println("Agent " + this.id + " is sending msgs at time " + this.time);
-		}
-
-		if (MainSimulator.isWhatAgentDebug && this.id == 1) {
-			System.out.println("sending msgs");
-		}
-
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, this.valueAssignment,
 					this.timeStampCounter, this.time);
 			this.mailer.sendMsg(mva);
 		}
-
 	}
 
 	@Override
@@ -205,10 +209,6 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		if (MainSimulator.isAnytime) {
 			if (isValueAssignmnetChange) {
 				Context context_i = createMyContext();
-				if (MainSimulator.isAnytime && MainSimulator.isAnytimeDebug) {
-					// System.out.println(context_i);
-					// System.out.println();
-				}
 				if (context_i != null) {
 					placeContextInMemory(context_i);
 				}
@@ -253,7 +253,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	}
 
-	private Context createMyContext() {
+	public Context createMyContext() {
 
 		TreeMap<Integer, Integer> m = new TreeMap<Integer, Integer>();
 		try {
@@ -273,7 +273,6 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 		for (MsgAnyTime msgAnyTime : messages) {
 			if (msgAnyTime instanceof MsgAnyTimeUp) {
-
 				placeContextInMemory((Context) msgAnyTime.getContext());
 			}
 			if (msgAnyTime instanceof MsgAnyTimeDown) {
@@ -293,6 +292,18 @@ public abstract class AgentVariableSearch extends AgentVariable {
 					}
 				}
 			}
+			if (msgAnyTime instanceof MsgAnyTimeDownTopFound) {
+				this.fullContextFound.add((Context)msgAnyTime.getContext());
+				Collection<Context>toRemove = new HashSet<Context>();
+				for (Context c : this.contextInMemory) {
+					if (c.isConsistentWith((Context)msgAnyTime.getContext())) {
+						toRemove.add(c);
+					}
+				}
+				this.contextInMemory.removeAll(toRemove);
+			}
+
+			
 		}
 
 		updateAgentTime(messages);
@@ -301,55 +312,79 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	private void placeContextInMemory(Context input) {
 
+		whichContextsShouldBeSent(this.contextInMemory);
 		if (contextHasNulls()) {
 			return;
 		}
 		Set<Context> toAdd = new HashSet<Context>();
-		Collection<Context> toDelete = new ArrayList<Context>();
-
-		getConextToAdd(input, toAdd, toDelete);
-		Set<Context> toSendUp = new HashSet<Context>();
-		whichContextsShouldBeSent(toAdd, toSendUp);
-		addGivenHeuristic(toAdd);
-
+		getConextToAdd(input, toAdd);
+		whichContextsShouldBeSent(toAdd);
+		addGivenHeuristic(toAdd, this.contextInMemory, MainSimulator.anytimeMemoryLimitedSize);
 	}
 
-	private void whichContextsShouldBeSent(Set<Context> toAdd, Set<Context> toSendUp) {
+	private void whichContextsShouldBeSent(Collection<Context> toAdd) {
+		Set<Context> toSendUp = new HashSet<Context>();
+		Set<Context> reachTop = new HashSet<Context>();
 		for (Context context : toAdd) {
 			if (this.isAnytimeTop()) {
-				handleContextAdditionForTreeTop(context);
+				handleContextAdditionForTreeTop(context, reachTop);
 			} // if top
 			else {
 				if (contextIncludesCostOfAllBelowAndMe(context)) {
-					if (!toSendUp.contains(context)) {
-						toSendUp.add(context);
+					if (!isContextInCollection(context, toSendUp)) {
+						if (bestContexFound == null || (bestContexFound != null
+								&& bestContexFound.getTotalCost() > context.getTotalCost())) {
+							toSendUp.add(context);
+						}
 					}
 				}
 			}
 		} // for toAdd
-		this.anytimeUpToSend.addAll(toSendUp);
-		if (MainSimulator.isAnytimeDebug && anytimeUpToSend.size() > 50) {
-			System.out.println();
+
+		Set<Context> temp = new HashSet<Context>();
+		temp.addAll(this.anytimeUpToSend);
+		temp.addAll(toSendUp);
+		anytimeUpToSend.clear();
+		Set<Context> willNotBeSent = addGivenHeuristic(temp, this.anytimeUpToSend,
+				MainSimulator.anytimeMemoryLimitedSize);
+		toAdd.addAll(willNotBeSent);
+		toAdd.removeAll(anytimeUpToSend);
+		toAdd.removeAll(reachTop);
+
+		for (Context cont : reachTop) {
+			if (!isContextInCollection(cont, fullContextFound)) {
+				fullContextFound.add(cont);
+				newFullContextFoundToSend.add(cont);
+			}
 		}
-		toAdd.removeAll(toSendUp);
+
 	}
 
-	private void handleContextAdditionForTreeTop(Context context) {
+	private void handleContextAdditionForTreeTop(Context context, Set<Context> reachTop) {
 		if (contextIncludesCostOfAllBelowAndMe(context)) {
-
+			int costOfCandidateContext = context.getTotalCost();
 			if (bestContexFound == null) {
+				System.out.println(MailerIterations.m_iteration + ": bestContexFound: " + costOfCandidateContext);
 				bestContexFound = context;
 				this.topAnytimeCounter = this.topAnytimeCounter + 1;
 				this.anytimeValueAssignmnet = context.getValueAssignmentPerAgent(this.id);
 				this.hasAnytimeNews = true;
+				reachTop.add(context);
 			} else {
-				int costOfCandidateContext = context.getTotalCost();
 				int costOfBestContext = this.bestContexFound.getTotalCost();
 				this.topAnytimeCounter = this.topAnytimeCounter + 1;
+				if (MainSimulator.isAnytimeDebug) {
+					System.out.println(MailerIterations.m_iteration + ": costOfBestContext: " + costOfBestContext
+							+ ", costOfCandidateContext: " + costOfCandidateContext);
+				}
+				reachTop.add(context);
+
 				if (costOfBestContext > costOfCandidateContext) {
 					bestContexFound = context;
 					this.hasAnytimeNews = true;
 					this.anytimeValueAssignmnet = context.getValueAssignmentPerAgent(this.id);
+					//reachTop.add(context);
+
 				}
 			}
 		}
@@ -376,38 +411,40 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		return true;
 	}
 
-	private void addGivenHeuristic(Set<Context> toAdd) {
+	private Set<Context> addGivenHeuristic(Set<Context> toAddFrom, List<Context> cToAddTo, int limitedMemorySize) {
+		Set<Context> ans = new HashSet<Context>();
 		int memoryHeurstic = MainSimulator.anytimeMemoryHuerstic;
 		if (memoryHeurstic == 1) {
-			for (Context c : toAdd) {
-				this.contextInMemory.add(c);
+			for (Context c : toAddFrom) {
+				cToAddTo.add(c);
 			}
 		} else {
-			int limitedMemorySize = MainSimulator.anytimeMemoryLimitedSize;
-			for (int i = 0; i < toAdd.size(); i++) {
-				selectContextAndToRemove(limitedMemorySize);
+			for (Context c : toAddFrom) {
+				cToAddTo.add(c);
 			}
-			for (Context c : toAdd) {
-				contextInMemory.add(c);
+			int amountToRemove = cToAddTo.size() - limitedMemorySize;
+			if (amountToRemove > 0) {
+				for (int i = 0; i < amountToRemove; i++) {
+					ans.add(selectContextAndToRemove(limitedMemorySize, cToAddTo));
+				}
 			}
 		}
-
+		return ans;
 	}
 
-	private void getConextToAdd(Context input, Set<Context> toAdd, Collection<Context> toDelete) {
+	private void getConextToAdd(Context input, Set<Context> toAdd) {
+		Set<Context> toDelete = new HashSet<Context>();
 
 		for (Context context : this.contextInMemory) {
 			Context combined = context.combineWith(input);
-			if (combined != null && !this.contextInMemory.contains(input)) {
-				toAdd.add(combined);
-				if (MainSimulator.isAnytime && MainSimulator.isAnytimeDebug) {
-					// System.out.println(combined);
-					// System.out.println();
+			if (combined != null) {
+				if (!isConsistentWithTop(context) && !isContextInCollection(combined, contextInMemory)) {
+					toAdd.add(combined);
+					if (MainSimulator.deleteAfterCombine) {
+						toDelete.add(context);
+					}
 				}
 
-				if (MainSimulator.deleteAfterCombine) {
-					toDelete.add(context);
-				}
 			}
 		}
 
@@ -421,6 +458,32 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		}
 	}
 
+	private boolean isConsistentWithTop(Context context) {
+		if (bestContexFound == null) {
+			return false;
+		} else {
+			
+			for (Context c : fullContextFound) {
+				if (c.isConsistentWith(context)) {
+					return true;
+				}
+			}
+			if (context.isConsistentWith(bestContexFound)) {
+				return true;
+			}
+			return false;
+		}
+	}
+
+	private static boolean isContextInCollection(Context combined, Collection<Context> c) {
+		for (Context inMemory : c) {
+			if (inMemory.equals(combined)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private boolean contextHasNulls() {
 		for (MsgReceive<Integer> m : neighborsValueAssignmnet.values()) {
 			if (m == null) {
@@ -430,37 +493,33 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		return false;
 	}
 
-	private void selectContextAndToRemove(int limitedMemorySize) {
-		if (this.contextInMemory.size() > limitedMemorySize) {
+	private Context selectContextAndToRemove(int limitedMemorySize, List<Context> cToAddTo) {
 
-			int anytimeMemoryHuerstic = MainSimulator.anytimeMemoryHuerstic;
-			// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
-			Context c = null;
-			if (anytimeMemoryHuerstic == 2) {
-				c = Collections.min(this.contextInMemory, new ContextSimilarityComparator(this.createMyContext()));
-			}
-			if (anytimeMemoryHuerstic == 3) {
-				c = this.contextInMemory.get(0);
-			}
-			if (anytimeMemoryHuerstic == 4) {
-				int rndIndex = randContext.nextInt(this.contextInMemory.size());
-				c = this.contextInMemory.get(rndIndex);
-			}
-			this.contextInMemory.remove(c);
+		int anytimeMemoryHuerstic = MainSimulator.anytimeMemoryHuerstic;
+		// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
+		Context c = null;
+		if (anytimeMemoryHuerstic == 2) {
+			c = Collections.min(cToAddTo, new ContextSimilarityComparator(this.createMyContext()));
 		}
+		if (anytimeMemoryHuerstic == 3) {
+			c = cToAddTo.get(0);
+		}
+		if (anytimeMemoryHuerstic == 4) {
+			int rndIndex = randContext.nextInt(cToAddTo.size());
+			c = cToAddTo.get(rndIndex);
+		}
+		cToAddTo.remove(c);
+		return c;
+
 	}
 
 	public void sendAnytimeMsgs() {
 		for (Context c : anytimeUpToSend) {
-
-			if (MainSimulator.isAnytimeDebug && this.id == 1) {
-				// System.out.println();
-			}
 			Msg m = new MsgAnyTimeUp(this.nodeId, this.anytimeFather, c, this.timeStampCounter, this.time);
 			mailer.sendMsg(m);
 		}
 
-		this.anytimeUpToSend.clear();
+		this.anytimeUpToSend = new ArrayList<Context>();
 
 		if (hasAnytimeNews) {
 			for (NodeId son : this.anytimeSons) {
@@ -469,6 +528,18 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			}
 		}
 		hasAnytimeNews = false;
+
+		/*
+		 * fullContextFound.add(cont); newFullContextFoundToSend.add(cont);
+		 */
+		for (NodeId son : this.anytimeSons) {
+
+			for (Context c : newFullContextFoundToSend) {
+				Msg m = new MsgAnyTimeDownTopFound(this.nodeId, son, c, this.timeStampCounter, this.time);
+				mailer.sendMsg(m);
+			}
+		}
+		newFullContextFoundToSend = new HashSet<Context>();
 	}
 	/*
 	 * private void createVariableAssignmentMsg() { for (NodeId reciever :
@@ -510,6 +581,11 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	public Set<NodeId> getBelowAnytime() {
 		// TODO Auto-generated method stub
 		return this.belowAnytime;
+	}
+
+	public int getAnytimeUpToSendSize() {
+		// TODO Auto-generated method stub
+		return this.anytimeUpToSend.size();
 	}
 
 }

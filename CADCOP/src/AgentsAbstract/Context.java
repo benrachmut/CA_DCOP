@@ -245,10 +245,9 @@ public class Context {
 	public int getTotalCost() {
 		Integer ans = 0;
 		for (Integer cost : this.costPerAgent.values()) {
-			if (cost == null) {
-				throw new RuntimeException("use method when not all agents are included");
+			if (cost != null) {
+				ans = ans + cost;
 			}
-			ans = ans + cost;
 		}
 		return ans;
 	}

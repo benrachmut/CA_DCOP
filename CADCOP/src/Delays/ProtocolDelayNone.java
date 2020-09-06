@@ -15,7 +15,7 @@ public class ProtocolDelayNone extends ProtocolDelay{
 
 
 	@Override
-	protected Double createDelayGivenParameters() {
+	protected Double createDelayGivenParameters(boolean blah) {
 		// TODO Auto-generated method stub
 		return 0.0;
 	}

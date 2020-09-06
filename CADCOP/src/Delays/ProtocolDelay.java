@@ -6,7 +6,7 @@ public abstract class ProtocolDelay {
 	protected boolean imperfectCommunicationScenario;
 	protected boolean isTimeStamp;
 	private double gamma;
-	private Random rndGamma;
+	private Random rndGammaAlgorthmic, rndGammaAnytime;
 	
 
 	public ProtocolDelay(boolean imperfectCommunicationScenario, boolean isTimeStamp, double gamma) {
@@ -17,20 +17,27 @@ public abstract class ProtocolDelay {
 	}
 	
 	
-	public Double createDelay() {
-		double rnd = rndGamma.nextDouble();
+	public Double createDelay(boolean isAlgorithmicMsg) {
+		Random whichRandom;
+		if (isAlgorithmicMsg) {
+			whichRandom = rndGammaAlgorthmic;
+		}else {
+			whichRandom = rndGammaAnytime;
+		}
+		double rnd = whichRandom.nextDouble();
 		if (rnd<gamma) {
 			return null;
 		}
 		else {
-			return createDelayGivenParameters();
+			return createDelayGivenParameters(isAlgorithmicMsg);
 		}
 	}
-	protected abstract Double createDelayGivenParameters();
+	protected abstract Double createDelayGivenParameters(boolean isAlgorithmicMsg);
 	protected abstract void setSeedsGivenParameters(int dcopId) ;
 
 	public void setSeeds(int dcopId) {
-		this.rndGamma = new Random(dcopId*145);
+		this.rndGammaAlgorthmic = new Random(dcopId*145);
+		this.rndGammaAnytime = new Random(dcopId*321);
 		this.setSeedsGivenParameters(dcopId);
 	}
 
