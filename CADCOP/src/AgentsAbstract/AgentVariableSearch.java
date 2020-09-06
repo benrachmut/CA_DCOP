@@ -209,7 +209,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 					// System.out.println(context_i);
 					// System.out.println();
 				}
-				if (context_i!=null) {
+				if (context_i != null) {
 					placeContextInMemory(context_i);
 				}
 			}
@@ -328,6 +328,9 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			}
 		} // for toAdd
 		this.anytimeUpToSend.addAll(toSendUp);
+		if (MainSimulator.isAnytimeDebug && anytimeUpToSend.size() > 50) {
+			System.out.println();
+		}
 		toAdd.removeAll(toSendUp);
 	}
 
@@ -373,7 +376,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		return true;
 	}
 
-	private void addGivenHeuristic(Collection<Context> toAdd) {
+	private void addGivenHeuristic(Set<Context> toAdd) {
 		int memoryHeurstic = MainSimulator.anytimeMemoryHuerstic;
 		if (memoryHeurstic == 1) {
 			for (Context c : toAdd) {
@@ -382,7 +385,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		} else {
 			int limitedMemorySize = MainSimulator.anytimeMemoryLimitedSize;
 			for (int i = 0; i < toAdd.size(); i++) {
-				selectContextAndToRemove();
+				selectContextAndToRemove(limitedMemorySize);
 			}
 			for (Context c : toAdd) {
 				contextInMemory.add(c);
@@ -427,21 +430,24 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		return false;
 	}
 
-	private void selectContextAndToRemove() {
-		int anytimeMemoryHuerstic = MainSimulator.anytimeMemoryHuerstic;
-		// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
-		Context c = null;
-		if (anytimeMemoryHuerstic == 2) {
-			c = Collections.min(this.contextInMemory, new ContextSimilarityComparator(this.createMyContext()));
+	private void selectContextAndToRemove(int limitedMemorySize) {
+		if (this.contextInMemory.size() > limitedMemorySize) {
+
+			int anytimeMemoryHuerstic = MainSimulator.anytimeMemoryHuerstic;
+			// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
+			Context c = null;
+			if (anytimeMemoryHuerstic == 2) {
+				c = Collections.min(this.contextInMemory, new ContextSimilarityComparator(this.createMyContext()));
+			}
+			if (anytimeMemoryHuerstic == 3) {
+				c = this.contextInMemory.get(0);
+			}
+			if (anytimeMemoryHuerstic == 4) {
+				int rndIndex = randContext.nextInt(this.contextInMemory.size());
+				c = this.contextInMemory.get(rndIndex);
+			}
+			this.contextInMemory.remove(c);
 		}
-		if (anytimeMemoryHuerstic == 3) {
-			c = this.contextInMemory.get(0);
-		}
-		if (anytimeMemoryHuerstic == 4) {
-			int rndIndex = randContext.nextInt(this.contextInMemory.size());
-			c = this.contextInMemory.get(rndIndex);
-		}
-		this.contextInMemory.remove(c);
 	}
 
 	public void sendAnytimeMsgs() {
@@ -463,7 +469,6 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			}
 		}
 		hasAnytimeNews = false;
-
 	}
 	/*
 	 * private void createVariableAssignmentMsg() { for (NodeId reciever :

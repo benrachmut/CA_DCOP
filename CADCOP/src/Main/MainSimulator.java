@@ -33,6 +33,7 @@ import Problem.DcopUniform;
 
 public class MainSimulator {
 
+	
 	// ------------------------------**For Data
 	public static List<Mailer> mailerAll = new ArrayList<Mailer>();
 	public static Map<Protocol, List<Mailer>> mailersByProtocol = new HashMap<Protocol, List<Mailer>>();
@@ -51,22 +52,22 @@ public class MainSimulator {
 	public static boolean isAnytimeDebug = true;
 	// 1 = DFS; 2 = BFS
 	public static int anytimeFormation = 1;
-	public static boolean deleteAfterCombine = false;
+	public static boolean deleteAfterCombine = true;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
 	public static int anytimeMemoryHuerstic = 1;
 	public static int anytimeMemoryLimitedSize = 300;
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 100;
+	public static int end = 1;
 	public static int end_temp = start;
-	public static int termination = 250;
+	public static int termination = 2500;
 	private static int everyHowManyExcel = 10;
 
 	public static int[] toDeleteFromAvg = {68,78}; // p1=1 A=20 no memory
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 20; // amount of agents
+	public static int A = 50; // amount of agents
 	public static int D = -1; // if D or costParameter < 0 use default
 	public static int costParameter = -1; // if D or costParameter < 0 use default
 
@@ -76,7 +77,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.25;// 0.1,0.6
+	public static double dcopUniformP1 = 0.1;// 0.1,0.6
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
@@ -175,9 +176,12 @@ public class MainSimulator {
 
 		if (isAnytime) {
 			ans = ans +","+ "Heurstic_" + (anytimeMemoryHuerstic);
+			ans = ans +","+ "del_" + (deleteAfterCombine);
+
 			if (anytimeMemoryHuerstic !=1) {
 				ans = ans +","+ "size_" + (anytimeMemoryLimitedSize);
 			}
+
 		}
 		fileName = ans;
 	}
@@ -229,8 +233,14 @@ public class MainSimulator {
 			}
 
 			String MemorySize = Integer.toString(anytimeMemoryLimitedSize);
+			String isWithDelCombine = "";
+			if (deleteAfterCombine) {
+				isWithDelCombine = "Delete Combined";
+			}else {
+				isWithDelCombine = "Delete Combined - not";
 
-			return formation + "," + heuristic + "," + MemorySize;
+			}
+			return formation + "," + heuristic + "," + MemorySize+","+isWithDelCombine;
 		}
 		return "";
 	}
@@ -438,7 +448,7 @@ public class MainSimulator {
 		header = header + "Algorithm" + "," + AgentVariable.algorithmHeader + ",";
 		header = header + Data.header();
 		if (isAnytime) {
-			header = header + "," + "Formation" + "," + "Heuristic" + "," + "Memory Size";
+			header = header + "," + "Formation" + "," + "Heuristic" + "," + "Memory Size"+ "," +"Delete After Combine";
 		}
 
 	}

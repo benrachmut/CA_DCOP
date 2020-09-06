@@ -35,7 +35,7 @@ public class MailerIterations extends Mailer {
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
 			m_iteration = iteration;
 			if (MainSimulator.isAnytimeDebug) {
-				if (iteration%20==0) {
+				if (iteration%100==0) {
 					System.out.println("-------ITERATION_"+iteration+"-------");
 				}
 				
