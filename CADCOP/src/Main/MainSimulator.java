@@ -55,19 +55,19 @@ public class MainSimulator {
 	public static boolean deleteAfterCombine = false;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
 	public static int anytimeMemoryHuerstic = 2;
-	public static int anytimeMemoryLimitedSize = 100;
+	public static int anytimeMemoryLimitedSize = 1000;
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 100;
 	public static int end_temp = start;
-	public static int termination = 3000;
+	public static int termination = 200;
 	private static int everyHowManyExcel = 5;
 
 	public static int[] toDeleteFromAvg = {68,78}; // p1=1 A=20 no memory
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 50; // amount of agents
+	public static int A = 20; // amount of agents
 	public static int D = -1; // if D or costParameter < 0 use default
 	public static int costParameter = -1; // if D or costParameter < 0 use default
 

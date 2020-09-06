@@ -131,10 +131,9 @@ public class Data {
 		Double ans = 0.0;
 		for (Neighbor n : neighbors) {
 			Integer costOfN = n.getCurrentAnytimeCost();
-			if (costOfN == null) {
-				return null;
-			} else
+			if (costOfN != null) {
 				ans = ans + costOfN;
+			} 
 		}
 		return ans;
 	}
