@@ -7,19 +7,29 @@ public class Statistics {
 
 	public static Double mean(Collection<Double> list) {
 		Double sum = sum(list);
+		Double size = sizeWithoutNull(list);	
 		if (sum == null) {
 			return null;
 		}
-		return sum/list.size();
+		return sum/size;
+	}
+
+	private static Double sizeWithoutNull(Collection<Double> list) {
+		Double counter = 0.0;
+		for (Double d : list) {
+			if (d!= null) {
+				counter = counter+1.0;
+			}
+		}
+		return counter;
 	}
 
 	public static Double sum(Collection<Double> list) {
 		Double sum = 0.0;
 		for (Double d : list) {
-			if (d== null) {
-				return null;
+			if (d!= null) {
+				sum+=d;
 			}
-			sum+=d;
 		}
 		return sum;
 	}

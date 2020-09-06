@@ -43,11 +43,9 @@ public class DcopUniform extends Dcop {
 	
 	@Override
 	protected void setDcopName() {
-		if (p1>0.3) {
-			Dcop.dcopName = "Dense Random Uniform";
-		}else {
-			Dcop.dcopName = "Sparse Random Uniform";
-		}
+		Dcop.dcopName = "Random Uniform "+p1;
+
+		
 		
 	}
 

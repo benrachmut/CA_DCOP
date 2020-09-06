@@ -33,6 +33,8 @@ public class Data {
 	private Double topAgentsAnytimeContextCost;
 	private Double anytimeCost;
 	private Double topContextCounters;
+	private Double numberOfRepsMeanAtTop;
+	private Double numberOfRepsMeanAtAll;
 
 	public Data(Entry<Integer, List<Data>> e) {
 		this.time = e.getKey();
@@ -52,13 +54,16 @@ public class Data {
 			this.topAgentsAnytimeContextCost = Statistics.mean(colletionPerFields.get(9));
 			this.anytimeCost = Statistics.mean(colletionPerFields.get(10));
 			this.topContextCounters = Statistics.mean(colletionPerFields.get(11));
+			this.numberOfRepsMeanAtTop = Statistics.mean(colletionPerFields.get(12));
+			this.numberOfRepsMeanAtAll = Statistics.mean(colletionPerFields.get(13));
+
 		}
 	}
 
 	private List<List<Double>> createColletionsPerField(List<Data> datas) {
 		List<List<Double>> ans = new ArrayList<List<Double>>();
 		if (MainSimulator.isAnytime) {
-			for (int i = 0; i < 10+3; i++) {
+			for (int i = 0; i < 10+5; i++) {
 				ans.add(new ArrayList<Double>());
 			}
 		}else {
@@ -80,6 +85,18 @@ public class Data {
 				ans.get(9).add(d.topAgentsAnytimeContextCost);
 				ans.get(10).add(d.anytimeCost);
 				ans.get(11).add(d.topContextCounters);
+				
+				if (d.topAgentsAnytimeContextCost == null) {
+					ans.get(12).add(0.0);
+				}else {
+					ans.get(12).add(1.0);
+				}
+				
+				if (d.anytimeCost == null) {
+					ans.get(13).add(0.0);
+				}else {
+					ans.get(13).add(1.0);
+				}
 			}
 
 		}
@@ -244,7 +261,7 @@ public class Data {
 				+ "Global View Cost Agent Zero" + "," + "Agent View Cost Agent Zero" + "," + "Abs Delta Global and POV";
 		if (MainSimulator.isAnytime) {
 			ans = ans + "," + "Anytime top agents best context cost" + "," + "Anytime Cost" + ","
-					+ "Contexts of all agents reported";
+					+ "Contexts of all agents reported"+","+"Number of Repetitions top"+","+"Number of Repetitions All";
 		}
 		return ans;
 	}
@@ -255,7 +272,7 @@ public class Data {
 		return	this.time + "," + this.globalCost + "," + this.monotonicy + "," + this.povCost + ","
 					+ this.globalAnytimeCost + "," + this.changeValueAssignmentCounter + "," + this.algorithmMsgsCounter
 					+ "," + this.agentZeroGlobalCost + "," + this.agentZeroPOVCost + "," + this.globalPovABSDelta+ 
-					"," +this.topAgentsAnytimeContextCost+ "," +this.anytimeCost+ "," +this.topContextCounters;
+					"," +this.topAgentsAnytimeContextCost+ "," +this.anytimeCost+ "," +this.topContextCounters+ "," +this.numberOfRepsMeanAtTop+ "," +this.numberOfRepsMeanAtAll;
 		
 		}
 		

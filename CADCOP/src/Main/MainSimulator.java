@@ -49,7 +49,7 @@ public class MainSimulator {
 	// ------------------------------**any time**
 	public static boolean isAnytime = true;
 	public static boolean isAnytimeDebug = true;
-	// 1 = DFS; 2 = BFS 
+	// 1 = DFS; 2 = BFS
 	public static int anytimeFormation = 1;
 	public static boolean deleteAfterCombine = false;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
@@ -58,8 +58,12 @@ public class MainSimulator {
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 1;
-	public static int termination =  200;
+	public static int end = 100;
+	public static int end_temp = start;
+	public static int termination = 250;
+	private static int everyHowManyExcel = 10;
+
+	public static int[] toDeleteFromAvg = {68,78}; // p1=1 A=20 no memory
 
 	// ------------------------------**PROBLEM MANGNITUDE**
 	public static int A = 20; // amount of agents
@@ -72,7 +76,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.1;// 0.1,0.6
+	public static double dcopUniformP1 = 0.25;// 0.1,0.6
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
@@ -85,9 +89,9 @@ public class MainSimulator {
 
 	// ------------------------------**Algorithm Selection**
 	/*
-	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ;
-	 * 7 = maxsum asynch; 8 = maxsum synch; 9 = split constraint factor;
-	 * 10 = DSA_SDP-ASY; 11 = DSA_SDP-SY
+	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 7 = maxsum
+	 * asynch; 8 = maxsum synch; 9 = split constraint factor; 10 = DSA_SDP-ASY; 11 =
+	 * DSA_SDP-SY
 	 */
 	public static int agentType = 10;
 
@@ -155,19 +159,26 @@ public class MainSimulator {
 	}
 
 	private static void createFileName() {
-		String ans = "Algorithm_" + AgentVariable.AlgorithmName ;
-		
+		String ans = "Algorithm_" + AgentVariable.AlgorithmName;
+
 		if (!AgentVariable.algorithmData.equals("")) {
-			ans = ans+"("+AgentVariable.algorithmData+"),";
-		}else {
-			ans = ans+",";
+			ans = ans + "(" + AgentVariable.algorithmData + "),";
+		} else {
+			ans = ans + ",";
 		}
 		ans = ans + "DCOP_" + Dcop.dcopName + ",";
 		ans = ans + "Mailer_" + Mailer.mailerName + ",";
 		ans = ans + "A_" + A + ",";
-		ans = ans + "Reps_" + (end - start)+",";
+		ans = ans + "SReps_" + (start) + ",";
+		ans = ans + "EReps_" + (end_temp) + ",";
 		ans = ans + "Time_" + (termination);
 
+		if (isAnytime) {
+			ans = ans +","+ "Heurstic_" + (anytimeMemoryHuerstic);
+			if (anytimeMemoryHuerstic !=1) {
+				ans = ans +","+ "size_" + (anytimeMemoryLimitedSize);
+			}
+		}
 		fileName = ans;
 	}
 
@@ -181,12 +192,47 @@ public class MainSimulator {
 			SortedMap<Integer, List<Data>> mapBeforeCalcMean = getMeanMapBeforeAvg(e.getValue());
 			SortedMap<Integer, Data> meanMap = createMeanMap(mapBeforeCalcMean);
 
+			String anytimeInfoString = getAnytimeString();
 			for (Entry<Integer, Data> e1 : meanMap.entrySet()) {
 				String tempAns = dcopString + "," + protocolString + "," + algoString + "," + e1.getValue();
+				if (isAnytime) {
+					tempAns = tempAns+","+anytimeInfoString;
+				}
 				lineInExcel.add(tempAns);
+
 			}
 		}
 
+	}
+
+	private static String getAnytimeString() {
+		if (isAnytime) {
+			String formation = "";
+			if (anytimeFormation == 1) {
+				formation = "DFS";
+			}
+			String heuristic = "";
+
+			if (anytimeMemoryHuerstic == 1) {
+				heuristic = "No Memory Limitation";
+			}
+
+			if (anytimeMemoryHuerstic == 2) {
+				heuristic = "MSC";
+			}
+
+			if (anytimeMemoryHuerstic == 3) {
+				heuristic = "FIFO";
+			}
+			if (anytimeMemoryHuerstic == 3) {
+				heuristic = "Random";
+			}
+
+			String MemorySize = Integer.toString(anytimeMemoryLimitedSize);
+
+			return formation + "," + heuristic + "," + MemorySize;
+		}
+		return "";
 	}
 
 	private static SortedMap<Integer, Data> createMeanMap(SortedMap<Integer, List<Data>> input) {
@@ -199,9 +245,9 @@ public class MainSimulator {
 
 	private static SortedMap<Integer, List<Data>> getMeanMapBeforeAvg(List<Mailer> mailers) {
 		SortedMap<Integer, List<Data>> ans = new TreeMap<Integer, List<Data>>();
-	
-		int firstMax = getFirstMax(mailers);	
-		for ( int i = firstMax ; i < termination; i++) {
+
+		int firstMax = getFirstMax(mailers);
+		for (int i = firstMax; i < termination; i++) {
 			List<Data> listPerIteration = new ArrayList<Data>();
 			for (Mailer mailer : mailers) {
 				listPerIteration.add(mailer.getDataPerIteration(i));
@@ -212,7 +258,7 @@ public class MainSimulator {
 	}
 
 	private static int getFirstMax(List<Mailer> mailers) {
-		List<Integer>firsts = new ArrayList<Integer>();
+		List<Integer> firsts = new ArrayList<Integer>();
 		for (Mailer m : mailers) {
 			firsts.add(m.getFirstKeyInData());
 		}
@@ -337,6 +383,14 @@ public class MainSimulator {
 						+ protocol.getDelay());
 			}
 			System.out.println("----------------------------");
+			end_temp = dcop.getId();
+			
+			if (end_temp % everyHowManyExcel  == 0 && end_temp !=0) {
+				createData();
+				createExcel();
+				lineInExcel = new ArrayList<String>();
+			}
+			
 		}
 
 	}
@@ -349,7 +403,7 @@ public class MainSimulator {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	private static void addMailerToDataFrames(Protocol protocol, Mailer mailer) {
@@ -383,6 +437,9 @@ public class MainSimulator {
 		 */
 		header = header + "Algorithm" + "," + AgentVariable.algorithmHeader + ",";
 		header = header + Data.header();
+		if (isAnytime) {
+			header = header + "," + "Formation" + "," + "Heuristic" + "," + "Memory Size";
+		}
 
 	}
 
