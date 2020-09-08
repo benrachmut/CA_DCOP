@@ -58,10 +58,10 @@ public class MainSimulator {
 	public static int anytimeMemoryLimitedSize = 1000;
 
 	// ------------------------------**Experiment Repetitions**
-	public static int start = 0;
+	public static int start = 99;
 	public static int end = 100;
 	public static int end_temp = start;
-	public static int termination = 3000;
+	public static int termination = 2000;
 	private static int everyHowManyExcel = 50;
 
 

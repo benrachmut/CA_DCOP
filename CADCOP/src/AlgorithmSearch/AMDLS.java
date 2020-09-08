@@ -230,7 +230,7 @@ public class AMDLS extends AgentVariableSearch {
 	protected boolean compute() {
 		if (consistentFlag) {
 			this.myCounter = this.myCounter + 1;
-			this.valueAssignment = getCandidateToChange();
+			this.valueAssignment = getCandidateToChange2();
 		}
 		return true;
 	}
