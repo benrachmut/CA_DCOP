@@ -92,7 +92,7 @@ abstract public class DSA_B extends AgentVariableSearch {
 	}
 
 	@Override
-	protected boolean getDidComputeInThisIteration() {
+	public boolean getDidComputeInThisIteration() {
 		return canCompute;
 	}
 

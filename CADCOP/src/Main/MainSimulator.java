@@ -58,10 +58,10 @@ public class MainSimulator {
 	public static int anytimeMemoryLimitedSize = 1000;
 
 	// ------------------------------**Experiment Repetitions**
-	public static int start = 99;
+	public static int start = 0;
 	public static int end = 100;
 	public static int end_temp = start;
-	public static int termination = 2000;
+	public static int termination = 15000;
 	private static int everyHowManyExcel = 50;
 
 
@@ -76,7 +76,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.2;
+	public static double dcopUniformP1 = 0.7;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints

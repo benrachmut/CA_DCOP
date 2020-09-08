@@ -11,6 +11,7 @@ import java.util.Set;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
+import Main.MailerIterations;
 import Main.MainSimulator;
 import Messages.MsgAMDLS;
 import Messages.MsgAlgorithm;
@@ -60,29 +61,7 @@ public class AMDLS extends AgentVariableSearch {
 
 	private void sendAMDLSmsgs() {
 
-		if (MainSimulator.isAMDLSdebug) {
-			System.out.println("--------------");
-			System.out.println(this.toString() + " counter is " + this.myCounter);
-			if (!this.above.isEmpty()) {
-				System.out.println("above:");
-				for (NodeId nodeId : above) {
-					System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ", ");
-				}
-				System.out.println();
-
-			}
-
-			if (!this.below.isEmpty()) {
-				System.out.println("below:");
-				for (NodeId nodeId : below) {
-					System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ",");
-				}
-				System.out.println();
-
-			}
-			System.out.println();
-
-		}
+		
 
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgAMDLS mva = new MsgAMDLS(this.nodeId, recieverNodeId, this.valueAssignment, this.timeStampCounter,
@@ -155,6 +134,9 @@ public class AMDLS extends AgentVariableSearch {
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
+		if (MainSimulator.isAMDLSdebug && this.id==19) {
+			System.out.println();
+		}
 		NodeId sender = msgAlgorithm.getSenderId();
 		int currentCounterInContext = this.counters.get(sender);
 		int msgCounter = ((MsgAMDLS) msgAlgorithm).getCounter();
@@ -190,15 +172,15 @@ public class AMDLS extends AgentVariableSearch {
 	@Override
 	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
 
-		boolean aboveConsistent = isAboveConsistent();
-		boolean belowConsistent = isBelowConsistent();
+		
 		boolean allNotZero = checkAllNotZero();
 
 		if (allNotZero) {
 			releaseFutureMsgs();
 
 		}
-
+		boolean aboveConsistent = isAboveConsistent();
+		boolean belowConsistent = isBelowConsistent();
 		if (aboveConsistent && belowConsistent && allNotZero) {
 			this.consistentFlag = true;
 		} else {
@@ -217,7 +199,33 @@ public class AMDLS extends AgentVariableSearch {
 	}
 
 	@Override
-	protected boolean getDidComputeInThisIteration() {
+	public boolean getDidComputeInThisIteration() {
+		
+		if (MainSimulator.isAMDLSdebug && MailerIterations.m_iteration == 50) {
+			
+			System.out.println("--------------");
+			System.out.println(this.toString() + " counter is " + this.myCounter);
+			if (!this.above.isEmpty()) {
+				System.out.println("above:");
+				for (NodeId nodeId : above) {
+					System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ", ");
+				}
+				System.out.println();
+
+			}
+
+			if (!this.below.isEmpty()) {
+				System.out.println("below:");
+				for (NodeId nodeId : below) {
+					System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ",");
+				}
+				System.out.println();
+
+			}
+			System.out.println();
+
+		}
+		
 		if (sendWhenMsgReceive) {
 			return gotMsgFlag;
 		} else {

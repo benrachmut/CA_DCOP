@@ -1,7 +1,9 @@
 package Main;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,7 +44,19 @@ public class MailerIterations extends Mailer {
 				
 			}
 			
-			
+			/*
+			if (MainSimulator.isAMDLSdebug ) {
+				System.out.println("---"+iteration+"---");
+				Collection<AgentVariable>didChange = new HashSet<AgentVariable>();
+				for (AgentVariable a :dcop.getVariableAgents()) {
+					if (a.getDidComputeInThisIteration()) {
+						didChange.add(a);
+					}
+				}
+				System.out.println(didChange);
+				
+			}
+		*/
 			
 			
 			agentsReactToMsgs(iteration);		
@@ -122,7 +136,7 @@ public class MailerIterations extends Mailer {
 	}
 
 	private void agentsReactToMsgs(int iteration) {
-
+		
 		for (Agent agent : dcop.getAgents()) {
 			if (iteration == 0) {
 				agent.resetAgent();
@@ -139,6 +153,8 @@ public class MailerIterations extends Mailer {
 				}
 			}
 		}
+		
+
 		
 	}
 

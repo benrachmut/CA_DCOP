@@ -179,7 +179,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		return false;
 	}
 
-	protected abstract boolean getDidComputeInThisIteration();
+	public abstract boolean getDidComputeInThisIteration();
 
 	protected boolean isMsgGoingToBeSent(boolean changeContext) {
 		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) || (MainSimulator.sendOnlyIfChange == false);
