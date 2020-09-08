@@ -210,36 +210,12 @@ public abstract class Dcop {
 	private void handleFormationForAMDLS(Formation[] formations) {
 
 		if (MainSimulator.agentType == 5) {
-			Set<NodeId> above = new HashSet<NodeId>();
-			Set<NodeId> below = new HashSet<NodeId>();
-			for (AgentVariable a : agentsVariables) {
-				if (AMDLS.structureColor) {
-					formations[0].setAboveBelow(a, above, below);
-				} else {
-					formations[1].setAboveBelow(a, above, below);
-				}
-				//----------
-				Collection<NodeId>toRemove= new HashSet<NodeId>();
-				for (NodeId nodeId : below) {
-					if (!a.getNeigborSetId().contains(nodeId)) {
-						toRemove.add(nodeId);
-					}
-				}
-				below.removeAll(toRemove);
-				//----------
-
-				toRemove= new HashSet<NodeId>();
-				for (NodeId nodeId : above) {
-					if (!a.getNeigborSetId().contains(nodeId)) {
-						toRemove.add(nodeId);
-					}
-				}
-				above.removeAll(toRemove);
-				
-				
-				((AMDLS) a).setBelow(below);
-				((AMDLS) a).setAbove(above);
+			if (AMDLS.structureColor) {
+				formations[0].setAboveBelow();
+			} else {
+				formations[1].setAboveBelow();
 			}
+			
 		}
 
 	}

@@ -19,7 +19,8 @@ public abstract class Formation {
 	public Formation( AgentVariable[] input_a) {
 		this.agents = createAfList(input_a);
 	}
-	
+	public abstract void   setAboveBelow();
+
 	public abstract void setAboveBelow(AgentVariable a, Set<NodeId> above, Set<NodeId> below);
 	
 	public abstract void execute();

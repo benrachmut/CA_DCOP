@@ -124,5 +124,36 @@ public class ColorFormation extends Formation {
 		}
 
 	}
+	
+	@Override
+	public void setAboveBelow() {
+		for (AgentVariable a : agents) {
+			Set<NodeId> below = new TreeSet<NodeId>();
+			Set<NodeId> above = new TreeSet<NodeId>();
+
+			int agentHeight = this.colorOfAgent.get(a);
+			for (NodeId nId : a.getNeigborSetId()) {
+				for (AgentVariable nAgent : agents) {
+					if (nAgent.getNodeId().equals(nId)) {
+						int neighborHeight = this.colorOfAgent.get(nAgent);
+						if (agentHeight == neighborHeight) {
+							throw new RuntimeException("something is wrong with coloring, should not happen");
+						}
+						if (agentHeight < neighborHeight) {
+							below.add(nId);
+						} else {
+							above.add(nId);
+						}
+					}
+				}
+			}
+			if (MainSimulator.agentType == 5) {
+				((AMDLS) a).setAbove(above);
+				((AMDLS) a).setBelow(below);
+			}
+
+		}
+
+	}
 
 }

@@ -66,7 +66,39 @@ public class DFS extends Formation {
 		
 
 	}
+	public void setAboveBelow() {
+		for (AgentVariable a : agents) {
+			int aLevel = this.numberInTree.get(a.getNodeId());
+			Set<NodeId> above = new TreeSet<NodeId>();
+			Set<NodeId> below = new TreeSet<NodeId>();
+			Set<NodeId> nIds = a.getNeigborSetId();
+			
+			for (NodeId nodeId : nIds) {
+				int levelOfN = this.numberInTree.get(nodeId);
+			
+				if (levelOfN<aLevel) {
+					above.add(nodeId);
+				}
+				if (levelOfN>aLevel) {
+					below.add(nodeId);
+				}
+				if (levelOfN==aLevel) {
+					throw new RuntimeException("something is wrong with psaudo tree");
+				}
+			}
+			if (MainSimulator.agentType==5) {
+				((AMDLS)a).setBelow(below);
+				((AMDLS)a).setAbove(above);
+			}
+			
+	
+			
 
+		}
+		
+
+	}
+	
 	private Collection<AgentVariable> getFathers() {
 		Collection<AgentVariable> ans = new ArrayList<AgentVariable>();
 		for (AgentVariable a : this.agents) {
