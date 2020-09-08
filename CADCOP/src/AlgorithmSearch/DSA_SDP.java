@@ -11,7 +11,7 @@ import java.util.SortedMap;
 
 import Messages.MsgAlgorithm;
 
-public abstract class DSA_SDP extends DSA_C {
+public abstract class DSA_SDP extends DSA_B {
 
 	protected static int k = 40;
 	protected static double p_a = 0.6, p_b = 0.1, p_c = 0.4, p_d = 0.8;

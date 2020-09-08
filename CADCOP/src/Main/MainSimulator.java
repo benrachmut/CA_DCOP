@@ -48,26 +48,25 @@ public class MainSimulator {
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
 	// ------------------------------**any time**
-	public static boolean isAnytime = true;
-	public static boolean isAnytimeDebug = true;
+	public static boolean isAnytime = false;
+	public static boolean isAnytimeDebug = false;
 	// 1 = DFS; 2 = BFS
 	public static int anytimeFormation = 1;
 	public static boolean deleteAfterCombine = false;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
-	public static int anytimeMemoryHuerstic = 2;
+	public static int anytimeMemoryHuerstic = 1;
 	public static int anytimeMemoryLimitedSize = 1000;
 
 	// ------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 100;
 	public static int end_temp = start;
-	public static int termination = 200;
-	private static int everyHowManyExcel = 5;
+	public static int termination = 3000;
+	private static int everyHowManyExcel = 50;
 
-	public static int[] toDeleteFromAvg = {68,78}; // p1=1 A=20 no memory
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 20; // amount of agents
+	public static int A = 50; // amount of agents
 	public static int D = -1; // if D or costParameter < 0 use default
 	public static int costParameter = -1; // if D or costParameter < 0 use default
 
@@ -77,12 +76,12 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.2;// 0.1,0.6
+	public static double dcopUniformP1 = 0.2;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
 	public static int costLb = 10;
-	public static int costUb = 20;
+	public static int costUb = 100;
 	// 3 = Graph Coloring
 	public static int dcopScaleHubs = 10; // number of agents with central weight
 	public static int dcopScaleNeighbors = 3; // number of neighbors (not including policy of hubs
@@ -94,7 +93,7 @@ public class MainSimulator {
 	 * asynch; 8 = maxsum synch; 9 = split constraint factor; 10 = DSA_SDP-ASY; 11 =
 	 * DSA_SDP-SY
 	 */
-	public static int agentType = 10;
+	public static int agentType = 5;
 
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;

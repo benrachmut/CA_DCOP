@@ -16,8 +16,8 @@ import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
 import AlgorithmSearch.AMDLS;
-import AlgorithmSearch.DSA_C_ASY;
-import AlgorithmSearch.DSA_C_SY;
+import AlgorithmSearch.DSA_B_ASY;
+import AlgorithmSearch.DSA_B_SY;
 import AlgorithmSearch.DSA_SDP_ASY;
 import AlgorithmSearch.DSA_SDP_SY;
 import AlgorithmSearch.MGM_ASY;
@@ -106,10 +106,10 @@ public abstract class Dcop {
 		int agentType = MainSimulator.agentType;
 
 		if (agentType == 1) {
-			ans = new DSA_C_ASY(dcopId, D, agentId);
+			ans = new DSA_B_ASY(dcopId, D, agentId);
 		}
 		if (agentType == 2) {
-			ans = new DSA_C_SY(dcopId, D, agentId);
+			ans = new DSA_B_SY(dcopId, D, agentId);
 		}
 		if (agentType == 3) {
 			ans = new MGM_ASY(dcopId, D, agentId);
@@ -218,6 +218,25 @@ public abstract class Dcop {
 				} else {
 					formations[1].setAboveBelow(a, above, below);
 				}
+				//----------
+				Collection<NodeId>toRemove= new HashSet<NodeId>();
+				for (NodeId nodeId : below) {
+					if (!a.getNeigborSetId().contains(nodeId)) {
+						toRemove.add(nodeId);
+					}
+				}
+				below.removeAll(toRemove);
+				//----------
+
+				toRemove= new HashSet<NodeId>();
+				for (NodeId nodeId : above) {
+					if (!a.getNeigborSetId().contains(nodeId)) {
+						toRemove.add(nodeId);
+					}
+				}
+				above.removeAll(toRemove);
+				
+				
 				((AMDLS) a).setBelow(below);
 				((AMDLS) a).setAbove(above);
 			}

@@ -128,7 +128,7 @@ public class Data {
 	}
 
 	private Double calcAnytimeCost(List<Neighbor> neighbors) {
-		Double ans = 0.0;
+		Double ans = null;
 		for (Neighbor n : neighbors) {
 			Integer costOfN = n.getCurrentAnytimeCost();
 			if (costOfN != null) {

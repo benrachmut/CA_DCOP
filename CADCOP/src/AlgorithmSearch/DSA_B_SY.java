@@ -12,23 +12,17 @@ import Main.MainSimulator;
 import Messages.MsgAlgorithm;
 import Messages.MsgReceive;
 
-public class DSA_C_SY extends DSA_C {
+public class DSA_B_SY extends DSA_B {
 	private Collection<MsgAlgorithm> future;
 
-	public DSA_C_SY(int dcopId, int D, int id1) {
+	public DSA_B_SY(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		resetAgentGivenParametersV4();
 		updateAlgorithmName();
 
 	}
 
-	public DSA_C_SY(int dcopId, int D, int id1, double stochastic) {
-		super(dcopId, D, id1);
-		this.stochastic = stochastic;
-		resetAgentGivenParametersV4();
-		updateAlgorithmName();
-
-	}
+	
 
 	@Override
 	protected void resetAgentGivenParametersV4() {

@@ -19,7 +19,7 @@ import Messages.MsgValueAssignmnet;
 public class AMDLS extends AgentVariableSearch {
 
 	public static boolean structureColor = true;
-	public static boolean sendWhenMsgReceive = true;
+	public static boolean sendWhenMsgReceive = false;
 
 	private Set<NodeId> below;
 	private Set<NodeId> above;
@@ -71,8 +71,7 @@ public class AMDLS extends AgentVariableSearch {
 				System.out.println();
 
 			}
-			
-			
+
 			if (!this.below.isEmpty()) {
 				System.out.println("below:");
 				for (NodeId nodeId : below) {
@@ -85,13 +84,11 @@ public class AMDLS extends AgentVariableSearch {
 
 		}
 
-		
-		
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgAMDLS mva = new MsgAMDLS(this.nodeId, recieverNodeId, this.valueAssignment, this.timeStampCounter,
 					this.time, this.myCounter);
 			this.mailer.sendMsg(mva);
-			
+
 		}
 
 	}
@@ -157,9 +154,7 @@ public class AMDLS extends AgentVariableSearch {
 	// 1
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
-		
-	
-		
+
 		NodeId sender = msgAlgorithm.getSenderId();
 		int currentCounterInContext = this.counters.get(sender);
 		int msgCounter = ((MsgAMDLS) msgAlgorithm).getCounter();
@@ -171,31 +166,24 @@ public class AMDLS extends AgentVariableSearch {
 			this.future.add((MsgAMDLS) msgAlgorithm);
 		}
 		/*
-		if (this.id == 0 && this.myCounter == 1 && MainSimulator.isAMDLSdebug) {
-			System.out.println("--------------");
-			System.out.println(this.toString() + " counter is " + this.myCounter);
-			if (!this.above.isEmpty()) {
-				System.out.println("above:");
-				for (NodeId nodeId : above) {
-					System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ", ");
-				}
-				System.out.println();
+		 * if (this.id == 0 && this.myCounter == 1 && MainSimulator.isAMDLSdebug) {
+		 * System.out.println("--------------"); System.out.println(this.toString() +
+		 * " counter is " + this.myCounter); if (!this.above.isEmpty()) {
+		 * System.out.println("above:"); for (NodeId nodeId : above) {
+		 * System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) +
+		 * ", "); } System.out.println();
+		 * 
+		 * }
+		 * 
+		 * 
+		 * if (!this.below.isEmpty()) { System.out.println("below:"); for (NodeId nodeId
+		 * : below) { System.out.print("A" + nodeId.getId1() + ":" +
+		 * this.counters.get(nodeId) + ","); } System.out.println(); }
+		 * System.out.println("--------------");
+		 * 
+		 * }
+		 */
 
-			}
-			
-			
-			if (!this.below.isEmpty()) {
-				System.out.println("below:");
-				for (NodeId nodeId : below) {
-					System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ",");
-				}
-				System.out.println();
-			}
-			System.out.println("--------------");
-
-		}
-		*/
-		
 	}
 
 	// 2
@@ -205,12 +193,12 @@ public class AMDLS extends AgentVariableSearch {
 		boolean aboveConsistent = isAboveConsistent();
 		boolean belowConsistent = isBelowConsistent();
 		boolean allNotZero = checkAllNotZero();
-		
+
 		if (allNotZero) {
 			releaseFutureMsgs();
 
 		}
-		
+
 		if (aboveConsistent && belowConsistent && allNotZero) {
 			this.consistentFlag = true;
 		} else {
@@ -258,8 +246,7 @@ public class AMDLS extends AgentVariableSearch {
 	}
 
 	private void releaseFutureMsgs() {
-		
-		
+
 		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
 		for (MsgAlgorithm m : this.future) {
 
@@ -286,11 +273,10 @@ public class AMDLS extends AgentVariableSearch {
 	}
 
 	private boolean isAboveConsistent() {
-		for (NodeId nodeId : this.above) {
-			
-			if (this.counters.get(nodeId)  != this.myCounter+ 1) {
-				return false;
-			}
+		for (NodeId nodeId : this.above) {		
+				if (this.counters.get(nodeId) != this.myCounter + 1) {
+					return false;
+				} 
 		}
 		return true;
 	}

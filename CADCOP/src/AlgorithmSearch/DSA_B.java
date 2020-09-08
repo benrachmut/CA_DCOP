@@ -7,26 +7,21 @@ import AgentsAbstract.AgentVariableSearch;
 import Messages.MsgAlgorithm;
 import Messages.MsgValueAssignmnet;
 
-abstract public class DSA_C extends AgentVariableSearch {
-	protected double stochastic;
+abstract public class DSA_B extends AgentVariableSearch {
+	protected static double stochastic = 0.7;
 	protected double rndForDebug; // for debug
 	protected Random rndStochastic;
 	protected boolean canCompute;
 
-	public DSA_C(int dcopId, int D, int id1) {
+	public DSA_B(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
-		stochastic = 0.7;
 		this.rndStochastic = new Random(this.dcopId * 10 + this.id * 100);
 		canCompute = false;
 		updateAlgorithmHeader();
 		updateAlgorithmData();
 	}
 
-	public DSA_C(int dcopId, int D, int id1, double stochastic) {
-		this(dcopId, D, id1);
-		this.stochastic = stochastic;
-		canCompute = false;
-	}
+	
 
 	@Override
 	protected void resetAgentGivenParametersV3() {
