@@ -123,7 +123,7 @@ public abstract class MGM extends AgentVariableSearch {
 	}
 
 	private boolean computeMyLR() {
-		int candidate = getCandidateToChange();
+		int candidate = getCandidateToChange_A();
 		if (candidate != this.valueAssignment) {
 			this.candidateValueAssignment = candidate;
 			int lrToCheck = findLr(candidate);

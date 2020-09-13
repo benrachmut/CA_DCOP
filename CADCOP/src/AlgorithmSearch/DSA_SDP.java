@@ -39,7 +39,7 @@ public abstract class DSA_SDP extends DSA_B {
 	}
 
 	private boolean eximneStochasticSlopeChange(double ratio) {
-		int candidate = getCandidateToChange();
+		int candidate = getCandidateToChange_B();
 		if (candidate == valueAssignment) {
 			kCounter = kCounter + 1;
 			return false;

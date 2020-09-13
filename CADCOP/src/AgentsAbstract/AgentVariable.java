@@ -167,7 +167,7 @@ public abstract class AgentVariable extends Agent {
 
 	public Double getChangeValueAssignmentCounter() {
 		// TODO Auto-generated method stub
-		return this.valueAssignmentChangeCounter;
+		return this.computationCounter;
 	}
 
 	public Integer[][] getMatrixWithAgent(int i) {

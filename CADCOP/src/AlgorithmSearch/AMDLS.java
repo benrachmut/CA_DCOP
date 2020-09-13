@@ -20,7 +20,7 @@ import Messages.MsgValueAssignmnet;
 public class AMDLS extends AgentVariableSearch {
 
 	public static boolean structureColor = true;
-	public static boolean sendWhenMsgReceive = false;
+	public static boolean sendWhenMsgReceive = true;
 
 	private Set<NodeId> below;
 	private Set<NodeId> above;
@@ -133,10 +133,11 @@ public class AMDLS extends AgentVariableSearch {
 	// 1
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
-
+/*
 		if (MainSimulator.isAMDLSdebug && this.id==19) {
 			System.out.println();
 		}
+		*/
 		NodeId sender = msgAlgorithm.getSenderId();
 		int currentCounterInContext = this.counters.get(sender);
 		int msgCounter = ((MsgAMDLS) msgAlgorithm).getCounter();
@@ -200,7 +201,7 @@ public class AMDLS extends AgentVariableSearch {
 
 	@Override
 	public boolean getDidComputeInThisIteration() {
-		
+		/*
 		if (MainSimulator.isAMDLSdebug && MailerIterations.m_iteration == 50) {
 			
 			System.out.println("--------------");
@@ -225,6 +226,7 @@ public class AMDLS extends AgentVariableSearch {
 			System.out.println();
 
 		}
+		*/
 		
 		if (sendWhenMsgReceive) {
 			return gotMsgFlag;
@@ -238,7 +240,7 @@ public class AMDLS extends AgentVariableSearch {
 	protected boolean compute() {
 		if (consistentFlag) {
 			this.myCounter = this.myCounter + 1;
-			this.valueAssignment = getCandidateToChange2();
+			this.valueAssignment = getCandidateToChange_A();
 		}
 		return true;
 	}

@@ -37,6 +37,12 @@ public class MailerIterations extends Mailer {
 	public void execute() {
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
 			m_iteration = iteration;
+			if (MainSimulator.isAMDLSdebug) {
+				if (iteration%10==0) {
+					System.out.println("-------ITERATION_"+iteration+"-------");
+				}
+			}
+			
 			if (MainSimulator.isAnytimeDebug) {
 				if (iteration%10==0) {
 					System.out.println("-------ITERATION_"+iteration+"-------");

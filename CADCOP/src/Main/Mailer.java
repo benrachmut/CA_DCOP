@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Map.Entry;import javax.swing.plaf.synth.SynthColorChooserUI;
+
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -76,10 +77,6 @@ public abstract class Mailer {
 	public synchronized void sendMsg(Msg m) {
 		changeMsgsCounter(m);		
 		int d = createDelay(m instanceof MsgAlgorithm);
-		if (m.getSenderId().getId1() == 0 && MainSimulator.isThreadDebug) {
-			System.out.println("msg sent from "+m.getSenderId().getId1()+" to "+m.getRecieverId().getId1()+" is given delay "+d);
-		}
-		
 		if (d != -1) {
 			m.setDelay(d);
 			this.messageBox.add(m);
@@ -412,6 +409,11 @@ public abstract class Mailer {
 
 	public Dcop getDcop() {
 		return this.dcop;
+		
+	}
+
+	public synchronized void wakeUp() {
+		this.notifyAll();
 		
 	}
 

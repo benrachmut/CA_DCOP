@@ -142,7 +142,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		return ans;
 	}
 
-	protected int getCandidateToChange() {
+	protected int getCandidateToChange_B() {
 		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
 		int minCost = Collections.min(costPerDomain.values());
 		int costOfCurrentValue = costPerDomain.get(this.valueAssignment);
@@ -158,7 +158,22 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	}
 	
 	
-	protected int getCandidateToChange2() {
+	protected int getCandidateToChange_A() {
+		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
+		int minCost = Collections.min(costPerDomain.values());
+		int costOfCurrentValue = costPerDomain.get(this.valueAssignment);
+		if (minCost < costOfCurrentValue ) {
+			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
+			if (alternatives.isEmpty()) {
+				return this.valueAssignment;
+			}
+			return alternatives.first();
+		}
+		return this.valueAssignment;
+
+	}
+	
+	protected int getCandidateToChange_C() {
 		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
 		int minCost = Collections.min(costPerDomain.values());
 		int costOfCurrentValue = costPerDomain.get(this.valueAssignment);
@@ -197,7 +212,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		 * if (MainSimulator.isSDPdebug && this.id==4 && msgReceive.getContext()==1 ) {
 		 * System.out.println("from search"); }
 		 */
-
+		
 		this.neighborsValueAssignmnet.put(msgAlgorithm.getSenderId(), msgReceive);
 	}
 

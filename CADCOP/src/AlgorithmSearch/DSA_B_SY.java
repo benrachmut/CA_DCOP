@@ -22,8 +22,6 @@ public class DSA_B_SY extends DSA_B {
 
 	}
 
-	
-
 	@Override
 	protected void resetAgentGivenParametersV4() {
 		// resetNeighborRecieveInThisIteration();
@@ -39,21 +37,9 @@ public class DSA_B_SY extends DSA_B {
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
-		if (MainSimulator.isThreadDebug) {
-			System.out.println("A" + this.id + " with timestamp " + this.timeStampCounter
-					+ " is about to check if it can update context of msg: " + msgAlgorithm);
-		}
 		if (this.timeStampCounter == msgAlgorithm.getTimeStamp()) {
-			if (MainSimulator.isThreadDebug) {
-				System.out.println("A" + this.id + " with timestamp " + this.timeStampCounter
-						+ " update the msg in context: " + msgAlgorithm);
-			}
 			super.updateMessageInContext(msgAlgorithm);
 		} else {
-			if (MainSimulator.isThreadDebug) {
-				System.out.println("A" + this.id + " with timestamp " + this.timeStampCounter + " save msg for future: "
-						+ msgAlgorithm);
-			}
 			this.future.add(msgAlgorithm);
 		}
 	}
@@ -78,16 +64,17 @@ public class DSA_B_SY extends DSA_B {
 
 	@Override
 	protected void changeRecieveFlagsToFalse() {
-			canCompute = false;
-		
+		canCompute = false;
+
 	}
 
 	@Override
 	protected void sendMsgs() {
-			sendValueAssignmnetMsgs();
-			releaseFutureMsgs();
-		
+		sendValueAssignmnetMsgs();
+		releaseFutureMsgs();
+
 	}
+
 	private void releaseFutureMsgs() {
 		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
 		for (MsgAlgorithm m : this.future) {

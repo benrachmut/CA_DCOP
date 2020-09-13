@@ -29,6 +29,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected Double computationCounter;
 	private boolean stopThreadCondition;
 	protected int time;
+	private boolean isIdle;
 
 	public Agent(int dcopId, int D) {
 		super();
@@ -38,6 +39,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		computationCounter = 0.0;
 		stopThreadCondition = false;
 		this.time = 0;
+		isIdle = true;
 
 	}
 
@@ -61,6 +63,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		stopThreadCondition = false;
 		resetAgentGivenParameters();
 		changeRecieveFlagsToFalse();
+		isIdle = true;
 
 	}
 
@@ -88,8 +91,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	// ------------**Receive Algorithmic Msgs methods**------------
 
 	public synchronized void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
-	
-		
+
 		for (MsgAlgorithm msgAlgorithm : messages) {
 			if (this.isWithTimeStamp) {
 				int currentDateInContext;
@@ -105,18 +107,18 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				updateMessageInContextAndTreatFlag(msgAlgorithm);
 			}
 		}
-		
-	
-		
-		
-		
-		
 		updateAgentTime(messages);
-		this.notifyAll();
-		if (MainSimulator.isThreadDebug) {
-			System.out.println("agent "+this.id+ " woke up");
-		}
+
 	
+		isIdle = false;
+		if (!messages.isEmpty()) {
+			if (MainSimulator.isThreadDebug) {
+				System.out.println("mailer update "+this+" context, msg time_"+messages.get(0).getTime());
+				System.out.println(this+" is NOT idle");
+			}	
+		}
+		this.notifyAll();
+
 	}
 
 	protected void updateAgentTime(List<? extends Msg> messages) {
@@ -125,11 +127,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		if (this.time <= maxTime) {
 			int oldTime = this.time;
 			this.time = maxTime;
-		} //else {
-			//System.err.println("max time of msg is " + maxTime + " and time of agent " + this.id + " is " + this.time);
-			//throw new RuntimeException();
-		//}
-
+		}
 	}
 
 	/**
@@ -142,12 +140,12 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	/**
 	 * 
 	 * @param MsgAlgorithm, update message received in relevant context message
-	 *        field
+	 *                      field
 	 * @return
 	 */
 
 	protected void updateMessageInContextAndTreatFlag(MsgAlgorithm msgAlgorithm) {
-		
+
 		updateMessageInContext(msgAlgorithm);
 
 		changeRecieveFlagsToTrue(msgAlgorithm);
@@ -166,8 +164,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 		if (getDidComputeInThisIteration()) {
 
-		boolean isUpdate = compute();
-		if (isMsgGoingToBeSent(isUpdate)) {
+			boolean isUpdate = compute();
+			if (isMsgGoingToBeSent(isUpdate)) {
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
 				this.time = this.time + 1;
@@ -208,7 +206,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * mailer
 	 */
 
-	protected  abstract void sendMsgs();
+	protected abstract void sendMsgs();
 
 	/**
 	 * reaction to msgs include computation and send message to mailer
@@ -233,7 +231,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 //-----------------**TO-DO**---------------
 
-
 	public void setIsWithTimeStamp(boolean input) {
 		this.isWithTimeStamp = input;
 
@@ -253,8 +250,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	@Override
 	public void run() {
-		//resetAgent();
-		//initialize();
+		// resetAgent();
+		// initialize();
 		while (stopThreadCondition == false) {
 			waitUntilMsgsRecieved();
 		}
@@ -263,13 +260,13 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	private synchronized void waitUntilMsgsRecieved() {
 		if (getDidComputeInThisIteration() == false) {
 			try {
+				
+				isIdle = true;
 				if (MainSimulator.isThreadDebug) {
-					System.out.println("agent "+this.id+ " went to sleep");
-				}
-				if (MainSimulator.isWhatAgentDebug && this.id == 1) {
-					System.out.println("agent "+this.id+ " went to sleep");
+					System.out.println(this+" is idle");
 				}
 				this.wait();
+				mailer.wakeUp();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -301,6 +298,10 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		this.stopThreadCondition = true;
 		this.notifyAll();
 
+	}
+
+	public synchronized boolean getIsIdle() {
+		return isIdle;
 	}
 
 }

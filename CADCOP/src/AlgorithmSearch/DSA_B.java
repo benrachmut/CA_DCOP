@@ -58,7 +58,7 @@ abstract public class DSA_B extends AgentVariableSearch {
 	@Override
 	protected boolean compute() {
 		//if (canCompute) {
-			int candidate = getCandidateToChange();
+			int candidate = getCandidateToChange_B();
 			if (candidate == valueAssignment) {
 				return false;
 			} else {
