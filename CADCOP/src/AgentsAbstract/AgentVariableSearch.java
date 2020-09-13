@@ -226,7 +226,6 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	}
 
 	protected void sendValueAssignmnetMsgs() {
-
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, this.valueAssignment,
 					this.timeStampCounter, this.time);

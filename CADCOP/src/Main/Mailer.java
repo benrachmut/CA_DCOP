@@ -62,10 +62,11 @@ public abstract class Mailer {
 				
 				if (dataMap.containsKey(i)) {
 					return this.dataMap.get(i);
-				}
+				}/*
 				if (i<0) {
 					throw new RuntimeException();
 				}
+				*/
 			}
 		}
 	}
@@ -75,6 +76,7 @@ public abstract class Mailer {
 	 * @param m
 	 */
 	public synchronized void sendMsg(Msg m) {
+
 		changeMsgsCounter(m);		
 		int d = createDelay(m instanceof MsgAlgorithm);
 		if (d != -1) {
@@ -414,7 +416,9 @@ public abstract class Mailer {
 
 	public synchronized void wakeUp() {
 		this.notifyAll();
-		
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("mailer wake up");
+		}
 	}
 
 	

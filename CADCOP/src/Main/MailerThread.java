@@ -61,6 +61,10 @@ public class MailerThread extends Mailer implements Runnable {
 			synchronized (this) {
 				while (this.messageBox.isEmpty() || !areAllIdle()) {
 					try {
+						if (MainSimulator.isThreadDebug) {
+							System.out.println("mailer went to sleep");
+
+						}
 						wait();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -110,11 +114,12 @@ public class MailerThread extends Mailer implements Runnable {
 			int t = m.getTime();
 			
 			System.out.println("Msg placed in box: s_"+sender+" r_"+reciever+" mailer time_"+this.time+" will be sent_"+t);
+			System.out.println("A_"+sender+"wakes mailer up");
 		}
 		
 		clockUpdatedFromMsgPlacedInBoxFlag = true;
-
-		this.notifyAll();
+		
+		this.wakeUp();
 
 	}
 

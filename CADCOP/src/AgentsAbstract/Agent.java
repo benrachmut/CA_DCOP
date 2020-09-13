@@ -166,12 +166,16 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 			boolean isUpdate = compute();
 			if (isMsgGoingToBeSent(isUpdate)) {
+
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
 				this.time = this.time + 1;
 				sendMsgs();
+
 				changeRecieveFlagsToFalse();
+
 			}
+
 			return isUpdate;
 		}
 		return false;
@@ -260,13 +264,14 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	private synchronized void waitUntilMsgsRecieved() {
 		if (getDidComputeInThisIteration() == false) {
 			try {
-				
 				isIdle = true;
 				if (MainSimulator.isThreadDebug) {
 					System.out.println(this+" is idle");
 				}
-				this.wait();
 				mailer.wakeUp();
+
+				this.wait();
+				
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -300,7 +305,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	}
 
-	public synchronized boolean getIsIdle() {
+	public boolean getIsIdle() {
 		return isIdle;
 	}
 

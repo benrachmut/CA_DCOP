@@ -21,8 +21,6 @@ abstract public class DSA_B extends AgentVariableSearch {
 		updateAlgorithmData();
 	}
 
-	
-
 	@Override
 	protected void resetAgentGivenParametersV3() {
 		this.rndStochastic = new Random(this.dcopId * 10 + this.id * 100);
@@ -57,15 +55,15 @@ abstract public class DSA_B extends AgentVariableSearch {
 
 	@Override
 	protected boolean compute() {
-		//if (canCompute) {
-			int candidate = getCandidateToChange_B();
-			if (candidate == valueAssignment) {
-				return false;
-			} else {
-				return stochasticChange(candidate);
-			}
-		//}
-		//return false;
+		// if (canCompute) {
+		int candidate = getCandidateToChange_B();
+		if (candidate == valueAssignment) {
+			return false;
+		} else {
+			return stochasticChange(candidate);
+		}
+		// }
+		// return false;
 	}
 
 	protected boolean stochasticChange(int candidate) {
@@ -81,10 +79,7 @@ abstract public class DSA_B extends AgentVariableSearch {
 
 	@Override
 	protected void sendMsgs() {
-		
-			sendValueAssignmnetMsgs();
-		
-
+		sendValueAssignmnetMsgs();
 	}
 
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
