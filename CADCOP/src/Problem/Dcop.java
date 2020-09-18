@@ -1,6 +1,7 @@
 package Problem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +24,7 @@ import AlgorithmSearch.DSA_SDP_ASY;
 import AlgorithmSearch.DSA_SDP_SY;
 import AlgorithmSearch.MGM_ASY;
 import AlgorithmSearch.MGM_SY;
-import AlgorithmsInference.MaxSumSplitConstraintFactorGraph;
+import AlgorithmsInference.MaxSumSplitConstraintFactorGraphSync;
 import AlgorithmsInference.MaxSumStandardFunction;
 import AlgorithmsInference.MaxSumStandardFunctionSync;
 import AlgorithmsInference.MaxSumStandardVarible;
@@ -334,6 +335,396 @@ public abstract class Dcop {
 	}
 
 	///// ******* Debug methods ******* ////
+	///// ******* Debug methods ******* ////
 
+	// OmerP - To print all the neighbors list.
+	public void printAllNeighbors() {
+
+		for (int i = 0; i < neighbors.size(); i++) {
+
+			System.out.println("AgentVariable:(" + neighbors.get(i).getA1().getNodeId().getId1() + ","
+					+ neighbors.get(i).getA1().getNodeId().getId2() + ") is constraind with AgentVariable:("
+					+ neighbors.get(i).getA2().getNodeId().getId1() + ","
+					+ neighbors.get(i).getA2().getNodeId().getId2() + ").\n");
+
+		}
+
+	}
+
+	// OmerP - Print when variable and function were connected.
+	public void printVariablesandFunctionConstraints(AgentVariableInference av1, AgentVariableInference av2,
+			AgentFunction af) {
+
+		System.out.println("Agent Variable Inference (" + av1.getNodeId().getId1() + "," + av1.getNodeId().getId2()
+				+ ") and Agent Variable Inference (" + av2.getNodeId().getId1() + "," + av2.getNodeId().getId2()
+				+ ") are connected to Agent Function (" + af.getNodeId().getId1() + "," + af.getNodeId().getId2()
+				+ ").\n");
+
+	}
+
+	// OmerP - This method aims to check if for all function node there are two
+	// variable nodes at variable message size.
+	public void binaryDebug() {
+
+		boolean okMessage = true;
+
+		for (int i = 0; i < agentFunctions.size(); i++) {
+
+			if ((MainSimulator.agentType == 7) || (MainSimulator.agentType == 8)) {
+
+				if (agentFunctions.get(i).getVariableMsgsSize() != 2) {
+
+					System.out.println("Severe error !!! Agent Function (" + agentFunctions.get(i).getNodeId().getId1()
+							+ "," + agentFunctions.get(i).getNodeId().getId2() + ") has "
+							+ agentFunctions.get(i).getVariableMsgsSize() + " neighbors.\n");
+					okMessage = false;
+
+				}
+
+			}
+
+			if (MainSimulator.agentType == 9) {
+
+				MaxSumSplitConstraintFactorGraphSync maxSplitFunctionNode = (MaxSumSplitConstraintFactorGraphSync) agentFunctions
+						.get(i); // Casting the get access to getSplitFunctionNodes method.
+
+				for (int j = 0; j < maxSplitFunctionNode.getSplitFunctionNodes().size(); j++) {
+
+					if (maxSplitFunctionNode.getSplitFunctionNodes().get(j).getVariableMsgsSize() != 2) {
+
+						System.out.println(
+								"Severe error !!! Agent Function (" + agentFunctions.get(i).getNodeId().getId1() + ","
+										+ agentFunctions.get(i).getNodeId().getId2() + ") has "
+										+ agentFunctions.get(i).getVariableMsgsSize() + " neighbors.\n");
+						okMessage = false;
+
+					}
+
+				}
+
+			}
+
+		}
+
+		if (okMessage) {
+
+			System.out.println("Factor Graph Check: All Constraints Are Binary.\n");
+
+		}
+
+	}
+
+	// OmerP - This method aims to check if for all variable nodes that they have
+	// the number of function nodes as the number of neighbors.
+	public void functionDebug() {
+
+		boolean okMessage = true;
+		int[] checkArray = new int[neighbors.size()];
+
+		for (int i = 0; i < neighbors.size(); i++) { // OmerP - will initialize the checkArray.
+
+			checkArray[neighbors.get(i).getA1().getNodeId().getId1()]++;
+			checkArray[neighbors.get(i).getA2().getNodeId().getId1()]++;
+
+		}
+
+		for (int i = 0; i < checkArray.length; i++) {
+
+			AgentVariableInference agentVariable = (AgentVariableInference) agentsVariables[i];
+			int toCheck = agentVariable.getFunctionMsgsSize();
+
+			if (checkArray[i] != toCheck) {
+
+				System.out.println(
+						"Severe error !!! The number of neighbors of variable agent " + i + " that was initializaed is"
+								+ checkArray[i] + "while the number of initializaed agents are " + toCheck + ".\n");
+				okMessage = false;
+
+			}
+
+		}
+
+		if (okMessage) {
+
+			System.out.println("Factor Graph Check: All Variable Agent Initializaed Correctly.");
+
+		}
+
+	}
+
+	// OmerP - Will check the each variable node has the number of function nodes as
+	// its neighbors.
+	public void variableNodeDebug() {
+
+		for (Neighbor n : neighbors) {
+
+			AgentVariableInference av1 = (AgentVariableInference) n.getA1();
+			AgentVariableInference av2 = (AgentVariableInference) n.getA2();
+
+			if (MainSimulator.agentType == 7) {
+
+				NodeId nodeToCheck = new NodeId(av1.getNodeId().getId1(), av2.getNodeId().getId1());
+
+				if (av1.checkIfNodeIsContained(nodeToCheck)) {
+
+					printNodeConnection(nodeToCheck, av1, true);
+
+				} else {
+
+					printNodeConnection(nodeToCheck, av1, false);
+
+				}
+
+				if (av2.checkIfNodeIsContained(nodeToCheck)) {
+
+					printNodeConnection(nodeToCheck, av2, true);
+
+				} else {
+
+					printNodeConnection(nodeToCheck, av2, false);
+				}
+
+			}
+
+			if (MainSimulator.agentType == 8) {
+
+				NodeId nodeToCheckOne = new NodeId(av1.getNodeId().getId1(), av2.getNodeId().getId1());
+				NodeId nodeToCheckTwo = new NodeId(av2.getNodeId().getId1(), av1.getNodeId().getId1());
+
+				if (av1.checkIfNodeIsContained(nodeToCheckOne)) {
+
+					printNodeConnection(nodeToCheckOne, av1, true);
+
+				} else {
+
+					printNodeConnection(nodeToCheckOne, av1, false);
+
+				}
+
+				if (av1.checkIfNodeIsContained(nodeToCheckTwo)) {
+
+					printNodeConnection(nodeToCheckTwo, av1, true);
+
+				} else {
+
+					printNodeConnection(nodeToCheckTwo, av1, false);
+
+				}
+
+				if (av2.checkIfNodeIsContained(nodeToCheckOne)) {
+
+					printNodeConnection(nodeToCheckOne, av2, true);
+
+				} else {
+
+					printNodeConnection(nodeToCheckOne, av2, false);
+
+				}
+
+				if (av2.checkIfNodeIsContained(nodeToCheckTwo)) {
+
+					printNodeConnection(nodeToCheckTwo, av2, true);
+
+				} else {
+
+					printNodeConnection(nodeToCheckTwo, av2, false);
+
+				}
+
+			}
+
+		}
+
+	}
+
+	// OmerP - Will check the each function node has the number of variable nodes as
+	// its neighbors.
+	public void functionNodeDebug() {
+
+		for (int i = 0; i < agentFunctions.size(); i++) {
+
+			NodeId nodeToCheckOne = new NodeId(agentFunctions.get(i).getNodeId().getId1(), 0);
+			NodeId nodeToCheckTwo = new NodeId(agentFunctions.get(i).getNodeId().getId2(), 0);
+
+			if (MainSimulator.agentType == 7) {
+
+				if (agentFunctions.get(i).checkIfNodeIsContained(nodeToCheckOne)) {
+
+					printNodeConnection(nodeToCheckOne, agentFunctions.get(i), true);
+
+				} else {
+
+					printNodeConnection(nodeToCheckOne, agentFunctions.get(i), false);
+
+				}
+
+				if (agentFunctions.get(i).checkIfNodeIsContained(nodeToCheckTwo)) {
+
+					printNodeConnection(nodeToCheckTwo, agentFunctions.get(i), true);
+
+				} else {
+
+					printNodeConnection(nodeToCheckTwo, agentFunctions.get(i), false);
+
+				}
+
+			}
+
+			if (MainSimulator.agentType == 8) {
+
+				MaxSumSplitConstraintFactorGraphSync maxSplitFunctionNode = (MaxSumSplitConstraintFactorGraphSync) agentFunctions
+						.get(i); // Casting the get access to getSplitFunctionNodes method.
+
+				for (int j = 0; j < maxSplitFunctionNode.getSplitFunctionNodes().size(); j++) {
+
+					if (maxSplitFunctionNode.getSplitFunctionNodes().get(j).checkIfNodeIsContained(nodeToCheckOne)) {
+
+						System.out.println("NodeId:(" + nodeToCheckOne.getId1() + "," + nodeToCheckOne.getId2()
+								+ ") is in Agent Function Inference ("
+								+ maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId1() + ","
+								+ maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId2()
+								+ ") list.\n");
+
+					} else {
+
+						System.out.println("NodeId:(" + nodeToCheckOne.getId1() + "," + nodeToCheckOne.getId2()
+								+ ") is NOT Agent Function Inference ("
+								+ maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId1() + ","
+								+ maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId2()
+								+ ") list.\n");
+
+					}
+
+					if (maxSplitFunctionNode.getSplitFunctionNodes().get(j).checkIfNodeIsContained(nodeToCheckTwo)) {
+
+						System.out.println("NodeId:(" + nodeToCheckTwo.getId1() + "," + nodeToCheckTwo.getId2()
+								+ ") is in Agent Function Inference ("
+								+ maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId1() + ","
+								+ maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId2()
+								+ ") list.\n");
+
+					} else {
+
+						System.out.println("NodeId:(" + nodeToCheckTwo.getId1() + "," + nodeToCheckTwo.getId2()
+								+ ") is NOT Agent Function Inference ("
+								+ maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId1() + ","
+								+ maxSplitFunctionNode.getSplitFunctionNodes().get(j).getNodeId().getId2()
+								+ ") list.\n");
+
+					}
+
+				}
+			}
+
+		}
+
+		// -----------------------------------------------------------------------------------------------------------//
+	}
+
+	// OmerP - Method for debug split constraint factor graph connections
+	public void printSplitFunctionNode(AgentFunction agentFunction) {
+
+		MaxSumSplitConstraintFactorGraphSync af = (MaxSumSplitConstraintFactorGraphSync) agentFunction;
+
+		for (int i = 0; i < af.getSplitFunctionNodes().size(); i++) {
+
+			for (int j = 0; j < af.getMyNodes().size(); j++) {
+
+				System.out.println("Agent Function:(" + af.getSplitFunctionNodes().get(i).getNodeId().getId1() + ","
+						+ +af.getSplitFunctionNodes().get(i).getNodeId().getId2() + "), is connected to:("
+						+ af.getMyNodes().get(j).getId1() + "," + af.getMyNodes().get(j).getId2() + ").\n");
+
+			}
+
+		}
+
+	}
+
+	// OmerP - Will print all the agents and the constraints
+	public void pringAgentAll() {
+
+		for (int i = 0; i < this.agentsAll.size(); i++) {
+
+			if (this.agentsAll.get(i) instanceof MaxSumStandardFunction) {
+
+				MaxSumStandardFunction af = (MaxSumStandardFunction) this.agentsAll.get(i);
+				Set<NodeId> vnSet = af.getVariableMsgs().keySet();
+				for (NodeId k : vnSet) {
+
+					System.out.println("Agent function:(" + af.getNodeId().getId1() + "," + af.getNodeId().getId2()
+							+ ") " + "is constrained with agent variable:(" + k.getId1() + "," + k.getId2()
+							+ ") and constraints:" + Arrays.deepToString(af.getNeighborsConstraintMatrix().get(k))
+							+ ".\n");
+
+				}
+			}
+
+			if (this.agentsAll.get(i) instanceof AgentVariable) {
+
+				AgentVariableInference av = (AgentVariableInference) this.agentsAll.get(i);
+				Set<NodeId> fnSet = av.getMyFunctionMessage().keySet();
+				for (NodeId k : fnSet) {
+
+					System.out.println("Agent variable:(" + av.getNodeId().getId1() + "," + av.getNodeId().getId2()
+							+ ") " + "is constrained with agent function :(" + k.getId1() + "," + k.getId2() + ")\n");
+
+				}
+
+			}
+
+		}
+
+	}
+
+	///// ******* Print methods ******* ////
+
+	public void printNodeConnection(NodeId nodeId, AgentFunction agentFunction, boolean check) {
+
+		if (check) {
+
+			System.out.println("NodeId:(" + nodeId.getId1() + "," + nodeId.getId2()
+					+ ") is in Agent Function Inference (" + agentFunction.getNodeId().getId1() + ","
+					+ agentFunction.getNodeId().getId2() + ") list.\n");
+
+		}
+
+		if (!check) {
+
+			System.out.println("NodeId:(" + nodeId.getId1() + "," + nodeId.getId2()
+					+ ") is NOT in Agent Function Inference (" + agentFunction.getNodeId().getId1() + ","
+					+ agentFunction.getNodeId().getId2() + ") list.\n");
+
+		}
+
+	}
+
+	public void printNodeConnection(NodeId nodeId, AgentVariableInference agentVariable, boolean check) {
+
+		if (check) {
+
+			System.out.println("NodeId:(" + nodeId.getId1() + "," + nodeId.getId2()
+					+ ") is in Agent Function Inference (" + agentVariable.getNodeId().getId1() + ","
+					+ agentVariable.getNodeId().getId2() + ") list.\n");
+
+		}
+
+		if (!check) {
+
+			System.out.println("NodeId:(" + nodeId.getId1() + "," + nodeId.getId2()
+					+ ") is NOT in Agent Function Inference (" + agentVariable.getNodeId().getId1() + ","
+					+ agentVariable.getNodeId().getId2() + ") list.\n");
+
+		}
+
+	}
+
+	public AgentVariable getVariableAgents(int i) {
+		for (AgentVariable av : agentsVariables) {
+			if (av.getId() == i) {
+				return av;
+			}
+		}
+		throw new RuntimeException();
+	}
 
 }

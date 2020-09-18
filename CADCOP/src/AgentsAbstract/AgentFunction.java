@@ -85,6 +85,21 @@ public abstract class AgentFunction extends Agent {
 		
 	}
 	
+	public static long[][] turnIntegerToLongMatrix(Integer[][] input) {
+
+		long[][] ans = new long[input.length][input[0].length];
+
+		for (int i = 0; i < ans.length; i++) {
+			for (int j = 0; j < ans[i].length; j++) {
+				ans[i][j] = (long) input[i][j];
+			}
+		}
+
+		return ans;
+	}
+	
+	
+	
 	//-----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Getters ******* ////
@@ -132,6 +147,13 @@ public abstract class AgentFunction extends Agent {
 		this.nodes.add(nodeId);
 
 	}
+	
+	public SortedMap<NodeId, MsgReceive<double[]>> getVariableMsgs(){
+		
+		return variableMsgs; 
+		
+	}
+	
 	
 	//-----------------------------------------------------------------------------------------------------------//
 

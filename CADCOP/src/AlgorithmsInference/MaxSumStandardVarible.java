@@ -18,10 +18,11 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	///// ******* Variables ******* ////
 
-	private boolean receiveMessageFlag; 
+	private boolean receiveMessageFlag;
 	private double dampingFactor = 0.9;
-	protected HashMap<NodeId, double[]> storedMessges; 
+	protected HashMap<NodeId, double[]> storedMessges;
 	HashMap<NodeId, MsgAlgorithmFactor> messagesToBeSent;
+	Random rand = new Random();
 
 	// -----------------------------------------------------------------------------------------------------------//
 
@@ -29,7 +30,11 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	boolean dampingOn = false;
 	boolean storedMessageOn = false;
-	
+	protected boolean print = false;
+	protected boolean printValueAssignment = false;
+	protected boolean dampingPrint = false;
+	protected boolean dust = false;
+
 	///// ******* Constructor ******* ////
 
 	public MaxSumStandardVarible(int dcopId, int D, int id1) {
@@ -37,50 +42,52 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 		super(dcopId, D, id1);
 		this.storedMessges = new HashMap<NodeId, double[]>();
 		this.messagesToBeSent = new HashMap<NodeId, MsgAlgorithmFactor>();
-		this.receiveMessageFlag  = false; 
+		this.receiveMessageFlag = false;
 		updateAlgorithmHeader();
 		updateAlgorithmData();
 		updateAlgorithmName();
-		
+
 	}
 
 	// -----------------------------------------------------------------------------------------------------------//
 
-	///// ******* Methods to initialize a new run  ******* ////
+	///// ******* Methods to initialize a new run ******* ////
 
-	//OmerP - To reset the agent if this is a new run. 
+	// OmerP - To reset the agent if this is a new run.
 	@Override
 	public void resetAgentGivenParametersV3() {
-		
+
 		this.storedMessges.clear();
 		this.messagesToBeSent.clear();
 		resetAgentGivenParametersV4();
 	}
-	
-	public void resetAgentGivenParametersV4() {}
-	
+
+	public void resetAgentGivenParametersV4() {
+	}
+
 	// OmerP - Will send new messages for each one of the neighbors upon the
 	public void initialize() {
 
 		produceEmptyMessage();
 		sendMsgs();
-		
+
 	}
 
 	// -----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Main Methods ******* ////
 
-	// OmerP - new information has arrived and the variable node will update its value assignment.
+	// OmerP - new information has arrived and the variable node will update its
+	// value assignment.
 	public boolean compute() {
 
-		if(receiveMessageFlag) {
-			
+		if (receiveMessageFlag) {
+
 			produceNewMessages();
-			chooseValueAssignment();
-			
+			chooseValueLongAssignment();
+
 		}
-		
+
 		return true;
 
 	}
@@ -90,82 +97,118 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	protected void sendMsgs() {
 
 		for (NodeId i : functionMsgs.keySet()) {
-			
+
 			mailer.sendMsg(messagesToBeSent.get(i));
-			
-			printSentdMessage(messagesToBeSent.get(i));
-			
-			if(storedMessageOn) {
-				
-				storeNewMessage(i, messagesToBeSent.get(i).getContext());
-				
+
+			if (print) {
+				printSentdMessage(messagesToBeSent.get(i));
 			}
-			
+
+			if (storedMessageOn) {
+
+				storeNewMessage(i, messagesToBeSent.get(i).getContext());
+
+			}
+
 		}
-		
+
 		messagesToBeSent.clear();
 		changeRecieveFlagsToFalse();
-		
+
 	}
-	
-	//OmerP - when a message received will update the context and flag that a message was received.
+
+	// OmerP - when a message received will update the context and flag that a
+	// message was received.
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
 		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
-		
+
 		double[] contextFix = (double[]) msgAlgorithmFactor.getContext(); // will cast the message object as a double[].
 
-		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithmFactor.getTimeStamp()); //
+		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix,
+				msgAlgorithmFactor.getTimeStamp()); //
 
 		functionMsgs.put(msgAlgorithmFactor.getSenderId(), newMessageReceveid);
-		
+
 		changeRecieveFlagsToTrue(msgAlgorithm);
 
 	}
-	
+
 	// -----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Produce Messages Methods ******* ////
 
-	//OmerP - will produce new messages. 
+	// OmerP - will produce new messages.
 	protected void produceNewMessages() {
-		
+
 		for (NodeId i : functionMsgs.keySet()) {
-			
+
 			double[] sentTable = new double[this.domainSize];
-			sentTable = produceMessage(i, sentTable); // For each specific neighbor, sum all messages excluding the table of the receiving function node.
-			
-			if(dampingOn) {
-				
+			sentTable = produceMessage(i, sentTable); // For each specific neighbor, sum all messages excluding the
+														// table of the receiving function node.
+
+			if (dampingOn) {
+
 				sentTable = damping(i, sentTable); // Will produce a damped message.
-				
+
 			}
-			
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
+
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0, this.time);
 			messagesToBeSent.put(i, newMsg);
-			printStoredMessage(newMsg);
-			
+			// printStoredMessage(newMsg);
+
 		}
-		
+
 	}
-	
-	//OmerP - will produce empty messages. 
+
+	// OmerP - will produce empty messages.
 	protected void produceEmptyMessage() {
-		
+
 		for (NodeId i : functionMsgs.keySet()) { // Start loop over the neighbors.
-		
+
 			double[] sentTable = new double[this.domainSize];
 			sentTable = produceEmptyTable(i, sentTable); // For each specific neighbor, produce an empty message.
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0); //Create new factor message.
-			messagesToBeSent.put(i, newMsg); //Store the message in the message to by sent HashMap. 
-				
-			printStoredMessage(newMsg);
-			
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0, this.time); // Create new factor
+																									// message.
+			messagesToBeSent.put(i, newMsg); // Store the message in the message to by sent HashMap.
+
+			// printStoredMessage(newMsg);
+
 		}
 	}
-	
+
 	// -----------------------------------------------------------------------------------------------------------//
+
+	///// ******* Dust Methods ******* ////
+
+	// Add dust as double.
+	protected double[] addDust(double[] table) {
+
+		for (int i = 0; i < table.length; i++) {
+
+			double randomDust = rand.nextDouble() / 1000;
+
+			table[i] = table[i] + randomDust;
+
+		}
+
+		return table;
+
+	}
+
+	// Add dust as long.
+	protected long[] addLongDust(long[] table) {
+
+		for (int i = 0; i < table.length; i++) {
+
+			table[i] = table[i] + rand.nextInt(9);
+
+		}
+
+		return table;
+
+	}
 
 	///// ******* Stored Message Methods ******* ////
 
@@ -201,25 +244,61 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	///// ******* Choose Value Assignment Method ******* ////
 
-	//OmerP - Will choose the first value assignment.
+	// OmerP - Will choose the first value assignment.
 	public void chooseFirstValueAssignment() {
 
 		Random rnd = new Random();
-		setValueAssignmnet(rnd.nextInt(this.domainSize)); 
+		setValueAssignmnet(rnd.nextInt(this.domainSize));
 
 	}
 
-	//OmerP - Will update the value assignment.
+	// OmerP - Will update the value assignment.
 	public void chooseValueAssignment() {
 
-		double[] table = new double[this.domainSize];
-		double bestValueAssignment = Double.MAX_VALUE;
-		int valueAssignment = 0;
+		double[] table = new double[this.domainSize]; // Will create a new table for the beliefs.
+		double bestValueAssignment = Double.MAX_VALUE; // Best value that is initialized to a big number.
+		int valueAssignment = 0; // What that will assigned.
 
-		for (NodeId i : functionMsgs.keySet()) { // OmerP - sum all the messages from the messages map.
+		for (NodeId i : functionMsgs.keySet()) { // Create the belief of the agent.
 
 			table = sumMessages(table, functionMsgs.get(i).getContext());
 
+		}
+
+		table = addDust(table);
+
+		for (int i = 0; i < table.length; i++) { // OmerP - choose the best value assignment out of the table.
+
+			if (table[i] < bestValueAssignment) {
+
+				bestValueAssignment = table[i];
+				valueAssignment = i;
+
+			}
+
+		}
+
+		setValueAssignmnet(valueAssignment);
+		if (printValueAssignment) {
+			printValueAssignment(valueAssignment, table);
+		}
+
+	}
+
+	public void chooseValueLongAssignment() {
+
+		long[] table = new long[this.domainSize];
+		long bestValueAssignment = Long.MAX_VALUE; // Best value that is initialized to a big number.
+		int valueAssignment = 0; // What that will assigned.
+
+		for (NodeId i : functionMsgs.keySet()) { // Create the belief of the agent.
+
+			table = sumMessageAsLong(table, functionMsgs.get(i).getContext());
+
+		}
+
+		if (dust) {
+			table = addLongDust(table);
 		}
 
 		for (int i = 0; i < table.length; i++) { // OmerP - choose the best value assignment out of the table.
@@ -233,8 +312,10 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 		}
 
-		setValueAssignmnet(valueAssignment); 
-		printValueAssignment(valueAssignment);
+		setValueAssignmnet(valueAssignment);
+		if (printValueAssignment) {
+			printValueAssignment(valueAssignment, table);
+		}
 
 	}
 
@@ -286,75 +367,106 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	}
 
-	// -----------------------------------------------------------------------------------------------------------//
+	protected long[] sumMessageAsLong(long[] table1, double[] table2) {
 
-	///// ******* Damping Methods ******* ////
+		long[] sumTable = new long[table1.length];
 
-	protected double[] damping(NodeId to, double[] table) {
+		for (int i = 0; i < table1.length; i++) {
 
-		if (dampingOn) {
-
-			table = dampedMessage(table, getLastSavedMessage(to));
-			return table;
+			sumTable[i] = table1[i] + (long) table2[i];
 
 		}
 
-		else {
+		return sumTable;
 
-			return table;
+	}
+
+	// OmerP - chooses the minimal value in the table and subtract it from each
+	// value in the table with
+	protected void substractMinimumValue(long[] table) {
+
+		long alpha = Integer.MAX_VALUE; // Initialize alpha to be a big integer.
+
+		for (long x : table) {
+
+			alpha = Math.min(alpha, x);
+
+		}
+
+		for (int i = 0; i < table.length; i++) {
+
+			table[i] = table[i] - alpha;
 
 		}
 
 	}
 
-	// OmerP - Multiplication of messages.
-	protected double[] messageMultiplication(double[] table, double multiplicationFactor) {
+	// OmerP - chooses the minimal value in the table and subtract it from each
+	// value in the table.
+	protected double[] subtractMinimumValueD(double[] tableD) {
 
-		for (int i = 0; i < table.length; i++) {
+		double[] table = new double[this.domainSize];
+		double alpha = Integer.MAX_VALUE; // Initialize alpha to be a big integer.
 
-			table[i] = table[i] * multiplicationFactor;
+		for (double x : tableD) { // find minimum cell.
+			alpha = Math.min(alpha, x);
+		}
 
+		for (int i = 0; i < tableD.length; i++) { // subtract minimum cell value, from all cells.
+			table[i] = tableD[i] - alpha;
 		}
 
 		return table;
 
 	}
 
-	// OmerP - Loops over the messagesSent map and return the tableD that was saved.
-	protected double[] getLastSavedMessage(NodeId recevier) {
+	// -----------------------------------------------------------------------------------------------------------//
 
-		for (NodeId i : functionMsgs.keySet()) {
+	///// ******* Damping Methods ******* ////
 
-			if (i.compareTo(recevier) == 0) {
+	protected double[] damping(NodeId to, double[] table) {
 
-				return functionMsgs.get(i).getContext();
+		double[] damoedTable = new double[this.domainSize];
+		damoedTable = dampedMessage(table, storedMessges.get(to));
+		return damoedTable;
 
-			}
+	}
+
+	// OmerP - Multiplication of messages.
+	protected double[] messageMultiplication(double[] table, double multiplicationFactor) {
+
+		double[] multupliedTable = new double[this.domainSize];
+
+		for (int i = 0; i < table.length; i++) {
+
+			multupliedTable[i] = table[i] * multiplicationFactor;
 
 		}
 
-		double[] emptyMessage = new double[this.domainSize];
-
-		return emptyMessage;
+		return multupliedTable;
 
 	}
 
 	// OmerP - gets two double[] and calculate the damping vector.
 	protected double[] dampedMessage(double[] currentMessage, double[] lastMessage) {
 
+		double[] dampedMessage = new double[this.domainSize];
+
 		double[] currentMessageAfterAlpha = messageMultiplication(currentMessage, (1 - dampingFactor)); // table after
 																										// alpha.
-
 		double[] lastMessageAfterAlpha = messageMultiplication(lastMessage, dampingFactor); // table after one minus
 																							// alpha.
-
 		for (int i = 0; i < this.domainSize; i++) {
 
-			currentMessage[i] = currentMessageAfterAlpha[i] + lastMessageAfterAlpha[i];
+			dampedMessage[i] = currentMessageAfterAlpha[i] + lastMessageAfterAlpha[i];
 
 		}
 
-		return currentMessage;
+		if (dampingPrint) {
+			printDampedTable(lastMessageAfterAlpha, currentMessageAfterAlpha, dampedMessage);
+		}
+
+		return dampedMessage;
 
 	}
 
@@ -364,43 +476,41 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	@Override
 	public void updateAlgorithmHeader() {
-		
-		AgentVariable.algorithmHeader = "MaxSum";
-		
+
+		AgentVariable.algorithmHeader = "Damping_Factor";
+
 	}
 
 	@Override
 	public void updateAlgorithmData() {
-		
+
 		AgentVariable.algorithmData = this.dampingFactor + "";
-		
+
 	}
 
 	@Override
 	public void updateAlgorithmName() {
-		
+
 		AgentVariable.AlgorithmName = "MaxSum";
-		
+
 	}
 
 	// -----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Flags Methods ******* ////
-	
+
 	@Override
 	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
-		
+
 		this.receiveMessageFlag = true;
 
-		
 	}
 
 	@Override
 	protected void changeRecieveFlagsToFalse() {
-		
+
 		this.receiveMessageFlag = false;
-		
-		
+
 	}
 
 	// -----------------------------------------------------------------------------------------------------------//
@@ -410,81 +520,92 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	@Override
 	protected int getSenderCurrentTimeStampFromContext(MsgAlgorithm MsgAlgorithm) {
 
-		int timestamp = functionMsgs.get(MsgAlgorithm.getSenderId()).getTimestamp(); //OmerP - will get the timestamp of the messages. 
-		
-		return timestamp; 
+		int timestamp = functionMsgs.get(MsgAlgorithm.getSenderId()).getTimestamp(); // OmerP - will get the timestamp
+																						// of the messages.
+
+		return timestamp;
 
 	}
 
 	// -----------------------------------------------------------------------------------------------------------//
-	
+
 	///// ******* Clear HashMap without loosing ket ******* ////
-	
-	//OmerP - will clear the HashMap from values double. 
+
+	// OmerP - will clear the HashMap from values double.
 	protected void clearHashMapDoubleValues(HashMap<NodeId, double[]> hashMapToClear) {
-		
-		for(NodeId i: hashMapToClear.keySet()) {
-			
+
+		for (NodeId i : hashMapToClear.keySet()) {
+
 			hashMapToClear.put(i, null);
-			
+
 		}
-		
+
 	}
-	
-	//OmerP - will clear the HashMap from values double. 
+
+	// OmerP - will clear the HashMap from values double.
 	protected void clearHashMapIntValues(HashMap<NodeId, Integer> hashMapToClear) {
-		
-		for(NodeId i: hashMapToClear.keySet()) {
-			
+
+		for (NodeId i : hashMapToClear.keySet()) {
+
 			hashMapToClear.put(i, null);
-			
+
 		}
-		
+
 	}
 
 	@Override
-	protected boolean getDidComputeInThisIteration() {
+	public boolean getDidComputeInThisIteration() {
 		// TODO Auto-generated method stub
 		return receiveMessageFlag;
 	}
-	
+
 	// -----------------------------------------------------------------------------------------------------------//
-	
+
 	///// ******* Print Messages ******* ////
 
 	protected void printStoredMessage(MsgAlgorithmFactor msg) {
-		
-		System.out.println("VariableNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") STORED a message for FunctionNode ("
-				
-				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
-		
+
+		System.out.println("VariableNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2()
+				+ ") STORED a message for FunctionNode ("
+
+				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: "
+				+ Arrays.toString(msg.getContext()) + ".\n");
+
 	}
-	
+
 	protected void printSentdMessage(MsgAlgorithmFactor msg) {
-		
-		System.out.println("VariableNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") SENT a message for FunctionNode ("
-				
-				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
-		
+
+		System.out.println("VariableNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2()
+				+ ") SENT a message for FunctionNode ("
+
+				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: "
+				+ Arrays.toString(msg.getContext()) + ".\n");
+
 	}
-	
+
 	protected void printReceivedMessage(MsgAlgorithmFactor msg) {
-		
-		System.out.println("VariableNode:(" + msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") RECEIVED a message from FunctionNode ("
-				
-				+ msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
-		
+
+		System.out.println("VariableNode:(" + msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2()
+				+ ") RECEIVED a message from FunctionNode ("
+
+				+ msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") with message context: "
+				+ Arrays.toString(msg.getContext()) + ".\n");
+
 	}
-	
-	protected void printValueAssignment(int valueAssignment) {
-		
-		System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + ") value assignment is:" + valueAssignment +".\n");
-		
+
+	protected void printValueAssignment(int valueAssignment, long[] belief) {
+
+		System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2()
+				+ ") belief is " + Arrays.toString(belief) + ", and value assignment is:" + valueAssignment + ".\n");
+
 	}
-	
-	
-	
-	
-	
-	
+
+	protected void printDampedTable(double[] oldTable, double[] newTable, double[] dampedTable) {
+
+		System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + ") "
+				+ "old table: " + Arrays.toString(oldTable) + " new table: " + Arrays.toString(newTable)
+				+ ", and damped table: " + Arrays.toString(dampedTable) + ".\n");
+
+	}
+
 }

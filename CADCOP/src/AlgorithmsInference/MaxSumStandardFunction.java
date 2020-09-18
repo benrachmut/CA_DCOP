@@ -20,6 +20,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 	HashMap<NodeId, double[]> storedMessgesTable = new HashMap<NodeId, double[]>();
 	HashMap<NodeId, MsgAlgorithmFactor> messagesToBeSent = new HashMap<NodeId, MsgAlgorithmFactor>(); 
 	HashMap<NodeId, double[][]> neighborsConstraintMatrix = new HashMap<NodeId, double[][]>(); 
+	protected boolean printConstraints = false; 
 	
 	//-----------------------------------------------------------------------------------------------------------//
 
@@ -39,6 +40,19 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 	}
 	
+	//OmerP - Constructor for Split Constraint Factor Graph. 
+	public MaxSumStandardFunction(int dcopId, int D, int id1, int id2, double[][] constraints) {
+		
+		super(dcopId, D, id1, id2);
+		NodeId av1 = new NodeId(id1);
+		NodeId av2 = new NodeId(id2);
+		neighborsConstraintMatrix.put(av1, constraints);
+		neighborsConstraintMatrix.put(av2, transposeConstraintMatrix(constraints));
+		updataNodes(getNodeId());
+		this.receiveMessageFlag = false;
+		
+	}
+	
 	//Will Initialize the constraint matrix. 
 	protected void initializeNeighborsConstraintMatrix(int id1, int id2 , Integer[][] constraints) {
 		
@@ -46,7 +60,10 @@ public class MaxSumStandardFunction extends AgentFunction {
 		NodeId av2 = new NodeId(id2);
 		neighborsConstraintMatrix.put(av1, turnIntegerToDoubleMatrix(constraints));
 		neighborsConstraintMatrix.put(av2, transposeConstraintMatrix(turnIntegerToDoubleMatrix(constraints)));
-		//checkIfTransposedCorrectly(neighborsConstraintMatrix.get(av1), neighborsConstraintMatrix.get(av2)); //This is for debug. 
+		if(printConstraints) {
+			printConstraints(av1, neighborsConstraintMatrix.get(av1));
+			printConstraints(av2, neighborsConstraintMatrix.get(av2));
+		}
 		
 	}
 	
@@ -93,9 +110,9 @@ public class MaxSumStandardFunction extends AgentFunction {
 			
 			double[] sentTable = new double[this.domainSize];
 			sentTable = produceFunctionMessage(i);
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0);
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0, this.time);
 			messagesToBeSent.put(i, newMsg);
-			printStoredMessage(newMsg);
+			//printStoredMessage(newMsg);
 			
 		}
 			
@@ -177,9 +194,9 @@ public class MaxSumStandardFunction extends AgentFunction {
     ///// ******* Arithmetic Methods ******* ////
 	
 	//OmerP - Multiplication of table - FIXED.
-	protected Double[][] tableMultiplication(Double[][] table, double multiplicationFactor) {
+	protected long[][] tableMultiplication(long[][] table, long multiplicationFactor) {
 		
-		Double[][] tableDAfterMultiplication = new Double[this.domainSize][this.domainSize]; 
+		long[][] tableDAfterMultiplication = new long[this.domainSize][this.domainSize]; 
 		
 		for(int i = 0 ; i < tableDAfterMultiplication.length ; i++) {
 			
@@ -361,7 +378,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 			
 		}
 		
-		
+		resetAgentGivenParametersV2();
 	}
 	
     ///// ******* Flags Methods ******* ////
@@ -383,7 +400,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 	}
 
 	@Override
-	protected boolean getDidComputeInThisIteration() {
+	public boolean getDidComputeInThisIteration() {
 
 		return receiveMessageFlag;
 	}
@@ -399,6 +416,11 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 	}
 	
+	public HashMap<NodeId, double[][]> getNeighborsConstraintMatrix() {
+		
+		return this.neighborsConstraintMatrix;
+		
+	}
 
 	//-----------------------------------------------------------------------------------------------------------//
 
@@ -427,9 +449,6 @@ public class MaxSumStandardFunction extends AgentFunction {
 				+ msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
 		
 	}
-	
-	
-	
 	
 	//OmerP - A method to check that the creation of the transpose matrix went correctly. 
 	protected void checkIfTransposedCorrectly(double[][] constraint , double[][] constraintTranspose) {
@@ -462,6 +481,16 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 		
 	}
+	
+	protected void printConstraints(NodeId av, double[][] constraints) {
+		
+		System.out.println("Function node (" + this.getNodeId().getId1() +"," + this.getNodeId().getId2() + ") "
+				+ "constraint matrix with (" + av.getId1() + "," + av.getId2() + ") is "+ Arrays.deepToString(constraints) + ".\n");
+
+		
+	}
+	
+	
 	
 	//-----------------------------------------------------------------------------------------------------------//
 

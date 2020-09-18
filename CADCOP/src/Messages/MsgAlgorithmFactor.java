@@ -4,9 +4,8 @@ import AgentsAbstract.NodeId;
 
 public class MsgAlgorithmFactor extends MsgAlgorithm{
 	
-    public MsgAlgorithmFactor(NodeId senderNode, NodeId recieverNode, Object context, 
-    		int timeStamp, int time) {
-		super(senderNode, recieverNode, context, timeStamp,time);
+    public MsgAlgorithmFactor(NodeId senderNode, NodeId recieverNode, Object context, int timeStamp, int time) {
+		super(senderNode, recieverNode, context, timeStamp, time);
 		
 	}
 

@@ -16,8 +16,14 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 
 	protected HashMap<NodeId, Integer> neighborsMessageIteration; 
 	protected int currentIteration;
+	protected boolean print = false; 
 	
+	// -----------------------------------------------------------------------------------------------------------//
 
+	///// ******* Variables For Damping ******* ////
+
+	protected boolean damping = true; 
+	
 	// -----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Constructor ******* ////
@@ -40,9 +46,10 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 	public boolean compute() {
 
 		if(allMsgsForIterationReceived()) {
-			
-			produceNewMessages();
-			chooseValueAssignment();
+		
+			produceNewMessages();	
+			//chooseValueAssignment();
+			chooseValueLongAssignment();
 			return true;
 		}
 		
@@ -71,8 +78,8 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 
 		functionMsgs.put(msgAlgorithmFactor.getSenderId(), newMessageReceveid);
 		
-		printReceivedMessage(msgAlgorithmFactor);
-		
+		if(print){printReceivedMessage(msgAlgorithmFactor);}
+				
 		neighborsMessageIteration.put(msgAlgorithmFactor.getSenderId(), msgAlgorithm.getTimeStamp());
 		
 	}
@@ -90,7 +97,8 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 			}catch (Exception e) {
 				System.out.println(3);
 			}
-			printSentdMessage(messagesToBeSent.get(i));
+			
+			//if(print) {printSentdMessage(messagesToBeSent.get(i));}
 			
 			if(storedMessageOn) {
 				
@@ -108,21 +116,24 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 	@Override
 	protected void produceNewMessages() {
 		
-		for (NodeId i : functionMsgs.keySet()) {
+		for (NodeId i : functionMsgs.keySet()) { //Start loop for every one of the neighbors. 
 			
-			double[] sentTable = new double[this.domainSize];
+			double[] sentTable = new double[this.domainSize]; //Create a new table.
 			sentTable = produceMessage(i, sentTable); // For each specific neighbor, sum all messages excluding the table of the receiving function node.
+			sentTable = subtractMinimumValueD(sentTable);
 			
-			if(dampingOn) {
+			
+			
+			if(damping) {
 				
 				sentTable = damping(i, sentTable); // Will produce a damped message.
-				
+				storedMessges.put(i, sentTable); //Will store the new message
 			}
 			
 
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.currentIteration);
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.currentIteration, this.time);
 			messagesToBeSent.put(i, newMsg);
-			printStoredMessage(newMsg);
+			if(print){printSentdMessage(newMsg);}
 			
 		}
 		
@@ -136,14 +147,20 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 		
 			double[] sentTable = new double[this.domainSize];
 			sentTable = produceEmptyTable(i, sentTable); // For each specific neighbor, produce an empty message.
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.timeStampCounter); //Create new factor message.
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.timeStampCounter, this.time); //Create new factor message.
 			messagesToBeSent.put(i, newMsg); //Store the message in the message to by sent HashMap. 
-			//printStoredMessage(newMsg);
+			
+			if(damping) { //If damping is on it will store the new message so it could restore it for the next message that will be created. 
+				
+				storedMessges.put(i, newMsg.getContext());
+				
+			}
+			
+			if(print){printSentdMessage(newMsg);}
+
 			
 		}
 	}
-	
-	
 	
 	protected boolean checkIfAllMessagesArrivedToAdvanceCouner(int messagesArriveCounter) {
 		
@@ -159,8 +176,6 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 		return false; 
 		
 	}
-	
-	
 	
 	// -----------------------------------------------------------------------------------------------------------//
 
@@ -235,12 +250,12 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 		
 	}
 	
-	@Override
-	protected void printValueAssignment(int valueAssignment) {
+	//@Override
+	//protected void printValueAssignment(int valueAssignment) {
 		
-		System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + ") value assignment is:" + valueAssignment +".\n");
+		//System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + ") value assignment is:" + valueAssignment +".\n");
 		
-	}
+	//}
 	
 	// -----------------------------------------------------------------------------------------------------------//
 

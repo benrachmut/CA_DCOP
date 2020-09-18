@@ -75,6 +75,14 @@ public abstract class AgentVariableInference extends AgentVariable {
 		
 	}
 	
+	//OmerP - Will return the all the nodes. 
+	public SortedMap<NodeId, MsgReceive<double[]>> getMyFunctionMessage() {
+		
+		return this.functionMsgs;
+		
+	}
+	
+	
 	//-----------------------------------------------------------------------------------------------------------//
 
 	

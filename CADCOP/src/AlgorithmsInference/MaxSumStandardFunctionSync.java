@@ -15,7 +15,8 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 
 	protected HashMap<NodeId, Integer> neighborsMessageIteration; 
 	protected int currentIteration;
-	 
+	protected boolean print = false; 
+	
 	//-----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Constructor ******* ////
@@ -26,10 +27,18 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 		this.neighborsMessageIteration = new HashMap<NodeId, Integer>();
 		initiatNeighborsMessageIteration();
 		this.currentIteration = 0; 
+			
+	}
+	
+	//OmerP - Constructor for Split Constraint Factor Graph. 
+	public MaxSumStandardFunctionSync(int dcopId, int D, int id1, int id2, double[][] constraints) {
 		
+		super(dcopId, D, id1, id2, constraints);
+		this.neighborsMessageIteration = new HashMap<NodeId, Integer>();
+		initiatNeighborsMessageIteration();
+		this.currentIteration = 0; 
 		
 	}
-
 	//-----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Main Methods ******* ////
@@ -62,7 +71,7 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 				
 		variableMsgs.put(msgAlgorithmFactor.getSenderId(), newMessageReceveid);
 		
-		printReceivedMessage(msgAlgorithmFactor);
+		if(print){printReceivedMessage(msgAlgorithmFactor);}
 		
 		neighborsMessageIteration.put(msgAlgorithmFactor.getSenderId(), msgAlgorithm.getTimeStamp());
 		
@@ -100,8 +109,8 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 			
 			mailer.sendMsg(messagesToBeSent.get(i));
 			
-			printSentMessage(messagesToBeSent.get(i));
-			
+			if(print){printSentMessage(messagesToBeSent.get(i));}
+		
 			if(storedMessageOn) {
 				
 				storedMessgesTable.put(i, messagesToBeSent.get(i).getContext());
@@ -131,9 +140,9 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 			
 			double[] sentTable = new double[this.domainSize];
 			sentTable = produceFunctionMessage(i);
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.currentIteration);
-			messagesToBeSent.put(i, newMsg);
-			printStoredMessage(newMsg);
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.currentIteration, this.time);
+			messagesToBeSent.put(i, newMsg);	
+			//if(print){printStoredMessage(newMsg);}
 			
 		}
 			
@@ -181,10 +190,10 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 			double[][] constraintMatrix = new double[this.domainSize][this.domainSize];
 			constraintMatrix = neighborsConstraintMatrix.get(i);
 			sentTable = getBestValueTable(constraintMatrix);
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.timeStampCounter);
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.timeStampCounter, this.time);
 			messagesToBeSent.put(i, newMsg);
-			//printStoredMessage(newMsg);
-							
+			//if(print){printStoredMessage(newMsg);}
+				
 		}
 		
 	}
@@ -204,8 +213,6 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 	}
 	
 	///// ******* Setters  ******* ////
-	
-
 	
 	// -----------------------------------------------------------------------------------------------------------//
 	
