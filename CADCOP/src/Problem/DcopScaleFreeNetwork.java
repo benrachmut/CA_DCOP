@@ -14,10 +14,10 @@ public class DcopScaleFreeNetwork extends Dcop {
 	private int hubs;
 	private int neighborsPerAgent;
 	private double p2;
-	private int costParameter;
+	private int costLb, costUb;
 	private Random randomHub, randomNotHub, randomP2;
 
-	public DcopScaleFreeNetwork(int dcopId,int A, int D, int costPrameter, int hubs, int neighborsPerAgent, double p2) {
+	public DcopScaleFreeNetwork(int dcopId,int A, int D, int costLb,int costUb, int hubs, int neighborsPerAgent, double p2) {
 		super(dcopId, A, D);
 		this.hubs = hubs;
 		this.neighborsPerAgent = neighborsPerAgent;
@@ -25,7 +25,9 @@ public class DcopScaleFreeNetwork extends Dcop {
 		randomHub = new Random(this.dcopId * 10);
 		randomNotHub = new Random(this.dcopId * 20);
 		randomP2 = new Random(this.dcopId * 30);
-		this.costParameter = costPrameter;
+		this.costUb = costUb;
+		this.costLb = costLb;
+
 		updateNames();
 	}
 
@@ -50,9 +52,7 @@ public class DcopScaleFreeNetwork extends Dcop {
 
 	
 	
-	public DcopScaleFreeNetwork(int dcopId, int A, int hubs, int neighborsPerAgent, double p2) {
-		this(dcopId,A, 10, 100, hubs, neighborsPerAgent, p2);
-	}
+	
 
 	@Override
 	public void createNeighbors() {
@@ -112,7 +112,7 @@ public class DcopScaleFreeNetwork extends Dcop {
 				a1 = af;
 				a2 = afNeighbor;
 			}
-			 this.neighbors.add(new Neighbor(a1, a2, D, costParameter, this.dcopId,p2));
+			 this.neighbors.add(new Neighbor(a1, a2, D, costLb,costUb, this.dcopId,p2));
 		}
 
 	}
@@ -224,7 +224,7 @@ public class DcopScaleFreeNetwork extends Dcop {
 		}
 		
 
-		this.neighbors.add(new Neighbor(a1, a2, D, costParameter, this.dcopId, p2));
+		this.neighbors.add(new Neighbor(a1, a2, D, costLb,costUb, this.dcopId, p2));
 		
 	}
 

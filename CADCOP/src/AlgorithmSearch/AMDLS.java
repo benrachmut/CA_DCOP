@@ -20,7 +20,7 @@ import Messages.MsgValueAssignmnet;
 public class AMDLS extends AgentVariableSearch {
 
 	public static boolean structureColor = true;
-	public static boolean sendWhenMsgReceive = true;
+	public static boolean sendWhenMsgReceive = false;
 
 	private Set<NodeId> below;
 	private Set<NodeId> above;

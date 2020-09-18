@@ -19,9 +19,9 @@ public class Neighbor {
 	private int costLb;
 	private int costUb;
 
-	public Neighbor(AgentVariable a1, AgentVariable a2, int D, int costParameter, int dcopId, double p2) {
+	public Neighbor(AgentVariable a1, AgentVariable a2, int D, int costLb, int costUb, int dcopId, double p2) {
 		super();
-		updateVariables(a1, a2, costParameter, D);
+		updateVariables(a1, a2, costLb, costUb, D);
 		this.p2 = p2;
 		this.randomP2 = new Random(dcopId * 10 + a1.getId() * 100 + a2.getId() * 1000);
 		this.randomCost = new Random(dcopId * 100 + a1.getId() * 300 + a2.getId() * 1200);
@@ -85,10 +85,7 @@ public class Neighbor {
 			for (int j = 0; j < constraints[i].length; j++) {
 				double rndProb = randomP2.nextDouble();
 				if (rndProb < p2) {
-					int rndCost;
-
-					rndCost = randomCost.nextInt(costParameter);
-
+					int rndCost = costLb + randomCost.nextInt(costUb - costLb);
 					constraints[i][j] = rndCost;
 					constraintsTranspose[j][i] = rndCost;
 
