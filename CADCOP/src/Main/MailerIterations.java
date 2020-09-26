@@ -28,7 +28,7 @@ import Problem.Dcop;
 public class MailerIterations extends Mailer {
 
 	public static int m_iteration;
-	
+
 	public MailerIterations(Protocol protocol, int terminationTime, Dcop dcop) {
 		super(protocol, terminationTime, dcop);
 	}
@@ -37,43 +37,34 @@ public class MailerIterations extends Mailer {
 	public void execute() {
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
 			m_iteration = iteration;
-			if (MainSimulator.isAMDLSdebug) {
-				if (iteration%10==0) {
-					System.out.println("-------ITERATION_"+iteration+"-------");
-				}
+			if (MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug) {
+				System.out.println("-------ITERATION_" + iteration + "-------");
 			}
-			
+
 			if (MainSimulator.isAnytimeDebug) {
-				if (iteration%10==0) {
-					System.out.println("-------ITERATION_"+iteration+"-------");
+				if (iteration % 10 == 0) {
+					System.out.println("-------ITERATION_" + iteration + "-------");
 				}
-				
+
 			}
-			
+
 			/*
-			if (MainSimulator.isAMDLSdebug ) {
-				System.out.println("---"+iteration+"---");
-				Collection<AgentVariable>didChange = new HashSet<AgentVariable>();
-				for (AgentVariable a :dcop.getVariableAgents()) {
-					if (a.getDidComputeInThisIteration()) {
-						didChange.add(a);
-					}
-				}
-				System.out.println(didChange);
-				
-			}
-		*/
-			
-			
-			agentsReactToMsgs(iteration);		
+			 * if (MainSimulator.isAMDLSdebug ) { System.out.println("---"+iteration+"---");
+			 * Collection<AgentVariable>didChange = new HashSet<AgentVariable>(); for
+			 * (AgentVariable a :dcop.getVariableAgents()) { if
+			 * (a.getDidComputeInThisIteration()) { didChange.add(a); } }
+			 * System.out.println(didChange);
+			 * 
+			 * }
+			 */
+
+			agentsReactToMsgs(iteration);
 			createData(iteration);
-			List<Msg> msgToSend = this.handleDelay();	
+			List<Msg> msgToSend = this.handleDelay();
 			agentsRecieveMsgs(msgToSend);
-			
+
 		}
 	}
-
-
 
 	private void printContexts() {
 		for (AgentVariable a : this.dcop.getVariableAgents()) {
@@ -81,29 +72,29 @@ public class MailerIterations extends Mailer {
 			Context c = as.createMyContext();
 			System.out.println(c);
 		}
-		
+
 	}
 
 	private void printHeaderForDegbugMgm() {
-		String ans ="iteration"+",";
+		String ans = "iteration" + ",";
 		for (AgentVariable a : dcop.getVariableAgents()) {
-			ans =ans+ "a"+a.getId()+" VA"+",";
+			ans = ans + "a" + a.getId() + " VA" + ",";
 		}
 		for (AgentVariable a : dcop.getVariableAgents()) {
-			ans =ans+"a"+a.getId()+" LR"+",";
+			ans = ans + "a" + a.getId() + " LR" + ",";
 		}
-		
+
 		System.out.println(ans);
-		
+
 	}
 
 	private void printForDegbugMgm(int iteration) {
-		String ans =iteration+",";
+		String ans = iteration + ",";
 		for (AgentVariable a : dcop.getVariableAgents()) {
-			ans = ans+a.getValueAssignment()+",";
+			ans = ans + a.getValueAssignment() + ",";
 		}
 		for (AgentVariable a : dcop.getVariableAgents()) {
-			ans = ans+((MGM)a).getLR()+",";
+			ans = ans + ((MGM) a).getLR() + ",";
 		}
 		System.out.println(ans);
 	}
@@ -114,10 +105,10 @@ public class MailerIterations extends Mailer {
 			AgentVariable av = dcop.getVariableAgents()[i];
 			if (av instanceof DSA_B_SY) {
 				int currentId = av.getId();
-				ans = ans+currentId+"_rnd"+","+currentId+"_value,";
+				ans = ans + currentId + "_rnd" + "," + currentId + "_value,";
 				for (NodeId nNodeId : av.getNeigborSetId()) {
 					int n = nNodeId.getId1();
-					ans = ans + currentId + "_view_on_"+n+","+currentId + "_timestamp_on_"+n+",";
+					ans = ans + currentId + "_view_on_" + n + "," + currentId + "_timestamp_on_" + n + ",";
 				}
 			}
 		}
@@ -132,7 +123,7 @@ public class MailerIterations extends Mailer {
 			AgentVariable av = dcop.getVariableAgents()[i];
 			if (av instanceof DSA_B_SY) {
 				DSA_B_SY a = (DSA_B_SY) av;
-				ans = ans+a.getStringForDebug();
+				ans = ans + a.getStringForDebug();
 			} else {
 				System.out.println("should not use printForDebugDSA_SY");
 				throw new RuntimeException();
@@ -142,7 +133,7 @@ public class MailerIterations extends Mailer {
 	}
 
 	private void agentsReactToMsgs(int iteration) {
-		
+
 		for (Agent agent : dcop.getAgents()) {
 			if (iteration == 0) {
 				agent.resetAgent();
@@ -152,16 +143,14 @@ public class MailerIterations extends Mailer {
 			}
 		}
 		if (MainSimulator.isAnytime) {
-			
+
 			for (AgentVariable a : dcop.getVariableAgents()) {
 				if (a instanceof AgentVariableSearch) {
-					((AgentVariableSearch)a).sendAnytimeMsgs();
+					((AgentVariableSearch) a).sendAnytimeMsgs();
 				}
 			}
 		}
-		
 
-		
 	}
 
 	private boolean didAgentRecieveAnytimeMsgInThisIteration(Agent agent) {
@@ -201,7 +190,5 @@ public class MailerIterations extends Mailer {
 		Mailer.mailerName = "Iteration";
 
 	}
-
-
 
 }

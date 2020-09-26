@@ -37,7 +37,7 @@ public class DcopUniform extends Dcop {
 					AgentVariable a1 = agentsVariables[i];
 					AgentVariable a2 = agentsVariables[j];
 					
-					this.neighbors.add(new Neighbor(a1, a2, D, costUb,costLb, dcopId, p2));
+					this.neighbors.add(new Neighbor(a1, a2, D, costLb,costUb, dcopId, p2));
 			
 				} // if neighbors
 			} // for j

@@ -18,6 +18,7 @@ import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
 import AlgorithmSearch.AMDLS;
+import AlgorithmSearch.AMDLS_distributed;
 import AlgorithmSearch.DSA_B_ASY;
 import AlgorithmSearch.DSA_B_SY;
 import AlgorithmSearch.DSA_SDP_ASY;
@@ -123,11 +124,16 @@ public abstract class Dcop {
 		if (agentType == 5) {
 			ans = new AMDLS(dcopId, D, agentId);
 		}
-
 		if (agentType == 6) {
+			ans = new AMDLS_distributed(dcopId, D, agentId);
+		}
+
+		
+		
+		if (agentType == 7) {
 			ans = new DSA_SDP_ASY(dcopId, D, agentId);
 		}
-		if (agentType == 7) {
+		if (agentType == 8) {
 			ans = new DSA_SDP_SY(dcopId, D, agentId);
 		}
 

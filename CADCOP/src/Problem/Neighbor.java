@@ -106,6 +106,7 @@ public class Neighbor {
 	}
 
 	public void neighborsMeetings() {
+		
 		a1.meetNeighbor(a2.getId(), this.constraints);
 		a2.meetNeighbor(a1.getId(), this.constraintsTranspose);
 	}

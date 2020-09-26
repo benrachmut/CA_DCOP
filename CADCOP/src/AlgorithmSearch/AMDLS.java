@@ -22,12 +22,12 @@ public class AMDLS extends AgentVariableSearch {
 	public static boolean structureColor = true;
 	public static boolean sendWhenMsgReceive = false;
 
-	private Set<NodeId> below;
-	private Set<NodeId> above;
-	private Map<NodeId, Integer> counters;
-	private int myCounter;
+	protected Set<NodeId> below;
+	protected Set<NodeId> above;
+	protected Map<NodeId, Integer> counters;
+	protected int myCounter;
 
-	private List<MsgAMDLS> future;
+	protected List<MsgAMDLS> future;
 	protected boolean consistentFlag;
 	protected boolean gotMsgFlag;
 
@@ -56,20 +56,15 @@ public class AMDLS extends AgentVariableSearch {
 	@Override
 	public void initialize() {
 		sendAMDLSmsgs();
-
 	}
 
-	private void sendAMDLSmsgs() {
-
-		
-
+	protected void sendAMDLSmsgs() {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgAMDLS mva = new MsgAMDLS(this.nodeId, recieverNodeId, this.valueAssignment, this.timeStampCounter,
 					this.time, this.myCounter);
 			this.mailer.sendMsg(mva);
 
 		}
-
 	}
 
 	// done
@@ -83,7 +78,7 @@ public class AMDLS extends AgentVariableSearch {
 	}
 
 	// done
-	private void resetCounters() {
+	protected void resetCounters() {
 		counters = new HashMap<NodeId, Integer>();
 		for (NodeId nodeId : neighborsConstraint.keySet()) {
 			counters.put(nodeId, 0);
@@ -171,14 +166,10 @@ public class AMDLS extends AgentVariableSearch {
 
 	// 2
 	@Override
-	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
-
-		
+	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {	
 		boolean allNotZero = checkAllNotZero();
-
 		if (allNotZero) {
 			releaseFutureMsgs();
-
 		}
 		boolean aboveConsistent = isAboveConsistent();
 		boolean belowConsistent = isBelowConsistent();
@@ -187,7 +178,7 @@ public class AMDLS extends AgentVariableSearch {
 		} else {
 			this.consistentFlag = false;
 		}
-		this.gotMsgFlag = true;
+		//this.gotMsgFlag = true;
 	}
 
 	private boolean checkAllNotZero() {
@@ -228,11 +219,11 @@ public class AMDLS extends AgentVariableSearch {
 		}
 		*/
 		
-		if (sendWhenMsgReceive) {
-			return gotMsgFlag;
-		} else {
+		//if (sendWhenMsgReceive) {
+			//return gotMsgFlag;
+		//} else {
 			return consistentFlag;
-		}
+		//}
 	}
 
 	// 4
@@ -249,7 +240,8 @@ public class AMDLS extends AgentVariableSearch {
 	@Override
 	protected void sendMsgs() {
 
-		if ((sendWhenMsgReceive && this.gotMsgFlag) || (!sendWhenMsgReceive && this.consistentFlag)) {
+		//if ((sendWhenMsgReceive && this.gotMsgFlag) || (!sendWhenMsgReceive && this.consistentFlag)) {
+		if ((!sendWhenMsgReceive && this.consistentFlag)) {
 			sendAMDLSmsgs();
 		}
 
@@ -294,7 +286,7 @@ public class AMDLS extends AgentVariableSearch {
 	@Override
 	protected void changeRecieveFlagsToFalse() {
 		consistentFlag = false;
-		gotMsgFlag = false;
+		//gotMsgFlag = false;
 	}
 
 	public void setBelow(Set<NodeId> below) {
