@@ -145,9 +145,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 */
 
 	protected void updateMessageInContextAndTreatFlag(MsgAlgorithm msgAlgorithm) {
-
 		updateMessageInContext(msgAlgorithm);
-
 		changeRecieveFlagsToTrue(msgAlgorithm);
 	}
 

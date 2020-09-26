@@ -229,7 +229,11 @@ public class AMDLS extends AgentVariableSearch {
 	// 4
 	@Override
 	protected boolean compute() {
-		if (consistentFlag) {
+		if (MainSimulator.isAMDLSDistributedDebug && this.id == 8) {
+			System.out.println();
+		}
+		
+		if (consistentFlag ) {
 			this.myCounter = this.myCounter + 1;
 			this.valueAssignment = getCandidateToChange_A();
 		}
@@ -247,7 +251,7 @@ public class AMDLS extends AgentVariableSearch {
 
 	}
 
-	private void releaseFutureMsgs() {
+	protected void releaseFutureMsgs() {
 
 		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
 		for (MsgAlgorithm m : this.future) {

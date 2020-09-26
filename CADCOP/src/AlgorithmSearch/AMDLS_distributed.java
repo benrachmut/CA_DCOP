@@ -1,11 +1,13 @@
 package AlgorithmSearch;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.NodeId;
+import Main.MailerIterations;
 import Main.MainSimulator;
 import Messages.MsgAMDLS;
 import Messages.MsgAMDLSColor;
@@ -55,10 +57,6 @@ public class AMDLS_distributed extends AMDLS {
 			chooseColor();
 			sendAMDLSColorMsgs();
 			isWaitingToSetColor = false;
-			
-			if (MainSimulator.isAMDLSDistributedDebug && this.id==0) {
-				System.out.println(this.toString()+" color is:"+this.myColor+" and sends its color");
-			}
 		}
 	}
 
@@ -126,9 +124,10 @@ public class AMDLS_distributed extends AMDLS {
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
-		super.updateMessageInContext(msgAlgorithm);
+		if (this.id == 8 && MainSimulator.isAMDLSDistributedDebug) {
+			printAMDLSstatus();
+		}
 
-		
 		if (msgAlgorithm instanceof MsgAMDLSColor) {
 			Integer colorN = ((MsgAMDLSColor) msgAlgorithm).getColor();
 			neighborColors.put(msgAlgorithm.getSenderId(), colorN);
@@ -139,26 +138,76 @@ public class AMDLS_distributed extends AMDLS {
 					this.below.add(msgAlgorithm.getSenderId());
 				}
 			}
-			
+
 			if (MainSimulator.isAMDLSDistributedDebug) {
-				System.out.println(this+" got color msg from A_"+msgAlgorithm.getSenderId().getId1());
+				System.out.println(this + " got color msg from A_" + msgAlgorithm.getSenderId().getId1());
 			}
-			
+		}
+
+		if (!canSetColor() && this.isWaitingToSetColor) {
+			MsgAMDLS m = new MsgAMDLS((MsgAMDLSColor) msgAlgorithm);
+			future.add(m);
+		} else {
+			super.updateMessageInContext(msgAlgorithm);
 		}
 	}
 
 	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
-		if (msgAlgorithm instanceof MsgAMDLS && !this.isWaitingToSetColor && allNeighborsHaveColor()) {
-			super.changeRecieveFlagsToTrue(msgAlgorithm);
-		}
+
 		if (msgAlgorithm instanceof MsgAMDLSColor) {
 			if (canSetColor() && this.isWaitingToSetColor) {
 				canSetColorFlag = true;
 				if (MainSimulator.isAMDLSDistributedDebug) {
-					System.out.println(this+" will be set color");
+					System.out.println(this + " will be set color");
 				}
+				chooseColor();
+				setAboveAndBelow();
+				isWaitingToSetColor = false;
+				// releaseFutureMsgs();
 			}
 		}
+
+		boolean firstCondition = !this.isWaitingToSetColor && allNeighborsHaveColor();
+		if (firstCondition || canSetColorFlag) {
+			super.changeRecieveFlagsToTrue(msgAlgorithm);
+		}
+
+	}
+
+	protected boolean compute() {
+		if (MainSimulator.isAMDLSDistributedDebug && this.id == 8) {
+			System.out.println();
+		}
+
+		if (consistentFlag && !canSetColorFlag) {
+			this.myCounter = this.myCounter + 1;
+			this.valueAssignment = getCandidateToChange_A();
+		}
+
+		return true;
+	}
+
+	private boolean releaseFutureMsgs_distributed() {
+
+		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
+		for (MsgAlgorithm m : this.future) {
+
+			int currentCounterInContext = this.counters.get(m.getSenderId());
+			int msgCounter = ((MsgAMDLS) m).getCounter();
+
+			if (currentCounterInContext + 1 == msgCounter) {
+				toRelease.add(m);
+				updateMessageInContext(m);
+				changeRecieveFlagsToTrue(m);
+			}
+		}
+		boolean ans = false;
+		if (toRelease.size() != 0) {
+			ans = true;
+		}
+		this.future.removeAll(toRelease);
+
+		return true;
 	}
 
 	private boolean allNeighborsHaveColor() {
@@ -176,7 +225,7 @@ public class AMDLS_distributed extends AMDLS {
 		Set<NodeId> neighborsIRequireToWait = getNeighborsIRequireToWait();
 
 		for (NodeId nodeId : neighborsIRequireToWait) {
-			if(!neighborsThatHaveColor.contains(nodeId)) {
+			if (!neighborsThatHaveColor.contains(nodeId)) {
 				return false;
 			}
 		}
@@ -194,14 +243,12 @@ public class AMDLS_distributed extends AMDLS {
 	private Set<NodeId> neighborsWithSmallerIndexThenMe() {
 		Set<NodeId> ans = new HashSet<NodeId>();
 		for (NodeId nodeId : neighborsConstraint.keySet()) {
-			if (nodeId.getId1()<this.id ) {
+			if (nodeId.getId1() < this.id) {
 				ans.add(nodeId);
 			}
 		}
 		return ans;
 	}
-
-	
 
 	private Set<NodeId> getNeighborsThatHaveColor() {
 		Set<NodeId> ans = new HashSet<NodeId>();
@@ -214,31 +261,37 @@ public class AMDLS_distributed extends AMDLS {
 	}
 
 	public boolean getDidComputeInThisIteration() {
+
+		if (MainSimulator.isAMDLSDistributedDebug && MailerIterations.m_iteration == 50) {
+			printAMDLSstatus();
+		}
 		return canSetColorFlag || consistentFlag;
 	}
 
-	protected boolean compute() {
-		if (canSetColorFlag && isWaitingToSetColor) {
-			chooseColor();
-			setAboveAndBelow();
-			isWaitingToSetColor = false;
-			if (MainSimulator.isAMDLSDistributedDebug) {
-				System.out.println(this+" color is: "+this.myColor);
+	private void printAMDLSstatus() {
+		System.out.println("--------------");
+		System.out.println(this.toString() + " counter is " + this.myCounter);
+		if (!this.above.isEmpty()) {
+			System.out.println("above:");
+			for (NodeId nodeId : above) {
+				System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ", ");
 			}
+			System.out.println();
+
 		}
 
-		if (consistentFlag) {
-			if (MainSimulator.isAMDLSDistributedDebug) {
-				System.out.println(this+" has a consistent stage");
+		if (!this.below.isEmpty()) {
+			System.out.println("below:");
+			for (NodeId nodeId : below) {
+				System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ",");
 			}
-			this.myCounter = this.myCounter + 1;
-			this.valueAssignment = getCandidateToChange_A();
+			System.out.println();
 		}
-		return true;
+		System.out.println();
+
 	}
 
 	private void setAboveAndBelow() {
-
 		for (Entry<NodeId, Integer> e : this.neighborColors.entrySet()) {
 			if (e.getValue() != null) {
 				if (this.myColor > e.getValue()) {
@@ -250,12 +303,23 @@ public class AMDLS_distributed extends AMDLS {
 		}
 	}
 
+	/*
+	 * if (consistentFlag && !canSetColorFlag) { private void
+	 * releaseFutureMsgs_distributed() {
+	 */
 	@Override
 	protected void sendMsgs() {
-		if (this.consistentFlag) {
+		if (this.consistentFlag && !canSetColorFlag) {
 			sendAMDLSmsgs();
+			
 		} else if (this.canSetColorFlag) {
 			sendAMDLSColorMsgs();
+			this.consistentFlag = false;
+			this.canSetColorFlag = false;
+			if (releaseFutureMsgs_distributed()) {
+				reactionToAlgorithmicMsgs();
+			}
+			
 		}
 	}
 
@@ -263,6 +327,23 @@ public class AMDLS_distributed extends AMDLS {
 	protected void changeRecieveFlagsToFalse() {
 		this.consistentFlag = false;
 		this.canSetColorFlag = false;
+	}
+
+	public double getIfColor() {
+		if (isWaitingToSetColor) {
+			return 0.0;
+		} else {
+			return 1.0;
+		}
+	}
+
+	public Integer getColorNumber() {
+		return this.myColor;
+	}
+
+	public Integer getColor() {
+		// TODO Auto-generated method stub
+		return myColor;
 	}
 
 }

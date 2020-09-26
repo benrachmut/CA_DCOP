@@ -11,6 +11,11 @@ public class MsgAMDLS extends MsgValueAssignmnet {
 		this.counter = counter;
 	}
 	
+	public MsgAMDLS(MsgAMDLSColor m) {
+		super(m.getSenderId(), m.getRecieverId(), m.getContext(), m.getTimeStamp(),m.getTime());
+		this.counter = m.getCounter();
+	}
+
 	public int getCounter() {
 		return this.counter;
 	}

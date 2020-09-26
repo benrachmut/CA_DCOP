@@ -195,6 +195,15 @@ public abstract class AgentVariable extends Agent {
 		return this.dfsFather;
 	}
 
+	public double getIfColor() {
+		// TODO Auto-generated method stub
+		return 1.0;
+	}
+
+	public Integer getColorNumber() {
+		return 1;
+	}
+
 	
 
 	

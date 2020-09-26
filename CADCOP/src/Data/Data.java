@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableSearch;
@@ -29,6 +30,9 @@ public class Data {
 	private Double agentZeroGlobalCost;
 	private Double agentZeroPOVCost;
 
+	// ----**for AMDLS distributed**----
+	private Double agentPercentCanStart;
+	private Double numberOfColors;
 	// ----**Anytime measures**----
 	private Double topAgentsAnytimeContextCost;
 	private Double anytimeCost;
@@ -50,12 +54,15 @@ public class Data {
 		this.agentZeroGlobalCost = Statistics.mean(colletionPerFields.get(6));
 		this.agentZeroPOVCost = Statistics.mean(colletionPerFields.get(7));
 		this.globalPovABSDelta = Statistics.mean(colletionPerFields.get(8));
+		this.agentPercentCanStart = Statistics.mean(colletionPerFields.get(9));
+		this.numberOfColors = Statistics.mean(colletionPerFields.get(10));
+
 		if (MainSimulator.isAnytime) {
-			this.topAgentsAnytimeContextCost = Statistics.mean(colletionPerFields.get(9));
-			this.anytimeCost = Statistics.mean(colletionPerFields.get(10));
-			this.topContextCounters = Statistics.mean(colletionPerFields.get(11));
-			this.numberOfRepsMeanAtTop = Statistics.mean(colletionPerFields.get(12));
-			this.numberOfRepsMeanAtAll = Statistics.mean(colletionPerFields.get(13));
+			this.topAgentsAnytimeContextCost = Statistics.mean(colletionPerFields.get(11));
+			this.anytimeCost = Statistics.mean(colletionPerFields.get(12));
+			this.topContextCounters = Statistics.mean(colletionPerFields.get(13));
+			this.numberOfRepsMeanAtTop = Statistics.mean(colletionPerFields.get(14));
+			this.numberOfRepsMeanAtAll = Statistics.mean(colletionPerFields.get(15));
 
 		}
 	}
@@ -63,39 +70,42 @@ public class Data {
 	private List<List<Double>> createColletionsPerField(List<Data> datas) {
 		List<List<Double>> ans = new ArrayList<List<Double>>();
 		if (MainSimulator.isAnytime) {
-			for (int i = 0; i < 10+5; i++) {
+			for (int i = 0; i < 12 + 5; i++) {
 				ans.add(new ArrayList<Double>());
 			}
-		}else {
-		for (int i = 0; i < 10; i++) {
-			ans.add(new ArrayList<Double>());
-		}
+		} else {
+			for (int i = 0; i < 12; i++) {
+				ans.add(new ArrayList<Double>());
+			}
 		}
 		for (Data d : datas) {
 			ans.get(0).add(d.globalCost);
 			ans.get(1).add(d.monotonicy);
 			ans.get(2).add(d.povCost);
- 			ans.get(3).add(d.globalAnytimeCost);
+			ans.get(3).add(d.globalAnytimeCost);
 			ans.get(4).add(d.changeValueAssignmentCounter);
 			ans.get(5).add(d.algorithmMsgsCounter);
 			ans.get(6).add(d.agentZeroGlobalCost);
 			ans.get(7).add(d.agentZeroPOVCost);
 			ans.get(8).add(d.globalPovABSDelta);
+			ans.get(9).add(d.agentPercentCanStart);
+			ans.get(10).add(d.numberOfColors);
+
 			if (MainSimulator.isAnytime) {
-				ans.get(9).add(d.topAgentsAnytimeContextCost);
-				ans.get(10).add(d.anytimeCost);
-				ans.get(11).add(d.topContextCounters);
-				
+				ans.get(11).add(d.topAgentsAnytimeContextCost);
+				ans.get(12).add(d.anytimeCost);
+				ans.get(13).add(d.topContextCounters);
+
 				if (d.topAgentsAnytimeContextCost == null) {
-					ans.get(12).add(0.0);
-				}else {
-					ans.get(12).add(1.0);
+					ans.get(14).add(0.0);
+				} else {
+					ans.get(14).add(1.0);
 				}
-				
+
 				if (d.anytimeCost == null) {
-					ans.get(13).add(0.0);
-				}else {
-					ans.get(13).add(1.0);
+					ans.get(15).add(0.0);
+				} else {
+					ans.get(15).add(1.0);
 				}
 			}
 
@@ -118,6 +128,8 @@ public class Data {
 		this.globalPovABSDelta = Math.abs(this.povCost - this.globalCost);
 		this.agentZeroGlobalCost = calcAgentZeroGlobalCost(0, dcop.getNeighbors());
 		this.agentZeroPOVCost = calcAgentZeroPOVCost(0, dcop.getVariableAgents(0));
+		this.agentPercentCanStart = calcAgentPercentCanStart(dcop.getVariableAgents());
+		this.numberOfColors = calcNumberOfColors(dcop.getVariableAgents());
 		if (MainSimulator.isAnytime) {
 			if (mailer.getDcop().isSearchAlgorithm()) {
 				this.topAgentsAnytimeContextCost = calcTopAgentsAnytimeContextCost(mailer);
@@ -127,13 +139,30 @@ public class Data {
 		}
 	}
 
+	private Double calcNumberOfColors(AgentVariable[] avs) {
+		Set<Integer> colors = new HashSet<Integer>();
+		for (AgentVariable av : avs) {
+			colors.add(av.getColorNumber());
+		}
+		return (double) colors.size();
+	}
+
+	private Double calcAgentPercentCanStart(AgentVariable[] avs) {
+		double numOfAgents = MainSimulator.A;
+		double isColoredCounter = 0.0;
+		for (AgentVariable av : avs) {
+			isColoredCounter = isColoredCounter + av.getIfColor();
+		}
+		return isColoredCounter / numOfAgents;
+	}
+
 	private Double calcAnytimeCost(List<Neighbor> neighbors) {
 		Double ans = null;
 		for (Neighbor n : neighbors) {
 			Integer costOfN = n.getCurrentAnytimeCost();
 			if (costOfN != null) {
 				ans = ans + costOfN;
-			} 
+			}
 		}
 		return ans;
 	}
@@ -153,14 +182,14 @@ public class Data {
 		Double ans = 0.0;
 		for (AgentVariableSearch a : anytimeTopsAgents) {
 			try {
-			Double costOfContext = a.getCostOfBestContext();
-			ans = ans + costOfContext;
-			}catch (RuntimeException e) {
+				Double costOfContext = a.getCostOfBestContext();
+				ans = ans + costOfContext;
+			} catch (RuntimeException e) {
 				return null;
 			}
-			
+
 		}
-		return ans/2.0;
+		return ans / 2.0;
 	}
 
 	private Collection<AgentVariableSearch> getTopAgents(Dcop dcop) {
@@ -257,29 +286,32 @@ public class Data {
 
 		ans = ans + "Iteration" + "," + "Global View Cost" + "," + "Monotonicy" + "," + "Agent View Cost" + ","
 				+ "Global Anytime Cost" + "," + "Value Assignmnet Counter" + "," + "Algorithm Msgs Counter" + ","
-				+ "Global View Cost Agent Zero" + "," + "Agent View Cost Agent Zero" + "," + "Abs Delta Global and POV";
+				+ "Global View Cost Agent Zero" + "," + "Agent View Cost Agent Zero" + "," + "Abs Delta Global and POV"
+				+ "," + "Percent Agents With Colors" + "," + "Number of Colors";
 		if (MainSimulator.isAnytime) {
 			ans = ans + "," + "Anytime top agents best context cost" + "," + "Anytime Cost" + ","
-					+ "Contexts of all agents reported"+","+"Number of Repetitions top"+","+"Number of Repetitions All";
+					+ "Contexts of all agents reported" + "," + "Number of Repetitions top" + ","
+					+ "Number of Repetitions All";
 		}
 		return ans;
 	}
 
 	@Override
 	public String toString() {
-		if (MainSimulator.isAnytime) {
-		return	this.time + "," + this.globalCost + "," + this.monotonicy + "," + this.povCost + ","
-					+ this.globalAnytimeCost + "," + this.changeValueAssignmentCounter + "," + this.algorithmMsgsCounter
-					+ "," + this.agentZeroGlobalCost + "," + this.agentZeroPOVCost + "," + this.globalPovABSDelta+ 
-					"," +this.topAgentsAnytimeContextCost+ "," +this.anytimeCost+ "," +this.topContextCounters+ "," +this.numberOfRepsMeanAtTop+ "," +this.numberOfRepsMeanAtAll;
-		
-		}
-		
-		
-		return this.time + "," + this.globalCost + "," + this.monotonicy + "," + this.povCost + ","
-				+ this.globalAnytimeCost + "," + this.changeValueAssignmentCounter + "," + this.algorithmMsgsCounter
-				+ "," + this.agentZeroGlobalCost + "," + this.agentZeroPOVCost + "," + this.globalPovABSDelta;
 
+		String ans = this.time + "," + this.globalCost + "," + this.monotonicy + "," + this.povCost + ","
+				+ this.globalAnytimeCost + "," + this.changeValueAssignmentCounter + "," + this.algorithmMsgsCounter
+				+ "," + this.agentZeroGlobalCost + "," + this.agentZeroPOVCost + "," + this.globalPovABSDelta+ 
+				"," +agentPercentCanStart+ "," +numberOfColors;
+
+		
+		if (MainSimulator.isAnytime) {
+			ans = ans + "," + this.topAgentsAnytimeContextCost + "," + this.anytimeCost + "," + this.topContextCounters
+					+ "," + this.numberOfRepsMeanAtTop + "," + this.numberOfRepsMeanAtAll;
+
+		}
+
+		return ans;
 	}
 
 	public Double getGlobalCost() {
