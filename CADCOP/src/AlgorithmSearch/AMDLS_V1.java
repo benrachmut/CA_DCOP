@@ -17,10 +17,11 @@ import Messages.MsgAMDLS;
 import Messages.MsgAlgorithm;
 import Messages.MsgValueAssignmnet;
 
-public class AMDLS extends AgentVariableSearch {
+public class AMDLS_V1 extends AgentVariableSearch {
 
 	public static boolean structureColor = true;
 	public static boolean sendWhenMsgReceive = false;
+	public static char typeDecision = 'a';
 
 	protected Set<NodeId> below;
 	protected Set<NodeId> above;
@@ -31,7 +32,7 @@ public class AMDLS extends AgentVariableSearch {
 	protected boolean consistentFlag;
 	protected boolean gotMsgFlag;
 
-	public AMDLS(int dcopId, int D, int agentId) {
+	public AMDLS_V1(int dcopId, int D, int agentId) {
 		super(dcopId, D, agentId);
 
 		this.below = new HashSet<NodeId>();
@@ -49,7 +50,22 @@ public class AMDLS extends AgentVariableSearch {
 	// done
 	@Override
 	public void updateAlgorithmName() {
-		AgentVariable.AlgorithmName = "AMDLS";
+		
+		String a = "AMDLS";
+		String b = "V1";
+		String c = "";
+		if (AMDLS_V1.typeDecision=='A' || AMDLS_V1.typeDecision=='a') {
+			c = "a";
+		}
+		
+		if (AMDLS_V1.typeDecision=='B' || AMDLS_V1.typeDecision=='b') {
+			c = "b";
+		}
+		
+		if (AMDLS_V1.typeDecision=='C' || AMDLS_V1.typeDecision=='c') {
+			c = "c";
+		}
+		AgentVariable.AlgorithmName = a+"_"+b+"_"+c;
 	}
 
 	// done
@@ -89,29 +105,32 @@ public class AMDLS extends AgentVariableSearch {
 	// done
 	@Override
 	public void updateAlgorithmHeader() {
-		AgentVariable.algorithmHeader = "Version" + "," + "Structure";
+		AgentVariable.algorithmHeader = "Message Frequency"+','+"Decision";
 	}
 
 	// done
 	@Override
 	public void updateAlgorithmData() {
-
-		if (structureColor) {
-			if (sendWhenMsgReceive) {
-				AgentVariable.algorithmData = "Msg Receive" + "," + "Color";
-
-			} else {
-				AgentVariable.algorithmData = "Consistent" + "," + "Color";
-
-			}
-		} else {
-			if (sendWhenMsgReceive) {
-				AgentVariable.algorithmData = "Msg Receive" + "," + "Pseudo Tree";
-
-			} else {
-				AgentVariable.algorithmData = "Consistent" + "," + "Pseudo Tree";
-			}
+		String freq = "";
+		if (AMDLS_V1.sendWhenMsgReceive) {
+			freq = "high";
+		}else {
+			freq = "low";
 		}
+		//-------------------------
+		String t = "";
+		if (AMDLS_V1.typeDecision=='A' || AMDLS_V1.typeDecision=='a') {
+			t = "a";
+		}
+		
+		if (AMDLS_V1.typeDecision=='B' || AMDLS_V1.typeDecision=='b') {
+			t = "b";
+		}
+		
+		if (AMDLS_V1.typeDecision=='C' || AMDLS_V1.typeDecision=='c') {
+			t = "c";
+		}
+		AgentVariable.algorithmData = freq+","+t; 
 
 	}
 
@@ -178,7 +197,7 @@ public class AMDLS extends AgentVariableSearch {
 		} else {
 			this.consistentFlag = false;
 		}
-		//this.gotMsgFlag = true;
+		this.gotMsgFlag = true;
 	}
 
 	private boolean checkAllNotZero() {
@@ -219,33 +238,42 @@ public class AMDLS extends AgentVariableSearch {
 		}
 		*/
 		
-		//if (sendWhenMsgReceive) {
-			//return gotMsgFlag;
-		//} else {
+		if (sendWhenMsgReceive) {
+			return gotMsgFlag;
+		} else {
 			return consistentFlag;
-		//}
+		}
 	}
 
 	// 4
 	@Override
 	protected boolean compute() {
-		if (MainSimulator.isAMDLSDistributedDebug && this.id == 8) {
-			System.out.println();
-		}
-		
 		if (consistentFlag ) {
-			this.myCounter = this.myCounter + 1;
-			this.valueAssignment = getCandidateToChange_A();
+			decideAndChange();
+			
 		}
 		return true;
+	}
+
+	protected void decideAndChange() {
+		this.myCounter = this.myCounter + 1;
+		if (typeDecision == 'a'|| typeDecision == 'A') {
+			this.valueAssignment = getCandidateToChange_A();
+		}
+		if (typeDecision == 'b'|| typeDecision == 'B') {
+			this.valueAssignment = getCandidateToChange_B();
+		}
+		if (typeDecision == 'c' || typeDecision == 'C') {
+			this.valueAssignment = getCandidateToChange_C();
+		}
 	}
 
 	// 5
 	@Override
 	protected void sendMsgs() {
 
-		//if ((sendWhenMsgReceive && this.gotMsgFlag) || (!sendWhenMsgReceive && this.consistentFlag)) {
-		if ((!sendWhenMsgReceive && this.consistentFlag)) {
+		if ((sendWhenMsgReceive && this.gotMsgFlag) || (!sendWhenMsgReceive && this.consistentFlag)) {
+		//if ((!sendWhenMsgReceive && this.consistentFlag)) {
 			sendAMDLSmsgs();
 		}
 
@@ -290,7 +318,7 @@ public class AMDLS extends AgentVariableSearch {
 	@Override
 	protected void changeRecieveFlagsToFalse() {
 		consistentFlag = false;
-		//gotMsgFlag = false;
+		gotMsgFlag = false;
 	}
 
 	public void setBelow(Set<NodeId> below) {

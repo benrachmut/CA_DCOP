@@ -17,8 +17,9 @@ import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
-import AlgorithmSearch.AMDLS;
-import AlgorithmSearch.AMDLS_distributed;
+import AlgorithmSearch.AMDLS_V1;
+import AlgorithmSearch.AMDLS_V2;
+import AlgorithmSearch.AMDLS_V3;
 import AlgorithmSearch.DSA_B_ASY;
 import AlgorithmSearch.DSA_B_SY;
 import AlgorithmSearch.DSA_SDP_ASY;
@@ -122,18 +123,21 @@ public abstract class Dcop {
 		}
 
 		if (agentType == 5) {
-			ans = new AMDLS(dcopId, D, agentId);
+			ans = new AMDLS_V1(dcopId, D, agentId);
 		}
 		if (agentType == 6) {
-			ans = new AMDLS_distributed(dcopId, D, agentId);
+			ans = new AMDLS_V2(dcopId, D, agentId);
+		}
+		if (agentType == 7) {
+			ans = new AMDLS_V3(dcopId, D, agentId);
 		}
 
 		
 		
-		if (agentType == 7) {
+		if (agentType == 8) {
 			ans = new DSA_SDP_ASY(dcopId, D, agentId);
 		}
-		if (agentType == 8) {
+		if (agentType == 9) {
 			ans = new DSA_SDP_SY(dcopId, D, agentId);
 		}
 
@@ -219,7 +223,7 @@ public abstract class Dcop {
 	private void handleFormationForAMDLS(Formation[] formations) {
 
 		if (MainSimulator.agentType == 5) {
-			if (AMDLS.structureColor) {
+			if (AMDLS_V1.structureColor) {
 				formations[0].setAboveBelow();
 			} else {
 				formations[1].setAboveBelow();

@@ -99,10 +99,16 @@ public class Neighbor {
 	 * 
 	 * @return
 	 */
-	public int getCurrentCost() {
+	public Integer getCurrentCost() {
 		int i = a1.getValueAssignment();
 		int j = a2.getValueAssignment();
-		return this.constraints[i][j];
+		
+		try {
+			return this.constraints[i][j];
+		}catch(ArrayIndexOutOfBoundsException e) {
+			return null;
+		}
+		
 	}
 
 	public void neighborsMeetings() {

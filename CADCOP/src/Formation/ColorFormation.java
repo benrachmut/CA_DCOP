@@ -17,7 +17,7 @@ import AgentsAbstract.Agent;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
-import AlgorithmSearch.AMDLS;
+import AlgorithmSearch.AMDLS_V1;
 import Main.MainSimulator;
 
 public class ColorFormation extends Formation {
@@ -148,8 +148,8 @@ public class ColorFormation extends Formation {
 				}
 			}
 			if (MainSimulator.agentType == 5) {
-				((AMDLS) a).setAbove(above);
-				((AMDLS) a).setBelow(below);
+				((AMDLS_V1) a).setAbove(above);
+				((AMDLS_V1) a).setBelow(below);
 			}
 
 		}

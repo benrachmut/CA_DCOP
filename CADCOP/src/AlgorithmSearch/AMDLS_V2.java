@@ -13,14 +13,15 @@ import Messages.MsgAMDLS;
 import Messages.MsgAMDLSColor;
 import Messages.MsgAlgorithm;
 
-public class AMDLS_distributed extends AMDLS {
+public class AMDLS_V2 extends AMDLS_V1 {
 	public static int structureHeuristic = 1; // 1:by index, 2:delta_max, 3:delta_min
-	private boolean isWaitingToSetColor;
+	
+	protected boolean isWaitingToSetColor;
 	private Integer myColor;
 	private TreeMap<NodeId, Integer> neighborColors;
-	private boolean canSetColorFlag;
+	protected boolean canSetColorFlag;
 
-	public AMDLS_distributed(int dcopId, int D, int agentId) {
+	public AMDLS_V2(int dcopId, int D, int agentId) {
 		super(dcopId, D, agentId);
 		myColor = null;
 		isWaitingToSetColor = true;
@@ -37,7 +38,22 @@ public class AMDLS_distributed extends AMDLS {
 
 	@Override
 	public void updateAlgorithmName() {
-		AgentVariable.AlgorithmName = "AMDLS_d";
+		String a = "AMDLS";
+		String b = "V2";
+		String c = "";
+		if (AMDLS_V1.typeDecision=='A' || AMDLS_V1.typeDecision=='a') {
+			c = "a";
+		}
+		
+		if (AMDLS_V1.typeDecision=='B' || AMDLS_V1.typeDecision=='b') {
+			c = "b";
+		}
+		
+		if (AMDLS_V1.typeDecision=='C' || AMDLS_V1.typeDecision=='c') {
+			c = "c";
+		}
+		AgentVariable.AlgorithmName = a+"_"+b+"_"+c;
+
 	}
 
 	// done
@@ -60,7 +76,7 @@ public class AMDLS_distributed extends AMDLS {
 		}
 	}
 
-	private void chooseColor() {
+	protected void chooseColor() {
 		Integer currentColor = 1;
 		while (true) {
 			if (isColorValid(currentColor)) {
@@ -82,7 +98,7 @@ public class AMDLS_distributed extends AMDLS {
 		return true;
 	}
 
-	private boolean canSetColorInitilize() {
+	protected boolean canSetColorInitilize() {
 		if (structureHeuristic == 1) {
 			return determineByIndexInit();
 		} else {
@@ -99,7 +115,7 @@ public class AMDLS_distributed extends AMDLS {
 		return true;
 	}
 
-	private void sendAMDLSColorMsgs() {
+	protected void sendAMDLSColorMsgs() {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgAMDLSColor mva = new MsgAMDLSColor(this.nodeId, recieverNodeId, this.valueAssignment,
 					this.timeStampCounter, this.time, this.myCounter, this.myColor);
@@ -110,24 +126,44 @@ public class AMDLS_distributed extends AMDLS {
 	// done
 	@Override
 	public void updateAlgorithmHeader() {
-		AgentVariable.algorithmHeader = "Structure Heuristic";
+		AgentVariable.algorithmHeader = "Structure Heuristic"+","+"Message Frequency"+','+"Decision";;
 	}
 
 	// done
 	@Override
 	public void updateAlgorithmData() {
+		String heuristic="";
 		if (structureHeuristic == 1) {
-			AgentVariable.algorithmData = "Index";
+			heuristic= "Index";
 		}
+		//-------------------------
+		String freq = "";
+		if (AMDLS_V1.sendWhenMsgReceive) {
+			freq = "high";
+		}else {
+			freq = "low";
+		}
+		//-------------------------
+		String t = "";
+		if (AMDLS_V1.typeDecision=='A' || AMDLS_V1.typeDecision=='a') {
+			t = "a";
+		}
+		
+		if (AMDLS_V1.typeDecision=='B' || AMDLS_V1.typeDecision=='b') {
+			t = "b";
+		}
+		
+		if (AMDLS_V1.typeDecision=='C' || AMDLS_V1.typeDecision=='c') {
+			t = "c";
+		}
+		
+		//-------------------------
+
+		AgentVariable.algorithmData = heuristic+","+freq+","+t; 
 	}
 
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
-
-		if (this.id == 8 && MainSimulator.isAMDLSDistributedDebug) {
-			printAMDLSstatus();
-		}
-
 		if (msgAlgorithm instanceof MsgAMDLSColor) {
 			Integer colorN = ((MsgAMDLSColor) msgAlgorithm).getColor();
 			neighborColors.put(msgAlgorithm.getSenderId(), colorN);
@@ -137,10 +173,6 @@ public class AMDLS_distributed extends AMDLS {
 				} else {
 					this.below.add(msgAlgorithm.getSenderId());
 				}
-			}
-
-			if (MainSimulator.isAMDLSDistributedDebug) {
-				System.out.println(this + " got color msg from A_" + msgAlgorithm.getSenderId().getId1());
 			}
 		}
 
@@ -157,13 +189,8 @@ public class AMDLS_distributed extends AMDLS {
 		if (msgAlgorithm instanceof MsgAMDLSColor) {
 			if (canSetColor() && this.isWaitingToSetColor) {
 				canSetColorFlag = true;
-				if (MainSimulator.isAMDLSDistributedDebug) {
-					System.out.println(this + " will be set color");
-				}
-				chooseColor();
-				setAboveAndBelow();
+				
 				isWaitingToSetColor = false;
-				// releaseFutureMsgs();
 			}
 		}
 
@@ -171,17 +198,18 @@ public class AMDLS_distributed extends AMDLS {
 		if (firstCondition || canSetColorFlag) {
 			super.changeRecieveFlagsToTrue(msgAlgorithm);
 		}
+		
+		this.gotMsgFlag = true;
 
 	}
 
 	protected boolean compute() {
-		if (MainSimulator.isAMDLSDistributedDebug && this.id == 8) {
-			System.out.println();
+		if (canSetColorFlag) {
+			chooseColor();
+			setAboveAndBelow();
 		}
-
 		if (consistentFlag && !canSetColorFlag) {
-			this.myCounter = this.myCounter + 1;
-			this.valueAssignment = getCandidateToChange_A();
+			decideAndChange();
 		}
 
 		return true;
@@ -265,6 +293,10 @@ public class AMDLS_distributed extends AMDLS {
 		if (MainSimulator.isAMDLSDistributedDebug && MailerIterations.m_iteration == 50) {
 			printAMDLSstatus();
 		}
+		
+		if (sendWhenMsgReceive) {
+			return gotMsgFlag;
+		}
 		return canSetColorFlag || consistentFlag;
 	}
 
@@ -291,7 +323,7 @@ public class AMDLS_distributed extends AMDLS {
 
 	}
 
-	private void setAboveAndBelow() {
+	protected void setAboveAndBelow() {
 		for (Entry<NodeId, Integer> e : this.neighborColors.entrySet()) {
 			if (e.getValue() != null) {
 				if (this.myColor > e.getValue()) {
@@ -309,17 +341,18 @@ public class AMDLS_distributed extends AMDLS {
 	 */
 	@Override
 	protected void sendMsgs() {
-		if (this.consistentFlag && !canSetColorFlag) {
+		boolean sendAllTheTime = AMDLS_V1.sendWhenMsgReceive && this.gotMsgFlag;
+		
+		if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag)) {
 			sendAMDLSmsgs();
 			
-		} else if (this.canSetColorFlag) {
+		} else if (sendAllTheTime || this.canSetColorFlag) {
 			sendAMDLSColorMsgs();
 			this.consistentFlag = false;
 			this.canSetColorFlag = false;
 			if (releaseFutureMsgs_distributed()) {
 				reactionToAlgorithmicMsgs();
 			}
-			
 		}
 	}
 

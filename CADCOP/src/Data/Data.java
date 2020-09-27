@@ -125,7 +125,7 @@ public class Data {
 		this.monotonicy = calcMonotonicy(mailer, globalCost);
 		this.globalAnytimeCost = calcGlobalAnytimeCost(mailer);
 		this.povCost = calcPovCost(dcop.getVariableAgents());
-		this.globalPovABSDelta = Math.abs(this.povCost - this.globalCost);
+		this.globalPovABSDelta = calcGlobalPovABSDelta(this.povCost, this.globalCost);
 		this.agentZeroGlobalCost = calcAgentZeroGlobalCost(0, dcop.getNeighbors());
 		this.agentZeroPOVCost = calcAgentZeroPOVCost(0, dcop.getVariableAgents(0));
 		this.agentPercentCanStart = calcAgentPercentCanStart(dcop.getVariableAgents());
@@ -139,10 +139,20 @@ public class Data {
 		}
 	}
 
+	private static Double calcGlobalPovABSDelta(Double povCost2, Double globalCost2) {
+		try {
+			return Math.abs(povCost2 - globalCost2);
+		} catch (NullPointerException e) {
+			return null;
+		}
+	}
+
 	private Double calcNumberOfColors(AgentVariable[] avs) {
 		Set<Integer> colors = new HashSet<Integer>();
 		for (AgentVariable av : avs) {
-			colors.add(av.getColorNumber());
+			if (av.getColorNumber() != null) {
+				colors.add(av.getColorNumber());
+			}
 		}
 		return (double) colors.size();
 	}
@@ -273,9 +283,12 @@ public class Data {
 		return ans;
 	}
 
-	private static double calcGlobalCost(List<Neighbor> neighbors) {
+	private static Double calcGlobalCost(List<Neighbor> neighbors) {
 		double ans = 0.0;
 		for (Neighbor n : neighbors) {
+			if (n.getCurrentCost() == null) {
+				return null;
+			}
 			ans += n.getCurrentCost();
 		}
 		return ans;
@@ -301,10 +314,9 @@ public class Data {
 
 		String ans = this.time + "," + this.globalCost + "," + this.monotonicy + "," + this.povCost + ","
 				+ this.globalAnytimeCost + "," + this.changeValueAssignmentCounter + "," + this.algorithmMsgsCounter
-				+ "," + this.agentZeroGlobalCost + "," + this.agentZeroPOVCost + "," + this.globalPovABSDelta+ 
-				"," +agentPercentCanStart+ "," +numberOfColors;
+				+ "," + this.agentZeroGlobalCost + "," + this.agentZeroPOVCost + "," + this.globalPovABSDelta + ","
+				+ agentPercentCanStart + "," + numberOfColors;
 
-		
 		if (MainSimulator.isAnytime) {
 			ans = ans + "," + this.topAgentsAnytimeContextCost + "," + this.anytimeCost + "," + this.topContextCounters
 					+ "," + this.numberOfRepsMeanAtTop + "," + this.numberOfRepsMeanAtAll;

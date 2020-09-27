@@ -44,7 +44,7 @@ public class MainSimulator {
 	public static boolean sendOnlyIfChange = false;
 
 	// ------------------------------**Implementation**
-	public static boolean isThreadMailer = true; // determines the mailers type
+	public static boolean isThreadMailer = false; // determines the mailers type
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
 	// ------------------------------**any time**
@@ -59,14 +59,14 @@ public class MainSimulator {
 
 	// --------__----------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 100;
+	public static int end = 1;
 	public static int end_temp = start;
-	public static int termination = 5000;
+	public static int termination = 1000;
 	private static int everyHowManyExcel = 100;
 
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 50; // amount of agents
+	public static int A = 10; // amount of agents
 	//public static int D = -1; // if D or costParameter < 0 use default
 
 	// ------------------------------ **DCOP GENERATOR**
@@ -78,7 +78,7 @@ public class MainSimulator {
 	public static double dcopUniformP1 = 0.2;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
-	public static int costUbUniform = 100;
+	public static int costUbUniform = 2;
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
 	public static int costLbColor = 10;
@@ -91,16 +91,16 @@ public class MainSimulator {
 	public static int costUbScale = 100;
 	// ------------------------------**Algorithm Selection**
 	/*
-	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS ; 6 = AMDLS_d
-	 * 7 = DSA_SDP-ASY ; 8 = DSA_SDP-SY
+	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS_V1 ; 6 = AMDLS_V2; 7 = AMDLS_V3;
+	 * 8 = DSA_SDP-ASY ; 9 = DSA_SDP-SY
 	 * -------
 	 * 100 = MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType = 5;
+	public static int agentType = 7;
 
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;
-	public static boolean isAMDLSDistributedDebug = false;
+	public static boolean isAMDLSDistributedDebug = true;
 	/*	
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
 	 */

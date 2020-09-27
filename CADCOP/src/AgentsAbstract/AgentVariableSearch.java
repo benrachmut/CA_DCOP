@@ -161,7 +161,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	protected int getCandidateToChange_A() {
 		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
 		int minCost = Collections.min(costPerDomain.values());
-		int costOfCurrentValue = costPerDomain.get(this.valueAssignment);
+		Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
 		if (minCost < costOfCurrentValue ) {
 			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
 			if (alternatives.isEmpty()) {

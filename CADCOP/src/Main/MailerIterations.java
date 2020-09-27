@@ -14,7 +14,7 @@ import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.Context;
 import AgentsAbstract.NodeId;
-import AlgorithmSearch.AMDLS_distributed;
+import AlgorithmSearch.AMDLS_V2;
 import AlgorithmSearch.DSA_B_SY;
 import AlgorithmSearch.MGM;
 import Comparators.CompMsgByDelay;
@@ -47,13 +47,27 @@ public class MailerIterations extends Mailer {
 			m_iteration = iteration;
 			if (MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug) {
 
-				if (iteration % 50 == 0 && iteration != 0) {
+				if (iteration % 2 == 0 && iteration != 0) {
 					System.out.println("-------ITERATION_" + iteration + "-------");
 					System.out.println("--------***COLORS***--------");
 
 					for (AgentVariable a : dcop.getVariableAgents()) {
-						System.out.println(a + ": " + ((AMDLS_distributed) a).getColor());
+						System.out.println(a + ": " + ((AMDLS_V2) a).getColor());
 					}
+					System.out.println();
+
+				}
+				
+				if (iteration % 3 == 0 && iteration != 0) {
+					System.out.println("-------ITERATION_" + iteration + "-------");
+					System.out.println("--------***COLORS***--------");
+
+					for (AgentVariable a : dcop.getVariableAgents()) {
+						System.out.println(a + ": " + ((AMDLS_V2) a).getColor());
+					}
+					
+					System.out.println();
+
 
 				}
 
