@@ -96,7 +96,7 @@ public class MainSimulator {
 	 * -------
 	 * 100 = MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType = 6;
+	public static int agentType = 7;
 
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;
