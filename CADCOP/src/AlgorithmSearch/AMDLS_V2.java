@@ -179,7 +179,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 			}
 		}
 
-		if (!canSetColor() && this.isWaitingToSetColor) {
+		if (!canSetColor() && this.isWaitingToSetColor && msgAlgorithm instanceof MsgAMDLSColor) {
 			MsgAMDLS m = new MsgAMDLS((MsgAMDLSColor) msgAlgorithm);
 			future.add(m);
 		} else {
@@ -192,7 +192,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		if (msgAlgorithm instanceof MsgAMDLSColor) {
 			if (canSetColor() && this.isWaitingToSetColor) {
 				canSetColorFlag = true;
-				
+				this.gotMsgFlag = true;
 				isWaitingToSetColor = false;
 			}
 		}
@@ -202,7 +202,6 @@ public class AMDLS_V2 extends AMDLS_V1 {
 			super.changeRecieveFlagsToTrue(msgAlgorithm);
 		}
 		
-		this.gotMsgFlag = true;
 
 	}
 
@@ -297,7 +296,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 			printAMDLSstatus();
 		}
 		
-		if (sendWhenMsgReceive) {
+		if (sendWhenMsgReceive && canSetColor()) {
 			return gotMsgFlag;
 		}
 		return canSetColorFlag || consistentFlag;
@@ -325,10 +324,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	protected void sendMsgs() {
 		boolean sendAllTheTime = AMDLS_V1.sendWhenMsgReceive && this.gotMsgFlag;
 		
-		if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag)) {
-			sendAMDLSmsgs();
-			
-		} else if (sendAllTheTime || this.canSetColorFlag) {
+		if ( this.canSetColorFlag) {
 			sendAMDLSColorMsgs();
 			this.consistentFlag = false;
 			this.canSetColorFlag = false;
@@ -336,12 +332,17 @@ public class AMDLS_V2 extends AMDLS_V1 {
 				reactionToAlgorithmicMsgs();
 			}
 		}
+		else if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag)) {
+			sendAMDLSmsgs();
+		} 
+		
 	}
 
 	@Override
 	protected void changeRecieveFlagsToFalse() {
 		this.consistentFlag = false;
 		this.canSetColorFlag = false;
+		gotMsgFlag=false;
 	}
 
 	public double getIfColor() {
