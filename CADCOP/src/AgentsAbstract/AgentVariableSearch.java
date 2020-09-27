@@ -145,45 +145,89 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	protected int getCandidateToChange_B() {
 		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
 		int minCost = Collections.min(costPerDomain.values());
-		Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
-		if (minCost <= costOfCurrentValue && costOfCurrentValue!=0) {
+		try {
+			Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
+			if (minCost <= costOfCurrentValue && costOfCurrentValue != 0) {
+				SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
+				if (alternatives.isEmpty()) {
+					return this.valueAssignment;
+				}
+				return alternatives.first();
+			}
+		} catch (NullPointerException e) {
 			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
 			if (alternatives.isEmpty()) {
 				return this.valueAssignment;
 			}
 			return alternatives.first();
 		}
+		/*
+		Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
+		if (costOfCurrentValue == null || minCost <= costOfCurrentValue && costOfCurrentValue != 0) {
+			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
+			if (alternatives.isEmpty()) {
+				return this.valueAssignment;
+			}
+			return alternatives.first();
+		}
+		*/
 		return this.valueAssignment;
 
 	}
-	
-	
+
 	protected int getCandidateToChange_A() {
 		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
 		int minCost = Collections.min(costPerDomain.values());
-		Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
-		if ( minCost < costOfCurrentValue ) {
+		try {
+			Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
+			if (minCost < costOfCurrentValue) {
+				SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
+				if (alternatives.isEmpty()) {
+					return this.valueAssignment;
+				}
+				return alternatives.first();
+			}
+		} catch (NullPointerException e) {
 			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
 			if (alternatives.isEmpty()) {
 				return this.valueAssignment;
 			}
 			return alternatives.first();
 		}
+		
 		return this.valueAssignment;
 
 	}
-	
+
 	protected int getCandidateToChange_C() {
 		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
 		int minCost = Collections.min(costPerDomain.values());
-		Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
-		if (minCost <= costOfCurrentValue) {
+		try {
+			Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
+			if (minCost <= costOfCurrentValue) {
+				SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
+				if (alternatives.isEmpty()) {
+					return this.valueAssignment;
+				}
+				return alternatives.first();
+			}
+		} catch (NullPointerException e) {
 			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
 			if (alternatives.isEmpty()) {
 				return this.valueAssignment;
 			}
 			return alternatives.first();
 		}
+		/*
+		Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
+		if (costOfCurrentValue == null || minCost <= costOfCurrentValue) {
+			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
+			if (alternatives.isEmpty()) {
+				return this.valueAssignment;
+			}
+			return alternatives.first();
+		}
+		*/
 		return this.valueAssignment;
 
 	}
@@ -212,7 +256,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		 * if (MainSimulator.isSDPdebug && this.id==4 && msgReceive.getContext()==1 ) {
 		 * System.out.println("from search"); }
 		 */
-		
+
 		this.neighborsValueAssignmnet.put(msgAlgorithm.getSenderId(), msgReceive);
 	}
 
@@ -323,17 +367,16 @@ public abstract class AgentVariableSearch extends AgentVariable {
 				}
 			}
 			if (msgAnyTime instanceof MsgAnyTimeDownTopFound) {
-				this.fullContextFound.add((Context)msgAnyTime.getContext());
-				Collection<Context>toRemove = new HashSet<Context>();
+				this.fullContextFound.add((Context) msgAnyTime.getContext());
+				Collection<Context> toRemove = new HashSet<Context>();
 				for (Context c : this.contextInMemory) {
-					if (c.isConsistentWith((Context)msgAnyTime.getContext())) {
+					if (c.isConsistentWith((Context) msgAnyTime.getContext())) {
 						toRemove.add(c);
 					}
 				}
 				this.contextInMemory.removeAll(toRemove);
 			}
 
-			
 		}
 
 		updateAgentTime(messages);
@@ -413,7 +456,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 					bestContexFound = context;
 					this.hasAnytimeNews = true;
 					this.anytimeValueAssignmnet = context.getValueAssignmentPerAgent(this.id);
-					//reachTop.add(context);
+					// reachTop.add(context);
 
 				}
 			}
@@ -492,7 +535,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		if (bestContexFound == null) {
 			return false;
 		} else {
-			
+
 			for (Context c : fullContextFound) {
 				if (c.isConsistentWith(context)) {
 					return true;

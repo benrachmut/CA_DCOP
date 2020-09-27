@@ -14,6 +14,7 @@ import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.Context;
 import AgentsAbstract.NodeId;
+import AlgorithmSearch.AMDLS_V1;
 import AlgorithmSearch.AMDLS_V2;
 import AlgorithmSearch.DSA_B_SY;
 import AlgorithmSearch.MGM;
@@ -47,31 +48,7 @@ public class MailerIterations extends Mailer {
 			m_iteration = iteration;
 			if (MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug) {
 
-				if (iteration % 2 == 0 && iteration != 0) {
-					System.out.println("-------ITERATION_" + iteration + "-------");
-					System.out.println("--------***COLORS***--------");
-
-					for (AgentVariable a : dcop.getVariableAgents()) {
-						System.out.println(a + ": " + ((AMDLS_V2) a).getColor());
-					}
-					System.out.println();
-
-				}
-				
-				if (iteration % 3 == 0 && iteration != 0) {
-					System.out.println("-------ITERATION_" + iteration + "-------");
-					System.out.println("--------***COLORS***--------");
-
-					for (AgentVariable a : dcop.getVariableAgents()) {
-						System.out.println(a + ": " + ((AMDLS_V2) a).getColor());
-					}
-					
-					System.out.println();
-
-
-				}
-
-				if (iteration % 998 == 0 && iteration != 0) {
+				if (iteration % 50  == 0 && iteration != 0) {
 					System.out.println();
 				}
 			}
@@ -83,15 +60,7 @@ public class MailerIterations extends Mailer {
 
 			}
 
-			/*
-			 * if (MainSimulator.isAMDLSdebug ) { System.out.println("---"+iteration+"---");
-			 * Collection<AgentVariable>didChange = new HashSet<AgentVariable>(); for
-			 * (AgentVariable a :dcop.getVariableAgents()) { if
-			 * (a.getDidComputeInThisIteration()) { didChange.add(a); } }
-			 * System.out.println(didChange);
-			 * 
-			 * }
-			 */
+			
 
 			agentsReactToMsgs(iteration);
 			createData(iteration);
@@ -175,6 +144,10 @@ public class MailerIterations extends Mailer {
 				agent.initialize(); // abstract method in agents
 			} else {
 				agent.reactionToAlgorithmicMsgs();
+			}
+			
+			if (MainSimulator.isAMDLSDistributedDebug && MailerIterations.m_iteration == 0) {
+				((AMDLS_V1)agent).printAMDLSstatus();
 			}
 		}
 		if (MainSimulator.isAnytime) {

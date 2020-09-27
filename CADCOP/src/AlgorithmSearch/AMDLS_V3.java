@@ -1,6 +1,8 @@
 package AlgorithmSearch;
 
 import AgentsAbstract.AgentVariable;
+import Main.MailerIterations;
+import Main.MainSimulator;
 
 public class AMDLS_V3 extends AMDLS_V2{
 
@@ -44,13 +46,16 @@ public class AMDLS_V3 extends AMDLS_V2{
 	protected boolean compute() {
 		boolean flag = false;
 		if (canSetColorFlag) {
+			
 			chooseColor();
 			setAboveAndBelow();
 			flag = true;
 		}
-		if (flag || (consistentFlag && !canSetColorFlag)) {
+		if (flag || (consistentFlag && !canSetColorFlag)) {			
+			releaseFutureMsgs_distributed();
 			decideAndChange();
 		}
+		
 
 		return true;
 	}

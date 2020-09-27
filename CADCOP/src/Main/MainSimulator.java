@@ -59,14 +59,14 @@ public class MainSimulator {
 
 	// --------__----------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 1;
+	public static int end = 100;
 	public static int end_temp = start;
-	public static int termination = 1000;
+	public static int termination = 10000;
 	private static int everyHowManyExcel = 100;
 
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 10; // amount of agents
+	public static int A = 50; // amount of agents
 	//public static int D = -1; // if D or costParameter < 0 use default
 
 	// ------------------------------ **DCOP GENERATOR**
@@ -78,7 +78,7 @@ public class MainSimulator {
 	public static double dcopUniformP1 = 0.2;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
-	public static int costUbUniform = 2;
+	public static int costUbUniform = 100;
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
 	public static int costLbColor = 10;
@@ -100,7 +100,7 @@ public class MainSimulator {
 
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;
-	public static boolean isAMDLSDistributedDebug = true;
+	public static boolean isAMDLSDistributedDebug = false;
 	/*	
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
 	 */

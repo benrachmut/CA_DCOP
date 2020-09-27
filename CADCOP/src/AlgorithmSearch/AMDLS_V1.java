@@ -249,6 +249,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	@Override
 	protected boolean compute() {
 		if (consistentFlag ) {
+			
 			decideAndChange();
 			
 		}
@@ -257,6 +258,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 
 	protected void decideAndChange() {
 		this.myCounter = this.myCounter + 1;
+		
 		if (typeDecision == 'a'|| typeDecision == 'A') {
 			this.valueAssignment = getCandidateToChange_A();
 		}
@@ -328,6 +330,29 @@ public class AMDLS_V1 extends AgentVariableSearch {
 
 	public void setAbove(Set<NodeId> above) {
 		this.above.addAll(above);
+
+	}
+	
+	public void printAMDLSstatus() {
+		System.out.println("--------------");
+		System.out.println(this.toString() + " counter is " + this.myCounter + " Value is: "+this.valueAssignment);
+		if (!this.above.isEmpty()) {
+			System.out.println("above:");
+			for (NodeId nodeId : above) {
+				System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ", ");
+			}
+			System.out.println();
+
+		}
+
+		if (!this.below.isEmpty()) {
+			System.out.println("below:");
+			for (NodeId nodeId : below) {
+				System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ",");
+			}
+			System.out.println();
+		}
+		System.out.println();
 
 	}
 

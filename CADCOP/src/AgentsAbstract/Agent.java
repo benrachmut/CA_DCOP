@@ -9,6 +9,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import Main.Mailer;
+import Main.MailerIterations;
 import Main.MainSimulator;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
@@ -159,7 +160,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * 
 	 */
 	public synchronized boolean reactionToAlgorithmicMsgs() {
-
+	
 		if (getDidComputeInThisIteration()) {
 
 			boolean isUpdate = compute();
@@ -306,5 +307,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public boolean getIsIdle() {
 		return isIdle;
 	}
+	
+	
 
 }

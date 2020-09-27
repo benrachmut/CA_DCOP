@@ -226,7 +226,11 @@ public class Data {
 		double ans = 0;
 		for (Neighbor n : neighbors) {
 			if (n.getA1().getId() == id1 || n.getA2().getId() == id1) {
+				try {
 				ans += n.getCurrentCost();
+				}catch(NullPointerException e) {
+					return null;
+				}
 			}
 		}
 		return ans;
@@ -256,6 +260,9 @@ public class Data {
 			return 1.0;
 		}
 		Double lastGlobalCost = mailer.getLastGlobalCost();
+		if (lastGlobalCost == null) {
+			return 1.0;
+		}
 		if (lastGlobalCost >= globalCost2) {
 			return 1.0;
 		} else {
@@ -268,10 +275,14 @@ public class Data {
 			return this.globalCost;
 		}
 		Double lastAnytimeGlobal = mailer.getLastGlobalAnytimeCost();
-		if (this.globalCost < lastAnytimeGlobal) {
-			return this.globalCost;
-		} else {
-			return lastAnytimeGlobal;
+		try {
+			if (this.globalCost < lastAnytimeGlobal) {
+				return this.globalCost;
+			} else {
+				return lastAnytimeGlobal;
+			}
+		} catch (NullPointerException e) {
+			return null;
 		}
 	}
 

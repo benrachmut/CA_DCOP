@@ -164,6 +164,9 @@ public class AMDLS_V2 extends AMDLS_V1 {
 
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+		if (MainSimulator.isAMDLSDistributedDebug && this.id == 4) {
+			System.out.println();
+		}
 		if (msgAlgorithm instanceof MsgAMDLSColor) {
 			Integer colorN = ((MsgAMDLSColor) msgAlgorithm).getColor();
 			neighborColors.put(msgAlgorithm.getSenderId(), colorN);
@@ -215,7 +218,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		return true;
 	}
 
-	private boolean releaseFutureMsgs_distributed() {
+	protected boolean releaseFutureMsgs_distributed() {
 
 		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
 		for (MsgAlgorithm m : this.future) {
@@ -300,28 +303,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		return canSetColorFlag || consistentFlag;
 	}
 
-	private void printAMDLSstatus() {
-		System.out.println("--------------");
-		System.out.println(this.toString() + " counter is " + this.myCounter);
-		if (!this.above.isEmpty()) {
-			System.out.println("above:");
-			for (NodeId nodeId : above) {
-				System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ", ");
-			}
-			System.out.println();
-
-		}
-
-		if (!this.below.isEmpty()) {
-			System.out.println("below:");
-			for (NodeId nodeId : below) {
-				System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ",");
-			}
-			System.out.println();
-		}
-		System.out.println();
-
-	}
+	
 
 	protected void setAboveAndBelow() {
 		for (Entry<NodeId, Integer> e : this.neighborColors.entrySet()) {
