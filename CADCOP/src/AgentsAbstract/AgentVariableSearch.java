@@ -145,7 +145,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	protected int getCandidateToChange_B() {
 		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
 		int minCost = Collections.min(costPerDomain.values());
-		int costOfCurrentValue = costPerDomain.get(this.valueAssignment);
+		Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
 		if (minCost <= costOfCurrentValue && costOfCurrentValue!=0) {
 			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
 			if (alternatives.isEmpty()) {
@@ -162,7 +162,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
 		int minCost = Collections.min(costPerDomain.values());
 		Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
-		if (minCost < costOfCurrentValue ) {
+		if ( minCost < costOfCurrentValue ) {
 			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
 			if (alternatives.isEmpty()) {
 				return this.valueAssignment;
@@ -176,7 +176,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	protected int getCandidateToChange_C() {
 		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
 		int minCost = Collections.min(costPerDomain.values());
-		int costOfCurrentValue = costPerDomain.get(this.valueAssignment);
+		Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
 		if (minCost <= costOfCurrentValue) {
 			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
 			if (alternatives.isEmpty()) {
