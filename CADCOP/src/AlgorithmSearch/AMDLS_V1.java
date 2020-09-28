@@ -302,7 +302,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 
 	}
 
-	private boolean isBelowConsistent() {
+	protected boolean isBelowConsistent() {
 		for (NodeId nodeId : this.below) {
 			if (this.counters.get(nodeId) != this.myCounter) {
 				return false;
@@ -311,7 +311,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 		return true;
 	}
 
-	private boolean isAboveConsistent() {
+	protected boolean isAboveConsistent() {
 		for (NodeId nodeId : this.above) {		
 				if (this.counters.get(nodeId) != this.myCounter + 1) {
 					return false;

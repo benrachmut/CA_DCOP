@@ -9,7 +9,7 @@ import Main.MainSimulator;
 public class AMDLS_V3 extends AMDLS_V2 {
 
 	private double rndStochastic;
-	private static double stochastic = 1;
+	private static double stochastic = 0;
 	private boolean firstFlag;
 
 	public AMDLS_V3(int dcopId, int D, int agentId) {
@@ -64,6 +64,9 @@ public class AMDLS_V3 extends AMDLS_V2 {
 
 	protected boolean compute() {
 
+		if (MainSimulator.isAMDLSDistributedDebug && this.id == 4) {
+			System.out.println();
+		}
 		if (this.rndStochastic < stochastic) {
 			if (firstFlag == false) {
 				this.myCounter = myCounter + 1;
@@ -96,6 +99,29 @@ public class AMDLS_V3 extends AMDLS_V2 {
 		return true;
 	}
 
+	/*
+	protected void sendMsgs() {
+		boolean sendAllTheTime = AMDLS_V1.sendWhenMsgReceive && this.gotMsgFlag;
+		boolean flag = false;
+		if ( this.canSetColorFlag) {
+			sendAMDLSColorMsgs();
+			boolean aboveConsistent = isAboveConsistent();
+			boolean belowConsistent = isBelowConsistent();
+			if (aboveConsistent && belowConsistent && allNeighborsHaveColor()) {
+				flag = true;
+			} else {
+				flag = false;
+			}
+		}
+		if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag) || (flag)) {
+			if (flag) {
+				decideAndChange();
+			}
+			sendAMDLSmsgs();
+		} 
+		
+	}
+	*/
 	// done
 	@Override
 	public void updateAlgorithmHeader() {

@@ -4,9 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;import javax.swing.plaf.synth.SynthColorChooserUI;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.management.RuntimeErrorException;
+import javax.swing.plaf.synth.SynthColorChooserUI;
 
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -14,6 +19,8 @@ import AgentsAbstract.Agent;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
+import AlgorithmSearch.AMDLS_V2;
+import Comparators.CompAgentVariableByNeighborSize;
 import Data.Data;
 import Delays.ProtocolDelay;
 import Down.ProtocolDown;
@@ -50,26 +57,24 @@ public abstract class Mailer {
 	}
 
 	abstract public void setMailerName();
-	
+
 	public Data getDataPerIteration(int i) {
 		if (dataMap.containsKey(i)) {
 			return this.dataMap.get(i);
-		}
-		else {
-			while(true) {
-				
-				i = i-1;
-				
+		} else {
+			while (true) {
+
+				i = i - 1;
+
 				if (dataMap.containsKey(i)) {
 					return this.dataMap.get(i);
-				}/*
-				if (i<0) {
-					throw new RuntimeException();
-				}
-				*/
+				} /*
+					 * if (i<0) { throw new RuntimeException(); }
+					 */
 			}
 		}
 	}
+
 	/**
 	 * used by agents when creating messages
 	 * 
@@ -77,30 +82,27 @@ public abstract class Mailer {
 	 */
 	public synchronized void sendMsg(Msg m) {
 
-		changeMsgsCounter(m);		
+		changeMsgsCounter(m);
 		int d = createDelay(m instanceof MsgAlgorithm);
 		if (d != -1) {
 			m.setDelay(d);
 			this.messageBox.add(m);
 		}
 	}
-	
 
 	public void sendMsgWitoutDelay(MsgAlgorithm m) {
 		m.setDelay(0);
 		this.messageBox.add(m);
 	}
-	
+
 	private void changeMsgsCounter(Msg m) {
 		if (m instanceof MsgAlgorithm) {
 			this.algorithmMsgsCounter++;
 		}
 		if (m instanceof MsgAnyTime) {
 			this.anytimeMsgsCounter++;
-		}		
+		}
 	}
-
-	
 
 	private int createDelay(boolean isAlgorithmicMsg) {
 		Double d = this.protocol.getDelay().createDelay(isAlgorithmicMsg);
@@ -127,7 +129,7 @@ public abstract class Mailer {
 		this.messageBox = new ArrayList<Msg>();
 		this.dcop = dcop;
 		boolean isWithTimeStamp = this.protocol.getDelay().isWithTimeStamp();
-	
+
 		for (Agent a : dcop.getAgents()) {
 			a.setIsWithTimeStamp(isWithTimeStamp);
 		}
@@ -195,7 +197,7 @@ public abstract class Mailer {
 			}
 			recieverAgent.receiveAlgorithmicMsgs(msgsForAnAgnet);
 		}
-	
+
 	}
 
 	/**
@@ -338,7 +340,6 @@ public abstract class Mailer {
 		return ans;
 	}
 
-	
 	private void handleMsgAnytime(List<MsgAnyTime> msgsAnyTime) {
 		this.recieversAnyTimeMsgs = getRecieversByNodeIdAnyTime(msgsAnyTime);
 		for (Entry<NodeId, List<MsgAnyTime>> e : recieversAnyTimeMsgs.entrySet()) {
@@ -348,11 +349,7 @@ public abstract class Mailer {
 			if (recieverAgent == null) {
 				System.err.println("from mailer: something is wrong with finding the recieverAgent");
 			}
-			
-			
-			
-			
-			
+
 			if (recieverAgent instanceof AgentVariable) {
 				((AgentVariableSearch) recieverAgent).recieveAnyTimeMsgs(msgsForAnAgnet);
 			}
@@ -360,16 +357,16 @@ public abstract class Mailer {
 		}
 	}
 
-	
 	protected boolean isAnytimeUpToSend() {
 		for (AgentVariable a : this.dcop.getVariableAgents()) {
-			AgentVariableSearch as = (AgentVariableSearch)a;
-			if (as.getAnytimeUpToSendSize()!=0) {
+			AgentVariableSearch as = (AgentVariableSearch) a;
+			if (as.getAnytimeUpToSendSize() != 0) {
 				return true;
 			}
 		}
 		return false;
 	}
+
 	public Double getAlgorithmMsgsCounter() {
 		return this.algorithmMsgsCounter;
 	}
@@ -385,21 +382,21 @@ public abstract class Mailer {
 
 	public Double getLastGlobalCost() {
 		try {
-		Integer lastTime = dataMap.lastKey();
-		Data d = dataMap.get(lastTime);
-		return d.getGlobalCost();
-		}catch (Exception e) {
+			Integer lastTime = dataMap.lastKey();
+			Data d = dataMap.get(lastTime);
+			return d.getGlobalCost();
+		} catch (Exception e) {
 			return 0.0;
 		}
-		
+
 	}
 
 	public Double getLastGlobalAnytimeCost() {
 		try {
-		Integer lastTime = dataMap.lastKey();
-		Data d = dataMap.get(lastTime);
-		return d.getGlobalAnytimeCost();
-		}catch (Exception e) {
+			Integer lastTime = dataMap.lastKey();
+			Data d = dataMap.get(lastTime);
+			return d.getGlobalAnytimeCost();
+		} catch (Exception e) {
 			return 0.0;
 		}
 	}
@@ -411,7 +408,7 @@ public abstract class Mailer {
 
 	public Dcop getDcop() {
 		return this.dcop;
-		
+
 	}
 
 	public synchronized void wakeUp() {
@@ -419,6 +416,34 @@ public abstract class Mailer {
 		if (MainSimulator.isThreadDebug) {
 			System.out.println("mailer wake up");
 		}
+	}
+
+	public boolean isMaxOfItsNeighbors(AgentVariable a) {
+		SortedSet<AgentVariable> agentsLocal = getSortedSetOfAgentInput(a);
+		agentsLocal.add(a);
+		return agentsLocal.last().getId() == a.getId();
+	}
+	
+	public boolean isMinOfItsNeighbors(AgentVariable a) {
+		SortedSet<AgentVariable> agentsLocal = getSortedSetOfAgentInput(a);
+		agentsLocal.add(a);
+		return agentsLocal.first().getId() == a.getId();
+	}
+
+	private SortedSet<AgentVariable> getSortedSetOfAgentInput(AgentVariable a) {
+		SortedSet<AgentVariable> agentsLocal = new TreeSet<AgentVariable>(new CompAgentVariableByNeighborSize());
+
+		Set<NodeId> nSet = a.getNeigborSetId();
+		for (NodeId nodeId : nSet) {
+			Agent aN = getAgentByNodeId(nodeId);
+			if (aN instanceof AgentVariable) {
+				AgentVariable agN = (AgentVariable) aN;
+				agentsLocal.add(agN);
+			} else {
+				throw new RuntimeException("Should not use this method, only for agent variables");
+			}
+		}
+		return agentsLocal;
 	}
 
 	

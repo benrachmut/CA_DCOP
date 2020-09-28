@@ -15,7 +15,6 @@ import Messages.MsgAlgorithm;
 
 public class AMDLS_V2 extends AMDLS_V1 {
 	public static int structureHeuristic = 1; // 1:by index, 2:delta_max, 3:delta_min
-
 	protected boolean isWaitingToSetColor;
 	private Integer myColor;
 	private TreeMap<NodeId, Integer> neighborColors;
@@ -41,18 +40,18 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		String a = "AMDLS";
 		String b = "V2";
 		String c = "";
-		if (AMDLS_V1.typeDecision == 'A' || AMDLS_V1.typeDecision == 'a') {
+		if (AMDLS_V1.typeDecision=='A' || AMDLS_V1.typeDecision=='a') {
 			c = "a";
 		}
-
-		if (AMDLS_V1.typeDecision == 'B' || AMDLS_V1.typeDecision == 'b') {
+		
+		if (AMDLS_V1.typeDecision=='B' || AMDLS_V1.typeDecision=='b') {
 			c = "b";
 		}
-
-		if (AMDLS_V1.typeDecision == 'C' || AMDLS_V1.typeDecision == 'c') {
+		
+		if (AMDLS_V1.typeDecision=='C' || AMDLS_V1.typeDecision=='c') {
 			c = "c";
 		}
-		AgentVariable.AlgorithmName = a + "_" + b + "_" + c;
+		AgentVariable.AlgorithmName = a+"_"+b+"_"+c;
 
 	}
 
@@ -101,9 +100,25 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	protected boolean canSetColorInitilize() {
 		if (structureHeuristic == 1) {
 			return determineByIndexInit();
-		} else {
+		} 
+		if (structureHeuristic == 2) {
+			return determineByMaxNeighborInit();
+		}
+		if (structureHeuristic == 3) {
+			return determineByMinNeighborInit();
+		}
+		else {
 			throw new RuntimeException();
 		}
+	}
+
+	private boolean determineByMinNeighborInit() {
+		// TODO Auto-generated method stub
+		return mailer.isMinOfItsNeighbors(this);
+	}
+
+	private boolean determineByMaxNeighborInit() {
+		return mailer.isMaxOfItsNeighbors(this);
 	}
 
 	private boolean determineByIndexInit() {
@@ -126,46 +141,55 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	// done
 	@Override
 	public void updateAlgorithmHeader() {
-		AgentVariable.algorithmHeader = "Structure Heuristic" + "," + "Message Frequency" + ',' + "Decision";
-		;
+		AgentVariable.algorithmHeader = "Structure Heuristic"+","+"Message Frequency"+','+"Decision";;
 	}
 
 	// done
 	@Override
 	public void updateAlgorithmData() {
-		String heuristic = "";
+		String heuristic="";
 		if (structureHeuristic == 1) {
-			heuristic = "Index";
+			heuristic= "Index";
 		}
-		// -------------------------
+		
+		if (structureHeuristic == 2) {
+			heuristic= "Max Neighbor";
+		}
+		
+		if (structureHeuristic == 3) {
+			heuristic= "Min Neighbor";
+		}
+		//-------------------------
 		String freq = "";
 		if (AMDLS_V1.sendWhenMsgReceive) {
 			freq = "high";
-		} else {
+		}else {
 			freq = "low";
 		}
-		// -------------------------
+		//-------------------------
 		String t = "";
-		if (AMDLS_V1.typeDecision == 'A' || AMDLS_V1.typeDecision == 'a') {
+		if (AMDLS_V1.typeDecision=='A' || AMDLS_V1.typeDecision=='a') {
 			t = "a";
 		}
-
-		if (AMDLS_V1.typeDecision == 'B' || AMDLS_V1.typeDecision == 'b') {
+		
+		if (AMDLS_V1.typeDecision=='B' || AMDLS_V1.typeDecision=='b') {
 			t = "b";
 		}
-
-		if (AMDLS_V1.typeDecision == 'C' || AMDLS_V1.typeDecision == 'c') {
+		
+		if (AMDLS_V1.typeDecision=='C' || AMDLS_V1.typeDecision=='c') {
 			t = "c";
 		}
+		
+		//-------------------------
 
-		// -------------------------
-
-		AgentVariable.algorithmData = heuristic + "," + freq + "," + t;
+		AgentVariable.algorithmData = heuristic+","+freq+","+t; 
 	}
 
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
-
+		if (MainSimulator.isAMDLSDistributedDebug && this.id == 4) {
+			System.out.println();
+		}
 		if (msgAlgorithm instanceof MsgAMDLSColor) {
 			Integer colorN = ((MsgAMDLSColor) msgAlgorithm).getColor();
 			neighborColors.put(msgAlgorithm.getSenderId(), colorN);
@@ -200,6 +224,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		if (firstCondition || canSetColorFlag) {
 			super.changeRecieveFlagsToTrue(msgAlgorithm);
 		}
+		
 
 	}
 
@@ -238,7 +263,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		return true;
 	}
 
-	private boolean allNeighborsHaveColor() {
+	protected boolean allNeighborsHaveColor() {
 		Set<NodeId> allNeighbors = this.neighborsConstraint.keySet();
 		for (NodeId nodeId : allNeighbors) {
 			if (this.neighborColors.get(nodeId) == null) {
@@ -263,7 +288,15 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	private Set<NodeId> getNeighborsIRequireToWait() {
 		if (structureHeuristic == 1) {
 			return neighborsWithSmallerIndexThenMe();
-		} else {
+		} 
+		if (structureHeuristic == 2) {
+			return neighborsWithMoreNeighborsThenMeThenMe();
+		}
+		if (structureHeuristic == 3) {
+			return neighborsWithLessNeighborsThenMeThenMe();
+		}
+		
+		else {
 			throw new RuntimeException();
 		}
 	}
@@ -293,12 +326,14 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		if (MainSimulator.isAMDLSDistributedDebug && MailerIterations.m_iteration == 50) {
 			printAMDLSstatus();
 		}
-
+		
 		if (sendWhenMsgReceive && canSetColor()) {
 			return gotMsgFlag;
 		}
 		return canSetColorFlag || consistentFlag;
 	}
+
+	
 
 	protected void setAboveAndBelow() {
 		for (Entry<NodeId, Integer> e : this.neighborColors.entrySet()) {
@@ -316,28 +351,62 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	 * if (consistentFlag && !canSetColorFlag) { private void
 	 * releaseFutureMsgs_distributed() {
 	 */
+	
+	/*
 	@Override
 	protected void sendMsgs() {
 		boolean sendAllTheTime = AMDLS_V1.sendWhenMsgReceive && this.gotMsgFlag;
-
-		if (this.canSetColorFlag) {
+		
+		if ( this.canSetColorFlag) {
 			sendAMDLSColorMsgs();
 			this.consistentFlag = false;
 			this.canSetColorFlag = false;
 			if (releaseFutureMsgs_distributed()) {
+				
 				reactionToAlgorithmicMsgs();
 			}
-		} else if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag)) {
-			sendAMDLSmsgs();
 		}
-
+		else if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag)) {
+			sendAMDLSmsgs();
+		} 
+		
 	}
-
+*/
+	
+	protected void sendMsgs() {
+		boolean sendAllTheTime = AMDLS_V1.sendWhenMsgReceive && this.gotMsgFlag;
+		boolean flag = false;
+		if ( this.canSetColorFlag) {
+			sendAMDLSColorMsgs();
+			
+			this.consistentFlag = false;
+			this.canSetColorFlag = false;
+			if (releaseFutureMsgs_distributed()) {	
+				reactionToAlgorithmicMsgs();
+			}
+			
+			
+			boolean aboveConsistent = isAboveConsistent();
+			boolean belowConsistent = isBelowConsistent();
+			if (aboveConsistent && belowConsistent && allNeighborsHaveColor()) {
+				flag = true;
+			} else {
+				flag = false;
+			}
+		}
+		if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag) || (flag)) {
+			if (flag) {
+				decideAndChange();
+			}
+			sendAMDLSmsgs();
+		} 
+		
+	}
 	@Override
 	protected void changeRecieveFlagsToFalse() {
 		this.consistentFlag = false;
 		this.canSetColorFlag = false;
-		gotMsgFlag = false;
+		gotMsgFlag=false;
 	}
 
 	public double getIfColor() {
