@@ -47,10 +47,7 @@ public class MailerIterations extends Mailer {
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
 			m_iteration = iteration;
 			if (MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug) {
-
-				if (iteration % 50  == 0 && iteration != 0) {
-					System.out.println();
-				}
+				System.out.println("-------ITERATION_" + iteration + "-------");
 			}
 
 			if (MainSimulator.isAnytimeDebug) {
@@ -59,8 +56,6 @@ public class MailerIterations extends Mailer {
 				}
 
 			}
-
-			
 
 			agentsReactToMsgs(iteration);
 			createData(iteration);
@@ -139,16 +134,24 @@ public class MailerIterations extends Mailer {
 	private void agentsReactToMsgs(int iteration) {
 
 		for (Agent agent : dcop.getAgents()) {
+			
+			if (MainSimulator.isAMDLSDistributedDebug && agent.getId() == 0 && iteration == 5) {
+				System.out.println();
+			}
 			if (iteration == 0) {
 				agent.resetAgent();
 				agent.initialize(); // abstract method in agents
 			} else {
 				agent.reactionToAlgorithmicMsgs();
 			}
-			
-			if (MainSimulator.isAMDLSDistributedDebug && MailerIterations.m_iteration == 0) {
-				((AMDLS_V1)agent).printAMDLSstatus();
+
+			if (MainSimulator.isAMDLSDistributedDebug) {
+				((AMDLS_V1) agent).printAMDLSstatus();
 			}
+		}
+
+		if (MainSimulator.isAMDLSDistributedDebug) {
+			System.out.println();
 		}
 		if (MainSimulator.isAnytime) {
 

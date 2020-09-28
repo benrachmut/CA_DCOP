@@ -59,7 +59,7 @@ public class MainSimulator {
 
 	// --------__----------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 100;
+	public static int end = 1;
 	public static int end_temp = start;
 	public static int termination = 5000;
 	private static int everyHowManyExcel = 100;
@@ -96,7 +96,7 @@ public class MainSimulator {
 	 * -------
 	 * 100 = MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType = 7;
+	public static int agentType = 6;
 
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;

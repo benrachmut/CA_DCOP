@@ -15,7 +15,7 @@ import Messages.MsgAlgorithm;
 
 public class AMDLS_V2 extends AMDLS_V1 {
 	public static int structureHeuristic = 1; // 1:by index, 2:delta_max, 3:delta_min
-	
+
 	protected boolean isWaitingToSetColor;
 	private Integer myColor;
 	private TreeMap<NodeId, Integer> neighborColors;
@@ -41,18 +41,18 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		String a = "AMDLS";
 		String b = "V2";
 		String c = "";
-		if (AMDLS_V1.typeDecision=='A' || AMDLS_V1.typeDecision=='a') {
+		if (AMDLS_V1.typeDecision == 'A' || AMDLS_V1.typeDecision == 'a') {
 			c = "a";
 		}
-		
-		if (AMDLS_V1.typeDecision=='B' || AMDLS_V1.typeDecision=='b') {
+
+		if (AMDLS_V1.typeDecision == 'B' || AMDLS_V1.typeDecision == 'b') {
 			c = "b";
 		}
-		
-		if (AMDLS_V1.typeDecision=='C' || AMDLS_V1.typeDecision=='c') {
+
+		if (AMDLS_V1.typeDecision == 'C' || AMDLS_V1.typeDecision == 'c') {
 			c = "c";
 		}
-		AgentVariable.AlgorithmName = a+"_"+b+"_"+c;
+		AgentVariable.AlgorithmName = a + "_" + b + "_" + c;
 
 	}
 
@@ -126,47 +126,46 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	// done
 	@Override
 	public void updateAlgorithmHeader() {
-		AgentVariable.algorithmHeader = "Structure Heuristic"+","+"Message Frequency"+','+"Decision";;
+		AgentVariable.algorithmHeader = "Structure Heuristic" + "," + "Message Frequency" + ',' + "Decision";
+		;
 	}
 
 	// done
 	@Override
 	public void updateAlgorithmData() {
-		String heuristic="";
+		String heuristic = "";
 		if (structureHeuristic == 1) {
-			heuristic= "Index";
+			heuristic = "Index";
 		}
-		//-------------------------
+		// -------------------------
 		String freq = "";
 		if (AMDLS_V1.sendWhenMsgReceive) {
 			freq = "high";
-		}else {
+		} else {
 			freq = "low";
 		}
-		//-------------------------
+		// -------------------------
 		String t = "";
-		if (AMDLS_V1.typeDecision=='A' || AMDLS_V1.typeDecision=='a') {
+		if (AMDLS_V1.typeDecision == 'A' || AMDLS_V1.typeDecision == 'a') {
 			t = "a";
 		}
-		
-		if (AMDLS_V1.typeDecision=='B' || AMDLS_V1.typeDecision=='b') {
+
+		if (AMDLS_V1.typeDecision == 'B' || AMDLS_V1.typeDecision == 'b') {
 			t = "b";
 		}
-		
-		if (AMDLS_V1.typeDecision=='C' || AMDLS_V1.typeDecision=='c') {
+
+		if (AMDLS_V1.typeDecision == 'C' || AMDLS_V1.typeDecision == 'c') {
 			t = "c";
 		}
-		
-		//-------------------------
 
-		AgentVariable.algorithmData = heuristic+","+freq+","+t; 
+		// -------------------------
+
+		AgentVariable.algorithmData = heuristic + "," + freq + "," + t;
 	}
 
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
-		if (MainSimulator.isAMDLSDistributedDebug && this.id == 4) {
-			System.out.println();
-		}
+
 		if (msgAlgorithm instanceof MsgAMDLSColor) {
 			Integer colorN = ((MsgAMDLSColor) msgAlgorithm).getColor();
 			neighborColors.put(msgAlgorithm.getSenderId(), colorN);
@@ -201,7 +200,6 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		if (firstCondition || canSetColorFlag) {
 			super.changeRecieveFlagsToTrue(msgAlgorithm);
 		}
-		
 
 	}
 
@@ -295,14 +293,12 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		if (MainSimulator.isAMDLSDistributedDebug && MailerIterations.m_iteration == 50) {
 			printAMDLSstatus();
 		}
-		
+
 		if (sendWhenMsgReceive && canSetColor()) {
 			return gotMsgFlag;
 		}
 		return canSetColorFlag || consistentFlag;
 	}
-
-	
 
 	protected void setAboveAndBelow() {
 		for (Entry<NodeId, Integer> e : this.neighborColors.entrySet()) {
@@ -323,26 +319,25 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	@Override
 	protected void sendMsgs() {
 		boolean sendAllTheTime = AMDLS_V1.sendWhenMsgReceive && this.gotMsgFlag;
-		
-		if ( this.canSetColorFlag) {
+
+		if (this.canSetColorFlag) {
 			sendAMDLSColorMsgs();
 			this.consistentFlag = false;
 			this.canSetColorFlag = false;
 			if (releaseFutureMsgs_distributed()) {
 				reactionToAlgorithmicMsgs();
 			}
-		}
-		else if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag)) {
+		} else if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag)) {
 			sendAMDLSmsgs();
-		} 
-		
+		}
+
 	}
 
 	@Override
 	protected void changeRecieveFlagsToFalse() {
 		this.consistentFlag = false;
 		this.canSetColorFlag = false;
-		gotMsgFlag=false;
+		gotMsgFlag = false;
 	}
 
 	public double getIfColor() {
