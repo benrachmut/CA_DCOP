@@ -271,7 +271,6 @@ public class Data {
 			}
 		} catch (NullPointerException e) {
 			return 1.0;
-
 		}
 	}
 

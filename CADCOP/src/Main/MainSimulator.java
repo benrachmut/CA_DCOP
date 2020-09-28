@@ -33,7 +33,6 @@ import Problem.DcopUniform;
 
 public class MainSimulator {
 
-	
 	// ------------------------------**For Data
 	public static List<Mailer> mailerAll = new ArrayList<Mailer>();
 	public static Map<Protocol, List<Mailer>> mailersByProtocol = new HashMap<Protocol, List<Mailer>>();
@@ -59,15 +58,14 @@ public class MainSimulator {
 
 	// --------__----------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 10;
+	public static int end = 100;
 	public static int end_temp = start;
-	public static int termination = 5000;
+	public static int termination = 3000;
 	private static int everyHowManyExcel = 100;
-
 
 	// ------------------------------**PROBLEM MANGNITUDE**
 	public static int A = 50; // amount of agents
-	//public static int D = -1; // if D or costParameter < 0 use default
+	// public static int D = -1; // if D or costParameter < 0 use default
 
 	// ------------------------------ **DCOP GENERATOR**
 	/*
@@ -91,17 +89,16 @@ public class MainSimulator {
 	public static int costUbScale = 100;
 	// ------------------------------**Algorithm Selection**
 	/*
-	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS_V1 ; 6 = AMDLS_V2; 7 = AMDLS_V3;
-	 * 8 = DSA_SDP-ASY ; 9 = DSA_SDP-SY
-	 * -------
-	 * 100 = MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
+	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS_V1 ; 6 =
+	 * AMDLS_V2; 7 = AMDLS_V3; 8 = DSA_SDP-ASY ; 9 = DSA_SDP-SY ------- 100 =
+	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType =7;
+	public static int agentType = 7;
 
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;
 	public static boolean isAMDLSDistributedDebug = false;
-	/*	
+	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
 	 */
 	public static int delayType = 2;
@@ -121,17 +118,16 @@ public class MainSimulator {
 
 	public static String header = "";
 	public static Collection<String> meanLineInExcel = new ArrayList<String>();
-	public static Collection<String>  lastLineInExcel = new ArrayList<String>();
+	public static Collection<String> lastLineInExcel = new ArrayList<String>();
+
+
 	public static String fileName = "";
 
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();
-		// printProblemCreationDebug(dcops);
 		List<Protocol> protocols = createProtocols();
 		runDcops(dcops, protocols);
 		createData();
-
-		// createStatistics();
 	}
 
 	private static void createExcel(Collection<String> lines) {
@@ -157,18 +153,18 @@ public class MainSimulator {
 	private static void createData() {
 		createMeanData();
 		createLastData();
-
-		
 	}
+
+	
+
 
 	private static void createLastData() {
 		createFileName("Last");
-		createHeader(true,"run#");
+		createHeader(true, "run#");
 		createLast();
 		createExcel(lastLineInExcel);
 	}
-	
-	
+
 	private static void createLast() {
 		String dcopString = Dcop.dcopName;
 		String algoString = AgentVariable.AlgorithmName + "," + AgentVariable.algorithmData;
@@ -179,9 +175,9 @@ public class MainSimulator {
 			for (Entry<Integer, Data> e1 : mapLastDataPerDcop.entrySet()) {
 				String tempAns = dcopString + "," + protocolString + "," + algoString + "," + e1.getValue();
 				if (isAnytime) {
-					tempAns = tempAns+","+anytimeInfoString;
+					tempAns = tempAns + "," + anytimeInfoString;
 				}
-				lastLineInExcel.add(e1.getKey()+","+tempAns);
+				lastLineInExcel.add(e1.getKey() + "," + tempAns);
 			}
 		}
 
@@ -189,7 +185,7 @@ public class MainSimulator {
 
 	private static void createMeanData() {
 		createFileName("Mean");
-		createHeader(false,"");
+		createHeader(false, "");
 		createMeansByProtocol();
 		createExcel(meanLineInExcel);
 	}
@@ -210,15 +206,15 @@ public class MainSimulator {
 		ans = ans + "Time_" + (termination);
 
 		if (isAnytime) {
-			ans = ans +","+ "Heurstic_" + (anytimeMemoryHuerstic);
-			ans = ans +","+ "del_" + (deleteAfterCombine);
+			ans = ans + "," + "Heurstic_" + (anytimeMemoryHuerstic);
+			ans = ans + "," + "del_" + (deleteAfterCombine);
 
-			if (anytimeMemoryHuerstic !=1) {
-				ans = ans +","+ "size_" + (anytimeMemoryLimitedSize);
+			if (anytimeMemoryHuerstic != 1) {
+				ans = ans + "," + "size_" + (anytimeMemoryLimitedSize);
 			}
 
 		}
-		fileName = fileType+","+ans;
+		fileName = fileType + "," + ans;
 	}
 
 	private static void createMeansByProtocol() {
@@ -235,7 +231,7 @@ public class MainSimulator {
 			for (Entry<Integer, Data> e1 : meanMap.entrySet()) {
 				String tempAns = dcopString + "," + protocolString + "," + algoString + "," + e1.getValue();
 				if (isAnytime) {
-					tempAns = tempAns+","+anytimeInfoString;
+					tempAns = tempAns + "," + anytimeInfoString;
 				}
 				meanLineInExcel.add(tempAns);
 
@@ -271,11 +267,11 @@ public class MainSimulator {
 			String isWithDelCombine = "";
 			if (deleteAfterCombine) {
 				isWithDelCombine = "Delete Combined";
-			}else {
+			} else {
 				isWithDelCombine = "Delete Combined - not";
 
 			}
-			return formation + "," + heuristic + "," + MemorySize+","+isWithDelCombine;
+			return formation + "," + heuristic + "," + MemorySize + "," + isWithDelCombine;
 		}
 		return "";
 	}
@@ -288,18 +284,18 @@ public class MainSimulator {
 		return ans;
 	}
 
-	
 	private static SortedMap<Integer, Data> getMapLastDataPerDcop(List<Mailer> mailersPerProtocol) {
 		SortedMap<Integer, Data> ans = new TreeMap<Integer, Data>();
-		
+
 		for (Mailer mailer : mailersPerProtocol) {
-			Data lastData= mailer.getLastData();
+			Data lastData = mailer.getLastData();
 			int dcopId = mailer.getDcop().getId();
 			ans.put(dcopId, lastData);
 		}
-		
+
 		return ans;
 	}
+
 	private static SortedMap<Integer, List<Data>> getMeanMapBeforeAvg(List<Mailer> mailers) {
 		SortedMap<Integer, List<Data>> ans = new TreeMap<Integer, List<Data>>();
 
@@ -335,20 +331,19 @@ public class MainSimulator {
 	private static Dcop createDcop(int dcopId) {
 		Dcop ans = null;
 		// use default Domain contractors
-	
-			if (dcopBenchMark == 1) {
-				ans = new DcopUniform(dcopId, A, 10, costLbUniform, costUbUniform, dcopUniformP1, dcopUniformP2);
-			}
 
-			if (dcopBenchMark == 2) {
-				ans = new DcopGraphColoring(dcopId, A, 3, costLbColor, costUbColor, dcopGraphColoringP1);
-			}
+		if (dcopBenchMark == 1) {
+			ans = new DcopUniform(dcopId, A, 10, costLbUniform, costUbUniform, dcopUniformP1, dcopUniformP2);
+		}
 
-			if (dcopBenchMark == 3) {
-				ans = new DcopScaleFreeNetwork(dcopId, A, 10, costLbScale, costUbScale, dcopScaleHubs, dcopScaleNeighbors,
-						dcopScaleP2);
-			}
-		
+		if (dcopBenchMark == 2) {
+			ans = new DcopGraphColoring(dcopId, A, 3, costLbColor, costUbColor, dcopGraphColoringP1);
+		}
+
+		if (dcopBenchMark == 3) {
+			ans = new DcopScaleFreeNetwork(dcopId, A, 10, costLbScale, costUbScale, dcopScaleHubs, dcopScaleNeighbors,
+					dcopScaleP2);
+		}
 
 		return ans;
 	}
@@ -420,18 +415,19 @@ public class MainSimulator {
 					mailer.execute();
 				}
 				addMailerToDataFrames(protocol, mailer);
-				System.out.println("Algo: " + AgentVariable.AlgorithmName + "; Finish DCOP: "+ dcop.getId() +" "+Dcop.dcopName+"; "
-						+ " ; SCORE: " + mailer.getDataPerIteration(termination - 1).getGlobalCost() + "; protocol "
-						+ protocol.getDelay());
+				System.out.println(
+						"Algo: " + AgentVariable.AlgorithmName + "; Finish DCOP: " + dcop.getId() + " " + Dcop.dcopName
+								+ "; " + " ; SCORE: " + mailer.getDataPerIteration(termination - 1).getGlobalCost()
+								+ "; protocol " + protocol.getDelay());
 			}
 			System.out.println("----------------------------");
 			end_temp = dcop.getId();
-			
-			if (end_temp % everyHowManyExcel  == 0 && end_temp !=0) {
+
+			if (end_temp % everyHowManyExcel == 0 && end_temp != 0) {
 				createData();
 				meanLineInExcel = new ArrayList<String>();
 			}
-			
+
 		}
 
 	}
@@ -479,10 +475,11 @@ public class MainSimulator {
 		header = header + "Algorithm" + "," + AgentVariable.algorithmHeader + ",";
 		header = header + Data.header();
 		if (isAnytime) {
-			header = header + "," + "Formation" + "," + "Heuristic" + "," + "Memory Size"+ "," +"Delete After Combine";
+			header = header + "," + "Formation" + "," + "Heuristic" + "," + "Memory Size" + ","
+					+ "Delete After Combine";
 		}
 		if (b) {
-			header = addition+","+header;
+			header = addition + "," + header;
 		}
 
 	}
