@@ -1,7 +1,10 @@
 package Main;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -423,7 +426,7 @@ public abstract class Mailer {
 		agentsLocal.add(a);
 		return agentsLocal.last().getId() == a.getId();
 	}
-	
+
 	public boolean isMinOfItsNeighbors(AgentVariable a) {
 		SortedSet<AgentVariable> agentsLocal = getSortedSetOfAgentInput(a);
 		agentsLocal.add(a);
@@ -446,6 +449,49 @@ public abstract class Mailer {
 		return agentsLocal;
 	}
 
-	
+	public Set<NodeId> getNeighborsWithMoreNeighborsThenMe(AgentVariable a) {
+
+		Set<NodeId> ans = new HashSet<NodeId>();
+
+		SortedSet<AgentVariable> agentsLocal = getSortedSetOfAgentInput(a);
+		//Iterator<AgentVariable> it = agentsLocal.iterator();
+		CompAgentVariableByNeighborSize c = new CompAgentVariableByNeighborSize();
+
+		for (AgentVariable n : agentsLocal) {
+			int c_number = c.compare(a, n);
+			if (c_number < 0) {
+				ans.add(n.getNodeId());
+			}
+			if (c_number > 0) {
+				// will stay out
+			}
+			if (c_number == 0) {
+				throw new RuntimeException("The comparator should not have equal values");
+			}
+		}
+		return ans;
+	}
+
+	public Set<NodeId> getNeighborsWithLessNeighborsThenMe(AgentVariable a) {
+		Set<NodeId> ans = new HashSet<NodeId>();
+
+		SortedSet<AgentVariable> agentsLocal = getSortedSetOfAgentInput(a);
+		Iterator<AgentVariable> it = agentsLocal.iterator();
+		Comparator c = new CompAgentVariableByNeighborSize();
+
+		for (AgentVariable n : agentsLocal) {
+			int c_number = c.compare(a, n);
+			if (c_number < 0) {
+				// will stay out
+			}
+			if (c_number > 0) {
+				ans.add(n.getNodeId());
+			}
+			if (c_number == 0) {
+				throw new RuntimeException("The comparator should not have equal values");
+			}
+		}
+		return ans;
+	}
 
 }

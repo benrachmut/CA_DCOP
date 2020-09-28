@@ -132,9 +132,17 @@ public class AMDLS_V3 extends AMDLS_V2 {
 	// done
 	@Override
 	public void updateAlgorithmData() {
-		String heuristic = "";
+		String heuristic="";
 		if (structureHeuristic == 1) {
-			heuristic = "Index";
+			heuristic= "Index";
+		}
+		
+		if (structureHeuristic == 2) {
+			heuristic= "Max Neighbor";
+		}
+		
+		if (structureHeuristic == 3) {
+			heuristic= "Min Neighbor";
 		}
 		// -------------------------
 		String freq = "";

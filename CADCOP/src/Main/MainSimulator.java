@@ -44,7 +44,7 @@ public class MainSimulator {
 	public static boolean sendOnlyIfChange = false;
 
 	// ------------------------------**Implementation**
-	public static boolean isThreadMailer = false; // determines the mailers type
+	public static boolean isThreadMailer = true; // determines the mailers type
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
 	// ------------------------------**any time**
@@ -96,7 +96,7 @@ public class MainSimulator {
 	 * -------
 	 * 100 = MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType =7;
+	public static int agentType =6;
 
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;

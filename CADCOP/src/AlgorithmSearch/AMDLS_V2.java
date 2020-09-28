@@ -113,7 +113,6 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	}
 
 	private boolean determineByMinNeighborInit() {
-		// TODO Auto-generated method stub
 		return mailer.isMinOfItsNeighbors(this);
 	}
 
@@ -181,6 +180,9 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		}
 		
 		//-------------------------
+		
+
+		
 
 		AgentVariable.algorithmData = heuristic+","+freq+","+t; 
 	}
@@ -274,6 +276,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	}
 
 	private boolean canSetColor() {
+		
 		Set<NodeId> neighborsThatHaveColor = getNeighborsThatHaveColor();
 		Set<NodeId> neighborsIRequireToWait = getNeighborsIRequireToWait();
 
@@ -290,15 +293,23 @@ public class AMDLS_V2 extends AMDLS_V1 {
 			return neighborsWithSmallerIndexThenMe();
 		} 
 		if (structureHeuristic == 2) {
-			return neighborsWithMoreNeighborsThenMeThenMe();
+			return neighborsWithMoreNeighborsThenMe();
 		}
 		if (structureHeuristic == 3) {
-			return neighborsWithLessNeighborsThenMeThenMe();
+			return neighborsWithLessNeighborsThenMe();
 		}
 		
 		else {
 			throw new RuntimeException();
 		}
+	}
+
+	private Set<NodeId> neighborsWithLessNeighborsThenMe() {
+		return mailer.getNeighborsWithLessNeighborsThenMe(this);
+	}
+
+	private Set<NodeId> neighborsWithMoreNeighborsThenMe() {
+		return mailer.getNeighborsWithMoreNeighborsThenMe(this);
 	}
 
 	private Set<NodeId> neighborsWithSmallerIndexThenMe() {

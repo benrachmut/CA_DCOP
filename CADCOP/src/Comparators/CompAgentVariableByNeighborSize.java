@@ -12,7 +12,7 @@ public class CompAgentVariableByNeighborSize implements Comparator<AgentVariable
 		if (delta != 0) {
 			return delta;
 		} else {
-			return o1.getId() - o2.getId();
+			return  o2.getId()-o1.getId() ;
 		}
 	}
 
