@@ -494,4 +494,10 @@ public abstract class Mailer {
 		return ans;
 	}
 
+	public Data getLastData() {
+		Integer lastKay = this.dataMap.lastKey();
+		Data ans = this.dataMap.get(lastKay);
+		return ans;
+	}
+
 }

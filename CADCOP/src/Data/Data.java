@@ -227,8 +227,8 @@ public class Data {
 		for (Neighbor n : neighbors) {
 			if (n.getA1().getId() == id1 || n.getA2().getId() == id1) {
 				try {
-				ans += n.getCurrentCost();
-				}catch(NullPointerException e) {
+					ans += n.getCurrentCost();
+				} catch (NullPointerException e) {
 					return null;
 				}
 			}
@@ -256,17 +256,22 @@ public class Data {
 	}
 
 	private Double calcMonotonicy(Mailer mailer, Double globalCost2) {
-		if (time == 0) {
+		try {
+			if (time == 0) {
+				return 1.0;
+			}
+			Double lastGlobalCost = mailer.getLastGlobalCost();
+			if (lastGlobalCost == null) {
+				return 1.0;
+			}
+			if (lastGlobalCost >= globalCost2) {
+				return 1.0;
+			} else {
+				return 0.0;
+			}
+		} catch (NullPointerException e) {
 			return 1.0;
-		}
-		Double lastGlobalCost = mailer.getLastGlobalCost();
-		if (lastGlobalCost == null) {
-			return 1.0;
-		}
-		if (lastGlobalCost >= globalCost2) {
-			return 1.0;
-		} else {
-			return 0.0;
+
 		}
 	}
 

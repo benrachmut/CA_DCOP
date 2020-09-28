@@ -59,7 +59,7 @@ public class MainSimulator {
 
 	// --------__----------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 100;
+	public static int end = 10;
 	public static int end_temp = start;
 	public static int termination = 5000;
 	private static int everyHowManyExcel = 100;
@@ -96,7 +96,7 @@ public class MainSimulator {
 	 * -------
 	 * 100 = MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType =6;
+	public static int agentType =7;
 
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;
@@ -120,7 +120,8 @@ public class MainSimulator {
 	public static String mailerHeader = "";
 
 	public static String header = "";
-	public static Collection<String> lineInExcel = new ArrayList<String>();
+	public static Collection<String> meanLineInExcel = new ArrayList<String>();
+	public static Collection<String>  lastLineInExcel = new ArrayList<String>();
 	public static String fileName = "";
 
 	public static void main(String[] args) {
@@ -129,12 +130,11 @@ public class MainSimulator {
 		List<Protocol> protocols = createProtocols();
 		runDcops(dcops, protocols);
 		createData();
-		createExcel();
 
 		// createStatistics();
 	}
 
-	private static void createExcel() {
+	private static void createExcel(Collection<String> lines) {
 		BufferedWriter out = null;
 		try {
 			FileWriter s = new FileWriter(fileName + ".csv");
@@ -142,7 +142,7 @@ public class MainSimulator {
 			out.write(header);
 			out.newLine();
 
-			for (String o : lineInExcel) {
+			for (String o : lines) {
 				out.write(o);
 				out.newLine();
 			}
@@ -155,13 +155,46 @@ public class MainSimulator {
 	}
 
 	private static void createData() {
-		createFileName();
-		createHeader();
-		createMeansByProtocol();
+		createMeanData();
+		createLastData();
+
+		
+	}
+
+	private static void createLastData() {
+		createFileName("Last");
+		createHeader(true,"run#");
+		createLast();
+		createExcel(lastLineInExcel);
+	}
+	
+	
+	private static void createLast() {
+		String dcopString = Dcop.dcopName;
+		String algoString = AgentVariable.AlgorithmName + "," + AgentVariable.algorithmData;
+		for (Entry<Protocol, List<Mailer>> e : mailersByProtocol.entrySet()) {
+			String protocolString = e.getKey().getDelay().toString();
+			SortedMap<Integer, Data> mapLastDataPerDcop = getMapLastDataPerDcop(e.getValue());
+			String anytimeInfoString = getAnytimeString();
+			for (Entry<Integer, Data> e1 : mapLastDataPerDcop.entrySet()) {
+				String tempAns = dcopString + "," + protocolString + "," + algoString + "," + e1.getValue();
+				if (isAnytime) {
+					tempAns = tempAns+","+anytimeInfoString;
+				}
+				lastLineInExcel.add(e1.getKey()+","+tempAns);
+			}
+		}
 
 	}
 
-	private static void createFileName() {
+	private static void createMeanData() {
+		createFileName("Mean");
+		createHeader(false,"");
+		createMeansByProtocol();
+		createExcel(meanLineInExcel);
+	}
+
+	private static void createFileName(String fileType) {
 		String ans = "Algorithm_" + AgentVariable.AlgorithmName;
 
 		if (!AgentVariable.algorithmData.equals("")) {
@@ -185,7 +218,7 @@ public class MainSimulator {
 			}
 
 		}
-		fileName = ans;
+		fileName = fileType+","+ans;
 	}
 
 	private static void createMeansByProtocol() {
@@ -204,7 +237,7 @@ public class MainSimulator {
 				if (isAnytime) {
 					tempAns = tempAns+","+anytimeInfoString;
 				}
-				lineInExcel.add(tempAns);
+				meanLineInExcel.add(tempAns);
 
 			}
 		}
@@ -255,6 +288,18 @@ public class MainSimulator {
 		return ans;
 	}
 
+	
+	private static SortedMap<Integer, Data> getMapLastDataPerDcop(List<Mailer> mailersPerProtocol) {
+		SortedMap<Integer, Data> ans = new TreeMap<Integer, Data>();
+		
+		for (Mailer mailer : mailersPerProtocol) {
+			Data lastData= mailer.getLastData();
+			int dcopId = mailer.getDcop().getId();
+			ans.put(dcopId, lastData);
+		}
+		
+		return ans;
+	}
 	private static SortedMap<Integer, List<Data>> getMeanMapBeforeAvg(List<Mailer> mailers) {
 		SortedMap<Integer, List<Data>> ans = new TreeMap<Integer, List<Data>>();
 
@@ -384,8 +429,7 @@ public class MainSimulator {
 			
 			if (end_temp % everyHowManyExcel  == 0 && end_temp !=0) {
 				createData();
-				createExcel();
-				lineInExcel = new ArrayList<String>();
+				meanLineInExcel = new ArrayList<String>();
 			}
 			
 		}
@@ -422,7 +466,7 @@ public class MainSimulator {
 
 	// ------------ 4. DATA------------
 
-	private static void createHeader() {
+	private static void createHeader(boolean b, String addition) {
 
 		header = "DCOP";
 
@@ -436,6 +480,9 @@ public class MainSimulator {
 		header = header + Data.header();
 		if (isAnytime) {
 			header = header + "," + "Formation" + "," + "Heuristic" + "," + "Memory Size"+ "," +"Delete After Combine";
+		}
+		if (b) {
+			header = addition+","+header;
 		}
 
 	}
