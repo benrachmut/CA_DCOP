@@ -5,17 +5,23 @@ import java.util.Random;
 import AgentsAbstract.AgentVariable;
 import Main.MailerIterations;
 import Main.MainSimulator;
+import Messages.MsgAlgorithm;
 
 public class AMDLS_V3 extends AMDLS_V2 {
 
-	private double rndStochastic;
-	private static double stochastic = 0;
+	private static double stochasticInitial = 1;
+	private static double stochasticDecision = 1;
+
 	private boolean firstFlag;
+	private double rndStochasticInitial;
+	private Random stochasticDecisionRandom;
 
 	public AMDLS_V3(int dcopId, int D, int agentId) {
 		super(dcopId, D, agentId);
 		Random r = new Random(this.dcopId * 10 + this.id * 100);
-		this.rndStochastic = r.nextDouble();
+		this.rndStochasticInitial = r.nextDouble();
+		this.stochasticDecisionRandom = new Random(this.dcopId * 12 + this.id * 143);
+
 		firstFlag = false;
 	}
 
@@ -24,7 +30,9 @@ public class AMDLS_V3 extends AMDLS_V2 {
 		// TODO Auto-generated method stub
 		super.resetAgentGivenParametersV3();
 		Random r = new Random(this.dcopId * 10 + this.id * 100);
-		this.rndStochastic = r.nextDouble();
+		this.rndStochasticInitial = r.nextDouble();
+		this.stochasticDecisionRandom = new Random(this.dcopId * 12 + this.id * 143);
+
 		firstFlag = false;
 	}
 
@@ -64,17 +72,28 @@ public class AMDLS_V3 extends AMDLS_V2 {
 
 	protected boolean compute() {
 
-		if (MainSimulator.isAMDLSDistributedDebug && this.id == 4) {
-			System.out.println();
-		}
-		if (this.rndStochastic < stochastic) {
+		if (this.rndStochasticInitial < stochasticInitial) {
 			if (firstFlag == false) {
 				this.myCounter = myCounter + 1;
 				this.valueAssignment = this.firstRandomVariable;
 				releaseFutureMsgs_distributed();
 			}
 			firstFlag = true;
-			super.compute();
+			if (canSetColorFlag) {
+				chooseColor();
+				setAboveAndBelow();
+			}
+			if (consistentFlag && !canSetColorFlag) {
+
+				double rnd = this.stochasticDecisionRandom.nextDouble();
+				if (rnd < stochasticDecision) {
+					decideAndChange();
+				} else {
+					myCounter = myCounter + 1;
+				}
+			}
+
+			return true;
 
 		} else {
 
@@ -86,8 +105,14 @@ public class AMDLS_V3 extends AMDLS_V2 {
 			}
 
 			if (flag || (consistentFlag && !canSetColorFlag)) {
-				releaseFutureMsgs_distributed();
-				decideAndChange();
+				double rnd = this.stochasticDecisionRandom.nextDouble();
+				if (rnd < stochasticDecision || flag) {
+					releaseFutureMsgs_distributed();
+					decideAndChange();
+				} else {
+					myCounter = myCounter + 1;
+				}
+
 			}
 		}
 		/*
@@ -100,49 +125,38 @@ public class AMDLS_V3 extends AMDLS_V2 {
 	}
 
 	/*
-	protected void sendMsgs() {
-		boolean sendAllTheTime = AMDLS_V1.sendWhenMsgReceive && this.gotMsgFlag;
-		boolean flag = false;
-		if ( this.canSetColorFlag) {
-			sendAMDLSColorMsgs();
-			boolean aboveConsistent = isAboveConsistent();
-			boolean belowConsistent = isBelowConsistent();
-			if (aboveConsistent && belowConsistent && allNeighborsHaveColor()) {
-				flag = true;
-			} else {
-				flag = false;
-			}
-		}
-		if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag) || (flag)) {
-			if (flag) {
-				decideAndChange();
-			}
-			sendAMDLSmsgs();
-		} 
-		
-	}
-	*/
+	 * protected void sendMsgs() { boolean sendAllTheTime =
+	 * AMDLS_V1.sendWhenMsgReceive && this.gotMsgFlag; boolean flag = false; if (
+	 * this.canSetColorFlag) { sendAMDLSColorMsgs(); boolean aboveConsistent =
+	 * isAboveConsistent(); boolean belowConsistent = isBelowConsistent(); if
+	 * (aboveConsistent && belowConsistent && allNeighborsHaveColor()) { flag =
+	 * true; } else { flag = false; } } if (sendAllTheTime || (this.consistentFlag
+	 * && !canSetColorFlag) || (flag)) { if (flag) { decideAndChange(); }
+	 * sendAMDLSmsgs(); }
+	 * 
+	 * }
+	 */
 	// done
 	@Override
 	public void updateAlgorithmHeader() {
 		AgentVariable.algorithmHeader = "Structure Heuristic" + "," + "Message Frequency" + ',' + "Decision" + ","
-				+ "Stochastic";
+				+ "Random Initial Probebility" + "," + "Stochastic Decision";
 	}
 
 	// done
 	@Override
 	public void updateAlgorithmData() {
-		String heuristic="";
+		String heuristic = "";
 		if (structureHeuristic == 1) {
-			heuristic= "Index";
+			heuristic = "Index";
 		}
-		
+
 		if (structureHeuristic == 2) {
-			heuristic= "Max Neighbor";
+			heuristic = "Max Neighbor";
 		}
-		
+
 		if (structureHeuristic == 3) {
-			heuristic= "Min Neighbor";
+			heuristic = "Min Neighbor";
 		}
 		// -------------------------
 		String freq = "";
@@ -167,7 +181,8 @@ public class AMDLS_V3 extends AMDLS_V2 {
 
 		// -------------------------
 
-		AgentVariable.algorithmData = heuristic + "," + freq + "," + t + "," + stochastic;
+		AgentVariable.algorithmData = heuristic + "," + freq + "," + t + "," + stochasticInitial + ","
+				+ stochasticDecision;
 	}
 
 }

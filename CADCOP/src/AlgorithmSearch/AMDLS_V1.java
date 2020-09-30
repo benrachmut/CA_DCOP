@@ -272,6 +272,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 			this.valueAssignment = getCandidateToChange_C();
 		}
 	}
+	
 
 	// 5
 	@Override

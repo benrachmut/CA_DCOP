@@ -56,11 +56,11 @@ public class MainSimulator {
 	public static int anytimeMemoryHuerstic = 1;
 	public static int anytimeMemoryLimitedSize = 1000;
 
-	// --------__----------------------**Experiment Repetitions**
+	// --------------------------------**Experiment Repetitions**
 	public static int start = 0;
 	public static int end = 100;
-	public static int end_temp = start;
-	public static int termination = 3000;
+	public static int end_temp = start; //DO NOT CHANGE
+	public static int termination = 10000;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
@@ -73,7 +73,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.2;
+	public static double dcopUniformP1 = 0.7;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
 	public static int costUbUniform = 100;
@@ -93,8 +93,9 @@ public class MainSimulator {
 	 * AMDLS_V2; 7 = AMDLS_V3; 8 = DSA_SDP-ASY ; 9 = DSA_SDP-SY ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType = 7;
+	public static int agentType = 1;
 
+	public static boolean isCommunicationDebug = true;
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;
 	public static boolean isAMDLSDistributedDebug = false;
@@ -126,7 +127,9 @@ public class MainSimulator {
 	public static void main(String[] args) {
 		Dcop[] dcops = generateDcops();
 		List<Protocol> protocols = createProtocols();
+
 		runDcops(dcops, protocols);
+
 		createData();
 	}
 

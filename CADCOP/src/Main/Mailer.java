@@ -91,6 +91,10 @@ public abstract class Mailer {
 			m.setDelay(d);
 			this.messageBox.add(m);
 		}
+		
+		if (MainSimulator.isCommunicationDebug) {
+			System.out.println(m);
+		}
 	}
 
 	public void sendMsgWitoutDelay(MsgAlgorithm m) {

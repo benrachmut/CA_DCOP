@@ -14,7 +14,7 @@ import Messages.MsgAMDLSColor;
 import Messages.MsgAlgorithm;
 
 public class AMDLS_V2 extends AMDLS_V1 {
-	public static int structureHeuristic = 2; // 1:by index, 2:delta_max, 3:delta_min
+	public static int structureHeuristic = 1; // 1:by index, 2:delta_max, 3:delta_min
 	protected boolean isWaitingToSetColor;
 	private Integer myColor;
 	private TreeMap<NodeId, Integer> neighborColors;
