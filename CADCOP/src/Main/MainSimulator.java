@@ -45,6 +45,8 @@ public class MainSimulator {
 	// ------------------------------**Implementation**
 	public static boolean isThreadMailer = true; // determines the mailers type
 	public static boolean isAtomicTime= true;
+	public static int multiplicationTime = 1000;
+	public static int howManyIterationForCalculation = 1000;
 
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
@@ -132,7 +134,7 @@ public class MainSimulator {
 	public static void main(String[] args) {
 		
 		if(isAtomicTime && isThreadMailer) {
-			termination = termination*1000;
+			termination = termination*multiplicationTime;
 		}
 		Dcop[] dcops = generateDcops();
 		List<Protocol> protocols = createProtocols();
@@ -312,7 +314,7 @@ public class MainSimulator {
 		int firstMax = getFirstMax(mailers);
 		
 		if (MainSimulator.isAtomicTime) {
-			for (int i = firstMax; i < termination; i=i+1000) {
+			for (int i = firstMax; i < termination; i=i+howManyIterationForCalculation) {
 				List<Data> listPerIteration = new ArrayList<Data>();
 				for (Mailer mailer : mailers) {
 					listPerIteration.add(mailer.getDataPerIteration(i));
