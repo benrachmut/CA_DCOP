@@ -42,9 +42,7 @@ public class Data {
 
 	public Data(Entry<Integer, List<Data>> e) {
 		this.time = e.getKey();
-
 		List<List<Double>> colletionPerFields = createColletionsPerField(e.getValue());
-
 		this.globalCost = Statistics.mean(colletionPerFields.get(0));
 		this.monotonicy = Statistics.mean(colletionPerFields.get(1));
 		this.povCost = Statistics.mean(colletionPerFields.get(2));
@@ -56,7 +54,6 @@ public class Data {
 		this.globalPovABSDelta = Statistics.mean(colletionPerFields.get(8));
 		this.agentPercentCanStart = Statistics.mean(colletionPerFields.get(9));
 		this.numberOfColors = Statistics.mean(colletionPerFields.get(10));
-
 		if (MainSimulator.isAnytime) {
 			this.topAgentsAnytimeContextCost = Statistics.mean(colletionPerFields.get(11));
 			this.anytimeCost = Statistics.mean(colletionPerFields.get(12));
@@ -123,6 +120,10 @@ public class Data {
 			this.anytimeMsgsCounter = mailer.getAnytimeMsgsCounter();
 		}
 		this.monotonicy = calcMonotonicy(mailer, globalCost);
+
+		if (MainSimulator.isAnytimeThreadDebug && time == 0) {
+			System.out.println();
+		}
 		this.globalAnytimeCost = calcGlobalAnytimeCost(mailer);
 		this.povCost = calcPovCost(dcop.getVariableAgents());
 		this.globalPovABSDelta = calcGlobalPovABSDelta(this.povCost, this.globalCost);
@@ -132,8 +133,15 @@ public class Data {
 		this.numberOfColors = calcNumberOfColors(dcop.getVariableAgents());
 		if (MainSimulator.isAnytime) {
 			if (mailer.getDcop().isSearchAlgorithm()) {
+				
+				if (MainSimulator.isAnytimeThreadDebug && time == 8) {
+					System.out.println();
+				}
+				
 				this.topAgentsAnytimeContextCost = calcTopAgentsAnytimeContextCost(mailer);
+
 				this.anytimeCost = calcAnytimeCost(dcop.getNeighbors());
+
 				this.topContextCounters = calcTopContextCounters(mailer);
 			}
 		}
@@ -167,14 +175,24 @@ public class Data {
 	}
 
 	private Double calcAnytimeCost(List<Neighbor> neighbors) {
-		Double ans = null;
+		Integer ans = null;
 		for (Neighbor n : neighbors) {
+			//try {
 			Integer costOfN = n.getCurrentAnytimeCost();
-			if (costOfN != null) {
-				ans = ans + costOfN;
-			}
+				if (costOfN != null ) {
+					if (ans == null) {
+						ans = costOfN;
+					}else {
+						ans = ans + costOfN;
+
+					}
+				}
+		}// for
+		if (ans == null) {
+			return null;
 		}
-		return ans;
+		
+		return (double) ans;
 	}
 
 	private Double calcTopContextCounters(Mailer mailer) {
@@ -275,7 +293,7 @@ public class Data {
 	}
 
 	private Double calcGlobalAnytimeCost(Mailer mailer) {
-		if (time == 0) {
+		if ((!MainSimulator.isThreadMailer && time == 0) || (MainSimulator.isThreadMailer && time == 1)) {
 			return this.globalCost;
 		}
 		Double lastAnytimeGlobal = mailer.getLastGlobalAnytimeCost();
