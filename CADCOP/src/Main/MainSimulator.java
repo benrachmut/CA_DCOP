@@ -312,7 +312,7 @@ public class MainSimulator {
 		int firstMax = getFirstMax(mailers);
 		
 		if (MainSimulator.isAtomicTime) {
-			for (int i = firstMax; i < termination; i=i+500) {
+			for (int i = firstMax; i < termination; i=i+1000) {
 				List<Data> listPerIteration = new ArrayList<Data>();
 				for (Mailer mailer : mailers) {
 					listPerIteration.add(mailer.getDataPerIteration(i));
