@@ -113,11 +113,11 @@ public abstract class MGM extends AgentVariableSearch {
 	protected boolean compute() {
 		boolean ans1 = false;
 		if (computeVA) {
-			ans1 =  computeChangeInValueAssignment();
+			ans1 = computeChangeInValueAssignment();
 		}
 		boolean ans2 = false;
 		if (computeLr) {
-			ans2 =  computeMyLR();
+			ans2 = computeMyLR();
 		}
 		return ans1 || ans2;
 	}
@@ -168,8 +168,8 @@ public abstract class MGM extends AgentVariableSearch {
 			this.valueAssignment = this.candidateValueAssignment;
 			return true;
 		}
-		
-		if (this.lr == maxLrOfNeighbors && maxLrOfNeighbors !=0) {
+
+		if (this.lr == maxLrOfNeighbors && maxLrOfNeighbors != 0) {
 			Set<NodeId> competitors = getCompetitors(maxLrOfNeighbors, lrInfoPerNeighbor);
 			NodeId bestCompetitor = Collections.max(competitors);
 			if (this.nodeId.getId1() < bestCompetitor.getId1()) {
@@ -199,15 +199,14 @@ public abstract class MGM extends AgentVariableSearch {
 		if (computeVA) {
 			sendValueAssignmnetMsgs();
 		}
-		
+
 		if (computeLr) {
 			if (lr > -1) {
 				sendLRmsgs();
-			}else {
+			} else {
 				throw new RuntimeException();
 			}
 		}
-		
 
 	}
 
@@ -221,13 +220,25 @@ public abstract class MGM extends AgentVariableSearch {
 
 	@Override
 	public boolean getDidComputeInThisIteration() {
-		// TODO Auto-generated method stub
 		return computeLr || computeVA;
 	}
 
 	public int getLR() {
-		// TODO Auto-generated method stub
 		return this.lr;
+	}
+
+	@Override
+	protected int numberOfAtomicActionsInComputation() {
+		int LRatomic = 0;
+		if (computeLr) {
+			LRatomic = this.neighborSize()*this.domainSize;
+		}
+		int VAatomic = 0;
+		if (computeVA) {
+			VAatomic = this.neighborSize()*this.domainSize;
+		}
+
+		return LRatomic+VAatomic;
 	}
 
 }

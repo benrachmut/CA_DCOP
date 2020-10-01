@@ -360,4 +360,9 @@ public class AMDLS_V1 extends AgentVariableSearch {
 
 	}
 
+	@Override
+	protected int numberOfAtomicActionsInComputation() {
+		return this.neighborSize()+this.domainSize;
+	}
+
 }

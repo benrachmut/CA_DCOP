@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 
 import Comparators.ContextSimilarityComparator;
 

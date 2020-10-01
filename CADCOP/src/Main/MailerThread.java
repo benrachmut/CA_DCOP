@@ -77,7 +77,6 @@ public class MailerThread extends Mailer implements Runnable {
 			List<Msg> msgToSend = this.handleDelay();
 			agentsRecieveMsgs(msgToSend);
 			clockUpdatedFromMsgPlacedInBoxFlag = false;
-
 		}
 		killAgents();
 	}

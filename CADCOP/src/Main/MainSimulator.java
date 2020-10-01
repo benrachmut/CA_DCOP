@@ -44,10 +44,13 @@ public class MainSimulator {
 
 	// ------------------------------**Implementation**
 	public static boolean isThreadMailer = true; // determines the mailers type
+	public static boolean isAtomicTime= true;
+
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
+
 	// ------------------------------**any time**
-	public static boolean isAnytime = true;
+	public static boolean isAnytime = false;
 	// 1 = DFS; 2 = BFS
 	public static int anytimeFormation = 1;
 	public static boolean deleteAfterCombine = false;
@@ -57,13 +60,13 @@ public class MainSimulator {
 
 	// --------------------------------**Experiment Repetitions**
 	public static int start = 0;
-	public static int end = 2;
+	public static int end = 100;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static int termination = 10;
+	public static int termination = 5000;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 3; // amount of agents
+	public static int A = 50; // amount of agents
 	// public static int D = -1; // if D or costParameter < 0 use default
 
 	// ------------------------------ **DCOP GENERATOR**
@@ -72,7 +75,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 1;
+	public static double dcopUniformP1 = 0.2;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
 	public static int costUbUniform = 100;
@@ -127,11 +130,13 @@ public class MainSimulator {
 	public static String fileName = "";
 
 	public static void main(String[] args) {
+		
+		if(isAtomicTime && isThreadMailer) {
+			termination = termination*1000;
+		}
 		Dcop[] dcops = generateDcops();
 		List<Protocol> protocols = createProtocols();
-
 		runDcops(dcops, protocols);
-
 		createData();
 	}
 
@@ -305,13 +310,26 @@ public class MainSimulator {
 		SortedMap<Integer, List<Data>> ans = new TreeMap<Integer, List<Data>>();
 
 		int firstMax = getFirstMax(mailers);
-		for (int i = firstMax; i < termination; i++) {
-			List<Data> listPerIteration = new ArrayList<Data>();
-			for (Mailer mailer : mailers) {
-				listPerIteration.add(mailer.getDataPerIteration(i));
+		
+		if (MainSimulator.isAtomicTime) {
+			for (int i = firstMax; i < termination; i=i+500) {
+				List<Data> listPerIteration = new ArrayList<Data>();
+				for (Mailer mailer : mailers) {
+					listPerIteration.add(mailer.getDataPerIteration(i));
+				}
+				ans.put(i, listPerIteration);
 			}
-			ans.put(i, listPerIteration);
 		}
+		else {
+			for (int i = firstMax; i < termination; i++) {
+				List<Data> listPerIteration = new ArrayList<Data>();
+				for (Mailer mailer : mailers) {
+					listPerIteration.add(mailer.getDataPerIteration(i));
+				}
+				ans.put(i, listPerIteration);
+			}
+		}
+		
 		return ans;
 	}
 

@@ -90,5 +90,10 @@ abstract public class DSA_B extends AgentVariableSearch {
 	public boolean getDidComputeInThisIteration() {
 		return canCompute;
 	}
+	
+	@Override
+	protected int numberOfAtomicActionsInComputation() {
+		return this.neighborSize()*this.domainSize;
+	}
 
 }

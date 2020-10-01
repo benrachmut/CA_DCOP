@@ -168,6 +168,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
+				if (MainSimulator.isAtomicTime) {
+					this.time = this.time+this.numberOfAtomicActionsInComputation();
+				}
 				this.time = this.time + 1;
 				sendMsgs();
 
@@ -179,6 +182,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 		return false;
 	}
+
+	protected abstract int numberOfAtomicActionsInComputation();
 
 	public abstract boolean getDidComputeInThisIteration();
 
