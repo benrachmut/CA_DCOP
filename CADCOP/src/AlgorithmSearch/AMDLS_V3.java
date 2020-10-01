@@ -9,7 +9,7 @@ import Messages.MsgAlgorithm;
 
 public class AMDLS_V3 extends AMDLS_V2 {
 
-	private static double stochasticInitial = 1;
+	private static double stochasticInitial = 0;
 	private static double stochasticDecision = 1;
 
 	private boolean firstFlag;
@@ -52,7 +52,7 @@ public class AMDLS_V3 extends AMDLS_V2 {
 		if (AMDLS_V1.typeDecision == 'C' || AMDLS_V1.typeDecision == 'c') {
 			c = "c";
 		}
-		AgentVariable.AlgorithmName = a + "_" + b + "_" + c;
+		AgentVariable.AlgorithmName = a +"_" + c;
 	}
 
 	@Override

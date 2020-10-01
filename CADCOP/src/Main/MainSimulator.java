@@ -71,9 +71,9 @@ public class MainSimulator {
 	/*
 	 * 1 = Random uniform; 2 = Graph Coloring; 3 = Scale Free Network
 	 */
-	public static int dcopBenchMark = 1;
+	public static int dcopBenchMark = 3;
 	// 1 = Random uniform
-	public static double dcopUniformP1 = 0.7;
+	public static double dcopUniformP1 = 0.2;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
 	public static int costUbUniform = 100;
@@ -93,9 +93,9 @@ public class MainSimulator {
 	 * AMDLS_V2; 7 = AMDLS_V3; 8 = DSA_SDP-ASY ; 9 = DSA_SDP-SY ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType = 1;
+	public static int agentType = 7;
 
-	public static boolean isCommunicationDebug = true;
+	public static boolean isCommunicationDebug = false;
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;
 	public static boolean isAMDLSDistributedDebug = false;
