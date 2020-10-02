@@ -1,6 +1,8 @@
 package Main;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,17 +67,39 @@ public abstract class Mailer {
 		if (dataMap.containsKey(i)) {
 			return this.dataMap.get(i);
 		} else {
-			while (true) {
+			if (MainSimulator.isAtomicTime) {
+				TreeMap<Integer, Data> limitedData = getLimitedData(i);
+				Integer maxInt = limitedData.lastKey();//Collections.max(limitedData.keySet());
+				Data ans = limitedData.get(maxInt);
+				/*
+				limitedData.remove(maxInt);
+				for (Integer toMoveFromData : limitedData.keySet()) {
+					dataMap.remove(toMoveFromData);
+				}
+				*/
+				return ans; 
 
-				i = i - 1;
-
-				if (dataMap.containsKey(i)) {
-					return this.dataMap.get(i);
-				} /*
-					 * if (i<0) { throw new RuntimeException(); }
-					 */
+			} else {
+				while (true) {
+					i = i - 1;
+					if (dataMap.containsKey(i)) {
+						return this.dataMap.get(i);
+					}
+				}
 			}
 		}
+	}
+
+	private TreeMap<Integer, Data> getLimitedData(int i) {
+		TreeMap<Integer, Data> ans = new TreeMap<Integer, Data>();
+		for (Entry<Integer, Data> e : this.dataMap.entrySet()) {
+			if (e.getKey() <= i) {
+				ans.put(e.getKey(),e.getValue());
+			}else {
+				break;
+			}
+		}
+		return ans;
 	}
 
 	/**
@@ -91,7 +115,7 @@ public abstract class Mailer {
 			m.setDelay(d);
 			this.messageBox.add(m);
 		}
-		
+
 		if (MainSimulator.isCommunicationDebug) {
 			System.out.println(m);
 		}
@@ -458,7 +482,7 @@ public abstract class Mailer {
 		Set<NodeId> ans = new HashSet<NodeId>();
 
 		SortedSet<AgentVariable> agentsLocal = getSortedSetOfAgentInput(a);
-		//Iterator<AgentVariable> it = agentsLocal.iterator();
+		// Iterator<AgentVariable> it = agentsLocal.iterator();
 		CompAgentVariableByNeighborSize c = new CompAgentVariableByNeighborSize();
 
 		for (AgentVariable n : agentsLocal) {
