@@ -689,5 +689,15 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			this.sendAnytimeMsgs();
 		}
 	}
+	
+	public void setAnytimeFather(NodeId father) {
+		this.anytimeFather=father;
+	}
+	public void setAnytimeSons(Set<NodeId> sons) {
+		this.anytimeSons=sons;
+	}
+	public void setAnytimeBelow(Set<NodeId>below) {
+		this.belowAnytime=below;
+	}
 
 }

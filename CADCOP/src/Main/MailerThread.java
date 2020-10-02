@@ -90,12 +90,15 @@ public class MailerThread extends Mailer implements Runnable {
 		return true;
 	}
 
-	private synchronized void shouldUpdateClockBecuaseNoMsgsRecieved() {
+	private  void shouldUpdateClockBecuaseNoMsgsRecieved() {
 		if (clockUpdatedFromMsgPlacedInBoxFlag == false) {
-			Msg minTimeMsg = Collections.min(messageBox, new MsgsTimeComparator());
-			int minTime = minTimeMsg.getTime();
-			int oldTime = time;
-			this.time = minTime;
+			if (!messageBox.isEmpty()) {
+				Msg minTimeMsg = Collections.min(messageBox, new MsgsTimeComparator());
+				int minTime = minTimeMsg.getTime();
+				int oldTime = time;
+				this.time = minTime;
+			}
+			
 		}
 	}
 

@@ -131,8 +131,6 @@ public abstract class Dcop {
 			ans = new AMDLS_V3(dcopId, D, agentId);
 		}
 
-		
-		
 		if (agentType == 8) {
 			ans = new DSA_SDP_ASY(dcopId, D, agentId);
 		}
@@ -213,6 +211,44 @@ public abstract class Dcop {
 				if (MainSimulator.anytimeFormation == 1) {
 					formations[1].setAboveBelow(a, above, below);
 					((AgentVariableSearch) a).turnDFStoAnytimeStructure(below);
+				}
+				if (MainSimulator.anytimeFormation == 3) {
+
+					TreeSet<AgentVariableSearch> agentsSearch = new TreeSet<AgentVariableSearch>();
+					for (AgentVariable ttt : agentsVariables) {
+						if (ttt.getNeigborSetId().size() != 0) {
+							if (ttt instanceof AgentVariableSearch) {
+								agentsSearch.add((AgentVariableSearch) ttt);
+							}
+						}
+					}
+
+					boolean flag = false;
+					int counter = 0;
+					for (AgentVariableSearch ttt : agentsSearch) {
+						counter = counter + 1;
+						if (!flag) {
+							
+						} else if (counter == agentsSearch.size()) {
+
+						} else {
+
+						}
+						flag = true;
+					}
+					/*
+					 * for (int i = 0; i < agentsVariables.length; i++) { if (a instanceof
+					 * AgentVariableSearch) { AgentVariableSearch avs = (AgentVariableSearch)
+					 * agentsVariables[i]; if (avs.getNeigborSetId().size() != 0) {
+					 * HashSet<NodeId>sons = new HashSet<NodeId>();
+					 * 
+					 * if (!flag) { NodeId son = getSon = sons.add() avs.setAnytimeSons(sons); }
+					 * else if (i == agentsVariables.length - 1) {
+					 * 
+					 * } else {
+					 * 
+					 * } flag = true; } } }
+					 */
 				}
 			}
 		}
