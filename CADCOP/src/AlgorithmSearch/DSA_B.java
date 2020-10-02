@@ -78,7 +78,7 @@ abstract public class DSA_B extends AgentVariableSearch {
 	}
 
 	@Override
-	protected void sendMsgs() {
+	public void sendMsgs() {
 		sendValueAssignmnetMsgs();
 	}
 

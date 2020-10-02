@@ -23,7 +23,7 @@ public class DSA_SDP_ASY extends DSA_SDP {
 	
 
 	@Override
-	protected void changeRecieveFlagsToFalse() {
+	public void changeRecieveFlagsToFalse() {
 		canCompute = false;
 	}
 

@@ -125,7 +125,7 @@ public class MGM_SY extends MGM {
 	}
 
 	@Override
-	protected void changeRecieveFlagsToFalse() {
+	public void changeRecieveFlagsToFalse() {
 		if (this.computeLr) {
 			this.computeLr = false;
 			currentPhaseWaitForVA = false;
@@ -138,7 +138,7 @@ public class MGM_SY extends MGM {
 	}
 
 	@Override
-	protected void sendMsgs() {
+	public void sendMsgs() {
 
 		super.sendMsgs();
 

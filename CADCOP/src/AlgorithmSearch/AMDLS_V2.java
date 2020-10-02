@@ -384,7 +384,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	}
 */
 	
-	protected void sendMsgs() {
+	public void sendMsgs() {
 		boolean sendAllTheTime = AMDLS_V1.sendWhenMsgReceive && this.gotMsgFlag;
 		boolean flag = false;
 		if ( this.canSetColorFlag) {
@@ -414,7 +414,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		
 	}
 	@Override
-	protected void changeRecieveFlagsToFalse() {
+	public void changeRecieveFlagsToFalse() {
 		this.consistentFlag = false;
 		this.canSetColorFlag = false;
 		gotMsgFlag=false;

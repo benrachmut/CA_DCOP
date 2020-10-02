@@ -195,7 +195,7 @@ public abstract class MGM extends AgentVariableSearch {
 	}
 
 	@Override
-	protected void sendMsgs() {
+	public void sendMsgs() {
 		if (computeVA) {
 			sendValueAssignmnetMsgs();
 		}

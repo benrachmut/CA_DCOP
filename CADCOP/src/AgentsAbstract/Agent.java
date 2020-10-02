@@ -28,9 +28,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected boolean isWithTimeStamp;
 	protected Mailer mailer;
 	protected Double computationCounter;
-	private boolean stopThreadCondition;
+	protected boolean stopThreadCondition;
 	protected int time;
-	private boolean isIdle;
+	protected boolean isIdle;
 
 	public Agent(int dcopId, int D) {
 		super();
@@ -172,8 +172,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				} else {
 					this.time = this.time + 1;
 				}
-				sendMsgs();
-				changeRecieveFlagsToFalse();
+				//sendMsgs();
+				//changeRecieveFlagsToFalse();
 			}
 
 			return isUpdate;
@@ -212,7 +212,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * mailer
 	 */
 
-	protected abstract void sendMsgs();
+	public abstract void sendMsgs();
 
 	/**
 	 * reaction to msgs include computation and send message to mailer
@@ -263,25 +263,36 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 	}
 
-	private synchronized void waitUntilMsgsRecieved() {
+	protected synchronized void waitUntilMsgsRecieved() {
 		if (getDidComputeInThisIteration() == false) {
-			try {
-				isIdle = true;
-				if (MainSimulator.isThreadDebug) {
-					System.out.println(this + " is idle");
-				}
-				mailer.wakeUp();
-
-				this.wait();
-
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			waitingMethodology();
 			if (stopThreadCondition == true) {
 				return;
 			}
 		}
 		this.reactionToAlgorithmicMsgs();
+		
+		
+		if (this.getDidComputeInThisIteration()) {
+			this.sendMsgs();
+			this.changeRecieveFlagsToFalse();
+		}
+	}
+
+	protected void waitingMethodology() {
+		try {
+			isIdle = true;
+			if (MainSimulator.isThreadDebug) {
+				System.out.println(this + " is idle");
+			}
+			mailer.wakeUp();
+
+			this.wait();
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	public static SortedMap<NodeId, Integer> turnMapWithMsgRecieveToContextValues(
@@ -299,7 +310,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	protected abstract void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm);
 
-	protected abstract void changeRecieveFlagsToFalse();
+	public abstract void changeRecieveFlagsToFalse();
 
 	public synchronized void setStopThreadCondition() {
 		this.stopThreadCondition = true;

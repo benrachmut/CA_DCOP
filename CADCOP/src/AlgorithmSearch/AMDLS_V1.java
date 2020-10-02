@@ -276,7 +276,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 
 	// 5
 	@Override
-	protected void sendMsgs() {
+	public void sendMsgs() {
 
 		if ((sendWhenMsgReceive && this.gotMsgFlag) || (!sendWhenMsgReceive && this.consistentFlag)) {
 		//if ((!sendWhenMsgReceive && this.consistentFlag)) {
@@ -322,7 +322,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	}
 
 	@Override
-	protected void changeRecieveFlagsToFalse() {
+	public void changeRecieveFlagsToFalse() {
 		consistentFlag = false;
 		gotMsgFlag = false;
 	}

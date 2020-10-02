@@ -46,7 +46,7 @@ public class MGM_ASY extends MGM {
 	}
 
 	@Override
-	protected void changeRecieveFlagsToFalse() {
+	public void changeRecieveFlagsToFalse() {
 		computeLr = false;
 		computeVA = false;
 	}

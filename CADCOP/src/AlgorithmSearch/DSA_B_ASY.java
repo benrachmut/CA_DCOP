@@ -34,7 +34,7 @@ public class DSA_B_ASY extends DSA_B {
 	
 
 	@Override
-	protected void changeRecieveFlagsToFalse() {
+	public void changeRecieveFlagsToFalse() {
 		canCompute = false;
 	}
 

@@ -46,7 +46,7 @@ public class MailerIterations extends Mailer {
 
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
 			m_iteration = iteration;
-			if ((MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug) &&    iteration == 4000) {
+			if ((MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug) && iteration == 4000) {
 				System.out.println("-------ITERATION_" + iteration + "-------");
 			}
 
@@ -134,31 +134,50 @@ public class MailerIterations extends Mailer {
 	private void agentsReactToMsgs(int iteration) {
 
 		for (Agent agent : dcop.getAgents()) {
-			
-		
+
 			if (iteration == 0) {
 				agent.resetAgent();
 				agent.initialize(); // abstract method in agents
 			} else {
 				agent.reactionToAlgorithmicMsgs();
+				agentsCommunicateThierAction(agent);	
 			}
-
-			if (MainSimulator.isAMDLSDistributedDebug &&   iteration == 4000) {
-				((AMDLS_V1) agent).printAMDLSstatus();
-			}
+			debugMethodsAfterComputationPerAgent(iteration,agent);
 		}
+		sendAnytimeMsgs();
+		debugMethodsAfterComputations(iteration);
+	}
 
-		if (MainSimulator.isAMDLSDistributedDebug && iteration ==4000) {
-			System.out.println();
+	private void debugMethodsAfterComputationPerAgent(int iteration, Agent agent) {
+		if (MainSimulator.isAMDLSDistributedDebug && iteration == 4000) {
+			((AMDLS_V1) agent).printAMDLSstatus();
 		}
+		
+	}
+
+	private void sendAnytimeMsgs() {
 		if (MainSimulator.isAnytime) {
-
 			for (AgentVariable a : dcop.getVariableAgents()) {
 				if (a instanceof AgentVariableSearch) {
 					((AgentVariableSearch) a).sendAnytimeMsgs();
 				}
 			}
 		}
+		
+	}
+
+	private void agentsCommunicateThierAction(Agent agent) {
+		if (agent.getDidComputeInThisIteration()) {
+			agent.sendMsgs();
+			agent.changeRecieveFlagsToFalse();
+		}
+	}
+
+	private void debugMethodsAfterComputations(int iteration) {
+		if (MainSimulator.isAMDLSDistributedDebug && iteration == 4000) {
+			System.out.println();
+		}
+		
 
 	}
 

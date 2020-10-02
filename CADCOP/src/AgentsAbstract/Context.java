@@ -143,9 +143,6 @@ public class Context {
 		if (!this.isConsistentWith(input)) {
 			return null;
 		}
-		if (input.contextId == 122 && MainSimulator.isAnytimeDebug) {
-			System.out.println();
-		}
 		if (this.equals(input) ) {
 			return null;
 		} else {
@@ -257,6 +254,11 @@ public class Context {
 		return this.reasonForCreation + "\n" + "context index__:" + contextCounter + "\n"
 				+ "Value Assignment Per Agent__:" + this.valueAssignmentPerAgent + "\n" + "Cost Per Agent__:"
 				+ this.costPerAgent;
+	}
+
+	public int getContextSize() {
+		// TODO Auto-generated method stub
+		return this.valueAssignmentPerAgent.size();
 	}
 
 }

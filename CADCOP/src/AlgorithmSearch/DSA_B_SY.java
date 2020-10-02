@@ -63,13 +63,13 @@ public class DSA_B_SY extends DSA_B {
 	}
 
 	@Override
-	protected void changeRecieveFlagsToFalse() {
+	public void changeRecieveFlagsToFalse() {
 		canCompute = false;
 
 	}
 
 	@Override
-	protected void sendMsgs() {
+	public void sendMsgs() {
 		sendValueAssignmnetMsgs();
 		releaseFutureMsgs();
 

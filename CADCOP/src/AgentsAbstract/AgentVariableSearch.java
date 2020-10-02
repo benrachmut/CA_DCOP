@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 
-
 import Comparators.ContextSimilarityComparator;
 
 import java.util.Random;
@@ -121,8 +120,8 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 				Integer[][] nConst = this.neighborsConstraint.get(e.getKey());
 				try {
-				ans += nConst[input][nValueAssignmnet];
-				}catch(ArrayIndexOutOfBoundsException g) {
+					ans += nConst[input][nValueAssignmnet];
+				} catch (ArrayIndexOutOfBoundsException g) {
 					return 0;
 				}
 			}
@@ -165,15 +164,12 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			return alternatives.first();
 		}
 		/*
-		Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
-		if (costOfCurrentValue == null || minCost <= costOfCurrentValue && costOfCurrentValue != 0) {
-			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
-			if (alternatives.isEmpty()) {
-				return this.valueAssignment;
-			}
-			return alternatives.first();
-		}
-		*/
+		 * Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment); if
+		 * (costOfCurrentValue == null || minCost <= costOfCurrentValue &&
+		 * costOfCurrentValue != 0) { SortedSet<Integer> alternatives =
+		 * getAlternativeCandidate(minCost, costPerDomain); if (alternatives.isEmpty())
+		 * { return this.valueAssignment; } return alternatives.first(); }
+		 */
 		return this.valueAssignment;
 
 	}
@@ -197,7 +193,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			}
 			return alternatives.first();
 		}
-		
+
 		return this.valueAssignment;
 
 	}
@@ -222,15 +218,12 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			return alternatives.first();
 		}
 		/*
-		Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
-		if (costOfCurrentValue == null || minCost <= costOfCurrentValue) {
-			SortedSet<Integer> alternatives = getAlternativeCandidate(minCost, costPerDomain);
-			if (alternatives.isEmpty()) {
-				return this.valueAssignment;
-			}
-			return alternatives.first();
-		}
-		*/
+		 * Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment); if
+		 * (costOfCurrentValue == null || minCost <= costOfCurrentValue) {
+		 * SortedSet<Integer> alternatives = getAlternativeCandidate(minCost,
+		 * costPerDomain); if (alternatives.isEmpty()) { return this.valueAssignment; }
+		 * return alternatives.first(); }
+		 */
 		return this.valueAssignment;
 
 	}
@@ -382,7 +375,9 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 		}
 
+		isIdle = false;
 		updateAgentTime(messages);
+		this.notifyAll();
 
 	}
 
@@ -512,6 +507,12 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		Set<Context> toDelete = new HashSet<Context>();
 
 		for (Context context : this.contextInMemory) {
+
+			if (MainSimulator.isAtomicTime) {
+				this.time = this.time + context.getContextSize() * input.getContextSize();
+			} else {
+				this.time = this.time + 1;
+			}
 			Context combined = context.combineWith(input);
 			if (combined != null) {
 				if (!isConsistentWithTop(context) && !isContextInCollection(combined, contextInMemory)) {
@@ -532,6 +533,11 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		if (MainSimulator.deleteAfterCombine) {
 			this.contextInMemory.removeAll(toDelete);
 		}
+	}
+
+	private int anytimeComputationTime(Context c1, Context c2) {
+
+		return c1.getContextSize() * c2.getContextSize();
 	}
 
 	private boolean isConsistentWithTop(Context context) {
@@ -662,6 +668,26 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	public int getAnytimeUpToSendSize() {
 		// TODO Auto-generated method stub
 		return this.anytimeUpToSend.size();
+	}
+
+	@Override
+	protected synchronized void waitUntilMsgsRecieved() {
+		if (getDidComputeInThisIteration() == false) {
+			waitingMethodology();
+			if (stopThreadCondition == true) {
+				return;
+			}
+		}
+		
+		
+		if (this.getDidComputeInThisIteration()) {
+			this.reactionToAlgorithmicMsgs();
+			this.sendMsgs();
+			this.changeRecieveFlagsToFalse();
+		}
+		if (MainSimulator.isAnytime) {
+			this.sendAnytimeMsgs();
+		}
 	}
 
 }

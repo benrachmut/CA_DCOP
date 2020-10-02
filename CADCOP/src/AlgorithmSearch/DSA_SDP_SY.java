@@ -63,13 +63,13 @@ public class DSA_SDP_SY extends DSA_SDP {
 	}
 
 	@Override
-	protected void changeRecieveFlagsToFalse() {
+	public void changeRecieveFlagsToFalse() {
 			canCompute = false;
 		
 	}
 
 	@Override
-	protected void sendMsgs() {
+	public void sendMsgs() {
 			sendValueAssignmnetMsgs();
 			releaseFutureMsgs();	
 	}
