@@ -213,46 +213,67 @@ public abstract class Dcop {
 					((AgentVariableSearch) a).turnDFStoAnytimeStructure(below);
 				}
 				if (MainSimulator.anytimeFormation == 3) {
+					doNaiveFormation();
+				}
+			}
+		}
+	}
 
-					TreeSet<AgentVariableSearch> agentsSearch = new TreeSet<AgentVariableSearch>();
-					for (AgentVariable ttt : agentsVariables) {
-						if (ttt.getNeigborSetId().size() != 0) {
-							if (ttt instanceof AgentVariableSearch) {
-								agentsSearch.add((AgentVariableSearch) ttt);
-							}
-						}
-					}
-
-					boolean flag = false;
-					int counter = 0;
-					for (AgentVariableSearch ttt : agentsSearch) {
-						counter = counter + 1;
-						if (!flag) {
-							
-						} else if (counter == agentsSearch.size()) {
-
-						} else {
-
-						}
-						flag = true;
-					}
-					/*
-					 * for (int i = 0; i < agentsVariables.length; i++) { if (a instanceof
-					 * AgentVariableSearch) { AgentVariableSearch avs = (AgentVariableSearch)
-					 * agentsVariables[i]; if (avs.getNeigborSetId().size() != 0) {
-					 * HashSet<NodeId>sons = new HashSet<NodeId>();
-					 * 
-					 * if (!flag) { NodeId son = getSon = sons.add() avs.setAnytimeSons(sons); }
-					 * else if (i == agentsVariables.length - 1) {
-					 * 
-					 * } else {
-					 * 
-					 * } flag = true; } } }
-					 */
+	private void doNaiveFormation() {
+		ArrayList<AgentVariableSearch> agentsSearch = new ArrayList<AgentVariableSearch>();
+		for (AgentVariable ttt : agentsVariables) {
+			if (ttt.getNeigborSetId().size() != 0) {
+				if (ttt instanceof AgentVariableSearch) {
+					agentsSearch.add((AgentVariableSearch) ttt);
 				}
 			}
 		}
 
+
+		AgentVariableSearch[] aArray = new AgentVariableSearch[agentsSearch.size()];
+		int counter = 0;
+		for (AgentVariableSearch ttt : agentsSearch) {
+			aArray[counter] = ttt;
+			counter = counter + 1;
+		}
+
+		for (int i = 0; i < aArray.length; i++) {
+			boolean flag=false;
+			Set<NodeId> sons = new HashSet<NodeId>();
+			AgentVariableSearch ttt = aArray[i];
+			if (i == 0) {
+				flag = true;
+				sons.add(aArray[i + 1].getNodeId());
+				ttt.setAnytimeSons(sons);
+				ttt.setAnytimeBelow(getBelowAgents(i, aArray));
+			}
+			if (i == aArray.length - 1) {
+				flag = true;
+
+				ttt.setAnytimeFather(aArray[i - 1].getNodeId());
+				ttt.setAnytimeBelow(new HashSet<NodeId>());
+				ttt.setAnytimeBelow(sons);
+				ttt.setAnytimeSons(sons);
+
+			}
+
+			if (!flag) {
+				sons.add(aArray[i + 1].getNodeId());
+				ttt.setAnytimeSons(sons);
+				ttt.setAnytimeFather(aArray[i - 1].getNodeId());
+				ttt.setAnytimeBelow(getBelowAgents(i, aArray));
+			}
+		}
+	}
+
+	private Set<NodeId> getBelowAgents(int i, AgentVariableSearch[] aArray) {
+		Set<NodeId> ans = new HashSet<NodeId>();
+		for (int j = 0; j < aArray.length; j++) {
+			if (j > i) {
+				ans.add(aArray[j].getNodeId());
+			}
+		}
+		return ans;
 	}
 
 	private void handleFormationForAMDLS(Formation[] formations) {

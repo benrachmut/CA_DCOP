@@ -515,11 +515,10 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			}
 			Context combined = context.combineWith(input);
 			if (combined != null) {
-				if (!isConsistentWithTop(context) && !isContextInCollection(combined, contextInMemory)) {
+				 if (!isConsistentWithTop(context) {
+				if (!isContextInCollection(combined, contextInMemory)) {
 					toAdd.add(combined);
-					if (MainSimulator.deleteAfterCombine) {
-						toDelete.add(context);
-					}
+					
 				}
 
 			}
@@ -530,9 +529,10 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		if (isAdded) {
 			toAdd.add(input);
 		}
-		if (MainSimulator.deleteAfterCombine) {
-			this.contextInMemory.removeAll(toDelete);
-		}
+		/*
+		 * if (MainSimulator.deleteAfterCombine) {
+		 * this.contextInMemory.removeAll(toDelete); }
+		 */
 	}
 
 	private int anytimeComputationTime(Context c1, Context c2) {
@@ -614,12 +614,16 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		/*
 		 * fullContextFound.add(cont); newFullContextFoundToSend.add(cont);
 		 */
-		for (NodeId son : this.anytimeSons) {
+		try {
+			for (NodeId son : this.anytimeSons) {
 
-			for (Context c : newFullContextFoundToSend) {
-				Msg m = new MsgAnyTimeDownTopFound(this.nodeId, son, c, this.timeStampCounter, this.time);
-				mailer.sendMsg(m);
+				for (Context c : newFullContextFoundToSend) {
+					Msg m = new MsgAnyTimeDownTopFound(this.nodeId, son, c, this.timeStampCounter, this.time);
+					mailer.sendMsg(m);
+				}
 			}
+		} catch (NullPointerException e) {
+			System.out.println();
 		}
 		newFullContextFoundToSend = new HashSet<Context>();
 	}
@@ -678,8 +682,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 				return;
 			}
 		}
-		
-		
+
 		if (this.getDidComputeInThisIteration()) {
 			this.reactionToAlgorithmicMsgs();
 			this.sendMsgs();
@@ -689,15 +692,17 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			this.sendAnytimeMsgs();
 		}
 	}
-	
+
 	public void setAnytimeFather(NodeId father) {
-		this.anytimeFather=father;
+		this.anytimeFather = father;
 	}
+
 	public void setAnytimeSons(Set<NodeId> sons) {
-		this.anytimeSons=sons;
+		this.anytimeSons = sons;
 	}
-	public void setAnytimeBelow(Set<NodeId>below) {
-		this.belowAnytime=below;
+
+	public void setAnytimeBelow(Set<NodeId> below) {
+		this.belowAnytime = below;
 	}
 
 }

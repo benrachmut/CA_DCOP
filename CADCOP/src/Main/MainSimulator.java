@@ -55,7 +55,7 @@ public class MainSimulator {
 	public static boolean isAnytime = true;
 	// 1 = DFS; 2 = BFS
 	public static int anytimeFormation = 1;
-	public static boolean deleteAfterCombine = false;
+//	public static boolean deleteAfterCombine = false;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
 	public static int anytimeMemoryHuerstic = 1;
 	public static int anytimeMemoryLimitedSize = 1000;
@@ -68,7 +68,7 @@ public class MainSimulator {
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 50; // amount of agents
+	public static int A = 30; // amount of agents
 	// public static int D = -1; // if D or costParameter < 0 use default
 
 	// ------------------------------ **DCOP GENERATOR**
@@ -77,7 +77,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 =0.05;
+	public static double dcopUniformP1 =0.2;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
 	public static int costUbUniform = 100;
@@ -225,7 +225,7 @@ public class MainSimulator {
 
 		if (isAnytime) {
 			ans = ans + "," + "Heurstic_" + (anytimeMemoryHuerstic);
-			ans = ans + "," + "del_" + (deleteAfterCombine);
+			ans = ans + "," + "del_" + ("true");
 
 			if (anytimeMemoryHuerstic != 1) {
 				ans = ans + "," + "size_" + (anytimeMemoryLimitedSize);
@@ -283,12 +283,14 @@ public class MainSimulator {
 
 			String MemorySize = Integer.toString(anytimeMemoryLimitedSize);
 			String isWithDelCombine = "";
+			/*
 			if (deleteAfterCombine) {
 				isWithDelCombine = "Delete Combined";
 			} else {
 				isWithDelCombine = "Delete Combined - not";
 
 			}
+			*/
 			return formation + "," + heuristic + "," + MemorySize + "," + isWithDelCombine;
 		}
 		return "";
