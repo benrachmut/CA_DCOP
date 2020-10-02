@@ -110,13 +110,12 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 		updateAgentTime(messages);
 
-	
 		isIdle = false;
 		if (!messages.isEmpty()) {
 			if (MainSimulator.isThreadDebug) {
-				System.out.println("mailer update "+this+" context, msg time_"+messages.get(0).getTime());
-				System.out.println(this+" is NOT idle");
-			}	
+				System.out.println("mailer update " + this + " context, msg time_" + messages.get(0).getTime());
+				System.out.println(this + " is NOT idle");
+			}
 		}
 		this.notifyAll();
 
@@ -160,7 +159,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * 
 	 */
 	public synchronized boolean reactionToAlgorithmicMsgs() {
-	
+
 		if (getDidComputeInThisIteration()) {
 
 			boolean isUpdate = compute();
@@ -169,13 +168,12 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
 				if (MainSimulator.isAtomicTime) {
-					this.time = this.time+this.numberOfAtomicActionsInComputation();
+					this.time = this.time + this.numberOfAtomicActionsInComputation();
+				} else {
+					this.time = this.time + 1;
 				}
-				this.time = this.time + 1;
 				sendMsgs();
-
 				changeRecieveFlagsToFalse();
-
 			}
 
 			return isUpdate;
@@ -270,12 +268,12 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			try {
 				isIdle = true;
 				if (MainSimulator.isThreadDebug) {
-					System.out.println(this+" is idle");
+					System.out.println(this + " is idle");
 				}
 				mailer.wakeUp();
 
 				this.wait();
-				
+
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -312,7 +310,5 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public boolean getIsIdle() {
 		return isIdle;
 	}
-	
-	
 
 }
