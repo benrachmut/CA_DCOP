@@ -261,4 +261,14 @@ public class Context {
 		return this.valueAssignmentPerAgent.size();
 	}
 
+	public int numberOfNulls() {
+		int counter = 0;
+		for (Integer c : this.costPerAgent.values()) {
+			if (c == null) {
+				counter = counter+1;
+			}
+		}
+		return counter;
+	}
+
 }

@@ -43,10 +43,11 @@ public class MainSimulator {
 	public static boolean sendOnlyIfChange = false;
 
 	// ------------------------------**Implementation**
-	public static boolean isThreadMailer = true; // determines the mailers type
-	public static boolean isAtomicTime= true;
-	public static int multiplicationTime = 20000;
-	public static int howManyIterationForCalculation = 10000/2;
+	public static boolean isThreadMailer = false; // determines the mailers type
+	public static boolean isAtomicTime= false;
+	public static int dividAtomicTime = 4;
+	public static int multiplicationTime = 180000;
+	public static int howManyIterationForCalculation = 10000*5;
 
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
@@ -57,18 +58,18 @@ public class MainSimulator {
 	public static int anytimeFormation = 1;
 //	public static boolean deleteAfterCombine = false;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
-	public static int anytimeMemoryHuerstic = 1;
+	public static int anytimeMemoryHuerstic = 4;
 	public static int anytimeMemoryLimitedSize = 1000;
 
 	// --------------------------------**Experiment Repetitions**
-	public static int start = 4;
-	public static int end = 5;
+	public static int start = 0;
+	public static int end = 100;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static int termination = 5000;
+	public static int termination = 250;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 30; // amount of agents
+	public static int A = 15; // amount of agents
 	// public static int D = -1; // if D or costParameter < 0 use default
 
 	// ------------------------------ **DCOP GENERATOR**
@@ -459,6 +460,7 @@ public class MainSimulator {
 			if (end_temp % everyHowManyExcel == 0 && end_temp != 0) {
 				createData();
 				meanLineInExcel = new ArrayList<String>();
+				lastLineInExcel = new ArrayList<String>();
 			}
 
 		}

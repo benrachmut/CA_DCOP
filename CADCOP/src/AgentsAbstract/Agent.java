@@ -168,7 +168,10 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
 				if (MainSimulator.isAtomicTime) {
-					this.time = this.time + this.numberOfAtomicActionsInComputation();
+					if (MainSimulator.dividAtomicTime==1) {
+						this.time = this.time + this.numberOfAtomicActionsInComputation();
+					}else {
+					this.time = this.time + this.numberOfAtomicActionsInComputation()/MainSimulator.dividAtomicTime+1;}
 				} else {
 					this.time = this.time + 1;
 				}
