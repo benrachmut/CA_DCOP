@@ -142,7 +142,7 @@ public class DFS extends Formation {
 		Set<NodeId> nSetId = currntA.getNeigborSetId();
 		List<AgentVariable> sons = getNeighborsOfAgents(nSetId);
 		Collections.sort(sons, new AgentNeighborComp());
-		Collections.reverse(sons);
+		//Collections.reverse(sons);
 		return sons;
 	}
 

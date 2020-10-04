@@ -59,7 +59,7 @@ public class MainSimulator {
 //	public static boolean deleteAfterCombine = false;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
 	public static int anytimeMemoryHuerstic = 4;
-	public static int anytimeMemoryLimitedSize = 1000;
+	public static int anytimeMemoryLimitedSize = 500;
 
 	// --------------------------------**Experiment Repetitions**
 	public static int start = 0;
