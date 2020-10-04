@@ -226,7 +226,7 @@ public abstract class MGM extends AgentVariableSearch {
 	public int getLR() {
 		return this.lr;
 	}
-
+/*
 	@Override
 	protected int numberOfAtomicActionsInComputation() {
 		int LRatomic = 0;
@@ -240,5 +240,6 @@ public abstract class MGM extends AgentVariableSearch {
 
 		return LRatomic+VAatomic;
 	}
+	*/
 
 }

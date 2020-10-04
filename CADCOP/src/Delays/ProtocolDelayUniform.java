@@ -55,7 +55,7 @@ public class ProtocolDelayUniform extends ProtocolDelay {
 
 
 
-	private double getUb() {
+	public double getUb() {
 		// TODO Auto-generated method stub
 		return this.ub;
 	}

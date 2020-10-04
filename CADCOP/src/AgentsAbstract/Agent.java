@@ -14,13 +14,15 @@ import Main.MainSimulator;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgReceive;
-import Messages.MsgsTimeComparator;
+import Messages.MsgsAgentTimeComparator;
+import Messages.MsgsMailerTimeComparator;
 
 public abstract class Agent implements Runnable, Comparable<Agent> {
-
+	
 	protected Integer id;
 	protected NodeId nodeId;
-
+	
+	protected int atomicActionCounter;
 	protected int domainSize;
 	protected int dcopId;
 	protected int timeStampCounter;
@@ -41,7 +43,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		stopThreadCondition = false;
 		this.time = 0;
 		isIdle = true;
-
+		atomicActionCounter = 0;
 	}
 
 	public int getId() {
@@ -65,7 +67,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		resetAgentGivenParameters();
 		changeRecieveFlagsToFalse();
 		isIdle = true;
-
+		atomicActionCounter = 0;
 	}
 
 	protected abstract void resetAgentGivenParameters();
@@ -113,7 +115,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		isIdle = false;
 		if (!messages.isEmpty()) {
 			if (MainSimulator.isThreadDebug) {
-				System.out.println("mailer update " + this + " context, msg time_" + messages.get(0).getTime());
+				System.out.println("mailer update " + this + " context, msg time_" + messages.get(0).getAgentTime());
 				System.out.println(this + " is NOT idle");
 			}
 		}
@@ -122,11 +124,16 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	protected void updateAgentTime(List<? extends Msg> messages) {
-		Msg msgWithMaxTime = Collections.max(messages, new MsgsTimeComparator());
-		int maxTime = msgWithMaxTime.getTime();
-		if (this.time <= maxTime) {
+		Msg msgWithMaxTime = Collections.max(messages, new MsgsMailerTimeComparator());
+		
+		if (MainSimulator.isThreadDebug && messages.size()>1) {
+			System.out.println(this.toString()+" update time upon msg recieve");
+		}
+		
+		int maxAgentTime = msgWithMaxTime.getMailerTime();
+		if (this.time <= maxAgentTime) {
 			int oldTime = this.time;
-			this.time = maxTime;
+			this.time = maxAgentTime;
 		}
 	}
 
@@ -159,6 +166,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * 
 	 */
 	public synchronized boolean reactionToAlgorithmicMsgs() {
+		this.atomicActionCounter = 0;
 
 		if (getDidComputeInThisIteration()) {
 
@@ -169,22 +177,20 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				this.timeStampCounter = this.timeStampCounter + 1;
 				if (MainSimulator.isAtomicTime) {
 					if (MainSimulator.dividAtomicTime==1) {
-						this.time = this.time + this.numberOfAtomicActionsInComputation();
+						this.time = this.time + this.atomicActionCounter;
 					}else {
-					this.time = this.time + this.numberOfAtomicActionsInComputation()/MainSimulator.dividAtomicTime+1;}
+					this.time = this.time + this.atomicActionCounter/MainSimulator.dividAtomicTime+1;}
 				} else {
 					this.time = this.time + 1;
 				}
-				//sendMsgs();
-				//changeRecieveFlagsToFalse();
+				this.atomicActionCounter = 0;
 			}
-
 			return isUpdate;
 		}
 		return false;
 	}
 
-	protected abstract int numberOfAtomicActionsInComputation();
+	//protected abstract int numberOfAtomicActionsInComputation();
 
 	public abstract boolean getDidComputeInThisIteration();
 
@@ -192,15 +198,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) || (MainSimulator.sendOnlyIfChange == false);
 	}
 
-	/**
-	 * used by reactionToAlgorithmicMsgs and sent under condition of context sent of
-	 * input boolean MainSimulator.sendOnlyIfChange == false
-	 * 
-	 * @param changeContext
-	 */
 
-	public void reactionToAnytimeMsgs() {
-	}
 
 	/**
 	 * After the context was updated by messages received, computation takes place
@@ -280,6 +278,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			this.sendMsgs();
 			this.changeRecieveFlagsToFalse();
 		}
+		//mailer.wakeUp();
+
 	}
 
 	protected void waitingMethodology() {
@@ -289,12 +289,13 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				System.out.println(this + " is idle");
 			}
 			mailer.wakeUp();
-
 			this.wait();
+			mailer.wakeUp();
 
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
 		
 	}
 

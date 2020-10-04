@@ -9,6 +9,6 @@ public class MsgLR extends MsgAlgorithm {
 	}
 
 	public MsgLR(MsgAlgorithm m) {
-		this(m.getSenderId(), m.getRecieverId(), m.getContext(), m.getTimeStamp(), m.getTime());
+		this(m.getSenderId(), m.getRecieverId(), m.getContext(), m.getTimeStamp(), m.getAgentTime());
 	}
 }

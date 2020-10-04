@@ -7,20 +7,27 @@ public abstract class Msg<Identity> {
 	private NodeId sender;
 	private NodeId reciever;
 	protected Object context;
-	protected int time;
+	protected int agentTime;
 	private int timestamp;
 	
 	private Integer delay;
 	
-	public Msg(NodeId sender, NodeId reciever, Object context, int timeStamp, int time) {
+	private int mailerTime;
+	public Msg(NodeId sender, NodeId reciever, Object context, int timeStamp, int agentTime) {
 		super();
 		this.sender = sender;
 		this.reciever = reciever;
 		this.context = context;
 		this.timestamp = timeStamp;
-		this.time = time;
+		this.agentTime = agentTime;
 	}
 	
+	public void setMailerTime(int mailerTime) {
+		this.mailerTime = mailerTime;
+	}
+	public int getMailerTime() {
+		return this.mailerTime;
+	}
 
 
 
@@ -53,9 +60,9 @@ public abstract class Msg<Identity> {
 	}
 	
 
-	public int getTime() {
+	public int getAgentTime() {
 		// TODO Auto-generated method stub
-		return this.time;
+		return this.agentTime;
 	}
 
 
@@ -63,15 +70,16 @@ public abstract class Msg<Identity> {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "from "+this.sender.getId1()+" to "+ this.reciever.getId1()+ " time "+this.time;
+		return "from "+this.sender.getId1()+" to "+ this.reciever.getId1()+ " time "+this.agentTime;
 	}
 
 
 
-	public void setTime(int timeToSendByMailer) {
-		this.time = timeToSendByMailer;
+	public void setAgentTime(int timeToSendByMailer) {
+		this.agentTime = timeToSendByMailer;
 		
 	}
+
 	
 	
 	

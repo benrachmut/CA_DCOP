@@ -221,6 +221,12 @@ public abstract class Mailer {
 		this.recieversAlgortihmicMsgs = getRecieversByNodeIdAlgorithmic(msgsAlgorithm);
 		for (Entry<NodeId, List<MsgAlgorithm>> e : recieversAlgortihmicMsgs.entrySet()) {
 			NodeId recieverId = e.getKey();
+			
+			if (recieverId.getId1() == 1 && MainSimulator.isThreadDebug) {
+				System.out.println();
+				
+				
+			}
 			List<MsgAlgorithm> msgsForAnAgnet = e.getValue();
 			Agent recieverAgent = getAgentByNodeId(recieverId);
 			if (recieverAgent == null) {

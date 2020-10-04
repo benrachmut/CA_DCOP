@@ -9,8 +9,9 @@ import java.util.List;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.NodeId;
+import Delays.ProtocolDelayUniform;
 import Messages.Msg;
-import Messages.MsgsTimeComparator;
+import Messages.MsgsAgentTimeComparator;
 import Problem.Dcop;
 
 public class MailerThread extends Mailer implements Runnable {
@@ -63,7 +64,6 @@ public class MailerThread extends Mailer implements Runnable {
 					try {
 						if (MainSimulator.isThreadDebug) {
 							System.out.println("mailer went to sleep");
-
 						}
 						wait();
 					} catch (InterruptedException e) {
@@ -93,9 +93,13 @@ public class MailerThread extends Mailer implements Runnable {
 	private  void shouldUpdateClockBecuaseNoMsgsRecieved() {
 		if (clockUpdatedFromMsgPlacedInBoxFlag == false) {
 			if (!messageBox.isEmpty()) {
-				Msg minTimeMsg = Collections.min(messageBox, new MsgsTimeComparator());
-				int minTime = minTimeMsg.getTime();
-				int oldTime = time;
+				Msg minTimeMsg = Collections.min(messageBox, new MsgsAgentTimeComparator());
+				int minTime = minTimeMsg.getAgentTime();
+				//int oldTime = time;
+				if (Main.MainSimulator.isThreadDebug) {
+					System.out.println("min agent time check because no msgs to send");
+				}
+				
 				this.time = minTime;
 			}
 			
@@ -106,14 +110,14 @@ public class MailerThread extends Mailer implements Runnable {
 	public synchronized void sendMsg(Msg m) {
 		super.sendMsg(m);
 		updateMailerClockUponMsgRecieved(m);
-		int timeToSendByMailer = this.time + m.getDelay();
+		int timeToSendByMailer = m.getAgentTime() + m.getDelay();
 
-		m.setTime(timeToSendByMailer);
-
+		m.setAgentTime(timeToSendByMailer);
+		m.setMailerTime(this.time);
 		if (MainSimulator.isThreadDebug) {
 			NodeId sender = m.getSenderId();
 			NodeId reciever = m.getRecieverId();
-			int t = m.getTime();
+			int t = m.getAgentTime();
 			
 			System.out.println("Msg placed in box: s_"+sender+" r_"+reciever+" mailer time_"+this.time+" will be sent_"+t);
 			System.out.println("A_"+sender+"wakes mailer up");
@@ -133,7 +137,10 @@ public class MailerThread extends Mailer implements Runnable {
 
 	protected void updateMailerClockUponMsgRecieved(Msg m) {
 
-		int timeMsg = m.getTime();
+		int timeMsg = m.getAgentTime();
+		if (MainSimulator.isThreadDebug && timeMsg>1) {
+			System.out.println();
+		}
 		if (this.time <= timeMsg) {
 			int oldTime = this.time;
 			this.time = timeMsg;
@@ -149,16 +156,13 @@ public class MailerThread extends Mailer implements Runnable {
 
 	@Override
 	protected synchronized List<Msg> handleDelay() {
-
 		List<Msg> toSend = new ArrayList<Msg>();
 		for (Msg msg : messageBox) {
-			if (msg.getTime() <= this.time) {
-
+			if (msg.getAgentTime()<= this.time) {
 				toSend.add(msg);
 			}
 		}
 		this.messageBox.removeAll(toSend);
-
 		return toSend;
 	}
 
