@@ -18,10 +18,10 @@ import Messages.MsgsAgentTimeComparator;
 import Messages.MsgsMailerTimeComparator;
 
 public abstract class Agent implements Runnable, Comparable<Agent> {
-	
+
 	protected Integer id;
 	protected NodeId nodeId;
-	
+
 	protected int atomicActionCounter;
 	protected int domainSize;
 	protected int dcopId;
@@ -125,11 +125,11 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	protected void updateAgentTime(List<? extends Msg> messages) {
 		Msg msgWithMaxTime = Collections.max(messages, new MsgsMailerTimeComparator());
-		
-		if (MainSimulator.isThreadDebug && messages.size()>1) {
-			System.out.println(this.toString()+" update time upon msg recieve");
+
+		if (MainSimulator.isThreadDebug && messages.size() > 1) {
+			System.out.println(this.toString() + " update time upon msg recieve");
 		}
-		
+
 		int maxAgentTime = msgWithMaxTime.getMailerTime();
 		if (this.time <= maxAgentTime) {
 			int oldTime = this.time;
@@ -176,29 +176,26 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				computationCounter = computationCounter + 1;
 				this.timeStampCounter = this.timeStampCounter + 1;
 				if (MainSimulator.isAtomicTime) {
-					if (MainSimulator.dividAtomicTime==1) {
-						this.time = this.time + this.atomicActionCounter;
-					}else {
-					this.time = this.time + this.atomicActionCounter/MainSimulator.dividAtomicTime+1;}
-				} else {
-					this.time = this.time + 1;
+					this.time = this.time + this.atomicActionCounter;
 				}
-				this.atomicActionCounter = 0;
+			} else {
+				this.time = this.time + 1;
 			}
+			this.atomicActionCounter = 0;
+
 			return isUpdate;
 		}
 		return false;
+
 	}
 
-	//protected abstract int numberOfAtomicActionsInComputation();
+	// protected abstract int numberOfAtomicActionsInComputation();
 
 	public abstract boolean getDidComputeInThisIteration();
 
 	protected boolean isMsgGoingToBeSent(boolean changeContext) {
 		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) || (MainSimulator.sendOnlyIfChange == false);
 	}
-
-
 
 	/**
 	 * After the context was updated by messages received, computation takes place
@@ -272,13 +269,12 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			}
 		}
 		this.reactionToAlgorithmicMsgs();
-		
-		
+
 		if (this.getDidComputeInThisIteration()) {
 			this.sendMsgs();
 			this.changeRecieveFlagsToFalse();
 		}
-		//mailer.wakeUp();
+		// mailer.wakeUp();
 
 	}
 
@@ -296,7 +292,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			e.printStackTrace();
 		}
 
-		
 	}
 
 	public static SortedMap<NodeId, Integer> turnMapWithMsgRecieveToContextValues(

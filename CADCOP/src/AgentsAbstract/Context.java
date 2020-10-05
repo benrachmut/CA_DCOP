@@ -152,7 +152,7 @@ public class Context {
 		}
 	}
 
-	private boolean sameCosts(Context input) {
+	boolean sameCosts(Context input) {
 
 		for (Entry<Integer, Integer> e : this.costPerAgent.entrySet()) {
 			Integer thisCost = e.getValue();
@@ -167,9 +167,9 @@ public class Context {
 			}
 			if (thisCost == null && otherCost == null) {
 
-			} else if(!thisCost.equals(otherCost)) {
-				throw new RuntimeException("something doesnt make sense when aggergating costs");
-			}
+			} //else if(!thisCost.equals(otherCost)) {
+				//throw new RuntimeException("something doesnt make sense when aggergating costs");
+			//}
 
 		}
 		return true;

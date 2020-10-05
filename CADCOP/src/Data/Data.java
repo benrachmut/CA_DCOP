@@ -134,9 +134,6 @@ public class Data {
 		if (MainSimulator.isAnytime) {
 			if (mailer.getDcop().isSearchAlgorithm()) {
 				
-				if (MainSimulator.isAnytimeThreadDebug && time == 8) {
-					System.out.println();
-				}
 				
 				this.topAgentsAnytimeContextCost = calcTopAgentsAnytimeContextCost(mailer);
 
