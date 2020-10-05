@@ -56,7 +56,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	private Set<Context> fullContextFound;
 	private Set<Context> newFullContextFoundToSend;
 
-	private Object combinedContextCollection;
+	private Set<CombinedContextCollection> combinedContextCollection;
 
 	public AgentVariableSearch(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
@@ -100,6 +100,11 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		this.neighborsValueAssignmnet = Agent
 				.<NodeId, MsgReceive<Integer>>resetMapToValueNull(this.neighborsValueAssignmnet);
 		anytimeValueAssignmnet = null;
+		if (combinedContextCollection != null) {
+			for (CombinedContextCollection ccc : combinedContextCollection) {
+				ccc.restart();
+			}
+		}
 
 		for (List<Context> l : contextInMemory.values()) {
 			l = new ArrayList<Context>();
@@ -389,24 +394,17 @@ public abstract class AgentVariableSearch extends AgentVariable {
 					}
 				}
 			}
-/*
-			if (msgAnyTime instanceof MsgAnyTimeDownTopFound) {
-				
-				Context winner = (Context) msgAnyTime.getContext();
-				this.fullContextFound.add((Context) msgAnyTime.getContext());
-				Collection<Context> toRemove = new HashSet<Context>();
-				for (List<Context> list : this.contextInMemory.values()) {
-					for (Context c : list) {
-						if (winner.hasSamePotential(c)) {
-
-					}
-					e.getValur
-						toRemove.add(c);
-					}
-				}
-				this.contextInMemory.removeAll(toRemove);
-			}
-			*/
+			/*
+			 * if (msgAnyTime instanceof MsgAnyTimeDownTopFound) {
+			 * 
+			 * Context winner = (Context) msgAnyTime.getContext();
+			 * this.fullContextFound.add((Context) msgAnyTime.getContext());
+			 * Collection<Context> toRemove = new HashSet<Context>(); for (List<Context>
+			 * list : this.contextInMemory.values()) { for (Context c : list) { if
+			 * (winner.hasSamePotential(c)) {
+			 * 
+			 * } e.getValur toRemove.add(c); } } this.contextInMemory.removeAll(toRemove); }
+			 */
 		}
 
 		isIdle = false;
@@ -419,26 +417,110 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		if (contextHasNulls()) {
 			return;
 		}
-		if (creator != this.id) {
-			for (Context context : this.contextInMemory.get(this.id)) {
-				attemptToCombineAndHandle(context, input);
+		if (creator != this.id) { // it is not an c_i context
+			 tryToCombineFromAnytimeMsgUp(input, creator);
+			/*
+			for (Context context : combined) {
+				this.contextInMemory.get(this.id).add(context);
 			}
-		}else {
-		for (Entry<Integer, List<Context>> e : this.contextInMemory.entrySet()) {
-			if (e.getKey() != creator) {
-				for (Context context : e.getValue()) {
-					attemptToCombineAndHandle(context, input);
+			*/
+			
+		} else {
+			for (Entry<Integer, List<Context>> e : this.contextInMemory.entrySet()) {
+				if (e.getKey() != creator) {
+					for (Context context : e.getValue()) {
+						attemptToCombineAndHandleAfterICreated(context, input, e.getKey());
+					}
 				}
 			}
-		}
 		}
 
 		if (!isContextInMemory(creator, input)) {
 			this.contextInMemory.get(creator).add(input);
+		}
+		removeGivenHeuristic(creator, MainSimulator.anytimeMemoryLimitedSize);
+	}
 
+	private void attemptToCombineAndHandleAfterICreated(Context context, Context input, int iCreatedWith) {
+		increaseTime(context, input);
+		Context combined = context.combineWith(input);
+		if (combined != null) {
+			if (!isConsistentWithTop(context)) {
+				if (this.anytimeSons.size() == 1) {
+					combinedAndNoSons(input, combined);
+				} else {
+					for (CombinedContextCollection ccc : combinedContextCollection) {
+						if (ccc.onlyIdOfIntput(iCreatedWith)) {
+							ccc.addContext(combined);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private Set<Context> tryToCombineFromAnytimeMsgUp(Context input, int creator) {
+		
+		Set<Context> ans = new HashSet<Context>();
+		for (Context context : this.contextInMemory.get(this.id)) {
+			increaseTime(context, input);
+			Context combined = context.combineWith(input);
+			if (combined != null) {
+				if (!isConsistentWithTop(context)) {
+					if (this.anytimeSons.size() == 1) {
+						combinedAndNoSons(input, combined);
+					} else {
+						//ans.add(combined);
+						//this.contextInMemory.get(this.id).add(combined);
+						saveWithReleventCombined(combined, creator);
+					}
+				}
+				ans.add(combined);
+			}
+		}
+		
+		if (combinedContextCollection!=null) {
+			for (CombinedContextCollection ccc : this.combinedContextCollection) {
+				if (ccc.isIdInCCC(creator)) {
+					for (Context context : ans) {
+						ccc.addContext(context);
+					}
+				}
+			}
+		}
+		
+		return ans;
+
+	}
+
+	private void saveWithReleventCombined(Context combined, int creator) {
+
+		for (CombinedContextCollection ccc : this.combinedContextCollection) {
+			if (ccc.isIdInCCC(creator)) {
+				ccc.addContext(combined);
+			} else {
+				for (Context contextToCombine : ccc.getContexts()) {
+					Context anotherCombined = contextToCombine.combineWith(combined);
+					if (anotherCombined != null) {
+						Set<Integer> ids = ccc.getIds();
+						ids.add(creator);
+						if (ids.size() == this.anytimeSons.size()) {// not full
+							if (this.isAnytimeTop()) {
+								handleContextAdditionForTreeTop(anotherCombined);
+							} else {
+								if (anytimeUpToSendPast.add(anotherCombined)) {
+									anytimeUpToSend.add(anotherCombined);
+								}
+							}
+						} else {
+							throw new RuntimeException("more then two childen");
+						}
+
+					}
+				}
+			}
 		}
 
-		removeGivenHeuristic(creator, MainSimulator.anytimeMemoryLimitedSize);
 	}
 
 	private boolean isContextInMemory(Integer creator, Context input) {
@@ -450,27 +532,14 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		return false;
 	}
 
-	private boolean attemptToCombineAndHandle(Context context, Context input) {
-		increaseTime(context, input);
-		Context combined = context.combineWith(input);
-		if (combined != null) {
-			if (!isConsistentWithTop(context)) {
-				if (this.anytimeSons.size() == 1) {
-					if (!this.isAnytimeTop()) {
-						if (anytimeUpToSendPast.add(input)) {
-							anytimeUpToSend.add(combined);
-
-						}
-					} else {
-						handleContextAdditionForTreeTop(combined);
-					}
-					return true;
-				} else {
-					throw new RuntimeException("We dont have a chain");
-				}
+	private void combinedAndNoSons(Context input, Context combined) {
+		if (!this.isAnytimeTop()) {
+			if (anytimeUpToSendPast.add(combined)) {
+				anytimeUpToSend.add(combined);
 			}
+		} else {
+			handleContextAdditionForTreeTop(combined);
 		}
-		return false;
 	}
 
 	/*
@@ -723,14 +792,15 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			}
 
 			this.combinedContextCollection = createCombinedContextCollections(forCombinations);
-			throw new RuntimeException("Formation is not a chain");
+			for (NodeId nodeId : dfsSons) {
+				this.contextInMemory.put(nodeId.getId1(), new ArrayList<Context>());
+				this.contextInMemory.put(this.id, new ArrayList<Context>());
+			}
 		} else {
-
 			if (dfsSons.size() == 1) {
 				Iterator<NodeId> it = dfsSons.iterator();
 				this.contextInMemory.put(it.next().getId1(), new ArrayList<Context>());
 				this.contextInMemory.put(this.id, new ArrayList<Context>());
-
 			}
 			this.combinedContextCollection = null;
 		}
@@ -747,7 +817,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 					ids.add(forCombinations.get(i).getId1());
 				}
 			}
-			if (ids.size() != forCombinations.size()) {
+			if (ids.size() != forCombinations.size() && !ids.isEmpty()) {
 				ans.add(new CombinedContextCollection(ids));
 			}
 		}

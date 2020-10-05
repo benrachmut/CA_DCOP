@@ -59,11 +59,11 @@ public class MainSimulator {
 //	public static boolean deleteAfterCombine = false;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
 	public static int anytimeMemoryHuerstic = 2;
-	public static int anytimeMemoryLimitedSize = 250;
+	public static int anytimeMemoryLimitedSize = 500;
 
 	// --------------------------------**Experiment Repetitions**
-	public static int start = 0;
-	public static int end = 1;
+	public static int start = 2;
+	public static int end = start+1;
 	public static int end_temp = start; //DO NOT CHANGE
 	public static int termination = 1000;
 	private static int everyHowManyExcel = 100;

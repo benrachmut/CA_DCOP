@@ -12,4 +12,28 @@ public class CombinedContextCollection {
 		this.ids = ids;
 		this.contexts = new HashSet<Context>();
 	}
+	public void restart() {
+		this.contexts = new HashSet<Context>();
+		
+	}
+	public boolean isIdInCCC(int creator) {
+		
+		return ids.contains(creator);
+	}
+	public void addContext(Context combined) {
+		this.contexts.add(combined);
+	}
+	public  Set<Context> getContexts() {
+		// TODO Auto-generated method stub
+		return contexts;
+	}
+	public Set<Integer> getIds() {
+		return this.ids;
+	}
+	public boolean onlyIdOfIntput(int iCreatedWith) {
+		if (this.ids.contains(iCreatedWith) && this.ids.size() ==1) {
+			return true;
+		}
+		return false;
+	}
 }
