@@ -20,7 +20,7 @@ import Main.MainSimulator;
 
 public class DFS extends Formation {
 
-	private Map<NodeId, Integer> numberInTree;
+	protected Map<NodeId, Integer> numberInTree;
 	protected Map<AgentVariable, Boolean> visited;
 
 	public DFS(AgentVariable[] input_a) {

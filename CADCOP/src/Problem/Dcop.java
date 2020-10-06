@@ -214,6 +214,7 @@ public abstract class Dcop {
 				}
 				if (MainSimulator.anytimeFormation == 3) {
 					doNaiveFormation();
+					
 				}
 			}
 		}

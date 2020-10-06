@@ -47,7 +47,7 @@ public class MainSimulator {
 	public static boolean isAtomicTime= true;
 	//public static int dividAtomicTime = 1;
 	public static int multiplicationTime = 200000;
-	public static int howManyIterationForCalculation = 10;
+	public static int howManyIterationForCalculation = 1000;
 
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
@@ -65,7 +65,7 @@ public class MainSimulator {
 	public static int start = 2;
 	public static int end = start+1;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static int termination = 1000;
+	public static int termination = 5000;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
