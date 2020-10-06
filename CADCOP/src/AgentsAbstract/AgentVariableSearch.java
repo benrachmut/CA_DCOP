@@ -303,9 +303,8 @@ public abstract class AgentVariableSearch extends AgentVariable {
 						}
 					} else {
 
-						if (!isContextInMemory(this.id, context_i)) {
-							this.contextInMemory.get(this.id).add(context_i);
-						}
+						placeContextInMemory(context_i, this.id);
+
 
 					}
 				}
