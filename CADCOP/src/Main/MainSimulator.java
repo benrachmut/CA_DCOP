@@ -46,8 +46,8 @@ public class MainSimulator {
 	public static boolean isThreadMailer = true; // determines the mailers type
 	public static boolean isAtomicTime= true;
 	//public static int dividAtomicTime = 1;
-	public static int multiplicationTime = 200000;
-	public static int howManyIterationForCalculation = 1000;
+	public static int multiplicationTime = 400000;
+	public static int howManyIterationForCalculation = 500000;
 
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
@@ -62,14 +62,16 @@ public class MainSimulator {
 	public static int anytimeMemoryLimitedSize = 500;
 
 	// --------------------------------**Experiment Repetitions**
-	public static int start = 0;
+	public static int div=15;
+
+	public static int start = 204;
 	public static int end = start+1;
 	public static int end_temp = start; //DO NOT CHANGE
 	public static int termination = 5000;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 20; // amount of agents
+	public static int A = 50; // amount of agents
 	// public static int D = -1; // if D or costParameter < 0 use default
 
 	// ------------------------------ **DCOP GENERATOR**
@@ -78,7 +80,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 =0.4;
+	public static double dcopUniformP1 =0.2;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
 	public static int costUbUniform = 100;

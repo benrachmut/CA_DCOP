@@ -1,5 +1,6 @@
 package AgentsAbstract;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -150,6 +151,21 @@ public class Context {
 			TreeMap<Integer, Integer> costs = createCostsMapCombineWith(input);
 			return new Context(vam, costs, this.contextId, input.contextId);
 		}
+	}
+
+	public Set<Integer>getSameKeys(Context contextFromMsg){
+		Set<Integer> ans = new HashSet<Integer>();
+		for (Integer i : contextFromMsg.getIds()) {
+			if (this.valueAssignmentPerAgent.containsKey(i)) {
+				ans.add(i);
+			}
+		}
+		return ans;
+	}
+	
+	private Set<Integer> getIds() {
+		// TODO Auto-generated method stub
+		return this.valueAssignmentPerAgent.keySet();
 	}
 
 	boolean sameCosts(Context input) {
