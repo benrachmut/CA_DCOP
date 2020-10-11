@@ -46,8 +46,8 @@ public class MailerThread extends Mailer implements Runnable {
 		for (Agent a : this.dcop.getAgents()) {
 			a.resetAgent();
 			a.initialize();
-			if (MainSimulator.isThreadDebug)  {
-				System.out.println(a+" initialize");
+			if (MainSimulator.isThreadDebug) {
+				System.out.println(a + " initialize");
 			}
 		}
 		createAndStartAgentThreads();
@@ -90,19 +90,19 @@ public class MailerThread extends Mailer implements Runnable {
 		return true;
 	}
 
-	private  void shouldUpdateClockBecuaseNoMsgsRecieved() {
+	private void shouldUpdateClockBecuaseNoMsgsRecieved() {
 		if (clockUpdatedFromMsgPlacedInBoxFlag == false) {
 			if (!messageBox.isEmpty()) {
 				Msg minTimeMsg = Collections.min(messageBox, new MsgsAgentTimeComparator());
 				int minTime = minTimeMsg.getAgentTime();
-				//int oldTime = time;
+				// int oldTime = time;
 				if (Main.MainSimulator.isThreadDebug) {
 					System.out.println("min agent time check because no msgs to send");
 				}
-				
+
 				this.time = minTime;
 			}
-			
+
 		}
 	}
 
@@ -110,21 +110,30 @@ public class MailerThread extends Mailer implements Runnable {
 	public synchronized void sendMsg(Msg m) {
 		super.sendMsg(m);
 		updateMailerClockUponMsgRecieved(m);
-		int timeToSendByMailer = m.getAgentTime() + m.getDelay();
+		try {
+			
+			int t = m.getAgentTime();
+			int d = m.getDelay();
+			int timeToSendByMailer = t + d;
+			m.setAgentTime(timeToSendByMailer);
+			m.setMailerTime(this.time);
+		} catch (NullPointerException e) {
+			m.setAgentTime(m.getAgentTime());
+			m.setMailerTime(this.time);
 
-		m.setAgentTime(timeToSendByMailer);
-		m.setMailerTime(this.time);
+		}
 		if (MainSimulator.isThreadDebug) {
 			NodeId sender = m.getSenderId();
 			NodeId reciever = m.getRecieverId();
 			int t = m.getAgentTime();
-			
-			System.out.println("Msg placed in box: s_"+sender+" r_"+reciever+" mailer time_"+this.time+" will be sent_"+t);
-			System.out.println("A_"+sender+"wakes mailer up");
+
+			System.out.println("Msg placed in box: s_" + sender + " r_" + reciever + " mailer time_" + this.time
+					+ " will be sent_" + t);
+			System.out.println("A_" + sender + "wakes mailer up");
 		}
-		
+
 		clockUpdatedFromMsgPlacedInBoxFlag = true;
-		
+
 		this.wakeUp();
 
 	}
@@ -138,7 +147,7 @@ public class MailerThread extends Mailer implements Runnable {
 	protected void updateMailerClockUponMsgRecieved(Msg m) {
 
 		int timeMsg = m.getAgentTime();
-		if (MainSimulator.isThreadDebug && timeMsg>1) {
+		if (MainSimulator.isThreadDebug && timeMsg > 1) {
 			System.out.println();
 		}
 		if (this.time <= timeMsg) {
@@ -158,7 +167,7 @@ public class MailerThread extends Mailer implements Runnable {
 	protected synchronized List<Msg> handleDelay() {
 		List<Msg> toSend = new ArrayList<Msg>();
 		for (Msg msg : messageBox) {
-			if (msg.getAgentTime()<= this.time) {
+			if (msg.getAgentTime() <= this.time) {
 				toSend.add(msg);
 			}
 		}

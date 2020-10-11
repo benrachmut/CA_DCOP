@@ -46,14 +46,15 @@ public class MainSimulator {
 	public static boolean isThreadMailer = true; // determines the mailers type
 	public static boolean isAtomicTime= true;
 	//public static int dividAtomicTime = 1;
-	public static int multiplicationTime = 400000;
-	public static int howManyIterationForCalculation = 500000;
+	
+	public static int multiplicationTime = 10;
+	public static int howManyIterationForCalculation = 10;
 
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
 
 	// ------------------------------**any time**
-	public static boolean isAnytime = true;
+	public static boolean isAnytime = false;
 	// 1 = DFS; 2 = BFS
 	public static int anytimeFormation = 1;
 //	public static boolean deleteAfterCombine = false;
@@ -62,10 +63,10 @@ public class MainSimulator {
 	public static int anytimeMemoryLimitedSize = 500;
 
 	// --------------------------------**Experiment Repetitions**
-	public static int div=15;
+	public static int div=1;
 
-	public static int start = 204;
-	public static int end = start+1;
+	public static int start = 0;
+	public static int end = 100;
 	public static int end_temp = start; //DO NOT CHANGE
 	public static int termination = 5000;
 	private static int everyHowManyExcel = 100;
@@ -100,7 +101,7 @@ public class MainSimulator {
 	 * AMDLS_V2; 7 = AMDLS_V3; 8 = DSA_SDP-ASY ; 9 = DSA_SDP-SY ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType = 8;
+	public static int agentType = 1;
 
 	public static boolean isCommunicationDebug = false;
 	public static boolean isSDPdebug = false;

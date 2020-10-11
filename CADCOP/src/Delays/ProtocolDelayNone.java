@@ -2,17 +2,16 @@ package Delays;
 
 public class ProtocolDelayNone extends ProtocolDelay{
 
-	public ProtocolDelayNone() {
-		super(false, false, 0);
+	public ProtocolDelayNone(double gamma) {
+		super(false, false, gamma);
 	}
 
 	
 
 	@Override
 	protected void setSeedsGivenParameters(int dcopId) {
-		// TODO Auto-generated method stub
+		rndGammaAlgorthmic=
 	}
-
 
 	@Override
 	protected Double createDelayGivenParameters(boolean blah) {

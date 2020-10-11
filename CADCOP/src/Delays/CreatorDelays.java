@@ -14,9 +14,9 @@ import Delays.ProtocolDelay;
  */
 public abstract class CreatorDelays  {
 
-	protected boolean[] imperfectCommunicationScenario= {false, true};//{true,false};
+	protected boolean[] imperfectCommunicationScenario= {false};//{true,false};
 	protected boolean[] isTimeStamps = {true};
-	protected double[] gammas = {0};
+	protected double[] gammas = {0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8};
 
 	
 	/**
