@@ -15,8 +15,8 @@ public class ProtocolDelayUniform extends ProtocolDelay {
 
 
 	
-	public ProtocolDelayUniform() {
-		super(false, true,0.0);
+	public ProtocolDelayUniform(double gamma) {
+		super(false, true,gamma);
 		ub = 0;
 	}
 	@Override

@@ -18,8 +18,8 @@ public class CreatorDelaysNormal extends CreatorDelays{
 	
 	
 	@Override
-	protected ProtocolDelay createDefultProtocol() {
-		return new ProtocolDelayNormal();
+	protected ProtocolDelay createDefultProtocol(double gamma) {
+		return new ProtocolDelayNormal(gamma);
 	}
 	
 	@Override

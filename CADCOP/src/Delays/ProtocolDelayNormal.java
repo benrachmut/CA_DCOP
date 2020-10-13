@@ -20,6 +20,12 @@ public class ProtocolDelayNormal extends ProtocolDelay {
 		this.mu = 0;
 	}
 	
+	public ProtocolDelayNormal(double gamma) {
+		super(false, true, gamma);
+		this.sigma = 0;
+		this.mu = 0;
+	}
+
 	@Override
 	protected  Double createDelayGivenParameters(boolean isAlgoMsg) {
 		Random whichRand;

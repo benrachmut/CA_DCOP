@@ -47,7 +47,7 @@ public class MainSimulator {
 	public static boolean isAtomicTime= true;
 	//public static int dividAtomicTime = 1;
 	
-	public static int multiplicationTime = 10;
+	public static int multiplicationTime = 20;
 	public static int howManyIterationForCalculation = 10;
 
 	public static boolean isThreadDebug = false;
@@ -109,7 +109,8 @@ public class MainSimulator {
 	public static boolean isAMDLSDistributedDebug = false;
 	public static boolean isAnytimeThreadDebug = true;
 	public static boolean isAnytimeDebug = true;
-
+	public static boolean isMaxSumMailerDebug = false; 
+	public static boolean isFactorGraphDebug = false;
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
 	 */

@@ -1,5 +1,7 @@
 package Delays;
 
+import java.util.Random;
+
 public class ProtocolDelayNone extends ProtocolDelay{
 
 	public ProtocolDelayNone(double gamma) {
@@ -10,7 +12,7 @@ public class ProtocolDelayNone extends ProtocolDelay{
 
 	@Override
 	protected void setSeedsGivenParameters(int dcopId) {
-		rndGammaAlgorthmic=
+		rndGammaAlgorthmic=new Random(dcopId);
 	}
 
 	@Override

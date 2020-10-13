@@ -15,7 +15,7 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 
 	protected HashMap<NodeId, Integer> neighborsMessageIteration; 
 	protected int currentIteration;
-	protected boolean print = false; 
+	protected boolean print = false;
 	
 	//-----------------------------------------------------------------------------------------------------------//
 
@@ -27,6 +27,7 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 		this.neighborsMessageIteration = new HashMap<NodeId, Integer>();
 		initiatNeighborsMessageIteration();
 		this.currentIteration = 0; 
+		this.iAmAsync = false; 
 			
 	}
 	
@@ -37,6 +38,7 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 		this.neighborsMessageIteration = new HashMap<NodeId, Integer>();
 		initiatNeighborsMessageIteration();
 		this.currentIteration = 0; 
+		this.iAmAsync = false; 
 		
 	}
 	//-----------------------------------------------------------------------------------------------------------//
@@ -103,7 +105,7 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 	
 	//OmerP - will loop over the neighbors and will send to each one of the a message.
 	@Override
-	protected void sendMsgs() {
+	public void sendMsgs() {
 		
 		for(NodeId i: messagesToBeSent.keySet()) {
 			

@@ -22,7 +22,7 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 
 	///// ******* Variables For Damping ******* ////
 
-	protected boolean damping = true; 
+	protected boolean damping = false; 
 	
 	// -----------------------------------------------------------------------------------------------------------//
 
@@ -33,6 +33,7 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 		this.neighborsMessageIteration = new HashMap<NodeId, Integer>();
 		initiatNeighborsMessageIteration();
 		setCurrentIteration(0);
+		this.iAmAsync = false; 
  
 
 	}
@@ -86,7 +87,7 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 	
 	// OmerP - will loop over the neighbors and will send to each one of the a
 	@Override
-	protected void sendMsgs() {
+	public void sendMsgs() {
 
 		for (NodeId i : functionMsgs.keySet()) {
 			

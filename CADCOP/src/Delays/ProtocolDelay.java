@@ -6,7 +6,7 @@ public abstract class ProtocolDelay {
 	protected boolean imperfectCommunicationScenario;
 	protected boolean isTimeStamp;
 	private double gamma;
-	private Random rndGammaAlgorthmic, rndGammaAnytime;
+	protected Random rndGammaAlgorthmic, rndGammaAnytime;
 	
 
 	public ProtocolDelay(boolean imperfectCommunicationScenario, boolean isTimeStamp, double gamma) {

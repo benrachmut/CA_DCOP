@@ -6,16 +6,15 @@ import java.util.Random;
 
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.NodeId;
-import Problem.Neighbor;
 
-public class MaxSumSplitConstraintFactorGraphSync extends MaxSumStandardFunctionSync {
+public class MaxSumSplitConstraintFactorGraphAsync extends MaxSumStandardFunction {
 
 	///// ******* Variables ******* ////
 
 	Random rnd = new Random();
 	double SCFGRatio;
-	MaxSumStandardFunctionSync firstSplit, secondSplit;
-	protected List<MaxSumStandardFunctionSync> splitFunctionNodes;
+	MaxSumStandardFunction firstSplit, secondSplit;
+	protected List<MaxSumStandardFunction> splitFunctionNodes;
 	double[][] constraintsMatrixDouble;
 	double[][] constraintMatrixBeta; 
 	double[][] constraintMatrixOneMinusBeta; 
@@ -24,23 +23,21 @@ public class MaxSumSplitConstraintFactorGraphSync extends MaxSumStandardFunction
 
 	///// ******* Constructor ******* ////
 
-	// OmerP - Constructor for Split Constraint Factor Graph
-	public MaxSumSplitConstraintFactorGraphSync(int dcopId, int D, int id1, int id2, Integer[][] constraints) {
-
+	
+	public MaxSumSplitConstraintFactorGraphAsync(int dcopId, int D, int id1, int id2, Integer[][] constraints) {
 		super(dcopId, D, id1, id2, constraints);
-		this.SCFGRatio = randomSplitConstraintRatio(0.4); //Seems ok.
-		createDoubleConstraintMatrix(constraints); //Seems ok.
-		createSplitConstraintMatrices();  //Seems ok.
-		this.splitFunctionNodes = new ArrayList<MaxSumStandardFunctionSync>();
-		this.firstSplit = new MaxSumStandardFunctionSync(dcopId, D, id1, id2, this.constraintMatrixBeta);
-		this.secondSplit = new MaxSumStandardFunctionSync(dcopId, D, id2, id1, this.constraintMatrixOneMinusBeta);
+		this.SCFGRatio = randomSplitConstraintRatio(0.4); 
+		createDoubleConstraintMatrix(constraints); 
+		createSplitConstraintMatrices();  
+		this.splitFunctionNodes = new ArrayList<MaxSumStandardFunction>();
+		this.firstSplit = new MaxSumStandardFunction(dcopId, D, id1, id2, this.constraintMatrixBeta);
+		this.secondSplit = new MaxSumStandardFunction(dcopId, D, id2, id1, this.constraintMatrixOneMinusBeta);
 		splitFunctionNodes.add(this.firstSplit);
 		splitFunctionNodes.add(this.secondSplit);
 		updataNodes();
-		
-		
-		
-	}
+	
+
+}
 
 	///// ******* Initialize Methods ******* ////
 	@Override
@@ -51,7 +48,7 @@ public class MaxSumSplitConstraintFactorGraphSync extends MaxSumStandardFunction
 			splitFunctionNodes.get(i).meetVariables(VariableOneNodeId, VariableTwoNodeId);
 			
 		}
-
+	
 	}
 	
 	public double randomSplitConstraintRatio(double rangeMin) {
@@ -63,7 +60,6 @@ public class MaxSumSplitConstraintFactorGraphSync extends MaxSumStandardFunction
 		
 	}
 	
-	// -----------------------------------------------------------------------------------------------------------//
 	
 	///// ******* Initialize Split Constraint Factor Graph Methods ******* //// 
 
@@ -101,7 +97,7 @@ public class MaxSumSplitConstraintFactorGraphSync extends MaxSumStandardFunction
 	}
 	
 	// -----------------------------------------------------------------------------------------------------------//
-
+	
 	
 	///// ******* Split Constraint Factor Graph Methods ******* ////
 
@@ -168,6 +164,7 @@ public class MaxSumSplitConstraintFactorGraphSync extends MaxSumStandardFunction
 	}
 	
 	// -----------------------------------------------------------------------------------------------------------//
+	
 
 	///// ******* Getters ******* ////
 
@@ -186,11 +183,17 @@ public class MaxSumSplitConstraintFactorGraphSync extends MaxSumStandardFunction
 	}
 
 	// OmerP - Will return the list of Max Sum Standard Function. 
-	public List<MaxSumStandardFunctionSync> getSplitFunctionNodes(){
+	public List<MaxSumStandardFunction> getSplitFunctionNodes(){
 		
 		return splitFunctionNodes; 
 		
 	}
 	
 	
+	
+	
+	
+	
 }
+	
+	

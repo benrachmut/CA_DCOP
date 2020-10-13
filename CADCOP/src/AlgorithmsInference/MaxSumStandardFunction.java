@@ -16,17 +16,20 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 	///// ******* Variables ******* ////
 
-	private boolean receiveMessageFlag;
+	protected boolean receiveMessageFlag;
+	protected boolean iAmAsync = true; 
 	HashMap<NodeId, double[]> storedMessgesTable = new HashMap<NodeId, double[]>();
 	HashMap<NodeId, MsgAlgorithmFactor> messagesToBeSent = new HashMap<NodeId, MsgAlgorithmFactor>(); 
 	HashMap<NodeId, double[][]> neighborsConstraintMatrix = new HashMap<NodeId, double[][]>(); 
 	protected boolean printConstraints = false; 
+	protected int computationCounter;
 	
 	//-----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Control Variables ******* ////
 	
 	boolean storedMessageOn = false;
+	boolean print = true; 
 	 
 	///// ******* Constructors and Initialization Methods ******* ////
 
@@ -37,6 +40,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		initializeNeighborsConstraintMatrix(id1, id2, constraints);
 		updataNodes(getNodeId());
 		this.receiveMessageFlag = false;
+		this.computationCounter = 0; 
 		
 	}
 	
@@ -50,6 +54,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		neighborsConstraintMatrix.put(av2, transposeConstraintMatrix(constraints));
 		updataNodes(getNodeId());
 		this.receiveMessageFlag = false;
+		this.computationCounter = 0;
 		
 	}
 	
@@ -71,18 +76,21 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 	///// ******* Main Methods ******* ////
 
-	//OmerP - will send new messages for each one of the neighbors upon the initiation of the algorithm (iteration = 0).
+	/**
+	* OmerP - will send new messages for each one of the neighbors upon the initiation of the algorithm (iteration = 0) - Checked !!!
+	 */
 	public void initialize() {
 			
 	}
 		
-	//OmerP - function node don't need to update anything so he will return false. 
+	//OmerP - function node don't need to update anything so he will return false - Checked !!!
 	@Override
 	protected boolean compute() {
 		
 		if(receiveMessageFlag) {
 			
 			produceNewMessages(); 
+			this.computationCounter++; 
 			
 			return true; 
 			
@@ -92,7 +100,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 	}
 	
-	//OmerP - To reset the agent if this is a new run. 
+	//OmerP - To reset the agent if this is a new run - Need to check during run. 
 	@Override
 	public void resetAgentGivenParametersV2() {	
 		this.storedMessgesTable.clear();
@@ -103,14 +111,24 @@ public class MaxSumStandardFunction extends AgentFunction {
 	
 	public void resetAgentGivenParametersV3() {}
 	
-	//OmerP - produce new messages. 
+	//OmerP - produce new messages - Checked !!!
 	protected void produceNewMessages() {
 		
 		for(NodeId i: variableMsgs.keySet()) {
 			
 			double[] sentTable = new double[this.domainSize];
 			sentTable = produceFunctionMessage(i);
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0, this.time);
+			MsgAlgorithmFactor newMsg;
+			
+			if(iAmAsync) { 
+				
+				 newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.computationCounter, this.time);
+			}
+			
+			else {
+				 newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, 0, this.time);
+			}
+			
 			messagesToBeSent.put(i, newMsg);
 			//printStoredMessage(newMsg);
 			
@@ -118,15 +136,15 @@ public class MaxSumStandardFunction extends AgentFunction {
 			
 	}
 	
-	//OmerP - will loop over the neighbors and will send to each one of the a message.
+	//OmerP - will loop over the neighbors and will send to each one of the a message - Need to check during run. 
 	@Override
-	protected void sendMsgs() {
+	public void sendMsgs() {
 		
 		for(NodeId i: messagesToBeSent.keySet()) {
 			
 			mailer.sendMsg(messagesToBeSent.get(i));
 			
-			printSentMessage(messagesToBeSent.get(i));
+			if(print) {printSentMessage(messagesToBeSent.get(i));}
 			
 			if(storedMessageOn) {
 				
@@ -137,6 +155,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		}
 		
 		changeRecieveFlagsToFalse();
+		if(print) {printFlag();}
 		messagesToBeSent.clear();
 		
 		
@@ -153,12 +172,14 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 	}
 
-	//OmerP - will get the message and update context in HashMap.
+	//OmerP - will get the message and update context in HashMap - Need to check during run. 
 	@Override
 	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 		
 		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
 
+		if(print) {printReceivedMessage(msgAlgorithmFactor);}
+		
 		double[] contextFix = (double[]) msgAlgorithmFactor.getContext(); //will cast the message object as a double[].
 		
 		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithmFactor.getTimeStamp()); //
@@ -166,6 +187,8 @@ public class MaxSumStandardFunction extends AgentFunction {
 		variableMsgs.put(msgAlgorithmFactor.getSenderId(), newMessageReceveid);
 		
 		changeRecieveFlagsToTrue(msgAlgorithm);
+		
+		if(print) {printFlag();}
 
 	}
 	
@@ -385,7 +408,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 	//OmerP - Flag that should be down after the all the messages were sent. 
 	@Override
-	protected void changeRecieveFlagsToFalse() {
+	public void changeRecieveFlagsToFalse() {
 		
 		this.receiveMessageFlag = false;
 		
@@ -436,17 +459,17 @@ public class MaxSumStandardFunction extends AgentFunction {
 	
 	protected void printSentMessage(MsgAlgorithmFactor msg) {
 		
-		System.out.println("FunctionNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") SENT a message for VariableNode ("
+		System.out.println("Computation Counter:(" + this.computationCounter + "),FunctionNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") SENT a message for VariableNode ("
 				
-				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
+				+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + " and timestamp:(" + msg.getTimeStamp() + ").\n");
 		
 	}
 	
 	protected void printReceivedMessage(MsgAlgorithmFactor msg) {
 		
-		System.out.println("FunctionNode:(" + msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") RECEIVED a message from VariableNode ("
+		System.out.println("Computation Counter:(" + this.computationCounter + "), FunctionNode:(" + msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") RECEIVED a message from VariableNode ("
 				
-				+ msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + ".\n");
+				+ msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + " and timestamp:(" + msg.getTimeStamp() + ").\n");
 		
 	}
 	
@@ -490,6 +513,19 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 	}
 	
+	protected void printFlag() {
+			
+			if(this.receiveMessageFlag) {
+				
+				System.out.println("FunctionNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + "), Flag is UP.\n");
+				
+			}else {
+				
+				System.out.println("FunctionNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + "), Flag is DOWN.\n");
+				
+			}
+			
+		}
 	
 	
 	//-----------------------------------------------------------------------------------------------------------//
