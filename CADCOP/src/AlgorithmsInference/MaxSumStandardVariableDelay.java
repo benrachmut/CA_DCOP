@@ -14,9 +14,9 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	protected HashMap<NodeId, MaxSumMemory> neighborsMemory; 
 	protected int neighborsSize; 
 	protected int timeStampToLook; 
-	protected boolean isSync = false; 
+	protected boolean isSync = true; 
 	private boolean print = false;
-	private boolean damping = true; 
+	private boolean damping = false; 
 	
 	// -----------------------------------------------------------------------------------------------------------//
 
@@ -145,6 +145,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 				
 				storeNewMessage(i, messagesToBeSent.get(i).getContext());
 				
+			
 			}
 			
 		}

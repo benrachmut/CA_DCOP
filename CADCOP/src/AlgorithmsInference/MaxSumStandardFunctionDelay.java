@@ -14,7 +14,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction  {
 	protected HashMap<NodeId, MaxSumMemory> neighborsMemory; 
 	protected int neighborsSize; 
 	protected int timeStampToLook; 
-	protected boolean isSync = false; 
+	protected boolean isSync = true; 
 	private boolean print = false;
 	
 	// -----------------------------------------------------------------------------------------------------------//

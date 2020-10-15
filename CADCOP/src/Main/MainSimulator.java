@@ -44,7 +44,7 @@ public class MainSimulator {
 
 	// ------------------------------**Implementation**
 	public static boolean isThreadMailer = true; // determines the mailers type
-	public static boolean isAtomicTime= true;
+	public static boolean isAtomicTime= false;
 	//public static int dividAtomicTime = 1;
 	
 	public static int multiplicationTime = 20;
@@ -101,7 +101,7 @@ public class MainSimulator {
 	 * AMDLS_V2; 7 = AMDLS_V3; 8 = DSA_SDP-ASY ; 9 = DSA_SDP-SY ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType = 1;
+	public static int agentType = 103;
 
 	public static boolean isCommunicationDebug = false;
 	public static boolean isSDPdebug = false;
