@@ -32,19 +32,18 @@ public class Find2Opt {
 	
 	private int atomicActionCounter;
 
-	public Find2Opt(Integer valueAssingment1, NodeId nodeId1, TreeMap<NodeId, Integer[][]> neighborsConstraint1,
-			int[] domainArray1, SortedMap<NodeId, MsgReceive<Integer>> neighborsValueAssignmnet1, KOptInfo kOptInfo) {
+	public Find2Opt(KOptInfo kOptInfo1, KOptInfo kOptInfo2) {
 		super();
-		this.currentValueAssingment1 = valueAssingment1;
-		this.currentValueAssingment2 = kOptInfo.getValueAssingment();
-		this.nodeId1 = nodeId1;
-		this.nodeId2 = kOptInfo.getNodeId();
-		this.neighborsConstraint1 = neighborsConstraint1;
-		this.neighborsConstraint2 = kOptInfo.getNeighborsConstraint();
-		this.domainArray1 = domainArray1;
-		this.domainArray2 = kOptInfo.getDomainArray();
-		this.neighborsValueAssignmnet1 = copyNeighborValAss(neighborsValueAssignmnet1);
-		this.neighborsValueAssignmnet2 = copyNeighborValAss(kOptInfo.getNeighborsValueAssignmnet());
+		this.currentValueAssingment1 = kOptInfo1.getValueAssingment();
+		this.currentValueAssingment2 = kOptInfo2.getValueAssingment();
+		this.nodeId1 = kOptInfo1.getNodeId();
+		this.nodeId2 = kOptInfo2.getNodeId();
+		this.neighborsConstraint1 = kOptInfo1.getNeighborsConstraint();
+		this.neighborsConstraint2 = kOptInfo2.getNeighborsConstraint();
+		this.domainArray1 = kOptInfo1.getDomainArray();;
+		this.domainArray2 = kOptInfo2.getDomainArray();
+		this.neighborsValueAssignmnet1 = copyNeighborValAss(kOptInfo1.getNeighborsValueAssignmnet());
+		this.neighborsValueAssignmnet2 = copyNeighborValAss(kOptInfo2.getNeighborsValueAssignmnet());
 		this.atomicActionCounter = 0;
 		
 		this.currentLocalCost = this.findCurrentLocalReduction();
