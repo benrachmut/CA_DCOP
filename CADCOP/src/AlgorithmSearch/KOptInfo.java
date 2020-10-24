@@ -7,18 +7,18 @@ import AgentsAbstract.NodeId;
 import Messages.MsgReceive;
 
 public class KOptInfo {
-	//---------------
-		private Integer valueAssingment;
-	//---------------
-		private NodeId nodeId;
-	//---------------
-		private TreeMap<NodeId, Integer[][]> neighborsConstraint;
-	//---------------
-		private int[] domainArray;
-	//---------------
-		private SortedMap<NodeId, MsgReceive<Integer>> neighborsValueAssignmnet; // id, variable
-		
-	//------------ Constructor	------------
+	// ---------------
+	private Integer valueAssingment;
+	// ---------------
+	private NodeId nodeId;
+	// ---------------
+	private TreeMap<NodeId, Integer[][]> neighborsConstraint;
+	// ---------------
+	private int[] domainArray;
+	// ---------------
+	private SortedMap<NodeId, MsgReceive<Integer>> neighborsValueAssignmnet; // id, variable
+
+	// ------------ Constructor ------------
 	public KOptInfo(Integer valueAssingment, NodeId nodeId, TreeMap<NodeId, Integer[][]> neighborsConstraint,
 			int[] domainArray, SortedMap<NodeId, MsgReceive<Integer>> neighborsValueAssignmnet) {
 		super();
@@ -48,10 +48,5 @@ public class KOptInfo {
 	public SortedMap<NodeId, MsgReceive<Integer>> getNeighborsValueAssignmnet() {
 		return neighborsValueAssignmnet;
 	}
-	
-	
-		
-		
-		
-		
+
 }

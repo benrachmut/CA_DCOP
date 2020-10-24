@@ -44,7 +44,7 @@ public class MainSimulator {
 
 	// ------------------------------**Implementation**
 	public static boolean isThreadMailer = true; // determines the mailers type
-	public static boolean isAtomicTime= false;
+	public static boolean isAtomicTime= true;
 	//public static int dividAtomicTime = 1;
 	
 	public static int multiplicationTime = 20;
