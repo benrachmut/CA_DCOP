@@ -190,7 +190,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	}
 
 	protected int getCandidateToChange_A() {
-		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
+		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain(); // atomic time change 
 		int minCost = Collections.min(costPerDomain.values());
 		try {
 			Integer costOfCurrentValue = costPerDomain.get(this.valueAssignment);
@@ -961,6 +961,17 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	public Set<NodeId> getDFSSons() {
 		return dfsSons;
 
+	}
+	/**
+	 * used by MGM
+	 * @param candidate
+	 * @return
+	 */
+	protected int findLr(int candidate) {
+		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
+		int costOfCandidate = costPerDomain.get(candidate);
+		int costOfCurrentValueAssignment = costPerDomain.get(this.valueAssignment);
+		return costOfCurrentValueAssignment - costOfCandidate;
 	}
 
 }

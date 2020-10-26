@@ -153,12 +153,7 @@ public abstract class MGM extends AgentVariableSearch {
 		}
 	}
 
-	private int findLr(int candidate) {
-		SortedMap<Integer, Integer> costPerDomain = this.getCostPerDomain();
-		int costOfCandidate = costPerDomain.get(candidate);
-		int costOfCurrentValueAssignment = costPerDomain.get(this.valueAssignment);
-		return costOfCurrentValueAssignment - costOfCandidate;
-	}
+	
 
 	private boolean computeChangeInValueAssignment() {
 		SortedMap<NodeId, Integer> lrInfoPerNeighbor = Agent
