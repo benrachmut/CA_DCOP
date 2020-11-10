@@ -15,7 +15,8 @@ abstract public class DSA_B extends AgentVariableSearch {
 
 	public DSA_B(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
-		this.rndStochastic = new Random(this.dcopId * 10 + this.id * 100);
+		this.rndStochastic = new Random(this.dcopId * 10 + (this.id) * 100);
+		this.rndStochastic.nextDouble();
 		canCompute = false;
 		updateAlgorithmHeader();
 		updateAlgorithmData();
@@ -24,6 +25,8 @@ abstract public class DSA_B extends AgentVariableSearch {
 	@Override
 	protected void resetAgentGivenParametersV3() {
 		this.rndStochastic = new Random(this.dcopId * 10 + this.id * 100);
+		this.rndStochastic.nextDouble();
+
 		canCompute = false;
 		rndForDebug = 0;
 

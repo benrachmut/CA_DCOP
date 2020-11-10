@@ -43,11 +43,11 @@ public class MainSimulator {
 	public static boolean sendOnlyIfChange = false;
 
 	// ------------------------------**Implementation**
-	public static boolean isThreadMailer = true; // determines the mailers type
-	public static boolean isAtomicTime= true;
+	public static boolean isThreadMailer = false; // determines the mailers type
+	public static boolean isAtomicTime= false;
 	//public static int dividAtomicTime = 1;
 	
-	public static int multiplicationTime = 20;
+	public static int multiplicationTime = 1;
 	public static int howManyIterationForCalculation = 10;
 
 	public static boolean isThreadDebug = false;
@@ -66,13 +66,13 @@ public class MainSimulator {
 	public static int div=1;
 
 	public static int start = 0;
-	public static int end = 100;
+	public static int end = 1;
 	public static int end_temp = start; //DO NOT CHANGE
 	public static int termination = 5000;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 50; // amount of agents
+	public static int A = 10; // amount of agents
 	// public static int D = -1; // if D or costParameter < 0 use default
 
 	// ------------------------------ **DCOP GENERATOR**
@@ -81,7 +81,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 =0.2;
+	public static double dcopUniformP1 =0.5;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
 	public static int costUbUniform = 100;
@@ -98,19 +98,23 @@ public class MainSimulator {
 	// ------------------------------**Algorithm Selection**
 	/*
 	 * 1 = DSA-ASY; 2 = DSA-SY; 3 = MGM-ASY ; 4 = MGM-SY ; 5 = AMDLS_V1 ; 6 =
-	 * AMDLS_V2; 7 = AMDLS_V3; 8 = DSA_SDP-ASY ; 9 = DSA_SDP-SY ------- 100 =
+	 * AMDLS_V2; 7 = AMDLS_V3; 8 = DSA_SDP-ASY ; 9 = DSA_SDP-SY ; 10 = MGM2-ASY  ; 11 = MGM2-SY
+	 * 
+	 * ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType = 103;
+	public static int agentType = 11;
 
 	public static boolean isCommunicationDebug = false;
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;
 	public static boolean isAMDLSDistributedDebug = false;
-	public static boolean isAnytimeThreadDebug = true;
-	public static boolean isAnytimeDebug = true;
+	public static boolean isAnytimeThreadDebug = false;
+	public static boolean isAnytimeDebug = false;
 	public static boolean isMaxSumMailerDebug = false; 
 	public static boolean isFactorGraphDebug = false;
+	public static boolean isMGM2Debug = true;
+
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
 	 */

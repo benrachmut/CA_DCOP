@@ -23,6 +23,8 @@ import AlgorithmSearch.DSA_B_ASY;
 import AlgorithmSearch.DSA_B_SY;
 import AlgorithmSearch.DSA_SDP_ASY;
 import AlgorithmSearch.DSA_SDP_SY;
+import AlgorithmSearch.MGM2_ASY;
+import AlgorithmSearch.MGM2_SY;
 import AlgorithmSearch.MGM_ASY;
 import AlgorithmSearch.MGM_SY;
 import AlgorithmsInference.MaxSumSplitConstraintFactorGraphDelay;
@@ -140,38 +142,45 @@ public abstract class Dcop {
 		if (agentType == 9) {
 			ans = new DSA_SDP_SY(dcopId, D, agentId);
 		}
-if (agentType == 100) {
-			
-			ans = new MaxSumStandardVarible(dcopId, D, agentId); //Async version without memory.
+		if (agentType == 10) {
+			ans = new MGM2_ASY(dcopId, D, agentId);
+		}
+		if (agentType == 11) {
+			ans = new MGM2_SY(dcopId, D, agentId);
+		}
+		
+		
+		if (agentType == 100) {
+
+			ans = new MaxSumStandardVarible(dcopId, D, agentId); // Async version without memory.
 		}
 
 		if (agentType == 101) {
 
-			ans = new MaxSumStandardVaribleSync(dcopId, D, agentId); //Sync version without memory.
+			ans = new MaxSumStandardVaribleSync(dcopId, D, agentId); // Sync version without memory.
 		}
 
 		if (agentType == 102) {
 
 			agentId = agentId + 1;
-			ans = new MaxSumStandardVaribleSync(dcopId, D, agentId); //Sync Split version without memory.
+			ans = new MaxSumStandardVaribleSync(dcopId, D, agentId); // Sync Split version without memory.
 
 		}
-		
-		if(agentType == 103) { //To add. 
-			
-			ans = new MaxSumStandardVariableDelay(dcopId, D, agentId); //Sync and Async with memory.
+
+		if (agentType == 103) { // To add.
+
+			ans = new MaxSumStandardVariableDelay(dcopId, D, agentId); // Sync and Async with memory.
 
 		}
-		
-		if(agentType == 104) { //To add. 
-			
-			//agentId = agentId + 1;
-			ans = new MaxSumStandardVariableDelay(dcopId, D, agentId); //Sync Split version without memory.
+
+		if (agentType == 104) { // To add.
+
+			// agentId = agentId + 1;
+			ans = new MaxSumStandardVariableDelay(dcopId, D, agentId); // Sync Split version without memory.
 			MaxSumStandardVariableDelay temp = (MaxSumStandardVariableDelay) ans;
 			temp.updateNodeId();
-			
-		}
 
+		}
 
 		return ans;
 	}
@@ -233,7 +242,7 @@ if (agentType == 100) {
 				}
 				if (MainSimulator.anytimeFormation == 3) {
 					doNaiveFormation();
-					
+
 				}
 			}
 		}
@@ -249,7 +258,6 @@ if (agentType == 100) {
 			}
 		}
 
-
 		AgentVariableSearch[] aArray = new AgentVariableSearch[agentsSearch.size()];
 		int counter = 0;
 		for (AgentVariableSearch ttt : agentsSearch) {
@@ -258,7 +266,7 @@ if (agentType == 100) {
 		}
 
 		for (int i = 0; i < aArray.length; i++) {
-			boolean flag=false;
+			boolean flag = false;
 			Set<NodeId> sons = new HashSet<NodeId>();
 			AgentVariableSearch ttt = aArray[i];
 			if (i == 0) {
@@ -338,16 +346,16 @@ if (agentType == 100) {
 
 					af = new MaxSumStandardFunction(dcopId, D, av1.getId(), av2.getId(), constraints);
 
-				} 
-				
+				}
+
 				if (agentType == 101) {
 
 					af = new MaxSumStandardFunctionSync(dcopId, D, av1.getId(), av2.getId(), constraints);
 
 				}
-				
-				if(agentType == 103) {
-					
+
+				if (agentType == 103) {
+
 					af = new MaxSumStandardFunctionDelay(dcopId, D, av1.getId(), av2.getId(), constraints);
 
 				}
@@ -365,45 +373,81 @@ if (agentType == 100) {
 				int avSplitOne = av1.getId() + 1;
 				int avSplitTwo = av2.getId() + 1;
 
-				if(agentType == 102) {
-				
-					af = new MaxSumSplitConstraintFactorGraphSync(dcopId, D, av1.getId(), av2.getId(), constraints); // Will create a new MaxSumSplitConstraintFactorGraphSync																											
-					MaxSumSplitConstraintFactorGraphSync splitConstraintAgent = (MaxSumSplitConstraintFactorGraphSync) af; // Casting af as MaxSumSplitConstraintFactorGraphSync																										
-					List<MaxSumStandardFunctionSync> splitList = splitConstraintAgent.getSplitFunctionNodes(); // Get the list of the function agents. 																						
-					for (int i = 0; i < splitConstraintAgent.getSplitFunctionNodes().size(); i++) { // Looping over the list and adds each function agent on the list to agentFunction and agentsAll.
-																								
+				if (agentType == 102) {
+
+					af = new MaxSumSplitConstraintFactorGraphSync(dcopId, D, av1.getId(), av2.getId(), constraints); // Will
+																														// create
+																														// a
+																														// new
+																														// MaxSumSplitConstraintFactorGraphSync
+					MaxSumSplitConstraintFactorGraphSync splitConstraintAgent = (MaxSumSplitConstraintFactorGraphSync) af; // Casting
+																															// af
+																															// as
+																															// MaxSumSplitConstraintFactorGraphSync
+					List<MaxSumStandardFunctionSync> splitList = splitConstraintAgent.getSplitFunctionNodes(); // Get
+																												// the
+																												// list
+																												// of
+																												// the
+																												// function
+																												// agents.
+					for (int i = 0; i < splitConstraintAgent.getSplitFunctionNodes().size(); i++) { // Looping over the
+																									// list and adds
+																									// each function
+																									// agent on the list
+																									// to agentFunction
+																									// and agentsAll.
+
 						this.agentFunctions.add(splitList.get(i));
 						this.agentsAll.add(splitList.get(i));
-	
+
 					}
 
 				}
-				
-				if(agentType == 104) {
-					
-					af = new MaxSumSplitConstraintFactorGraphDelay(dcopId, D, av1.getId()+1, av2.getId()+1, constraints); // Will create a new MaxSumSplitConstraintFactorGraphSync																											
-					MaxSumSplitConstraintFactorGraphDelay splitConstraintAgent = (MaxSumSplitConstraintFactorGraphDelay) af; // Casting af as MaxSumSplitConstraintFactorGraphSync																										
-					List<MaxSumStandardFunctionDelay> splitList = splitConstraintAgent.getSplitFunctionNodes(); // Get the list of the function agents. 																						
-					for (int i = 0; i < splitConstraintAgent.getSplitFunctionNodes().size(); i++) { // Looping over the list and adds each function agent on the list to agentFunction and agentsAll.
-																								
+
+				if (agentType == 104) {
+
+					af = new MaxSumSplitConstraintFactorGraphDelay(dcopId, D, av1.getId() + 1, av2.getId() + 1,
+							constraints); // Will create a new MaxSumSplitConstraintFactorGraphSync
+					MaxSumSplitConstraintFactorGraphDelay splitConstraintAgent = (MaxSumSplitConstraintFactorGraphDelay) af; // Casting
+																																// af
+																																// as
+																																// MaxSumSplitConstraintFactorGraphSync
+					List<MaxSumStandardFunctionDelay> splitList = splitConstraintAgent.getSplitFunctionNodes(); // Get
+																												// the
+																												// list
+																												// of
+																												// the
+																												// function
+																												// agents.
+					for (int i = 0; i < splitConstraintAgent.getSplitFunctionNodes().size(); i++) { // Looping over the
+																									// list and adds
+																									// each function
+																									// agent on the list
+																									// to agentFunction
+																									// and agentsAll.
+
 						this.agentFunctions.add(splitList.get(i));
 						this.agentsAll.add(splitList.get(i));
 
 					}
-					
+
 				}
-				
+
 				av1.meetFunction(af.getMyNodes());
 				av2.meetFunction(af.getMyNodes());
 				af.meetVariables(av1.getNodeId(), av2.getNodeId());
 
 			}
-			
+
 		}
-		
-		if (MainSimulator.isFactorGraphDebug) {pringAgentAll();}
-		
+
+		if (MainSimulator.isFactorGraphDebug) {
+			pringAgentAll();
+		}
+
 	}
+
 	public List<Agent> getAgents() {
 		return agentsAll;
 	}

@@ -6,51 +6,127 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
-import java.util.SortedMap;
 
+import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
+import Main.MainSimulator;
 import Messages.MsgAlgorithm;
-import Messages.MsgLR;
-import Messages.MsgMgm2Phase1Friendship;
-import Messages.MsgMgm2Phase2FriendshipReplay;
-import Messages.MsgMgm2Phase2LR;
-import Messages.MsgMgm2Phase3IsBestGain;
+import Messages.MsgMgm2Phase2FriendshipInformation;
+import Messages.MsgMgm2Phase3FriendshipReplay;
+import Messages.MsgMgm2Phase3LR;
+import Messages.MsgMgm2Phase5IsBestLR;
 import Messages.MsgReceive;
 import Messages.MsgValueAssignmnet;
 
 abstract public class MGM2 extends AgentVariableSearch {
 
 	public static int repsOfMsgSentInPhase3Phase4 = 1;
+	public static double probToBeOfferPhase1 = 0.5;
+
+	protected boolean flagComputeRecieveValueMsgsPhase1;
+	protected boolean flagComputeFriendshipInformationPhase2;
+	protected boolean flagComputeOfferAndNegativeReplayPhase3;
+	protected boolean flagComputeOfferAndPositiveReplayPhase3;
+	protected boolean flagComputeAllLRandWithPartnerPhase4;
+	protected boolean flagComputeAllLRandWithNoPartnerPhase4;
+	protected boolean flagComputePartnerLRIsBestLRPhase5;
 
 	// ##---------Phase 1---------##
-	protected Random neighborRndPhase1;
-	protected Random isOfferGiverRndPhase1;
-	protected boolean isOfferGiverPhase1;
-	protected Map<NodeId, MsgReceive<KOptInfo>> friendshipOffersPhase1;
-	protected Map<NodeId, Boolean> friendshipOffersBooleanPhase1;
-	protected NodeId selectedFriendNodeIdPhase1;
+	protected Map<NodeId, Boolean> phase1RecieveBooleanValueAssignmnet;
+	protected Random phase1RndNeighborSelection;
+	protected Random phase1RndIsOfferGiver;
+	protected boolean phase1BooleanIsOfferGiver;
+	protected NodeId phase1NodeIdSelectedFriend;
+	protected KOptInfo phase1MyOpt2Created;
 	// ##---------Phase 2---------##
-	protected Random neighborRndPhase2;
-	protected NodeId acceptedFriendPhase2;
-	protected int LR_phase2;
-	protected Set<NodeId> whoAskedToBeFriendWithMePhase2;
-	protected Find2Opt find2OptPhase2;
-	protected Integer myValueAssignmnetPotentialPhase2;
-	protected Integer friendValueAssignmnetPotentialPhase2;
-	protected Map<NodeId, MsgReceive<Integer>> neighborsLR_phase2; // id, variable
-	protected Map<NodeId, Boolean> neighborsLR_booleanPhase2;
+	protected Map<NodeId, Boolean> phase2RecieveBooleanFriendshipOffers;
+	protected Map<NodeId, MsgReceive<KOptInfo>> phase2RecieveFriendshipOffers;
+	protected Set<NodeId> phase2SetNodeIdsAskedMeForFriendship;
+	protected Random phase2RndNeighborFromOffers;
+	protected NodeId phase2NodeIdAcceptedFriend;
+	protected int phase2IntMyLr;
+	protected Find2Opt phase2Opt2Recieve;
+	protected Integer phase2PotentialComputedValueAssignmnet;
+	protected Integer phase2PotentialComputedValueAssignmnetOfFriend;
 	// ##---------Phase 3---------##
-
-	protected Find2Opt infoReplayFromFriendPhase3;
+	protected Map<NodeId, Boolean> phase3RecieveBooleanLR;
+	protected Map<NodeId, MsgReceive<Integer>> phase3RecieveLR; // id, variable
+	protected Map<NodeId, Boolean> phase3RecieveBooleanInfoReplayFromFriend;
+	protected Map<NodeId, MsgReceive<Find2Opt>> phase3RecieveInfoReplayFromFriend;
 
 	// ##---------Phase 4---------##
-	protected boolean isAcceptPhase4;
+	protected boolean phase4IsBestLR;
+	// ##---------Phase 5---------##
+	protected Map<NodeId, MsgReceive<Boolean>> phase5RecieveIsPartnerBestLR;
+	protected Map<NodeId, Boolean> phase5RecieveBooleanIsPartnerBestLR;
 
 	public MGM2(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
-		resetFields();
+		resetAgentGivenParametersV3();
+		updateAlgorithmHeader();
+		updateAlgorithmData();
+	}
 
+	@Override
+	protected int getSenderCurrentTimeStampFromContext(MsgAlgorithm m) {
+		NodeId sender = m.getSenderId();
+
+		try {
+			if (m instanceof MsgValueAssignmnet) {
+				return neighborsValueAssignmnet.get(sender).getTimestamp();
+			}
+			if (m instanceof MsgMgm2Phase2FriendshipInformation) {
+				return this.phase2RecieveFriendshipOffers.get(sender).getTimestamp();
+			}
+			if (m instanceof MsgMgm2Phase3FriendshipReplay) {
+				return this.phase3RecieveInfoReplayFromFriend.get(sender).getTimestamp();
+			}
+
+			if (m instanceof MsgMgm2Phase3LR) {
+				return phase3RecieveLR.get(sender).getTimestamp();
+			}
+			if (m instanceof MsgMgm2Phase5IsBestLR) {
+				return phase5RecieveIsPartnerBestLR.get(sender).getTimestamp();
+			}
+		} catch (NullPointerException e) {
+			return -1;
+		}
+
+		return -1;
+	}
+
+	@Override
+	protected void updateMessageInContext(MsgAlgorithm m) {
+
+		if (m instanceof MsgValueAssignmnet) {
+			recieveMsgPhase1(m);
+		}
+		if (m instanceof MsgMgm2Phase2FriendshipInformation) {
+			recieveMsgFriendshipInformationPhase2(m);
+		}
+
+		if (m instanceof MsgMgm2Phase3FriendshipReplay) {
+			recieveMsgFriendshipReplayPhase3(m);
+		}
+
+		if (m instanceof MsgMgm2Phase3LR) {
+			recieveMsgLRPhase3(m);
+		}
+
+		if (m instanceof MsgMgm2Phase5IsBestLR) {
+			recieveMsgPhase5(m);
+		}
+	}
+
+	@Override
+	public void updateAlgorithmHeader() {
+		AgentVariable.algorithmHeader = "";
+	}
+
+	@Override
+	public void updateAlgorithmData() {
+		AgentVariable.algorithmData = "";
 	}
 
 	@Override
@@ -59,49 +135,138 @@ abstract public class MGM2 extends AgentVariableSearch {
 		resetAgentGivenParametersV4();
 	}
 
-	private void resetFields() {
-		// ** ---phase 1--- **
-		isOfferGiverRndPhase1 = new Random(id * 105 + dcopId * 10);
-		neighborRndPhase1 = new Random(id * 132 + dcopId * 15);
-		isOfferGiverPhase1 = false;
-		selectedFriendNodeIdPhase1 = null;
-		resetFriendshipOffersPhase1();
+	protected void resetFields() {
 
+		flagComputeRecieveValueMsgsPhase1 = false;
+		flagComputeFriendshipInformationPhase2 = false;
+		flagComputeOfferAndNegativeReplayPhase3 = false;
+		flagComputeOfferAndPositiveReplayPhase3 = false;
+		flagComputeAllLRandWithPartnerPhase4 = false;
+		flagComputeAllLRandWithNoPartnerPhase4 = false;
+		flagComputePartnerLRIsBestLRPhase5 = false;
+		// ** ---phase 1--- **
+		resetPhase1RecieveBooleanValueAssignmnet();
+		phase1RndIsOfferGiver = new Random();
+		phase1RndIsOfferGiver.setSeed((id + 1) * 17 + dcopId);
+		phase1RndIsOfferGiver.nextDouble();
+		phase1RndNeighborSelection = new Random((id + 1) * 132 + dcopId * 15);
+		phase1RndIsOfferGiver.nextInt();
+
+		phase1BooleanIsOfferGiver = false;
+		phase1NodeIdSelectedFriend = null;
+		phase1MyOpt2Created = null;
 		// ** ---phase 2--- **
-		neighborRndPhase2 = new Random(id * 145 + dcopId * 36);
-		whoAskedToBeFriendWithMePhase2 = new HashSet<NodeId>();
-		acceptedFriendPhase2 = null;
-		LR_phase2 = Integer.MAX_VALUE;
-		find2OptPhase2 = null;
-		myValueAssignmnetPotentialPhase2 = null;
-		friendValueAssignmnetPotentialPhase2 = null;
-		resetNeighborsLR_phase2();
+
+		phase2RndNeighborFromOffers = new Random(id * 145 + dcopId * 36);
+		phase2RndNeighborFromOffers.nextInt();
+
+		resetPhase2RecieveFriendshipOffers();
+		phase2SetNodeIdsAskedMeForFriendship = new HashSet<NodeId>();
+		phase2NodeIdAcceptedFriend = null;
+		phase2IntMyLr = -1;
+		phase2Opt2Recieve = null;
+		phase2PotentialComputedValueAssignmnet = null;
+		phase2PotentialComputedValueAssignmnetOfFriend = null;
 
 		// ** ---phase 3--- **
-		infoReplayFromFriendPhase3 = null;
+		resetPhase3RecieveLR();
+		resetPhase3RecieveInfoReplayFromFriend();
 
 		// ** ---phase 4--- **
-		isAcceptPhase4 = false;
+		phase4IsBestLR = false;
+
+		// ** ---phase 5--- **
+		resetPhase5RecieveIsPartnerBestLR();
+
 	}
 
-	private void resetNeighborsLR_phase2() {
-		neighborsLR_phase2 = new HashMap<NodeId, MsgReceive<Integer>>(); // id, variable
-		neighborsLR_booleanPhase2 = new HashMap<NodeId, Boolean>();
+	protected void resetPhases() {
+		resetPhase1();
+		resetPhase2();
+		resetPhase3();
+		resetPhase4();
+		resetPhase5();
+
+	}
+
+	private void resetPhase1() {
+		// resetPhase1
+		phase1BooleanIsOfferGiver = false;
+		phase1NodeIdSelectedFriend = null;
+		phase1MyOpt2Created = null;
+	}
+
+	private void resetPhase2() {
+		// resetPhase2
+		resetPhase2RecieveFriendshipOffers();
+		phase2SetNodeIdsAskedMeForFriendship = new HashSet<NodeId>();
+		phase2NodeIdAcceptedFriend = null;
+		phase2IntMyLr = -1;
+		phase2Opt2Recieve = null;
+		phase2PotentialComputedValueAssignmnet = null;
+		phase2PotentialComputedValueAssignmnetOfFriend = null;
+	}
+
+	private void resetPhase3() {
+		// ** ---phase 3--- **
+		resetPhase3RecieveLR();
+		resetPhase3RecieveInfoReplayFromFriend();
+	}
+
+	private void resetPhase4() {
+		// ** ---phase 4--- **
+		phase4IsBestLR = false;
+	}
+
+	private void resetPhase5() {
+		// ** ---phase 5--- **
+		resetPhase5RecieveIsPartnerBestLR();
+	}
+
+	protected void resetPhase5RecieveIsPartnerBestLR() {
+		phase5RecieveIsPartnerBestLR = new HashMap<NodeId, MsgReceive<Boolean>>();
+		phase5RecieveBooleanIsPartnerBestLR = new HashMap<NodeId, Boolean>();
 		for (NodeId nodeId : this.getNeigborSetId()) {
-			neighborsLR_phase2.put(nodeId, null);
-			neighborsLR_booleanPhase2.put(nodeId, false);
+			phase5RecieveIsPartnerBestLR.put(nodeId, null);
+			phase5RecieveBooleanIsPartnerBestLR.put(nodeId, false);
+		}
+
+	}
+
+	protected void resetPhase3RecieveInfoReplayFromFriend() {
+		phase3RecieveInfoReplayFromFriend = new HashMap<NodeId, MsgReceive<Find2Opt>>();
+		phase3RecieveBooleanInfoReplayFromFriend = new HashMap<NodeId, Boolean>();
+		for (NodeId nodeId : this.getNeigborSetId()) {
+			phase3RecieveInfoReplayFromFriend.put(nodeId, null);
+			phase3RecieveBooleanInfoReplayFromFriend.put(nodeId, false);
+		}
+
+	}
+
+	protected void resetPhase1RecieveBooleanValueAssignmnet() {
+		phase1RecieveBooleanValueAssignmnet = new HashMap<NodeId, Boolean>();
+		for (NodeId nodeId : this.getNeigborSetId()) {
+			phase1RecieveBooleanValueAssignmnet.put(nodeId, false);
+		}
+
+	}
+
+	protected void resetPhase2RecieveFriendshipOffers() {
+		phase2RecieveFriendshipOffers = new HashMap<NodeId, MsgReceive<KOptInfo>>();
+		phase2RecieveBooleanFriendshipOffers = new HashMap<NodeId, Boolean>();
+		for (NodeId nodeId : this.getNeigborSetId()) {
+			phase2RecieveFriendshipOffers.put(nodeId, null);
+			phase2RecieveBooleanFriendshipOffers.put(nodeId, false);
 		}
 	}
 
-	private void resetFriendshipOffersPhase1() {
-
-		friendshipOffersPhase1 = new HashMap<NodeId, MsgReceive<KOptInfo>>();
-		friendshipOffersBooleanPhase1 = new HashMap<NodeId, Boolean>();
+	protected void resetPhase3RecieveLR() {
+		phase3RecieveLR = new HashMap<NodeId, MsgReceive<Integer>>(); // id, variable
+		phase3RecieveBooleanLR = new HashMap<NodeId, Boolean>();
 		for (NodeId nodeId : this.getNeigborSetId()) {
-			friendshipOffersPhase1.put(nodeId, null);
-			friendshipOffersBooleanPhase1.put(nodeId, false);
+			phase3RecieveLR.put(nodeId, null);
+			phase3RecieveBooleanLR.put(nodeId, false);
 		}
-
 	}
 
 	protected abstract void resetAgentGivenParametersV4();
@@ -112,36 +277,68 @@ abstract public class MGM2 extends AgentVariableSearch {
 				this.neighborsValueAssignmnet);
 	}
 
-	// ------------------** phase 1 **------------------
+	// ------------------** Msg Value Process **------------------
+
+	/**
+	 * recieve msg with value
+	 * 
+	 * @param m
+	 */
 	protected void recieveMsgPhase1(MsgAlgorithm m) {
-		updateMsgInContextValueAssignmnet(m);
+		if (m instanceof MsgValueAssignmnet) {
+			updateMsgInContextValueAssignmnet(m);
+			phase1RecieveBooleanValueAssignmnet.put(m.getSenderId(), true);
+		} else {
+			throw new RuntimeException("Wrong type msg");
+		}
 	}
 
+	/**
+	 * rnd if I offer a neighbor to be a friend create information to send my friend
+	 * 
+	 * @return
+	 */
 	// offer
 	protected boolean computePhase1() {
-		double rnd = isOfferGiverRndPhase1.nextDouble();
-		if (rnd < 0.5) {
-			this.isOfferGiverPhase1 = true;
+		if (MainSimulator.isMGM2Debug) {
+			System.out.println(this + " started phase1-----------");
+		}
+		double rnd = phase1RndIsOfferGiver.nextDouble();
+		if (rnd < probToBeOfferPhase1) {
+			this.phase1BooleanIsOfferGiver = true;
+			phase1MyOpt2Created = makeMyKOptInfo();
+			int i = this.phase1RndNeighborSelection.nextInt(this.neighborSize());
+			this.phase1NodeIdSelectedFriend = (NodeId) this.getNeigborSetId().toArray()[i];
 		} else {
-			this.isOfferGiverPhase1 = false;
+			this.phase1BooleanIsOfferGiver = false;
+		}
+
+		if (MainSimulator.isMGM2Debug) {
+			if (!phase1BooleanIsOfferGiver) {
+				System.out.println(this + " is not an offerer");
+			} else {
+				System.out.println(this + " is an offerer to A_" + phase1NodeIdSelectedFriend.getId1());
+			}
+
 		}
 		return true;
 	}
 
-	protected void sendPhase1() {
-		if (this.isOfferGiverPhase1) {
-			KOptInfo myKoptInfo = makeMyKOptInfo();
-			int i = this.neighborRndPhase1.nextInt(this.neighborSize());
-			this.selectedFriendNodeIdPhase1 = (NodeId) this.getNeigborSetId().toArray()[i];
+	/**
+	 * if offer send selected neighbor friendship and null to all the rest if not
+	 * offer send null to all neighbors
+	 */
 
+	protected void sendPhase1() {
+		if (this.phase1BooleanIsOfferGiver) {
 			for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
-				MsgMgm2Phase1Friendship mva = null;
-				if (recieverNodeId.getId1() == selectedFriendNodeIdPhase1.getId1()) {
-					mva = new MsgMgm2Phase1Friendship(this.nodeId, recieverNodeId, myKoptInfo, this.timeStampCounter,
-							this.time);
+				MsgMgm2Phase2FriendshipInformation mva = null;
+				if (recieverNodeId.getId1() == phase1NodeIdSelectedFriend.getId1()) {
+					mva = new MsgMgm2Phase2FriendshipInformation(this.nodeId, recieverNodeId, phase1MyOpt2Created,
+							this.timeStampCounter, this.time);
 				} else {
-					mva = new MsgMgm2Phase1Friendship(this.nodeId, recieverNodeId, null, this.timeStampCounter,
-							this.time);
+					mva = new MsgMgm2Phase2FriendshipInformation(this.nodeId, recieverNodeId, null,
+							this.timeStampCounter, this.time);
 				}
 				this.mailer.sendMsg(mva);
 			}
@@ -149,8 +346,8 @@ abstract public class MGM2 extends AgentVariableSearch {
 		} else {
 			for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 
-				MsgMgm2Phase1Friendship mva = new MsgMgm2Phase1Friendship(this.nodeId, recieverNodeId, null,
-						this.timeStampCounter, this.time);
+				MsgMgm2Phase2FriendshipInformation mva = new MsgMgm2Phase2FriendshipInformation(this.nodeId,
+						recieverNodeId, null, this.timeStampCounter, this.time);
 
 				this.mailer.sendMsg(mva);
 			}
@@ -163,74 +360,103 @@ abstract public class MGM2 extends AgentVariableSearch {
 		if (!recieverId.equals(this.nodeId)) {
 			throw new RuntimeException("mailer sent wrong agent msg");
 		}
-
 	}
 
 	// ------------------** phase 2 **------------------
-	protected void recieveMsgPhase2(MsgAlgorithm m) {
-		if (m instanceof MsgMgm2Phase1Friendship) {
+
+	/**
+	 * Receive information from friend, or null from non friends
+	 * 
+	 * @param m
+	 */
+	protected void recieveMsgFriendshipInformationPhase2(MsgAlgorithm m) {
+		if (m instanceof MsgMgm2Phase2FriendshipInformation) {
 			checkRightAddress(m);
 			NodeId senderId = m.getSenderId();
 			MsgReceive<KOptInfo> msgRecieve = new MsgReceive<KOptInfo>((KOptInfo) m.getContext(), m.getTimeStamp());
-			this.friendshipOffersPhase1.put(senderId, msgRecieve);
-			this.friendshipOffersBooleanPhase1.put(senderId, true);
+			this.phase2RecieveFriendshipOffers.put(senderId, msgRecieve);
+			this.phase2RecieveBooleanFriendshipOffers.put(senderId, true);
 		} else {
-			throw new RuntimeException("called recieveMsgPhase1 with wrong timing");
+			throw new RuntimeException("Wrong type msg");
 		}
 	}
 
-	// accept/reject
-	protected boolean computePhase2() {
-		this.resetNeighborsLR_phase2();
+	/**
+	 * if i did not offer in the previous phase, then I can select from friends that
+	 * offered me friendship if did not offer: organize a set of all neighbors that
+	 * offered me. if nobody offered then I am alone, so I can calculate Local
+	 * reduction alone if atlist one did offer, select friend and calculate
+	 * information together
+	 * 
+	 * @return
+	 */
 
-		if (!this.isOfferGiverPhase1) {
-			whoAskedToBeFriendWithMePhase2();
-			if (whoAskedToBeFriendWithMePhase2.isEmpty()) {
-				computeLonelyInformationPhase2();
-			} else {
-				computeGotRequestFromFriendsPhase2();
+	protected boolean computeIfNotOfferPhase2() {
+		if (MainSimulator.isMGM2Debug) {
+			System.out.println(this + " is about to select an offer");
+		}
+		phase2SetNodeIdsAskedMeForFriendship();
+		if (phase2SetNodeIdsAskedMeForFriendship.isEmpty()) {
+			computeLikeMGM1();
+		} else {
+			computeGotRequestFromFriendsPhase2();
+		}
+		return true;
+
+	}
+
+	protected void phase2SetNodeIdsAskedMeForFriendship() {
+		phase2SetNodeIdsAskedMeForFriendship = new HashSet<NodeId>();
+		for (Entry<NodeId, MsgReceive<KOptInfo>> e : phase2RecieveFriendshipOffers.entrySet()) {
+			if (e.getValue().getContext() != null) {
+				phase2SetNodeIdsAskedMeForFriendship.add(e.getKey());
 			}
-			return true;
-		} else {
-			return false;
 		}
-
 	}
 
-	private void computeLonelyInformationPhase2() {
-		computeLikeMGM1();
+	protected void computeLikeMGM1() {
+		int candidate = getCandidateToChange_A();
+		if (candidate != this.valueAssignment) {
+			this.phase2PotentialComputedValueAssignmnet = candidate;
+			this.phase2PotentialComputedValueAssignmnetOfFriend = null;
+			this.phase2IntMyLr = findLr(candidate);
+		}
 	}
 
-	private void computeGotRequestFromFriendsPhase2() {
-		int i = this.neighborRndPhase2.nextInt(whoAskedToBeFriendWithMePhase2.size());
-		this.acceptedFriendPhase2 = (NodeId) whoAskedToBeFriendWithMePhase2.toArray()[i];
-		MsgReceive<KOptInfo> msgRec = this.friendshipOffersPhase1.get(this.acceptedFriendPhase2);
+	protected void computeGotRequestFromFriendsPhase2() {
+		selectRandomFriendFromAllOffers();
+		createInfromationObjectTogetherWithFriend();
+		useInfromationObjectToUpdateFields();
+	}
+
+	private void selectRandomFriendFromAllOffers() {
+		int i = this.phase2RndNeighborFromOffers.nextInt(phase2SetNodeIdsAskedMeForFriendship.size());
+		this.phase2NodeIdAcceptedFriend = (NodeId) phase2SetNodeIdsAskedMeForFriendship.toArray()[i];
+	}
+
+	private void createInfromationObjectTogetherWithFriend() {
+		MsgReceive<KOptInfo> msgRec = this.phase2RecieveFriendshipOffers.get(this.phase2NodeIdAcceptedFriend);
 		KOptInfo infoOfMyFriendPhase2 = msgRec.getContext();
-		resetFriendshipOffersPhase1();
-		this.find2OptPhase2 = new Find2Opt(makeMyKOptInfo(), infoOfMyFriendPhase2);
-		this.atomicActionCounter = find2OptPhase2.getAtomicActionCounter();
-		this.LR_phase2 = find2OptPhase2.getLR();
-		this.myValueAssignmnetPotentialPhase2 = find2OptPhase2.getValueAssignmnet1();
-		this.friendValueAssignmnetPotentialPhase2 = find2OptPhase2.getValueAssignmnet2();
+		this.phase2Opt2Recieve = new Find2Opt(makeMyKOptInfo(), infoOfMyFriendPhase2);
+	}
 
-		this.neighborsLR_booleanPhase2.put(acceptedFriendPhase2, true);
-		this.neighborsLR_phase2.remove(acceptedFriendPhase2);
+	private void useInfromationObjectToUpdateFields() {
+		this.atomicActionCounter = phase2Opt2Recieve.getAtomicActionCounter();
+		this.phase2IntMyLr = phase2Opt2Recieve.getLR();
+		this.phase2PotentialComputedValueAssignmnet = phase2Opt2Recieve.getValueAssignmnet1();
+		this.phase2PotentialComputedValueAssignmnetOfFriend = phase2Opt2Recieve.getValueAssignmnet2();
+		phase3RecieveBooleanLR.put(phase2NodeIdAcceptedFriend, true);
+		this.phase3RecieveLR.remove(phase2NodeIdAcceptedFriend);
 
 	}
 
-	private void whoAskedToBeFriendWithMePhase2() {
-		whoAskedToBeFriendWithMePhase2 = new HashSet<NodeId>();
-		for (Entry<NodeId, MsgReceive<KOptInfo>> e : friendshipOffersPhase1.entrySet()) {
-			if (e.getValue() != null) {
-				whoAskedToBeFriendWithMePhase2.add(e.getKey());
-			}
-		}
-	}
-
-	protected void sendPhase2() {
-		if (!this.isOfferGiverPhase1) {
-			whoAskedToBeFriendWithMePhase2();
-			if (whoAskedToBeFriendWithMePhase2.isEmpty()) {
+	/**
+	 * 
+	 */
+	protected void sendIfNotOfferPhase2() {
+		if (!this.phase1BooleanIsOfferGiver) {
+			phase2SetNodeIdsAskedMeForFriendship();
+			if (phase2SetNodeIdsAskedMeForFriendship.isEmpty()) {
 				sendSingleLRPhase2();
 			} else {
 				sendDoubleLRPhase2();
@@ -238,15 +464,19 @@ abstract public class MGM2 extends AgentVariableSearch {
 		}
 	}
 
-	private void sendDoubleLRPhase2() {
+	protected void sendDoubleLRPhase2() {
+		if (MainSimulator.isMGM2Debug) {
+			System.out.println(this + " is sending LRs msgs");
+		}
+
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
-			if (this.acceptedFriendPhase2.getId1() == recieverNodeId.getId1()) {
-				MsgMgm2Phase2FriendshipReplay mlr = new MsgMgm2Phase2FriendshipReplay(this.nodeId, recieverNodeId,
-						this.find2OptPhase2, this.timeStampCounter, this.time);
+			if (this.phase2NodeIdAcceptedFriend.getId1() == recieverNodeId.getId1()) {
+				MsgMgm2Phase3FriendshipReplay mlr = new MsgMgm2Phase3FriendshipReplay(this.nodeId, recieverNodeId,
+						this.phase2Opt2Recieve, this.timeStampCounter, this.time);
 
 				this.mailer.sendMsg(mlr);
 			} else {
-				MsgMgm2Phase2LR mlr = new MsgMgm2Phase2LR(this.nodeId, recieverNodeId, this.LR_phase2,
+				MsgMgm2Phase3LR mlr = new MsgMgm2Phase3LR(this.nodeId, recieverNodeId, this.phase2IntMyLr,
 						this.timeStampCounter, this.time);
 
 				this.mailer.sendMsg(mlr);
@@ -255,9 +485,25 @@ abstract public class MGM2 extends AgentVariableSearch {
 
 	}
 
-	private void sendSingleLRPhase2() {
+	protected void sendAllOffersThatIamAnOffererMySelfPhase2() {
+		phase2SetNodeIdsAskedMeForFriendship();
+		for (NodeId recieverNodeId : phase2SetNodeIdsAskedMeForFriendship) {
+			MsgMgm2Phase3FriendshipReplay mlr = new MsgMgm2Phase3FriendshipReplay(this.nodeId, recieverNodeId, null,
+					this.timeStampCounter, this.time);
+			this.mailer.sendMsg(mlr);
+		}
+	}
+
+	/**
+	 * send LR msg too everyone
+	 */
+	protected void sendSingleLRPhase2() {
+		if (MainSimulator.isMGM2Debug) {
+			System.out.println(this + " is sending LRs msgs");
+		}
+
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
-			MsgMgm2Phase2LR mlr = new MsgMgm2Phase2LR(this.nodeId, recieverNodeId, this.LR_phase2,
+			MsgMgm2Phase3LR mlr = new MsgMgm2Phase3LR(this.nodeId, recieverNodeId, this.phase2IntMyLr,
 					this.timeStampCounter, this.time);
 			this.mailer.sendMsg(mlr);
 		}
@@ -265,12 +511,25 @@ abstract public class MGM2 extends AgentVariableSearch {
 	}
 
 	// ------------------** phase 3 **------------------
+
+	/**
+	 * may recieve a msg with replay from a friend
+	 * 
+	 * @param m
+	 */
+
 	protected void recieveMsgPhase3(MsgAlgorithm m) {
-		if (m instanceof MsgMgm2Phase2FriendshipReplay) {
+		NodeId sender = m.getSenderId();
+
+		if (m instanceof MsgMgm2Phase3FriendshipReplay) {
 			recieveMsgFriendshipReplayPhase3(m);
+			if (!this.phase1BooleanIsOfferGiver || sender.getId1() != this.phase1NodeIdSelectedFriend.getId1()) {
+				throw new RuntimeException("was not suppose to get this msg");
+			}
+			return;
 		}
 
-		if (m instanceof MsgMgm2Phase2LR) {
+		if (m instanceof MsgMgm2Phase3LR) {
 			recieveMsgLRPhase3(m);
 		}
 
@@ -278,127 +537,243 @@ abstract public class MGM2 extends AgentVariableSearch {
 	}
 
 	private void recieveMsgFriendshipReplayPhase3(MsgAlgorithm m) {
-		neighborsLR_phase2.remove(m.getSenderId()); // id, variable
-		neighborsLR_booleanPhase2.put(m.getSenderId(), true);
-		this.infoReplayFromFriendPhase3 = (Find2Opt) m.getContext();
-		this.LR_phase2 = this.infoReplayFromFriendPhase3.getLR();
-		this.myValueAssignmnetPotentialPhase2 = find2OptPhase2.getValueAssignmnet2();
-		if (m.getSenderId().getId1() != this.selectedFriendNodeIdPhase1.getId1()) {
-			throw new RuntimeException("logical mistake, a different friend that i asked in phase 1 replayed");
+		if (m.getContext() != null) {
+			phase3RecieveLR.remove(m.getSenderId()); // id, variable
+			phase3RecieveBooleanLR.remove(m.getSenderId());
+			MsgReceive<Find2Opt> msgRecieve = new MsgReceive<Find2Opt>((Find2Opt) m.getContext(), m.getTimeStamp());
+			this.phase3RecieveInfoReplayFromFriend.put(m.getSenderId(), msgRecieve);
 		}
+		this.phase3RecieveBooleanInfoReplayFromFriend.put(m.getSenderId(), true);
+
 	}
 
 	private void recieveMsgLRPhase3(MsgAlgorithm m) {
 		Integer context = (Integer) m.getContext();
 		int timestamp = m.getTimeStamp();
 		MsgReceive<Integer> msgReceive = new MsgReceive<Integer>(context, timestamp);
-		neighborsLR_phase2.put(m.getSenderId(), msgReceive); // id, variable
-		neighborsLR_booleanPhase2.put(m.getSenderId(), true);
+		phase3RecieveLR.put(m.getSenderId(), msgReceive); // id, variable
+		phase3RecieveBooleanLR.put(m.getSenderId(), true);
+
 	}
 
-	// is best gain
-	protected boolean computePhase3() {
-		if (isOfferAndRejectPhase3()) {
+	protected boolean computeOfferAndPositiveReplayPhase3() {
+		if (phase3RecieveInfoReplayFromFriend.get(this.phase1NodeIdSelectedFriend) != null) {
+			MsgReceive<Find2Opt> msgRecieve = phase3RecieveInfoReplayFromFriend.get(this.phase1NodeIdSelectedFriend);
+			this.phase2IntMyLr = msgRecieve.getContext().getLR();
+			this.phase2PotentialComputedValueAssignmnet = msgRecieve.getContext().getValueAssignmnet2();
+			this.phase2PotentialComputedValueAssignmnetOfFriend = msgRecieve.getContext().getValueAssignmnet1();
+		} else {
 			computeLikeMGM1();
 		}
+
 		return true;
 	}
 
-	private void computeLikeMGM1() {
-		int candidate = getCandidateToChange_A();
-		if (candidate != this.valueAssignment) {
-			this.myValueAssignmnetPotentialPhase2 = candidate;
-			this.friendValueAssignmnetPotentialPhase2 = null;
-			this.LR_phase2 = findLr(candidate);
+	protected boolean isOffererThatAskedFromAnotherOfferer() {
+		return phase3RecieveInfoReplayFromFriend.get(this.phase1NodeIdSelectedFriend) == null;
+	}
+	/*
+	 * private boolean didGetFriendshipOffer() { for (Boolean b :
+	 * this.phase2RecieveBooleanFriendshipOffers.values()) { if (b) { return true; }
+	 * } return false; }
+	 */
+
+	protected void sendAllLrExceptForPositiveFriendPhase3() {
+		// phase3RecieveInfoReplayFromFriend.get(this.phase1NodeIdSelectedFriend)!=null
+		if (MainSimulator.isMGM2Debug) {
+			System.out.println(this + " is sending LRs msgs");
 		}
-	}
 
-	private boolean isOfferAndRejectPhase3() {
-		return selectedFriendNodeIdPhase1 != null && infoReplayFromFriendPhase3 == null;
-	}
-
-	protected void sendPhase3() {
-
-		if (isOfferAndReplayPositivePhase3()) {
-
+		if (isOffererThatAskedFromAnotherOfferer()) {
 			for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
-				if (recieverNodeId.getId1() != selectedFriendNodeIdPhase1.getId1()) {
-					MsgMgm2Phase2LR mlr = new MsgMgm2Phase2LR(this.nodeId, recieverNodeId, this.LR_phase2,
+				MsgMgm2Phase3LR mlr = new MsgMgm2Phase3LR(this.nodeId, recieverNodeId, this.phase2IntMyLr,
+						this.timeStampCounter, this.time);
+				this.mailer.sendMsg(mlr);
+			}
+		} else {
+			for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
+				if (this.phase1NodeIdSelectedFriend.getId1() != recieverNodeId.getId1()) {
+					MsgMgm2Phase3LR mlr = new MsgMgm2Phase3LR(this.nodeId, recieverNodeId, this.phase2IntMyLr,
 							this.timeStampCounter, this.time);
 					this.mailer.sendMsg(mlr);
 				}
 			}
-		}
 
-		if (isOfferAndRejectPhase3()) {
-			for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
-				MsgMgm2Phase2LR mlr = new MsgMgm2Phase2LR(this.nodeId, recieverNodeId, this.LR_phase2,
-						this.timeStampCounter, this.time);
-				this.mailer.sendMsg(mlr);
-			}
 		}
 
 	}
-
-	private boolean isOfferAndReplayPositivePhase3() {
-		return selectedFriendNodeIdPhase1 != null && infoReplayFromFriendPhase3 != null;
-	}
+	// is best gain
 
 	// ------------------** phase 4 **------------------
 	protected void recieveMsgPhase4(MsgAlgorithm m) {
-		if (m instanceof MsgMgm2Phase2LR) {
+		if (m instanceof MsgMgm2Phase3LR) {
 			recieveMsgLRPhase3(m);
 		}
 	}
 
-	protected boolean computePhase4() {
-		this.isAcceptPhase4 = amIBestLR_phase4();
-		if im best and im alone change value 
+	protected boolean computeAllLRandWithPartnerAmIBestPhase4() {
+
+		this.phase4IsBestLR = amIBestLR_phase4();
 		return true;
 	}
 
-	private boolean amIBestLR_phase4() {
-		for (Entry<NodeId, MsgReceive<Integer>> e : neighborsLR_phase2.entrySet()) {
+	protected void sendAllLRandWithPartnerAmIBestPhase4() {
+		NodeId myPartner = whoIsMyPartnerPhase4();
+		if (myPartner != null) {
+			MsgMgm2Phase5IsBestLR m = new MsgMgm2Phase5IsBestLR(this.nodeId, myPartner, this.phase4IsBestLR,
+					this.timeStampCounter, this.time);
+			this.mailer.sendMsg(m);
+		} else {
+			throw new RuntimeException("dont have a partner");
+		}
+	}
+
+	protected NodeId whoIsMyPartnerPhase4() {
+		if (phase1BooleanIsOfferGiver && !isOffererThatAskedFromAnotherOfferer()) {
+			return phase1NodeIdSelectedFriend;
+		}
+		if (!phase1BooleanIsOfferGiver && phase2NodeIdAcceptedFriend != null) {
+			return phase2NodeIdAcceptedFriend;
+		}
+		return null;
+	}
+
+	protected boolean amIWithPartner() {
+		boolean isOfferAndAccept = phase1BooleanIsOfferGiver
+				&& phase3RecieveInfoReplayFromFriend.get(phase1NodeIdSelectedFriend) != null;
+		boolean isRecieverAndNoRequest = !phase1BooleanIsOfferGiver && phase2NodeIdAcceptedFriend != null;
+
+		return isOfferAndAccept || isRecieverAndNoRequest;
+	}
+
+	protected boolean computeAllLRandWithNoPartnerAmIBestPhase4() {
+		if (amIBestLR_phase4()) {
+			this.valueAssignment = this.phase2PotentialComputedValueAssignmnet;
+		}
+		return true;
+	}
+
+	protected boolean amIBestLR_phase4() {
+
+		for (Entry<NodeId, MsgReceive<Integer>> e : phase3RecieveLR.entrySet()) {
+
 			Integer lrOfNeighbors = e.getValue().getContext();
-			if (lrOfNeighbors > this.LR_phase2) {
+			if (lrOfNeighbors > this.phase2IntMyLr) {
+				return false;
+			}
+			if (lrOfNeighbors == this.phase2IntMyLr) {
+				if (e.getKey().getId1() < this.id) {
+					return false;
+				}
+			}
+
+		}
+		return true;
+	}
+
+// ------------------** phase 5 **------------------
+
+	protected void recieveMsgPhase5(MsgAlgorithm m) {
+
+		if (m instanceof MsgMgm2Phase5IsBestLR) {
+			MsgReceive<Boolean> msgRecieve = new MsgReceive<Boolean>((boolean) m.getContext(), m.getTimeStamp());
+			NodeId sender = m.getSenderId();
+
+			phase5RecieveIsPartnerBestLR.put(sender, msgRecieve);
+			phase5RecieveBooleanIsPartnerBestLR.put(sender, true);
+
+			if (sender.getId1() != whoIsMyPartnerPhase4().getId1()) {
+				throw new RuntimeException("my partner did not send me a msg");
+			}
+
+		}
+
+	}
+
+	protected boolean computePartnerLRIsBestLRPhase5() {
+		this.phase4IsBestLR = amIBestLR_phase4();
+		boolean isPartnerBestLRPhase4 = false;
+
+		isPartnerBestLRPhase4 = phase5RecieveIsPartnerBestLR.get(this.whoIsMyPartnerPhase4()).getContext();
+
+		if (phase4IsBestLR && isPartnerBestLRPhase4) {
+			if (MainSimulator.isMGM2Debug) {
+				System.out.println(this + "changed value at time " + time);
+			}
+			this.valueAssignment = this.phase2PotentialComputedValueAssignmnet;
+		}
+		NodeId myPartner = whoIsMyPartnerPhase4();
+		int timestampOfPartner = getTimestampOfPartner();
+		if (timestampOfPartner < 0) {
+			throw new RuntimeException("The condition above is not correct");
+		}
+		MsgReceive<Integer> msgRecieve = new MsgReceive<Integer>(phase2PotentialComputedValueAssignmnetOfFriend,
+				timestampOfPartner);
+		this.neighborsValueAssignmnet.put(myPartner, msgRecieve);
+		if (phase2PotentialComputedValueAssignmnet == null) {
+			throw new NullPointerException("The condition above is not correct");
+		}
+		if (this.id == 3) {
+			System.out.println("here");
+		}
+
+		phase1RecieveBooleanValueAssignmnet.put(myPartner, true);
+
+		if (allMapBooleanMapIsTrue(this.phase1RecieveBooleanValueAssignmnet)) {
+			doReactionAndSendPhase1();
+			
+		}
+		return true;
+	}
+
+	private void doReactionAndSendPhase1() {
+		
+		boolean isUpdate = computePhase1();
+		if (isMsgGoingToBeSent(isUpdate)) {
+			computationCounter = computationCounter + 1;
+			this.timeStampCounter = this.timeStampCounter + 1;
+			if (MainSimulator.isAtomicTime) {
+				this.time = this.time + this.atomicActionCounter;
+				this.atomicActionCounter = 0;
+			} else {
+				this.time = this.time + 1;
+			}
+			sendPhase1();
+			resetPhase1RecieveBooleanValueAssignmnet();
+			//releaseFutureMsgs();
+
+		}
+		
+	}
+
+	protected boolean allMapBooleanMapIsTrue(Map<NodeId, Boolean> input) {
+
+		for (Boolean b : input.values()) {
+			if (!b) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	protected void sendPhase4() {
-		if (isOfferAndReplayPositivePhase3() || isRecieverAndReplayPositivePhase2()) {
-			sendToPartenerPhase4();
+	private int getTimestampOfPartner() {
+		if (phase1BooleanIsOfferGiver && phase3RecieveInfoReplayFromFriend.get(phase1NodeIdSelectedFriend) != null) {
+			return phase3RecieveInfoReplayFromFriend.get(phase1NodeIdSelectedFriend).getTimestamp();
 		}
-		
-		if im best and im alone send new value
-
-	}
-
-	private void sendToPartenerPhase4() {
-		NodeId myPartner = whoIsMyPartnerPhase4();
-		
-		
-	}
-
-	private NodeId whoIsMyPartnerPhase4() {
-		if (isOfferAndReplayPositivePhase3()) {
-			return selectedFriendNodeIdPhase1;
+		if (!phase1BooleanIsOfferGiver && phase2NodeIdAcceptedFriend != null) {
+			return phase2RecieveFriendshipOffers.get(phase2NodeIdAcceptedFriend).getTimestamp();
 		}
-		if (isRecieverAndReplayPositivePhase2()) {
-			return acceptedFriendPhase2;
+		return -1;
+	}
+
+	protected void sendValueAssignmnetMsgsExceptPartnerPhase5() {
+		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
+			if (recieverNodeId.getId1() != whoIsMyPartnerPhase4().getId1()) {
+				MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, this.valueAssignment,
+						this.timeStampCounter, this.time);
+				this.mailer.sendMsg(mva);
+			}
 		}
-		return null;
 	}
 
-	private boolean isRecieverAndReplayPositivePhase2() {
-		
-		return acceptedFriendPhase2 != null;
-	}
-
-// ------------------** phase 5 **------------------
-// protected void recieveMsgPhase5(MsgAlgorithm m) {}
-// protected boolean computePhase5() {}
-// protected void sendPhase5() {}
 }

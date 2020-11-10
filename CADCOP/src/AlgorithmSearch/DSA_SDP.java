@@ -20,7 +20,9 @@ public abstract class DSA_SDP extends DSA_B {
 
 	public DSA_SDP(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
-		this.rndQ = new Random(this.dcopId * 95 + this.id * 354);
+		this.rndQ = new Random(this.dcopId * 95 + (this.id) * 354);
+		this.rndQ.nextDouble();
+
 		this.kCounter = 0;
 
 	}
@@ -129,6 +131,8 @@ public abstract class DSA_SDP extends DSA_B {
 	@Override
 	protected void resetAgentGivenParametersV4() {
 		this.rndQ = new Random(this.dcopId * 95 + this.id * 354);
+		this.rndQ.nextDouble();
+
 		this.kCounter = 0;
 
 		resetAgentGivenParametersV5();

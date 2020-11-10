@@ -68,7 +68,7 @@ public class Find2Opt {
 				
 				if (!(d1==this.currentValueAssingment1 && d2 == this.currentValueAssingment2)) {
 					int costD2 = costPerDomainNoLinkTwo.get(d2);
-					Integer costOfLink = findCostOfLink(costD1, costD2);
+					Integer costOfLink = findCostOfLink(d1, d2);
 					Integer cost = costD1 + costD2 + costOfLink;
 					if (cost < bestCostFound) {
 						this.foundValueAssignmnet1 = d1;
