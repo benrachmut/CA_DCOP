@@ -37,7 +37,7 @@ public class MailerIterations extends Mailer {
 
 	@Override
 	public void execute() {
-		if (MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug) {
+		if (MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug || MainSimulator.isMGM2Debug) {
 			System.out.println("--------***NEIGHBORS***--------");
 			for (AgentVariable a : dcop.getVariableAgents()) {
 				System.out.println(a + " " + a.getNeigborSetId());

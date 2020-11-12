@@ -221,8 +221,6 @@ public abstract class Mailer {
 		this.recieversAlgortihmicMsgs = getRecieversByNodeIdAlgorithmic(msgsAlgorithm);
 		for (Entry<NodeId, List<MsgAlgorithm>> e : recieversAlgortihmicMsgs.entrySet()) {
 			NodeId recieverId = e.getKey();
-			
-		
 			List<MsgAlgorithm> msgsForAnAgnet = e.getValue();
 			Agent recieverAgent = getAgentByNodeId(recieverId);
 			if (recieverAgent == null) {
@@ -233,93 +231,9 @@ public abstract class Mailer {
 
 	}
 
-	/**
-	 * handle messages if not factor graph: create map of messages were the key is
-	 * receiver id and key is list of messages destine to it use
-	 * receiveAlgorithmicMsgs on each receiver
-	 * 
-	 * @param msgsAlgorithm
-	 */
-	/*
-	 * private void handleMsgAlgorithmIfNotFactor(List<MsgAlgorithm> msgsAlgorithm)
-	 * { this.recieversAlgorithmById = getRecieversByIntegerId(msgsAlgorithm); for
-	 * (Entry<Integer, List<MsgAlgorithm>> e : recieversAlgorithmById.entrySet()) {
-	 * Integer recieverId = e.getKey(); List<MsgAlgorithm> msgsForAnAgnet =
-	 * e.getValue(); Agent recieverAgent = getAgentByIntegerId(recieverId); if
-	 * (recieverAgent == null) { System.err.
-	 * println("from mailer: something is wrong with finding the recieverAgent"); }
-	 * recieverAgent.receiveAlgorithmicMsgs(msgsForAnAgnet); }
-	 * 
-	 * }
-	 */
-	/**
-	 * create map of messages were the key is receiver id and key is list of
-	 * messages destine to it
-	 * 
-	 * @param msgsAlgorithm
-	 * @return
-	 */
-	/*
-	 * private Map<Integer, List<MsgAlgorithm>>
-	 * getRecieversByIntegerId(List<MsgAlgorithm> msgsAlgorithm) { Map<Integer,
-	 * List<MsgAlgorithm>> ans = new HashMap<Integer, List<MsgAlgorithm>>(); for
-	 * (MsgAlgorithm msg : msgsAlgorithm) { Integer reciever = msg.getRecieverId();
-	 * 
-	 * if (reciever == -1) { System.err.
-	 * println("from mailer: bug because message was suppose to be msgFactor but its not"
-	 * ); } if (!ans.containsKey(reciever)) { ans.put(reciever, new
-	 * ArrayList<MsgAlgorithm>()); } ans.get(reciever).add(msg); }
-	 * 
-	 * return ans; }
-	 */
-	/*
-	 * private Map<Integer, List<MsgAnyTime>>
-	 * getRecieversByIntegerIdForAnyTime(List<MsgAnyTime> msgsAlgorithm) {
-	 * Map<Integer, List<MsgAnyTime>> ans = new HashMap<Integer,
-	 * List<MsgAnyTime>>(); for (MsgAnyTime msg : msgsAlgorithm) { Integer reciever
-	 * = msg.getRecieverId();
-	 * 
-	 * if (reciever == -1) { System.err.
-	 * println("from mailer: bug because message was suppose to be msgFactor but its not"
-	 * ); } if (!ans.containsKey(reciever)) { ans.put(reciever, new
-	 * ArrayList<MsgAnyTime>()); } ans.get(reciever).add(msg); }
-	 * 
-	 * return ans; }
-	 */
-	/**
-	 * get agent from dcop given its id
-	 * 
-	 * @param recieverId
-	 * @return
-	 */
-	/*
-	 * private Agent getAgentByIntegerId(Integer recieverId) { for (Agent a :
-	 * dcop.getAgents()) { Integer aId = a.getId();
-	 * 
-	 * if (aId == recieverId) { return a; } } return null; }
-	 */
-	/**
-	 * handle messages if factor graph: create map of messages were the key is
-	 * receiver id and key is list of messages destine to it use
-	 * receiveAlgorithmicMsgs on each receiver
-	 * 
-	 * @param msgsAlgorithm
-	 */
 
-	/*
-	 * private void handleMsgAlgorithmIfFactor(List<MsgAlgorithm> msgsAlgorithm) {
-	 * this.recieversAlgortihmiByNodeId = getRecieversByNodeId(msgsAlgorithm); for
-	 * (Entry<NodeId, List<MsgAlgorithm>> e :
-	 * recieversAlgortihmiByNodeId.entrySet()) { NodeId recieverId = e.getKey();
-	 * List<MsgAlgorithm> msgsForAnAgnet = e.getValue();
-	 * 
-	 * Agent recieverAgent = getAgentByNodeId(recieverId); if (recieverAgent ==
-	 * null) { System.err.
-	 * println("from mailer: something is wrong with finding the recieverAgent"); }
-	 * recieverAgent.receiveAlgorithmicMsgs(msgsForAnAgnet); }
-	 * 
-	 * }
-	 */
+
+
 	/**
 	 * get agent from dcop given its NodeId
 	 * 
