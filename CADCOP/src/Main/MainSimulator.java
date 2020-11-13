@@ -66,7 +66,7 @@ public class MainSimulator {
 	public static int div=1;
 
 	public static int start = 0;
-	public static int end = 1;
+	public static int end = 100;
 	public static int end_temp = start; //DO NOT CHANGE
 	public static int termination = 5000;
 	private static int everyHowManyExcel = 100;

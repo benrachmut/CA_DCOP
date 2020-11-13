@@ -442,14 +442,12 @@ abstract public class MGM2 extends AgentVariableSearch {
 	}
 
 	protected void phase2SetNodeIdsAskedMeForFriendship() {
-		try {
+		
 		phase2SetNodeIdsAskedMeForFriendship = new HashSet<NodeId>();
 		for (Entry<NodeId, MsgReceive<KOptInfo>> e : phase2RecieveFriendshipOffers.entrySet()) {
 			if (e.getValue().getContext() != null) {
 				phase2SetNodeIdsAskedMeForFriendship.add(e.getKey());
 			}
-		}}catch (Exception e1) {
-			System.err.println("AHHHHHHHHHHH");
 		}
 	}
 
@@ -712,11 +710,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 
 	}
 
-	protected boolean computePartnerLRIsBestLRPhase5() {
-		if (this.id == 7 && time > 20) {
-			System.err.println(this+ " computes after recieve from A_0 answer");
-		}
-		
+	protected boolean computePartnerLRIsBestLRPhase5() {	
 		this.phase4IsBestLR = amIBestLR_phase4();
 		boolean isPartnerBestLRPhase4 = false;
 		isPartnerBestLRPhase4 = phase5RecieveIsPartnerBestLR.get(this.whoIsMyPartnerPhase4()).getContext();
@@ -733,12 +727,12 @@ abstract public class MGM2 extends AgentVariableSearch {
 		}
 		MsgReceive<Integer> msgRecieve = new MsgReceive<Integer>(phase2PotentialComputedValueAssignmnetOfFriend,
 				timestampOfPartner);
-		this.neighborsValueAssignmnet.put(myPartner, msgRecieve);
+		//this.neighborsValueAssignmnet.put(myPartner, msgRecieve);
 		if (phase2PotentialComputedValueAssignmnet == null) {
 			throw new NullPointerException("The condition above is not correct");
 		}
 
-		phase1RecieveBooleanValueAssignmnet.put(myPartner, true);
+		//phase1RecieveBooleanValueAssignmnet.put(myPartner, true);
 
 		return true;
 	}

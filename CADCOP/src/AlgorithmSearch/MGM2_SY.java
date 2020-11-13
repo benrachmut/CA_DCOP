@@ -58,9 +58,6 @@ public class MGM2_SY extends MGM2 {
 		
 	
 		if (m instanceof MsgValueAssignmnet && allMapBooleanMapIsTrue(this.phase1RecieveBooleanValueAssignmnet)) {
-			if (this.id == 7 && time == 23) {
-				System.err.println(this+" recieve all values time "+this.time);
-			}
 			resetPhase1RecieveBooleanValueAssignmnet();
 			this.flagComputeRecieveValueMsgsPhase1 = true;
 			flag = true;
@@ -74,9 +71,7 @@ public class MGM2_SY extends MGM2 {
 				&& allMapBooleanMapIsTrue(this.phase2RecieveBooleanFriendshipOffers)) {
 			this.flagComputeFriendshipInformationPhase2 = true;
 
-			if (this.id == 7 && time==25) {
-				System.err.println("7 recieve all friendships at time 23");
-			}
+		
 			if (MainSimulator.isMGM2Debug) {
 				System.out.println(this + " time " + this.time + " recieve all FriendshipOffers");
 			}
@@ -108,9 +103,7 @@ public class MGM2_SY extends MGM2 {
 				if (MainSimulator.isMGM2Debug) {
 					System.out.println(this + " with partner and recieve all LR msgs, time "+this.time);
 				}
-				if (this.time == 22 && this.id == 7) {
-					System.err.println(this+ " with partner and recieve all LR msgs, time "+time);
-				}
+				
 			} else {
 				this.flagComputeAllLRandWithNoPartnerPhase4 = true;
 				if (MainSimulator.isMGM2Debug) {
@@ -124,20 +117,20 @@ public class MGM2_SY extends MGM2 {
 		}
 
 	
-		if (m instanceof MsgMgm2Phase3LR && phase5RecieveBooleanIsPartnerBestLR.get(whoIsMyPartnerPhase4()) == null
-				) {
-			System.err.println("sdfgasdf");
-		}
+	
 		
 		
-		if ((m instanceof MsgMgm2Phase5IsBestLR  &&
-				phase5RecieveBooleanIsPartnerBestLR.get(whoIsMyPartnerPhase4())
+		if ((m instanceof MsgMgm2Phase3LR && whoIsMyPartnerPhase4()!=null && phase5RecieveBooleanIsPartnerBestLR.get(whoIsMyPartnerPhase4())
 				&& allMapBooleanMapIsTrue(phase3RecieveBooleanLR))
+				
+				
+				
 				
 				|| 
 				
-				(m instanceof MsgMgm2Phase3LR && whoIsMyPartnerPhase4()!=null && phase5RecieveBooleanIsPartnerBestLR.get(whoIsMyPartnerPhase4())
-				&& allMapBooleanMapIsTrue(phase3RecieveBooleanLR))
+				(m instanceof MsgMgm2Phase5IsBestLR  &&
+						phase5RecieveBooleanIsPartnerBestLR.get(whoIsMyPartnerPhase4())
+						&& allMapBooleanMapIsTrue(phase3RecieveBooleanLR))
 				
 				
 				
@@ -145,9 +138,7 @@ public class MGM2_SY extends MGM2 {
 
 		
 			
-			if (this.id == 7 && m.getSenderId().getId1() == 0 ) {
-				System.err.println(this.id+" recieve is best lr from A_"+m.getSenderId().getId1()+" time "+this.time);
-			}
+		
 
 			this.flagComputePartnerLRIsBestLRPhase5 = true;
 			if (MainSimulator.isMGM2Debug) {
@@ -219,13 +210,13 @@ public class MGM2_SY extends MGM2 {
 
 	private boolean gaveOfferAndRecievePostivieReplay(MsgAlgorithm m) {
 		boolean ans = false;
-		try {
+		//try {
 
 			ans = m.getSenderId().getId1() == this.phase1NodeIdSelectedFriend.getId1()
 					&& phase3RecieveInfoReplayFromFriend.get(this.phase1NodeIdSelectedFriend) != null;
-		} catch (Exception e) {
-			System.err.println("AHHHHHHHHHHHHH");
-		}
+		//} catch (Exception e) {
+		//	System.err.println("AHHHHHHHHHHHHH");
+		//}
 		return ans;
 
 	}
@@ -308,19 +299,11 @@ public class MGM2_SY extends MGM2 {
 			// resetPhase3RecieveInfoReplayFromFriend();
 		}
 		if (this.flagComputeAllLRandWithPartnerPhase4) {
-			if (this.id == 0 && time == 18) {
-				System.err.println(this.id+" here sends msg to a_7 at tune "+this.time);
-			}
 			sendAllLRandWithPartnerAmIBestPhase4();
-			// resetPhase3RecieveLR();
-			
 		}
 
 		if (this.flagComputeAllLRandWithNoPartnerPhase4) {
 			sendValueAssignmnetMsgs();
-			if (this.id==7&&time==25) {
-				System.err.println("gaseg");
-			}
 			resetPhases(!didEarlyPhase1Flag);
 			if (MainSimulator.isMGM2Debug) {
 				System.out.println(this + " sent values and lonely, time "+this.time);
@@ -330,8 +313,7 @@ public class MGM2_SY extends MGM2 {
 
 		}
 		if (flagComputePartnerLRIsBestLRPhase5) {
-			sendValueAssignmnetMsgsExceptPartnerPhase5();
-			
+			//sendValueAssignmnetMsgsExceptPartnerPhase5();	
 			if (allMapBooleanMapIsTrue(this.phase1RecieveBooleanValueAssignmnet)) {
 				if (this.id == 0) {
 					System.out.println("here did comp 1");
@@ -343,16 +325,26 @@ public class MGM2_SY extends MGM2 {
 			}
 
 			if (!didEarlyPhase1Flag) {
-				resetPhase1();
+				if (!this.phase1BooleanIsOfferGiver) {
+					resetPhase1();
+
+				}
 			}
 			resetPhase2();
 			resetPhase3();
 			resetPhase4();
 			resetPhase5();
+			
+			sendValueAssignmnetMsgs();
+			
+			
+			
 			didEarlyPhase1Flag = false;
+			
 			if (MainSimulator.isMGM2Debug) {
 				System.out.println(this + " sent values with partner");
 			}
+			
 
 		}
 
