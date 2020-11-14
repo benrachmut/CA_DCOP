@@ -46,11 +46,11 @@ public class MailerIterations extends Mailer {
 
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
 			m_iteration = iteration;
-			if ((MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug) && iteration == 4000) {
+			if ( (MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug) && iteration == 4000) {
 				System.out.println("-------ITERATION_" + iteration + "-------");
 			}
 
-			if (MainSimulator.isAnytimeDebug) {
+			if (MainSimulator.isAnytimeDebug || MainSimulator.isMGM2Debug ) {
 				if (iteration % 10 == 0) {
 					System.out.println("-------ITERATION_" + iteration + "-------");
 				}

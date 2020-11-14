@@ -152,11 +152,14 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 */
 
 	protected void updateMessageInContextAndTreatFlag(MsgAlgorithm msgAlgorithm) {
-		updateMessageInContext(msgAlgorithm);
-		changeRecieveFlagsToTrue(msgAlgorithm);
+		boolean isUpdate = updateMessageInContext(msgAlgorithm);
+		if (isUpdate) {
+			changeRecieveFlagsToTrue(msgAlgorithm);
+
+		}
 	}
 
-	protected abstract void updateMessageInContext(MsgAlgorithm msgAlgorithm);
+	protected abstract boolean updateMessageInContext(MsgAlgorithm msgAlgorithm);
 
 	// ------------**Reaction to algorithmic messages methods**------------
 	/**
@@ -169,7 +172,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		this.atomicActionCounter = 0;
 
 		if (getDidComputeInThisIteration()) {
-
 			boolean isUpdate = compute();
 			if (isMsgGoingToBeSent(isUpdate)) {
 
@@ -182,8 +184,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				}else {			
 					this.time = this.time + 1;
 				}
-			 
-
 			}
 			return isUpdate;
 

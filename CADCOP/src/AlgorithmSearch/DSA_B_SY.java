@@ -35,13 +35,14 @@ public class DSA_B_SY extends DSA_B {
 	}
 
 	@Override
-	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+	protected boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
 		if (this.timeStampCounter == msgAlgorithm.getTimeStamp()) {
 			super.updateMessageInContext(msgAlgorithm);
 		} else {
 			this.future.add(msgAlgorithm);
 		}
+		return true;
 	}
 
 	@Override
