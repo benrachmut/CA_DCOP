@@ -1,12 +1,7 @@
 package AlgorithmSearch;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
-
 import AgentsAbstract.AgentVariable;
-import AgentsAbstract.NodeId;
 import Main.MainSimulator;
 import Messages.MsgAlgorithm;
 import Messages.MsgMgm2Phase2FriendshipInformation;
@@ -16,12 +11,13 @@ import Messages.MsgMgm2Phase5IsBestLR;
 import Messages.MsgValueAssignmnet;
 
 public class MGM2_SY extends MGM2 {
-	private Collection<MsgAlgorithm> future;
+	private HashSet<MsgAlgorithm> future;
 	protected boolean waitingForValueMsgs;
 	protected boolean waitingForFirstFriendshipInformation;
 	protected boolean waitingForOfferInformation;
 	protected boolean waitingForAllLR;
 	protected boolean waitingForPartnerIsBestLR;
+	private boolean fromFuture;
 
 	public MGM2_SY(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
@@ -31,62 +27,52 @@ public class MGM2_SY extends MGM2 {
 
 	@Override
 	protected boolean updateMessageInContext(MsgAlgorithm m) {
-
-		if (m instanceof MsgMgm2Phase3FriendshipReplay && this.id == 3&& this.time>90  ) {
-			System.err.println("now "+m.getSenderId().getId1());
-			System.err.println(this.phase3RecieveBooleanLR);
-		}
-		
-		boolean isUpdate = true;
 		if (m instanceof MsgValueAssignmnet) {
 			if (waitingForValueMsgs) {
 				recieveMsgPhase1(m);
-			} else {
+				return true;
+			} else if (!fromFuture) {
 				future.add(m);
-				isUpdate = false;
 			}
-
-			
+			return false;
 		}
 		if (m instanceof MsgMgm2Phase2FriendshipInformation) {
 			if (waitingForFirstFriendshipInformation) {
 				recieveMsgFriendshipInformationPhase2(m);
-			} else {
+				return true;
+			} else if (!fromFuture) {
 				future.add(m);
-				isUpdate = false;
-
 			}
-
+			return false;
 		}
 
 		if (m instanceof MsgMgm2Phase3FriendshipReplay) {
 			if (waitingForOfferInformation) {
 				recieveMsgFriendshipReplayPhase3(m);
-			} else {
+				return true;
+			} else if (!fromFuture) {
 				future.add(m);
-				isUpdate = false;
-
 			}
-
+			return false;
 		}
 
-		if (m instanceof MsgMgm2Phase3LR || m instanceof MsgMgm2Phase3FriendshipReplay) {
+		// || m instanceof MsgMgm2Phase3FriendshipReplay
+		//
+		if (m instanceof MsgMgm2Phase3LR) {
 
 			if (waitingForAllLR || waitingForOfferInformation) {
 
 				if (m instanceof MsgMgm2Phase3LR) {
 					recieveMsgLRPhase3(m);
+					return true;
 				}
-				if (m instanceof MsgMgm2Phase3FriendshipReplay) {
-					
-
-					recieveMsgFriendshipReplayPhase3(m);
-				}
-			} else {
+				// if (m instanceof MsgMgm2Phase3FriendshipReplay) {
+				// recieveMsgFriendshipReplayPhase3(m);
+				// }
+			} else if (!fromFuture) {
 				future.add(m);
-				isUpdate = false;
-
 			}
+			return false;
 
 		}
 
@@ -94,26 +80,26 @@ public class MGM2_SY extends MGM2 {
 
 			if (waitingForPartnerIsBestLR) {
 				recieveMsgPhase5(m);
-			} else {
+				return true;
+			} else if (!fromFuture) {
 				future.add(m);
-				isUpdate = false;
-
 			}
-
+			return false;
 		}
-		return isUpdate;
+
+		return true;
 	}
 
 	@Override
 	protected void resetAgentGivenParametersV4() {
-		this.future = new ArrayList<MsgAlgorithm>();
+		this.future = new HashSet<MsgAlgorithm>();
 		this.isWithTimeStamp = false;
 		waitingForValueMsgs = true;
 		waitingForFirstFriendshipInformation = true;
 		waitingForOfferInformation = true;
 		waitingForAllLR = true;
 		waitingForPartnerIsBestLR = true;
-		flagValueAssignmentAlready =false;
+		flagValueAssignmentAlready = false;
 
 	}
 
@@ -122,17 +108,18 @@ public class MGM2_SY extends MGM2 {
 		AgentVariable.AlgorithmName = "MGM2_SY";
 	}
 
-
 	@Override
 	protected void changeRecieveFlagsToTrue(MsgAlgorithm m) {
 
-		if ((m instanceof MsgValueAssignmnet && allMapBooleanMapIsTrue(this.phase1RecieveBooleanValueAssignmnet) && !flagValueAssignmentAlready)) {
+		if (this.id == 0 && time == 2135) {
+			System.err.println("this.id == 0 && time == 2135");
+		}
+		if ((m instanceof MsgValueAssignmnet && allMapBooleanMapIsTrue(this.phase1RecieveBooleanValueAssignmnet)
+				&& !flagValueAssignmentAlready)) {
 
 			if (!flagValueAssignmentAlready) {
 				flagValueAssignmentAlready = true;
 			}
-			waitingForValueMsgs = false;
-			waitingForFirstFriendshipInformation = true;
 
 			resetPhase1RecieveBooleanValueAssignmnet();
 			this.flagComputeRecieveValueMsgsPhase1 = true;
@@ -145,12 +132,6 @@ public class MGM2_SY extends MGM2 {
 		if (m instanceof MsgMgm2Phase2FriendshipInformation
 				&& allMapBooleanMapIsTrue(this.phase2RecieveBooleanFriendshipOffers)) {
 
-			waitingForFirstFriendshipInformation = false;
-			if (this.phase1BooleanIsOfferGiver) {
-				waitingForOfferInformation = true;
-			} else {
-				waitingForAllLR = true;
-			}
 			this.flagComputeFriendshipInformationPhase2 = true;
 			if (MainSimulator.isMGM2Debug) {
 				System.out.println(this + " time " + this.time + " recieve all FriendshipOffers");
@@ -161,22 +142,21 @@ public class MGM2_SY extends MGM2 {
 
 		if (gaveOfferAndRecieveNegetiveReplay(m)) {
 
-			waitingForOfferInformation = false;
-			waitingForAllLR = true;
-
 			this.flagComputeOfferAndNegativeReplayPhase3 = true;
 			if (MainSimulator.isMGM2Debug) {
 				System.out.println(this + " gave Offer And Recieve Negetive Replay from: A_" + m.getSenderId().getId1()
 						+ " at time");
 			}
+
 		}
 
 		if (m instanceof MsgMgm2Phase3FriendshipReplay && gaveOfferAndRecievePostivieReplay(m)) {
 			this.flagComputeOfferAndPositiveReplayPhase3 = true;
 			this.phase3RecieveBooleanLR.put(whoIsMyPartnerPhase4(), true);
 
-			waitingForOfferInformation = false;
-			waitingForAllLR = true;
+			if (this.id == 3 && time == 2847) {
+				System.err.println("this.id == 3 && time == 2847");
+			}
 
 			if (MainSimulator.isMGM2Debug) {
 				System.out.println(this + " gave Offer And Recieve positive Replay from: A_" + m.getSenderId().getId1()
@@ -185,9 +165,10 @@ public class MGM2_SY extends MGM2 {
 
 		}
 
-		if (((m instanceof MsgMgm2Phase3FriendshipReplay|| m instanceof MsgMgm2Phase3LR) && allMapBooleanMapIsTrue(phase3RecieveBooleanLR))) {
+		if (((m instanceof MsgMgm2Phase3FriendshipReplay || m instanceof MsgMgm2Phase3LR)
+				&& allMapBooleanMapIsTrue(phase3RecieveBooleanLR))) {
 
-			waitingForAllLR = false;
+			// waitingForAllLR = false;
 
 			if (!flagIDidPhase4Already) {
 				flagIDidPhase4Already = true;
@@ -198,7 +179,7 @@ public class MGM2_SY extends MGM2 {
 				if (MainSimulator.isMGM2Debug) {
 					System.out.println(this + " with partner and recieve all LR msgs, time " + this.time);
 				}
-				waitingForPartnerIsBestLR = true;
+				// waitingForPartnerIsBestLR = true;
 
 			} else {
 				this.flagComputeAllLRandWithNoPartnerPhase4 = true;
@@ -206,7 +187,7 @@ public class MGM2_SY extends MGM2 {
 					System.out.println(this + " without partner and recieve all LR msgs");
 				}
 				resetPhase3RecieveBooleanLR();
-				waitingForValueMsgs = true;
+				// waitingForValueMsgs = true;
 
 			}
 
@@ -223,9 +204,10 @@ public class MGM2_SY extends MGM2 {
 			waitingForPartnerIsBestLR = false;
 
 			this.flagComputePartnerLRIsBestLRPhase5 = true;
-			
+
 			if (MainSimulator.isMGM2Debug) {
-				System.out.println(this + " recieve (" + m.getContext() + ") from A_" + m.getSenderId().getId1()+" at time "+this.time);
+				System.out.println(this + " recieve (" + m.getContext() + ") from A_" + m.getSenderId().getId1()
+						+ " at time " + this.time);
 			}
 
 			resetPhase3RecieveBooleanLR();
@@ -234,6 +216,7 @@ public class MGM2_SY extends MGM2 {
 	}
 
 	private boolean gaveOfferAndRecieveNegetiveReplay(MsgAlgorithm m) {
+
 		boolean firstCond = this.phase1BooleanIsOfferGiver && m instanceof MsgMgm2Phase3LR
 				&& this.phase1NodeIdSelectedFriend.getId1() == m.getSenderId().getId1();
 		boolean secondCond = false;
@@ -259,60 +242,55 @@ public class MGM2_SY extends MGM2 {
 
 	private boolean gaveOfferAndRecievePostivieReplay(MsgAlgorithm m) {
 		boolean ans = false;
-		// try {
-
 		ans = m.getSenderId().getId1() == this.phase1NodeIdSelectedFriend.getId1()
 				&& phase3RecieveInfoReplayFromFriend.get(this.phase1NodeIdSelectedFriend) != null;
-		// } catch (Exception e) {
-		// System.err.println("AHHHHHHHHHHHHH");
-		// }
+
 		return ans;
 
 	}
 
-	/*
-	 * @Override public boolean getDidComputeInThisIteration() { // TODO
-	 * Auto-generated method stub return false; }
-	 */
-
 	@Override
 	protected boolean compute() {
 
-		if (this.flagComputeRecieveValueMsgsPhase1) {
+		if (this.flagComputeRecieveValueMsgsPhase1 && flagComputePartnerLRIsBestLRPhase5) {
+			computePartnerLRIsBestLRPhase5();
 			computePhase1();
-		}
-		if (this.flagComputeFriendshipInformationPhase2) {
+		} else {
+			if (this.flagComputeRecieveValueMsgsPhase1) {
+				computePhase1();
+			}
+			if (this.flagComputeFriendshipInformationPhase2) {
 
-			if (this.phase1BooleanIsOfferGiver == false) {
-				phase2SetNodeIdsAskedMeForFriendship();
-				if (phase2SetNodeIdsAskedMeForFriendship.isEmpty()) {
-					computeLikeMGM1();
-				} else {
-					computeGotRequestFromFriendsPhase2();
+				if (this.phase1BooleanIsOfferGiver == false) {
+					phase2SetNodeIdsAskedMeForFriendship();
+					if (phase2SetNodeIdsAskedMeForFriendship.isEmpty()) {
+						computeLikeMGM1();
+					} else {
+						computeGotRequestFromFriendsPhase2();
+					}
 				}
 			}
-		}
 
-		if (flagComputeOfferAndNegativeReplayPhase3) {
-			computeLikeMGM1();
-		}
+			if (flagComputeOfferAndNegativeReplayPhase3) {
+				computeLikeMGM1();
+			}
 
-		if (flagComputeOfferAndPositiveReplayPhase3) {
+			if (flagComputeOfferAndPositiveReplayPhase3) {
 
-			computeOfferAndPositiveReplayPhase3();
-		}
+				computeOfferAndPositiveReplayPhase3();
+			}
 
-		if (this.flagComputeAllLRandWithPartnerPhase4) {
-			computeAllLRandWithPartnerAmIBestPhase4();
-		}
+			if (this.flagComputeAllLRandWithPartnerPhase4) {
+				computeAllLRandWithPartnerAmIBestPhase4();
+			}
 
-		if (this.flagComputeAllLRandWithNoPartnerPhase4) {
-			computeAllLRandWithNoPartnerAmIBestPhase4();
+			if (this.flagComputeAllLRandWithNoPartnerPhase4) {
+				computeAllLRandWithNoPartnerAmIBestPhase4();
+			}
+			if (flagComputePartnerLRIsBestLRPhase5) {
+				computePartnerLRIsBestLRPhase5();
+			}
 		}
-		if (flagComputePartnerLRIsBestLRPhase5) {
-			computePartnerLRIsBestLRPhase5();
-		}
-
 		return true;
 	}
 
@@ -322,6 +300,8 @@ public class MGM2_SY extends MGM2 {
 		if (this.flagComputeRecieveValueMsgsPhase1) {
 			sendPhase1();
 			resetPhase1RecieveBooleanValueAssignmnet();
+			waitingForValueMsgs = false;
+			waitingForFirstFriendshipInformation = true;
 		}
 
 		if (this.flagComputeFriendshipInformationPhase2) {
@@ -330,6 +310,7 @@ public class MGM2_SY extends MGM2 {
 			}
 
 			if (this.phase1BooleanIsOfferGiver == false) {
+
 				phase2SetNodeIdsAskedMeForFriendship();
 				if (phase2SetNodeIdsAskedMeForFriendship.isEmpty()) {
 					sendSingleLRPhase2();
@@ -337,27 +318,48 @@ public class MGM2_SY extends MGM2 {
 					sendDoubleLRPhase2();
 				}
 			}
+
+			waitingForFirstFriendshipInformation = false;
+			if (this.phase1BooleanIsOfferGiver) {
+				waitingForOfferInformation = true;
+			} else {
+				waitingForAllLR = true;
+			}
+
 			// resetPhase2RecieveFriendshipOffers();
 		}
 
 		if (flagComputeOfferAndNegativeReplayPhase3) {
 			sendSingleLRPhase2();
+			waitingForOfferInformation = false;
+			waitingForAllLR = true;
 			// resetPhase3RecieveInfoReplayFromFriend();
 		}
 
 		if (flagComputeOfferAndPositiveReplayPhase3) {
 			sendAllLrExceptForPositiveFriendPhase3();
+			waitingForOfferInformation = false;
+			waitingForAllLR = true;
 			// resetPhase3RecieveInfoReplayFromFriend();
 		}
 		if (this.flagComputeAllLRandWithPartnerPhase4) {
+
+			waitingForAllLR = false;
+			waitingForPartnerIsBestLR = true;
+			// waitingForValueMsgs = true;
 			sendAllLRandWithPartnerAmIBestPhase4();
 			System.out.println(this + " sent if it is best (" + this.phase4IsBestLR + ") at time: " + this.time);
 		}
 
 		if (this.flagComputeAllLRandWithNoPartnerPhase4) {
+			waitingForAllLR = false;
+			// waitingForPartnerIsBestLR = true;
+			waitingForValueMsgs = true;
 			sendFlagComputeAllLRandWithNoPartnerPhase4();
 		}
 		if (flagComputePartnerLRIsBestLRPhase5) {
+			waitingForValueMsgs = true;
+			waitingForPartnerIsBestLR = false;
 			sendFlagComputePartnerLRIsBestLRPhase5();
 
 		}
@@ -372,16 +374,16 @@ public class MGM2_SY extends MGM2 {
 			didEarlyPhase1Flag = true;
 			resetPhase1RecieveBooleanValueAssignmnet();
 			waitingForValueMsgs = false;
-			waitingForFirstFriendshipInformation=true;
+			waitingForFirstFriendshipInformation = true;
 		}
 
 		if (!didEarlyPhase1Flag) {
 			if (!this.phase1BooleanIsOfferGiver) {
 				resetPhase1();
-				
+
 			}
 		}
-		flagValueAssignmentAlready=false;
+		flagValueAssignmentAlready = false;
 		resetPhase2();
 		resetPhase3();
 		resetPhase4();
@@ -411,13 +413,12 @@ public class MGM2_SY extends MGM2 {
 	}
 
 	private void releaseFutureMsgs() {
-		Collection<MsgAlgorithm> toRemove = new HashSet<MsgAlgorithm>();
-
-		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
+		this.fromFuture = true;
+		HashSet<MsgAlgorithm> toRemove = new HashSet<MsgAlgorithm>();
+		HashSet<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
 
 		for (MsgAlgorithm m : this.future) {
 
-			
 			boolean flag = false;
 			if (m instanceof MsgValueAssignmnet
 					&& (flagComputePartnerLRIsBestLRPhase5 || flagComputeAllLRandWithNoPartnerPhase4)) {
@@ -432,8 +433,8 @@ public class MGM2_SY extends MGM2 {
 				flag = true;
 			}
 
-			if (m instanceof MsgMgm2Phase3LR
-					&& (flagComputeOfferAndNegativeReplayPhase3 || flagComputeOfferAndPositiveReplayPhase3 || flagComputeFriendshipInformationPhase2)) {
+			if (m instanceof MsgMgm2Phase3LR && (flagComputeOfferAndNegativeReplayPhase3
+					|| flagComputeOfferAndPositiveReplayPhase3 || flagComputeFriendshipInformationPhase2)) {
 				flag = true;
 			}
 
@@ -445,61 +446,74 @@ public class MGM2_SY extends MGM2 {
 			if (flag) {
 				// if (m.getTimeStamp() == this.timeStampCounter) {
 
-				
-				updateMessageInContext(m);
-				changeRecieveFlagsToTrue(m);
-				if (m instanceof MsgValueAssignmnet && this.flagComputeRecieveValueMsgsPhase1) {
-					anotherFlag = true;
-					this.flagComputeAllLRandWithNoPartnerPhase4 = false;
-					this.flagComputePartnerLRIsBestLRPhase5 = false;
+				boolean isupdated = updateMessageInContext(m);
+				if (isupdated) {
+					changeRecieveFlagsToTrue(m);
+					if (m instanceof MsgValueAssignmnet && this.flagComputeRecieveValueMsgsPhase1) {
+						anotherFlag = true;
+						this.flagComputeAllLRandWithNoPartnerPhase4 = false;
+						this.flagComputePartnerLRIsBestLRPhase5 = false;
+					}
+
+					if (m instanceof MsgMgm2Phase2FriendshipInformation
+							&& this.flagComputeFriendshipInformationPhase2) {
+						anotherFlag = true;
+						this.flagComputeRecieveValueMsgsPhase1 = false;
+					}
+
+					if (m instanceof MsgMgm2Phase3FriendshipReplay && (this.flagComputeOfferAndPositiveReplayPhase3
+							|| flagComputeOfferAndNegativeReplayPhase3)) {
+						anotherFlag = true;
+						if (!waitingForOfferInformation) {
+							flagComputeFriendshipInformationPhase2 = false;
+						}
+					}
+
+					if (m instanceof MsgMgm2Phase3LR && (this.flagComputeFriendshipInformationPhase2
+							&& (this.flagComputeOfferAndNegativeReplayPhase3
+									|| this.flagComputeOfferAndPositiveReplayPhase3))) {
+						anotherFlag = true;
+						if (!waitingForOfferInformation) {
+							flagComputeFriendshipInformationPhase2 = false;
+						}
+					}
+
+					else if (m instanceof MsgMgm2Phase3LR
+							&& (this.flagComputeAllLRandWithNoPartnerPhase4 || flagComputeAllLRandWithPartnerPhase4)) {
+						anotherFlag = true;
+						flagComputeOfferAndPositiveReplayPhase3 = false;
+						flagComputeOfferAndNegativeReplayPhase3 = false;
+					}
+
+					if (m instanceof MsgMgm2Phase5IsBestLR && this.flagComputePartnerLRIsBestLRPhase5) {
+						anotherFlag = true;
+						flagComputeAllLRandWithNoPartnerPhase4 = false;
+						flagComputeAllLRandWithPartnerPhase4 = false;
+					}
+					if (anotherFlag) {
+						toRemove.add(m);
+					} else {
+						toRelease.add(m);
+					}
 				}
 
-				if (m instanceof MsgMgm2Phase2FriendshipInformation && this.flagComputeFriendshipInformationPhase2) {
-					anotherFlag = true;
-					this.flagComputeRecieveValueMsgsPhase1 = false;
-				}
-
-				if (m instanceof MsgMgm2Phase3FriendshipReplay
-						&& (this.flagComputeOfferAndPositiveReplayPhase3 || flagComputeOfferAndNegativeReplayPhase3)) {
-					anotherFlag = true;
-					flagComputeFriendshipInformationPhase2 = false;
-				}
-
-				if (m instanceof MsgMgm2Phase3LR
-						&& (this.flagComputeAllLRandWithNoPartnerPhase4 || flagComputeAllLRandWithPartnerPhase4)) {
-					anotherFlag = true;
-					flagComputeOfferAndPositiveReplayPhase3 = false;
-					flagComputeOfferAndNegativeReplayPhase3 = false;
-				}
-
-				if (m instanceof MsgMgm2Phase5IsBestLR && this.flagComputePartnerLRIsBestLRPhase5) {
-					anotherFlag = true;
-					flagComputeAllLRandWithNoPartnerPhase4 = false;
-					flagComputeAllLRandWithPartnerPhase4 = false;
-				}
-				if (anotherFlag) {
-					toRemove.add(m);
-				} else {
-					toRelease.add(m);
-				}
-				
 			}
-			
 
 		}
-		
+
 		if (!toRemove.isEmpty()) {
 			reactionToAlgorithmicMsgs();
 			sendMsgs();
 			changeRecieveFlagsToFalse();
 		}
-		
+
 		this.future.removeAll(toRemove);
 		if (!toRelease.isEmpty()) {
 			changeRecieveFlagsToFalse();
 			reactionToAlgorithmicMsgs();
 		}
 		this.future.removeAll(toRelease);
+		this.fromFuture = false;
 	}
 
 	@Override

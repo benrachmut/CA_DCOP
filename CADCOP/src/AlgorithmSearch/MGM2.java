@@ -28,12 +28,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 	protected boolean didEarlyPhase1Flag;
 	protected boolean flagIDidPhase4Already;
 	
-
-
-
-	
 	protected boolean flagValueAssignmentAlready;
-
 	protected boolean flagRecieveNegativaReplay;
 	protected boolean flagComputeRecieveValueMsgsPhase1;
 	protected boolean flagComputeFriendshipInformationPhase2;
@@ -183,9 +178,6 @@ abstract public class MGM2 extends AgentVariableSearch {
 		resetPhase4();
 		resetPhase5();
 		
-		//System.err.println(this.id);
-	//	resetPhase2RecieveBooleanFriendshipOffers();
-		//resetPhase3RecieveBooleanLR();
 		
 		
 		didEarlyPhase1Flag = false;
@@ -668,7 +660,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 	protected boolean amIBestLR_phase4() {
 
 		for (Entry<NodeId, MsgReceive<Integer>> e : phase3RecieveLR.entrySet()) {
-			//try {
+			try {
 			Integer lrOfNeighbors = e.getValue().getContext();
 			if (lrOfNeighbors > this.phase2IntMyLr) {
 				return false;
@@ -678,10 +670,9 @@ abstract public class MGM2 extends AgentVariableSearch {
 					return false;
 				}
 			}
-			/*}catch(NullPointerException e1) {
-				System.err.println("AHHHHHHHH");
+			}catch (NullPointerException e1) {
+				System.err.println("AHHHHHHHHHHHH");
 			}
-			*/
 
 		}
 		return true;
@@ -699,13 +690,10 @@ abstract public class MGM2 extends AgentVariableSearch {
 			phase5RecieveBooleanIsPartnerBestLR.put(sender, true);
 			NodeId myPartner = whoIsMyPartnerPhase4();
 
-			try {
 			if (sender.getId1() != myPartner.getId1()) {
 				throw new RuntimeException("my partner did not send me a msg");
 			}
-			}catch (NullPointerException e) {
-				System.err.println("myPartner is null");
-			}
+			
 
 		}
 
@@ -716,8 +704,6 @@ abstract public class MGM2 extends AgentVariableSearch {
 		boolean isPartnerBestLRPhase4 = false;
 		isPartnerBestLRPhase4 = phase5RecieveIsPartnerBestLR.get(this.whoIsMyPartnerPhase4()).getContext();
 		if (phase4IsBestLR && isPartnerBestLRPhase4) {
-			
-			
 			if (MainSimulator.isMGM2Debug) {
 				System.out.println(this + " changed value at time " + time);
 			}
@@ -730,7 +716,6 @@ abstract public class MGM2 extends AgentVariableSearch {
 		}
 		MsgReceive<Integer> msgRecieve = new MsgReceive<Integer>(phase2PotentialComputedValueAssignmnetOfFriend,
 				timestampOfPartner);
-		// this.neighborsValueAssignmnet.put(myPartner, msgRecieve);
 		if (phase2PotentialComputedValueAssignmnet == null) {
 			throw new NullPointerException("The condition above is not correct");
 		}
