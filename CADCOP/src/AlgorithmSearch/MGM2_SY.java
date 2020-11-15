@@ -32,6 +32,11 @@ public class MGM2_SY extends MGM2 {
 	@Override
 	protected boolean updateMessageInContext(MsgAlgorithm m) {
 
+		if (m instanceof MsgMgm2Phase3FriendshipReplay && this.id == 3&& this.time>90  ) {
+			System.err.println("now "+m.getSenderId().getId1());
+			System.err.println(this.phase3RecieveBooleanLR);
+		}
+		
 		boolean isUpdate = true;
 		if (m instanceof MsgValueAssignmnet) {
 			if (waitingForValueMsgs) {
@@ -66,6 +71,7 @@ public class MGM2_SY extends MGM2 {
 		}
 
 		if (m instanceof MsgMgm2Phase3LR || m instanceof MsgMgm2Phase3FriendshipReplay) {
+
 			if (waitingForAllLR || waitingForOfferInformation) {
 
 				if (m instanceof MsgMgm2Phase3LR) {
@@ -179,7 +185,7 @@ public class MGM2_SY extends MGM2 {
 
 		}
 
-		if ((m instanceof MsgMgm2Phase3LR && allMapBooleanMapIsTrue(phase3RecieveBooleanLR))) {
+		if (((m instanceof MsgMgm2Phase3FriendshipReplay|| m instanceof MsgMgm2Phase3LR) && allMapBooleanMapIsTrue(phase3RecieveBooleanLR))) {
 
 			waitingForAllLR = false;
 
