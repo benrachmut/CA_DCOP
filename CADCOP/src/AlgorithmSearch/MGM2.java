@@ -319,6 +319,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 	 */
 	// offer
 	protected boolean computePhase1() {
+		
 		if (MainSimulator.isMGM2Debug) {
 			System.out.println(this + " started phase1-----------time "+time);
 		}
@@ -419,7 +420,9 @@ abstract public class MGM2 extends AgentVariableSearch {
 		if (phase2SetNodeIdsAskedMeForFriendship.isEmpty()) {
 			computeLikeMGM1();
 		} else {
-			computeGotRequestFromFriendsPhase2();
+			phase2SetNodeIdsAskedMeForFriendship();
+			if (!phase2SetNodeIdsAskedMeForFriendship.isEmpty())
+				computeGotRequestFromFriendsPhase2(true);
 		}
 		return true;
 
@@ -444,8 +447,15 @@ abstract public class MGM2 extends AgentVariableSearch {
 		// }
 	}
 
-	protected void computeGotRequestFromFriendsPhase2() {
-		selectRandomFriendFromAllOffers();
+	protected void computeGotRequestFromFriendsPhase2(boolean withRandomSelection) {
+		
+		
+		if (withRandomSelection) {
+			selectRandomFriendFromAllOffers();
+		}else {
+			
+			this.phase2NodeIdAcceptedFriend = (NodeId) phase2SetNodeIdsAskedMeForFriendship.toArray()[0];
+		}
 		createInfromationObjectTogetherWithFriend();
 		useInfromationObjectToUpdateFields();
 	}
@@ -467,6 +477,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 		this.phase2IntMyLr = phase2Opt2Recieve.getLR();
 		this.phase2PotentialComputedValueAssignmnet = phase2Opt2Recieve.getValueAssignmnet1();
 		this.phase2PotentialComputedValueAssignmnetOfFriend = phase2Opt2Recieve.getValueAssignmnet2();
+		
 		phase3RecieveBooleanLR.put(phase2NodeIdAcceptedFriend, true);
 		this.phase3RecieveLR.remove(phase2NodeIdAcceptedFriend);
 
@@ -488,12 +499,13 @@ abstract public class MGM2 extends AgentVariableSearch {
 
 	protected void sendDoubleLRPhase2() {
 		if (MainSimulator.isMGM2Debug) {
-			System.out.println(this + " is sending LRs msgs");
+			System.out.println(this + " is sending LRs msgs sendDouble time "+time);
 		}
 		
 		
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			if (this.phase2NodeIdAcceptedFriend.getId1() == recieverNodeId.getId1()) {
+				
 				MsgMgm2Phase3FriendshipReplay mlr = new MsgMgm2Phase3FriendshipReplay(this.nodeId, recieverNodeId,
 						this.phase2Opt2Recieve, this.timeStampCounter, this.time);
 				this.mailer.sendMsg(mlr);
@@ -519,8 +531,10 @@ abstract public class MGM2 extends AgentVariableSearch {
 	 * send LR msg too everyone
 	 */
 	protected void sendSingleLRPhase2() {
+		
+		
 		if (MainSimulator.isMGM2Debug) {
-			System.out.println(this + " is sending LRs msgs");
+			System.out.println(this + " is sending LRs msgs sendSingle time "+time);
 		}
 
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
@@ -558,8 +572,11 @@ abstract public class MGM2 extends AgentVariableSearch {
 	}
 
 	protected void recieveMsgFriendshipReplayPhase3(MsgAlgorithm m) {
+		
+		
 		if (m.getContext() != null) {
 			phase3RecieveLR.remove(m.getSenderId()); // id, variable
+		
 			phase3RecieveBooleanLR.put(m.getSenderId(), true);
 		}
 		MsgReceive<Find2Opt> msgRecieve = new MsgReceive<Find2Opt>((Find2Opt) m.getContext(), m.getTimeStamp());
@@ -572,8 +589,10 @@ abstract public class MGM2 extends AgentVariableSearch {
 		int timestamp = m.getTimeStamp();
 		MsgReceive<Integer> msgReceive = new MsgReceive<Integer>(context, timestamp);
 		phase3RecieveLR.put(m.getSenderId(), msgReceive); // id, variable
+		
 		phase3RecieveBooleanLR.put(m.getSenderId(), true);
-
+	
+		
 	}
 
 	protected boolean computeOfferAndPositiveReplayPhase3() {
@@ -592,8 +611,9 @@ abstract public class MGM2 extends AgentVariableSearch {
 
 	protected void sendAllLrExceptForPositiveFriendPhase3() {
 		if (MainSimulator.isMGM2Debug) {
-			System.out.println(this + " is sending LRs msgs");
+			System.out.println(this + " is sending LRs msgs sendAllLrExceptForPositive time "+time);
 		}
+	
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			if (this.phase1NodeIdSelectedFriend == null || (this.phase1NodeIdSelectedFriend != null
 					&& this.phase1NodeIdSelectedFriend.getId1() != recieverNodeId.getId1())) {
@@ -652,7 +672,10 @@ abstract public class MGM2 extends AgentVariableSearch {
 	protected boolean computeAllLRandWithNoPartnerAmIBestPhase4() {
 		if (amIBestLR_phase4()) {
 			this.valueAssignment = this.phase2PotentialComputedValueAssignmnet;
-			System.out.println(this + " changed value at time " + time);
+			if (MainSimulator.isMGM2Debug) {
+				System.out.println(this + " changed value at time " + time);
+
+			}
 		}
 		return true;
 	}
@@ -660,7 +683,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 	protected boolean amIBestLR_phase4() {
 
 		for (Entry<NodeId, MsgReceive<Integer>> e : phase3RecieveLR.entrySet()) {
-			try {
+			//try {
 			Integer lrOfNeighbors = e.getValue().getContext();
 			if (lrOfNeighbors > this.phase2IntMyLr) {
 				return false;
@@ -670,9 +693,9 @@ abstract public class MGM2 extends AgentVariableSearch {
 					return false;
 				}
 			}
-			}catch (NullPointerException e1) {
-				System.err.println("AHHHHHHHHHHHH");
-			}
+			//}catch (NullPointerException e1) {
+			//	System.err.println("AHHHHHHHHHHHH");
+			//}
 
 		}
 		return true;

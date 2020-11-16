@@ -65,14 +65,15 @@ public class MainSimulator {
 	// --------------------------------**Experiment Repetitions**
 	public static int div=1;
 
-	public static int start = 6;
-	public static int end = start+1;
+	public static int start = 0
+			;
+	public static int end = 100;
 	public static int end_temp = start; //DO NOT CHANGE
 	public static int termination = 5000;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 10; // amount of agents
+	public static int A = 50; // amount of agents
 	// public static int D = -1; // if D or costParameter < 0 use default
 
 	// ------------------------------ **DCOP GENERATOR**
@@ -81,7 +82,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 =0.5;
+	public static double dcopUniformP1 =0.2;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
 	public static int costUbUniform = 100;
