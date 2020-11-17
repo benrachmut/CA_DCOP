@@ -721,7 +721,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 // ------------------** phase 5 **------------------
 
 	protected void recieveMsgPhase5(MsgAlgorithm m) {
-
+	
 		if (m instanceof MsgMgm2Phase5IsBestLR) {
 			MsgReceive<Boolean> msgRecieve = new MsgReceive<Boolean>((boolean) m.getContext(), m.getTimeStamp());
 			NodeId sender = m.getSenderId();

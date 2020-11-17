@@ -34,9 +34,10 @@ public class MGM2_SY extends MGM2 {
 
 	@Override
 	protected boolean updateMessageInContext(MsgAlgorithm m) {
-
+	
+		
 		if (m instanceof MsgValueAssignmnet) {
-			if (waitingForValueMsgs) {
+			if (waitingForValueMsgs && !waitingForPartnerIsBestLR) {
 				recieveMsgPhase1(m);
 				return true;
 			} else if (!fromFuture) {
@@ -80,6 +81,7 @@ public class MGM2_SY extends MGM2 {
 			if (waitingForAllLR) {
 
 				recieveMsgLRPhase3(m);
+				
 				return true;
 
 				// if (m instanceof MsgMgm2Phase3FriendshipReplay) {
@@ -96,8 +98,8 @@ public class MGM2_SY extends MGM2 {
 		}
 
 		if (m instanceof MsgMgm2Phase5IsBestLR) {
-
-			if (waitingForPartnerIsBestLR) {
+			
+			if (waitingForPartnerIsBestLR ) {
 				recieveMsgPhase5(m);
 				return true;
 			} else if (!fromFuture) {
@@ -149,9 +151,9 @@ public class MGM2_SY extends MGM2 {
 	@Override
 	protected void changeRecieveFlagsToTrue(MsgAlgorithm m) {
 
-		if (this.waitingForValueMsgs && (m instanceof MsgValueAssignmnet
+		if (this.waitingForValueMsgs  && (m instanceof MsgValueAssignmnet
 				&& allMapBooleanMapIsTrue(this.phase1RecieveBooleanValueAssignmnet))) {
-
+			
 			resetPhase1RecieveBooleanValueAssignmnet();
 			
 			this.flagComputeRecieveValueMsgsPhase1 = true;
@@ -399,6 +401,7 @@ public class MGM2_SY extends MGM2 {
 	}
 
 	private void sendFlagComputePartnerLRIsBestLRPhase5() {
+		/*
 		if (allMapBooleanMapIsTrue(this.phase1RecieveBooleanValueAssignmnet)) {
 			resetPhase1();
 			doReactionAndSendPhase1();
@@ -407,7 +410,7 @@ public class MGM2_SY extends MGM2 {
 			waitingForValueMsgs = false;
 			waitingForFirstFriendshipInformation = true;
 		}
-
+*/
 		if (!didEarlyPhase1Flag) {
 			if (!this.phase1BooleanIsOfferGiver) {
 				resetPhase1();

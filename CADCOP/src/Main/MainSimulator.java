@@ -65,10 +65,10 @@ public class MainSimulator {
 	// --------------------------------**Experiment Repetitions**
 	public static int div=1;
 
-	public static int start = 16;
-	public static int end = start+1;
+	public static int start = 0;
+	public static int end = 100;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static int termination = 5000;
+	public static int termination = 20000;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
@@ -113,7 +113,7 @@ public class MainSimulator {
 	public static boolean isAnytimeDebug = false;
 	public static boolean isMaxSumMailerDebug = false; 
 	public static boolean isFactorGraphDebug = false;
-	public static boolean isMGM2Debug = true;
+	public static boolean isMGM2Debug = false;
 
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
