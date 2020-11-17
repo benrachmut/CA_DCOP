@@ -13,6 +13,7 @@ import Main.MailerIterations;
 import Main.MainSimulator;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
+import Messages.MsgMgm2Phase3FriendshipReplay;
 import Messages.MsgReceive;
 import Messages.MsgsAgentTimeComparator;
 import Messages.MsgsMailerTimeComparator;
@@ -96,6 +97,11 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public synchronized void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
 
 		for (MsgAlgorithm msgAlgorithm : messages) {
+			
+			if (this.id == 3 && this.time >= 51 && msgAlgorithm instanceof MsgMgm2Phase3FriendshipReplay) {
+				System.err.println("A_3 time 54 recieve MsgMgm2Phase3FriendshipReplay");
+			}
+			
 			if (this.isWithTimeStamp) {
 				int currentDateInContext;
 				try {

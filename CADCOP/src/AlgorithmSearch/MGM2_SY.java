@@ -35,6 +35,7 @@ public class MGM2_SY extends MGM2 {
 	@Override
 	protected boolean updateMessageInContext(MsgAlgorithm m) {
 
+		
 		if (m instanceof MsgValueAssignmnet) {
 			if (waitingForValueMsgs) {
 				recieveMsgPhase1(m);
@@ -59,7 +60,9 @@ public class MGM2_SY extends MGM2 {
 			}
 			return false;
 		}
-
+		if (this.id == 1 && m.getSenderId().getId1()==3 && m.getAgentTime() >= 40 && m instanceof MsgMgm2Phase3FriendshipReplay) {
+			System.err.println("m instanceof MsgMgm2Phase3FriendshipReplay && this.id == 1 && this.time == 40 41");
+		}
 		if (m instanceof MsgMgm2Phase3FriendshipReplay) {
 			if (waitingForOfferInformation) {
 				recieveMsgFriendshipReplayPhase3(m);
@@ -67,6 +70,8 @@ public class MGM2_SY extends MGM2 {
 			} else if (!fromFuture) {
 				boolean doesMsgExists = doesMsgExists(m, this.phase3RecieveInfoReplayFromFriend);
 				if (!doesMsgExists) {
+					
+					
 					future.add(m);
 				}
 			}
@@ -135,6 +140,7 @@ public class MGM2_SY extends MGM2 {
 		waitingForAllLR = true;
 		waitingForPartnerIsBestLR = true;
 		flagValueAssignmentAlready = false;
+		//this.isWithTimeStamp = true;
 
 	}
 
@@ -165,11 +171,16 @@ public class MGM2_SY extends MGM2 {
 		if (this.waitingForFirstFriendshipInformation && m instanceof MsgMgm2Phase2FriendshipInformation
 				&& allMapBooleanMapIsTrue(this.phase2RecieveBooleanFriendshipOffers)) {
 
+			if (this.id == 3 && this.time == 54) {
+				System.err.println("A_3 time 54 recieve all FriendshipOffers");
+			}
+			
 			this.flagComputeFriendshipInformationPhase2 = true;
 			if (MainSimulator.isMGM2Debug) {
 				System.out.println(this + " time " + this.time + " recieve all FriendshipOffers");
 			}
 
+			
 		
 			if (this.neighborSize() == 1 && !this.phase1BooleanIsOfferGiver) {
 
@@ -182,15 +193,25 @@ public class MGM2_SY extends MGM2 {
 		}
 
 		if (gaveOfferAndRecieveNegetiveReplay(m)) {
-
+			if (this.id == 6 && m.getSenderId().getId1()==5 && m instanceof MsgMgm2Phase3FriendshipReplay && this.time == 38) {
+				System.err.println("A_6 gave Offer And Recieve Negetive Replay from: A_5 at time 38");
+			}
+			
+			if (this.id == 6 && m.getSenderId().getId1()==5  && this.time == 34) {
+				System.err.println("A_6 gave Offer And Recieve Negetive Replay from: A_5 at time 34");
+			}
+			
+			
 			this.flagComputeOfferAndNegativeReplayPhase3 = true;
 			if (MainSimulator.isMGM2Debug) {
 				System.out.println(this + " gave Offer And Recieve Negetive Replay from: A_" + m.getSenderId().getId1()
-						+ " at time");
+						+ " at time "+time);
 			}
 
 		}
 
+		
+		
 		if (this.waitingForOfferInformation && m instanceof MsgMgm2Phase3FriendshipReplay
 				&& gaveOfferAndRecievePostivieReplay(m)) {
 			this.flagComputeOfferAndPositiveReplayPhase3 = true;
@@ -309,6 +330,9 @@ public class MGM2_SY extends MGM2 {
 			}
 			if (this.flagComputeFriendshipInformationPhase2) {
 
+				if (this.id == 3 && this.time == 54) {
+					System.err.println("A_3 time 54 recieve all FriendshipOffers - COMPUTE");
+				}
 				if (this.phase1BooleanIsOfferGiver == false) {
 					phase2SetNodeIdsAskedMeForFriendship();
 					if (phase2SetNodeIdsAskedMeForFriendship.isEmpty()) {
@@ -347,6 +371,11 @@ public class MGM2_SY extends MGM2 {
 
 	@Override
 	public void sendMsgs() {
+	
+		if (this.id == 3 && this.time>=39) {
+			System.err.println("id 3 sends msgs at time "+time);
+		}
+		
 		if (this.flagComputeRecieveValueMsgsPhase1 && flagComputeAllLRandWithNoPartnerPhase4) {
 			waitingForAllLR = false;
 			// waitingForPartnerIsBestLR = true;
@@ -375,6 +404,9 @@ public class MGM2_SY extends MGM2 {
 				if (this.phase1BooleanIsOfferGiver == false) {
 
 					phase2SetNodeIdsAskedMeForFriendship();
+					if (phase2SetNodeIdsAskedMeForFriendship.size()>1) {
+						System.err.println("dfsdfs");
+					}
 					if (phase2SetNodeIdsAskedMeForFriendship.isEmpty()) {
 						sendSingleLRPhase2();
 					} else {
@@ -488,7 +520,7 @@ public class MGM2_SY extends MGM2 {
 		ArrayList<Boolean> beforeBools = createFlagsArray();
 
 		for (MsgAlgorithm m : this.future) {
-
+			
 		
 
 			boolean flag = false;
@@ -517,7 +549,9 @@ public class MGM2_SY extends MGM2 {
 
 			if (flag) {
 				// if (m.getTimeStamp() == this.timeStampCounter) {
-
+				if (this.id == 1 && m.getSenderId().getId1()==3 && m.getAgentTime() == 41) {
+					System.err.println("this.id == 1 && m.getSenderId().getId1()==3 && m.getAgentTime() == 41");
+				}
 				boolean isupdated = updateMessageInContext(m);
 				if (isupdated) {
 					changeRecieveFlagsToTrue(m);
@@ -536,7 +570,7 @@ public class MGM2_SY extends MGM2 {
 					if (m instanceof MsgMgm2Phase3FriendshipReplay && (this.flagComputeOfferAndPositiveReplayPhase3
 							|| flagComputeOfferAndNegativeReplayPhase3)) {
 						anotherFlag = true;
-						if (!waitingForOfferInformation) {
+						if (!waitingForFirstFriendshipInformation) {
 							flagComputeFriendshipInformationPhase2 = false;
 						}
 					}
