@@ -1,5 +1,7 @@
 package AlgorithmSearch;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,13 +23,14 @@ import Messages.MsgReceive;
 import Messages.MsgValueAssignmnet;
 
 abstract public class MGM2 extends AgentVariableSearch {
+	protected HashSet<MsgAlgorithm> future;
 
 	public static int repsOfMsgSentInPhase3Phase4 = 1;
 	public static double probToBeOfferPhase1 = 0.5;
 
 	protected boolean didEarlyPhase1Flag;
 	protected boolean flagIDidPhase4Already;
-	
+
 	protected boolean flagValueAssignmentAlready;
 	protected boolean flagRecieveNegativaReplay;
 	protected boolean flagComputeRecieveValueMsgsPhase1;
@@ -101,7 +104,6 @@ abstract public class MGM2 extends AgentVariableSearch {
 
 		return -1;
 	}
-
 
 	@Override
 	public void updateAlgorithmHeader() {
@@ -177,16 +179,15 @@ abstract public class MGM2 extends AgentVariableSearch {
 		resetPhase3();
 		resetPhase4();
 		resetPhase5();
-		
-		
-		
+
 		didEarlyPhase1Flag = false;
 
 	}
 
 	protected void resetPhase1() {
 		// resetPhase1
-		flagValueAssignmentAlready=false;
+	
+		flagValueAssignmentAlready = false;
 		phase1BooleanIsOfferGiver = false;
 		phase1NodeIdSelectedFriend = null;
 		phase1MyOpt2Created = null;
@@ -195,6 +196,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 	protected void resetPhase2() {
 		// resetPhase2
 		resetPhase2RecieveFriendshipOffers();
+		resetPhase2RecieveBooleanFriendshipOffers();
 
 		phase2SetNodeIdsAskedMeForFriendship = new HashSet<NodeId>();
 		phase2NodeIdAcceptedFriend = null;
@@ -244,7 +246,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 	}
 
 	protected void resetPhase1RecieveBooleanValueAssignmnet() {
-	
+
 		phase1RecieveBooleanValueAssignmnet = new HashMap<NodeId, Boolean>();
 		for (NodeId nodeId : this.getNeigborSetId()) {
 			phase1RecieveBooleanValueAssignmnet.put(nodeId, false);
@@ -319,11 +321,17 @@ abstract public class MGM2 extends AgentVariableSearch {
 	 */
 	// offer
 	protected boolean computePhase1() {
-		
-		if (MainSimulator.isMGM2Debug) {
-			System.out.println(this + " started phase1-----------time "+time);
+		Collection<MsgAlgorithm>toRemove = new ArrayList<MsgAlgorithm>();
+		for (MsgAlgorithm msg : future) {
+			if (msg instanceof MsgMgm2Phase3FriendshipReplay) {
+				toRemove.add(msg);
+			}
 		}
-	
+		this.future.remove(toRemove);
+		if (MainSimulator.isMGM2Debug) {
+			System.out.println(this + " started phase1-----------time " + time);
+		}
+
 		double rnd = phase1RndIsOfferGiver.nextDouble();
 		if (rnd < probToBeOfferPhase1) {
 			this.phase1BooleanIsOfferGiver = true;
@@ -332,6 +340,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 			this.phase1NodeIdSelectedFriend = (NodeId) this.getNeigborSetId().toArray()[i];
 		} else {
 			this.phase1BooleanIsOfferGiver = false;
+			this.phase1NodeIdSelectedFriend = null;
 		}
 
 		if (MainSimulator.isMGM2Debug) {
@@ -448,12 +457,11 @@ abstract public class MGM2 extends AgentVariableSearch {
 	}
 
 	protected void computeGotRequestFromFriendsPhase2(boolean withRandomSelection) {
-		
-		
+
 		if (withRandomSelection) {
 			selectRandomFriendFromAllOffers();
-		}else {
-			
+		} else {
+
 			this.phase2NodeIdAcceptedFriend = (NodeId) phase2SetNodeIdsAskedMeForFriendship.toArray()[0];
 		}
 		createInfromationObjectTogetherWithFriend();
@@ -477,7 +485,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 		this.phase2IntMyLr = phase2Opt2Recieve.getLR();
 		this.phase2PotentialComputedValueAssignmnet = phase2Opt2Recieve.getValueAssignmnet1();
 		this.phase2PotentialComputedValueAssignmnetOfFriend = phase2Opt2Recieve.getValueAssignmnet2();
-		
+
 		phase3RecieveBooleanLR.put(phase2NodeIdAcceptedFriend, true);
 		this.phase3RecieveLR.remove(phase2NodeIdAcceptedFriend);
 
@@ -499,25 +507,27 @@ abstract public class MGM2 extends AgentVariableSearch {
 
 	protected void sendDoubleLRPhase2() {
 		if (MainSimulator.isMGM2Debug) {
-			System.out.println(this + " is sending LRs msgs sendDouble time "+time);
+			System.out.println(this + " is sending LRs msgs sendDouble time " + time);
 		}
-		
-		
+
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
-			//if (phase2SetNodeIdsAskedMeForFriendship.contains(recieverNodeId)) {
-				
-				if (this.phase2NodeIdAcceptedFriend.getId1() == recieverNodeId.getId1()) {		
+			if (phase2SetNodeIdsAskedMeForFriendship.contains(recieverNodeId)) {
+
+				if (this.phase2NodeIdAcceptedFriend.getId1() == recieverNodeId.getId1()) {
 					MsgMgm2Phase3FriendshipReplay mlr = new MsgMgm2Phase3FriendshipReplay(this.nodeId, recieverNodeId,
 							this.phase2Opt2Recieve, this.timeStampCounter, this.time);
+
 					this.mailer.sendMsg(mlr);
-			//	}else {
-			//		MsgMgm2Phase3FriendshipReplay mlr = new MsgMgm2Phase3FriendshipReplay(this.nodeId, recieverNodeId,
-			//				null, this.timeStampCounter, this.time);
-			//		MsgMgm2Phase3LR mlr2 = new MsgMgm2Phase3LR(this.nodeId, recieverNodeId, this.phase2IntMyLr,
-			//				this.timeStampCounter, this.time);
-			//		this.mailer.sendMsg(mlr2);
-			//	}
-			
+				} else {
+					MsgMgm2Phase3FriendshipReplay mlr = new MsgMgm2Phase3FriendshipReplay(this.nodeId, recieverNodeId,
+							null, this.timeStampCounter, this.time);
+					this.mailer.sendMsg(mlr);
+
+					MsgMgm2Phase3LR mlr2 = new MsgMgm2Phase3LR(this.nodeId, recieverNodeId, this.phase2IntMyLr,
+							this.timeStampCounter, this.time);
+					this.mailer.sendMsg(mlr2);
+				}
+
 			} else {
 				MsgMgm2Phase3LR mlr = new MsgMgm2Phase3LR(this.nodeId, recieverNodeId, this.phase2IntMyLr,
 						this.timeStampCounter, this.time);
@@ -540,10 +550,9 @@ abstract public class MGM2 extends AgentVariableSearch {
 	 * send LR msg too everyone
 	 */
 	protected void sendSingleLRPhase2() {
-		
-		
+
 		if (MainSimulator.isMGM2Debug) {
-			System.out.println(this + " is sending LRs msgs sendSingle time "+time);
+			System.out.println(this + " is sending LRs msgs sendSingle time " + time);
 		}
 
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
@@ -581,11 +590,8 @@ abstract public class MGM2 extends AgentVariableSearch {
 	}
 
 	protected void recieveMsgFriendshipReplayPhase3(MsgAlgorithm m) {
-		
-		
 		if (m.getContext() != null) {
 			phase3RecieveLR.remove(m.getSenderId()); // id, variable
-		
 			phase3RecieveBooleanLR.put(m.getSenderId(), true);
 		}
 		MsgReceive<Find2Opt> msgRecieve = new MsgReceive<Find2Opt>((Find2Opt) m.getContext(), m.getTimeStamp());
@@ -598,14 +604,13 @@ abstract public class MGM2 extends AgentVariableSearch {
 		int timestamp = m.getTimeStamp();
 		MsgReceive<Integer> msgReceive = new MsgReceive<Integer>(context, timestamp);
 		phase3RecieveLR.put(m.getSenderId(), msgReceive); // id, variable
-		
+
 		phase3RecieveBooleanLR.put(m.getSenderId(), true);
-	
-		
+
 	}
 
 	protected boolean computeOfferAndPositiveReplayPhase3() {
-		
+
 		if (phase3RecieveInfoReplayFromFriend.get(this.phase1NodeIdSelectedFriend) != null) {
 			MsgReceive<Find2Opt> msgRecieve = phase3RecieveInfoReplayFromFriend.get(this.phase1NodeIdSelectedFriend);
 			this.phase2IntMyLr = msgRecieve.getContext().getLR();
@@ -620,9 +625,9 @@ abstract public class MGM2 extends AgentVariableSearch {
 
 	protected void sendAllLrExceptForPositiveFriendPhase3() {
 		if (MainSimulator.isMGM2Debug) {
-			System.out.println(this + " is sending LRs msgs sendAllLrExceptForPositive time "+time);
+			System.out.println(this + " is sending LRs msgs sendAllLrExceptForPositive time " + time);
 		}
-	
+
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			if (this.phase1NodeIdSelectedFriend == null || (this.phase1NodeIdSelectedFriend != null
 					&& this.phase1NodeIdSelectedFriend.getId1() != recieverNodeId.getId1())) {
@@ -661,7 +666,8 @@ abstract public class MGM2 extends AgentVariableSearch {
 	}
 
 	protected NodeId whoIsMyPartnerPhase4() {
-		if (phase1BooleanIsOfferGiver && phase1NodeIdSelectedFriend != null) {
+		if (phase1BooleanIsOfferGiver && phase1NodeIdSelectedFriend != null
+				&& this.phase3RecieveInfoReplayFromFriend.get(phase1NodeIdSelectedFriend).getContext() != null) {
 			return phase1NodeIdSelectedFriend;
 		}
 		if (!phase1BooleanIsOfferGiver && phase2NodeIdAcceptedFriend != null) {
@@ -671,8 +677,10 @@ abstract public class MGM2 extends AgentVariableSearch {
 	}
 
 	protected boolean amIWithPartner() {
-		boolean isOfferAndAccept = phase1BooleanIsOfferGiver
-				&& phase3RecieveInfoReplayFromFriend.get(phase1NodeIdSelectedFriend) != null;
+		boolean isOfferAndAccept = phase1BooleanIsOfferGiver && phase1NodeIdSelectedFriend != null
+				&& phase3RecieveBooleanInfoReplayFromFriend.get(phase1NodeIdSelectedFriend)
+				&& this.phase3RecieveInfoReplayFromFriend.get(phase1NodeIdSelectedFriend).getContext() != null;
+
 		boolean isRecieverAndNoRequest = !phase1BooleanIsOfferGiver && phase2NodeIdAcceptedFriend != null;
 
 		return isOfferAndAccept || isRecieverAndNoRequest;
@@ -692,7 +700,7 @@ abstract public class MGM2 extends AgentVariableSearch {
 	protected boolean amIBestLR_phase4() {
 
 		for (Entry<NodeId, MsgReceive<Integer>> e : phase3RecieveLR.entrySet()) {
-			//try {
+			// try {
 			Integer lrOfNeighbors = e.getValue().getContext();
 			if (lrOfNeighbors > this.phase2IntMyLr) {
 				return false;
@@ -702,9 +710,9 @@ abstract public class MGM2 extends AgentVariableSearch {
 					return false;
 				}
 			}
-			//}catch (NullPointerException e1) {
-			//	System.err.println("AHHHHHHHHHHHH");
-			//}
+			// }catch (NullPointerException e1) {
+			// System.err.println("AHHHHHHHHHHHH");
+			// }
 
 		}
 		return true;
@@ -717,14 +725,13 @@ abstract public class MGM2 extends AgentVariableSearch {
 		if (m instanceof MsgMgm2Phase5IsBestLR) {
 			MsgReceive<Boolean> msgRecieve = new MsgReceive<Boolean>((boolean) m.getContext(), m.getTimeStamp());
 			NodeId sender = m.getSenderId();
-
-			phase5RecieveIsPartnerBestLR.put(sender, msgRecieve);
-			phase5RecieveBooleanIsPartnerBestLR.put(sender, true);
 			NodeId myPartner = whoIsMyPartnerPhase4();
 
 			if (sender.getId1() != myPartner.getId1()) {
 				throw new RuntimeException("my partner did not send me a msg");
 			}
+			phase5RecieveIsPartnerBestLR.put(sender, msgRecieve);
+			phase5RecieveBooleanIsPartnerBestLR.put(sender, true);
 			
 
 		}

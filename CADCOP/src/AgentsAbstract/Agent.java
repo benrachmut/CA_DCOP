@@ -98,9 +98,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 		for (MsgAlgorithm msgAlgorithm : messages) {
 			
-			if (this.id == 3 && this.time >= 51 && msgAlgorithm instanceof MsgMgm2Phase3FriendshipReplay) {
-				System.err.println("A_3 time 54 recieve MsgMgm2Phase3FriendshipReplay");
-			}
+		
 			
 			if (this.isWithTimeStamp) {
 				int currentDateInContext;

@@ -65,8 +65,7 @@ public class MainSimulator {
 	// --------------------------------**Experiment Repetitions**
 	public static int div=1;
 
-	public static int start = 0
-			;
+	public static int start = 16;
 	public static int end = start+1;
 	public static int end_temp = start; //DO NOT CHANGE
 	public static int termination = 5000;
