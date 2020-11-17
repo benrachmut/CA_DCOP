@@ -504,11 +504,20 @@ abstract public class MGM2 extends AgentVariableSearch {
 		
 		
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
-			if (this.phase2NodeIdAcceptedFriend.getId1() == recieverNodeId.getId1()) {
+			//if (phase2SetNodeIdsAskedMeForFriendship.contains(recieverNodeId)) {
 				
-				MsgMgm2Phase3FriendshipReplay mlr = new MsgMgm2Phase3FriendshipReplay(this.nodeId, recieverNodeId,
-						this.phase2Opt2Recieve, this.timeStampCounter, this.time);
-				this.mailer.sendMsg(mlr);
+				if (this.phase2NodeIdAcceptedFriend.getId1() == recieverNodeId.getId1()) {		
+					MsgMgm2Phase3FriendshipReplay mlr = new MsgMgm2Phase3FriendshipReplay(this.nodeId, recieverNodeId,
+							this.phase2Opt2Recieve, this.timeStampCounter, this.time);
+					this.mailer.sendMsg(mlr);
+			//	}else {
+			//		MsgMgm2Phase3FriendshipReplay mlr = new MsgMgm2Phase3FriendshipReplay(this.nodeId, recieverNodeId,
+			//				null, this.timeStampCounter, this.time);
+			//		MsgMgm2Phase3LR mlr2 = new MsgMgm2Phase3LR(this.nodeId, recieverNodeId, this.phase2IntMyLr,
+			//				this.timeStampCounter, this.time);
+			//		this.mailer.sendMsg(mlr2);
+			//	}
+			
 			} else {
 				MsgMgm2Phase3LR mlr = new MsgMgm2Phase3LR(this.nodeId, recieverNodeId, this.phase2IntMyLr,
 						this.timeStampCounter, this.time);
