@@ -29,7 +29,7 @@ public class MGM2_SY extends MGM2 {
 	public MGM2_SY(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		resetAgentGivenParametersV4();
-
+		updateAlgorithmName();
 	}
 
 	@Override
