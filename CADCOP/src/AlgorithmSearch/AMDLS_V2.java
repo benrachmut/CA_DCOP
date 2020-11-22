@@ -16,7 +16,7 @@ import Messages.MsgAlgorithm;
 public class AMDLS_V2 extends AMDLS_V1 {
 	public static int structureHeuristic = 1; // 1:by index, 2:delta_max, 3:delta_min
 	protected boolean isWaitingToSetColor;
-	private Integer myColor;
+	protected Integer myColor;
 	private TreeMap<NodeId, Integer> neighborColors;
 	protected boolean canSetColorFlag;
 
@@ -188,7 +188,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	}
 
 	@Override
-	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+	protected boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 		if (MainSimulator.isAMDLSDistributedDebug && this.id == 4) {
 			System.out.println();
 		}
@@ -210,16 +210,23 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		} else {
 			super.updateMessageInContext(msgAlgorithm);
 		}
+		return true;
+
 	}
 
+	protected void changeRecieveFlagsToTrueMsgAMDLSColor(){
+		if (canSetColor() && this.isWaitingToSetColor) {
+			canSetColorFlag = true;
+			this.gotMsgFlag = true;
+			isWaitingToSetColor = false;
+		}
+		
+	}
+	
 	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
 
 		if (msgAlgorithm instanceof MsgAMDLSColor) {
-			if (canSetColor() && this.isWaitingToSetColor) {
-				canSetColorFlag = true;
-				this.gotMsgFlag = true;
-				isWaitingToSetColor = false;
-			}
+			changeRecieveFlagsToTrueMsgAMDLSColor();
 		}
 
 		boolean firstCondition = !this.isWaitingToSetColor && allNeighborsHaveColor();
@@ -275,7 +282,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		return true;
 	}
 
-	private boolean canSetColor() {
+	protected boolean canSetColor() {
 		
 		Set<NodeId> neighborsThatHaveColor = getNeighborsThatHaveColor();
 		Set<NodeId> neighborsIRequireToWait = getNeighborsIRequireToWait();
@@ -358,31 +365,9 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		}
 	}
 
-	/*
-	 * if (consistentFlag && !canSetColorFlag) { private void
-	 * releaseFutureMsgs_distributed() {
-	 */
 	
-	/*
-	@Override
-	protected void sendMsgs() {
-		boolean sendAllTheTime = AMDLS_V1.sendWhenMsgReceive && this.gotMsgFlag;
-		
-		if ( this.canSetColorFlag) {
-			sendAMDLSColorMsgs();
-			this.consistentFlag = false;
-			this.canSetColorFlag = false;
-			if (releaseFutureMsgs_distributed()) {
-				
-				reactionToAlgorithmicMsgs();
-			}
-		}
-		else if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag)) {
-			sendAMDLSmsgs();
-		} 
-		
-	}
-*/
+	
+	
 	
 	public void sendMsgs() {
 		boolean sendAllTheTime = AMDLS_V1.sendWhenMsgReceive && this.gotMsgFlag;

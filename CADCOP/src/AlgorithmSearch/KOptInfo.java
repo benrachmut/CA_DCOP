@@ -1,5 +1,6 @@
 package AlgorithmSearch;
 
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -26,7 +27,19 @@ public class KOptInfo {
 		this.nodeId = nodeId;
 		this.neighborsConstraint = neighborsConstraint;
 		this.domainArray = domainArray;
-		this.neighborsValueAssignmnet = neighborsValueAssignmnet;
+		this.neighborsValueAssignmnet = createCopy(neighborsValueAssignmnet);
+				
+			
+	}
+
+	private SortedMap<NodeId, MsgReceive<Integer>> createCopy(
+			SortedMap<NodeId, MsgReceive<Integer>> input) {
+		SortedMap<NodeId, MsgReceive<Integer>> ans = new TreeMap<NodeId, MsgReceive<Integer>>();
+		for (Entry<NodeId, MsgReceive<Integer>> e : input.entrySet()) {
+			MsgReceive<Integer> msgR = new MsgReceive<Integer>(e.getValue().getContext(), e.getValue().getTimestamp());
+			ans.put(e.getKey(), msgR);
+		}
+		return ans;
 	}
 
 	public Integer getValueAssingment() {

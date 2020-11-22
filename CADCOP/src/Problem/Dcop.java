@@ -126,15 +126,15 @@ public abstract class Dcop {
 			ans = new MGM_SY(dcopId, D, agentId);
 		}
 
-		if (agentType == 5) {
-			ans = new AMDLS_V1(dcopId, D, agentId);
-		}
+		//if (agentType == 5) {
+		//	ans = new AMDLS_V1(dcopId, D, agentId);
+		//}
 		if (agentType == 6) {
 			ans = new AMDLS_V2(dcopId, D, agentId);
 		}
-		if (agentType == 7) {
-			ans = new AMDLS_V3(dcopId, D, agentId);
-		}
+		//if (agentType == 7) {
+		//	ans = new AMDLS_V3(dcopId, D, agentId);
+		//}
 
 		if (agentType == 8) {
 			ans = new DSA_SDP_ASY(dcopId, D, agentId);

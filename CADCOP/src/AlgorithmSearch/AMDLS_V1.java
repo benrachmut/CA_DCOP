@@ -149,7 +149,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 
 	// 1
 	@Override
-	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+	protected boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 /*
 		if (MainSimulator.isAMDLSdebug && this.id==19) {
 			System.out.println();
@@ -165,24 +165,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 		} else {
 			this.future.add((MsgAMDLS) msgAlgorithm);
 		}
-		/*
-		 * if (this.id == 0 && this.myCounter == 1 && MainSimulator.isAMDLSdebug) {
-		 * System.out.println("--------------"); System.out.println(this.toString() +
-		 * " counter is " + this.myCounter); if (!this.above.isEmpty()) {
-		 * System.out.println("above:"); for (NodeId nodeId : above) {
-		 * System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) +
-		 * ", "); } System.out.println();
-		 * 
-		 * }
-		 * 
-		 * 
-		 * if (!this.below.isEmpty()) { System.out.println("below:"); for (NodeId nodeId
-		 * : below) { System.out.print("A" + nodeId.getId1() + ":" +
-		 * this.counters.get(nodeId) + ","); } System.out.println(); }
-		 * System.out.println("--------------");
-		 * 
-		 * }
-		 */
+		return true;
 
 	}
 
@@ -203,7 +186,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 		this.gotMsgFlag = true;
 	}
 
-	private boolean checkAllNotZero() {
+	protected boolean checkAllNotZero() {
 		for (Integer i : this.counters.values()) {
 			if (i == 0) {
 				return false;

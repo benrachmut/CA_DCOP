@@ -43,12 +43,12 @@ public class MainSimulator {
 	public static boolean sendOnlyIfChange = false;
 
 	// ------------------------------**Implementation**
-	public static boolean isThreadMailer = true; // determines the mailers type
-	public static boolean isAtomicTime= true;
+	public static boolean isThreadMailer = false; // determines the mailers type
+	public static boolean isAtomicTime= false;
 	//public static int dividAtomicTime = 1;
 	
 	public static int multiplicationTime = 1;
-	public static int howManyIterationForCalculation = 10;
+	public static int howManyIterationForCalculation = 100;
 
 	public static boolean isThreadDebug = false;
 	public static boolean isWhatAgentDebug = false;
@@ -66,13 +66,14 @@ public class MainSimulator {
 	public static int div=1;
 
 	public static int start = 0;
-	public static int end = 20;
+	public static int end = 1
+			;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static int termination = 100000;
+	public static int termination = 40;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 50; // amount of agents
+	public static int A = 10; // amount of agents
 	// public static int D = -1; // if D or costParameter < 0 use default
 
 	// ------------------------------ **DCOP GENERATOR**
@@ -81,7 +82,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 =0.2;
+	public static double dcopUniformP1 =0.3;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
 	public static int costUbUniform = 100;
@@ -103,12 +104,12 @@ public class MainSimulator {
 	 * ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType = 11;
+	public static int agentType = 6;
 
 	public static boolean isCommunicationDebug = false;
 	public static boolean isSDPdebug = false;
-	public static boolean isAMDLSdebug = false;
-	public static boolean isAMDLSDistributedDebug = false;
+	public static boolean isAMDLSdebug = true;
+	public static boolean isAMDLSDistributedDebug = true;
 	public static boolean isAnytimeThreadDebug = false;
 	public static boolean isAnytimeDebug = false;
 	public static boolean isMaxSumMailerDebug = false; 

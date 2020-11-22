@@ -34,8 +34,6 @@ public class MGM2_SY extends MGM2 {
 
 	@Override
 	protected boolean updateMessageInContext(MsgAlgorithm m) {
-	
-		
 		if (m instanceof MsgValueAssignmnet) {
 			if (waitingForValueMsgs && !waitingForPartnerIsBestLR) {
 				recieveMsgPhase1(m);

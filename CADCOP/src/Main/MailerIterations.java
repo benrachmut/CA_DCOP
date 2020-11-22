@@ -51,12 +51,21 @@ public class MailerIterations extends Mailer {
 			}
 
 			if (MainSimulator.isAnytimeDebug || MainSimulator.isMGM2Debug ) {
-				if (iteration % 10 == 0) {
+				if (iteration % 20 == 0) {
 					System.out.println("-------ITERATION_" + iteration + "-------");
 				}
 
 			}
 
+			if (MainSimulator.isAMDLSdebug ) {
+				if (iteration % 20 == 0) {
+					System.out.println("-------ITERATION_" + iteration + "-------");
+					for (Agent a : dcop.getAgents()) {
+						System.out.println(a+" color is:"+((AMDLS_V2)a).getColor()); 
+					}
+				}
+				
+			}
 			agentsReactToMsgs(iteration);
 			createData(iteration);
 			List<Msg> msgToSend = this.handleDelay();
