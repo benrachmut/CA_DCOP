@@ -61,7 +61,7 @@ public class MailerThread extends Mailer implements Runnable {
 
 		while (this.time < this.terminationTime) {
 			synchronized (this) {
-				while ( !mailerHasMsgsToSend() && !areAllIdle()) {
+				while (this.messageBox.isEmpty() ||( !mailerHasMsgsToSend() && !areAllIdle())) {
 					try {
 						if (MainSimulator.isThreadDebug) {
 							System.out.println("mailer went to sleep");
