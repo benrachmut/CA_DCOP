@@ -12,6 +12,7 @@ import java.util.Random;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
+import Comparators.CompTopColorAndMinIndex;
 import Messages.MsgAMDLS;
 import Messages.MsgAMDLSColor;
 import Messages.MsgAlgorithm;
@@ -23,14 +24,15 @@ import Messages.MsgValueAssignmnet;
 public class AOpt2_V1 extends AgentVariableSearch {
 
 	protected Set<MsgAlgorithm> future;
-	protected Map<NodeId, Integer> neighborColors;
+	// protected Map<NodeId, Integer> neighborColors;
 	protected Integer myCounter;
-	protected Map<NodeId, Integer> neighborCounters;
+	// protected Map<NodeId, Integer> neighborCounters;
+	// protected Map<NodeId, Integer> neighborBelowMeRequestCounter;
+	// protected Map<NodeId, KOptInfo> mapRecieveFriendRequest;
 
-	protected Map<NodeId, Integer> neighborBelowMeRequestCounter;
+	protected Set<NodeId_AOpt2> neighborsAOpt2;
 
-	protected Map<NodeId, KOptInfo> mapRecieveFriendRequest;
-	protected NodeId nodeIdFriendIAskFor;
+	protected NodeId_AOpt2 nodeIdFriendIAskFor;
 
 	protected Find2Opt find2OptFriendIAskFor;
 	protected Integer myColor;
@@ -40,10 +42,14 @@ public class AOpt2_V1 extends AgentVariableSearch {
 	protected boolean waitingToSetColor;
 	protected boolean waitForAnything;
 	protected boolean waitForMoreColors;
+	protected boolean waitForFriendReplay;
 
 	protected boolean flagCanSetColor;
 	protected boolean flagAskForFriend;
-
+	protected boolean flagReplayToFriendRequest;
+	protected boolean flagGotNegativeReplayForMyRequest;
+	protected boolean flagGotPositiveReplayForMyRequest;
+	
 	public AOpt2_V1(int dcopId, int D, int agentId) {
 		super(dcopId, D, agentId);
 		resetAgentGivenParametersV3();
@@ -74,34 +80,14 @@ public class AOpt2_V1 extends AgentVariableSearch {
 		waitingToSetColor = true;
 		myColor = null;
 		myCounter = 1;
-		resetMapNeighborCounters();
-		resetMapNeighborColors();
-		resetMapRecieveFriendRequest();
 		nodeIdFriendIAskFor = null;
+		neighborsAOpt2 = new HashSet<NodeId_AOpt2>();
 
-	}
-
-	private void resetMapNeighborCounters() {
-		this.neighborCounters = new HashMap<NodeId, Integer>();
-		for (NodeId nodeId : this.neighborsConstraint.keySet()) {
-			neighborCounters.put(nodeId, 0);
+		for (NodeId nodeId : this.getNeigborSetId()) {
+			neighborsAOpt2.add(new NodeId_AOpt2(nodeId));
 		}
 	}
 
-	private void resetMapNeighborColors() {
-		this.neighborColors = new HashMap<NodeId, Integer>();
-		for (NodeId nodeId : this.neighborsConstraint.keySet()) {
-			neighborColors.put(nodeId, null);
-		}
-
-	}
-
-	private void resetMapRecieveFriendRequest() {
-		mapRecieveFriendRequest = new HashMap<NodeId, KOptInfo>();
-		for (NodeId nodeId : this.neighborsConstraint.keySet()) {
-			mapRecieveFriendRequest.put(nodeId, null);
-		}
-	}
 
 	// ------------ **initialize** ------------
 	@Override
@@ -126,7 +112,10 @@ public class AOpt2_V1 extends AgentVariableSearch {
 	}
 
 	private boolean isColorValid(Integer currentColor) {
-		for (Integer nColor : neighborColors.values()) {
+		// for (Integer nColor : neighborColors.values()) {
+		for (NodeId_AOpt2 node : this.neighborsAOpt2) {
+			Integer nColor = node.getColor();
+
 			if (nColor != null) {
 				if (nColor.equals(currentColor)) {
 					return false;
@@ -149,12 +138,13 @@ public class AOpt2_V1 extends AgentVariableSearch {
 
 	@Override
 	protected boolean updateMessageInContext(MsgAlgorithm m) {
-		NodeId sendId = m.getSenderId();
+		NodeId sendId_temp = m.getSenderId();
+		NodeId_AOpt2 senderId = get_NodeId_AOpt2(sendId_temp);
 
 		if (m instanceof MsgAMDLSColor) {
 			Integer colorFromMsg = ((MsgAMDLSColor) m).getColor();
-			this.neighborColors.put(sendId, colorFromMsg);
-			updateCounterAndValue(m, sendId);
+			senderId.setColor(colorFromMsg);
+			updateCounterAndValue(m, senderId);
 		}
 
 		if (!(m instanceof MsgAMDLSColor) && waitingToSetColor) {
@@ -162,19 +152,15 @@ public class AOpt2_V1 extends AgentVariableSearch {
 		}
 
 		if (m instanceof MsgAMDLS && !(m instanceof MsgAMDLSColor) && waitForAnything) {
-			updateCounterAndValue(m, sendId);
+			updateCounterAndValue(m, senderId);
 		}
 
 		if (m instanceof MsgAMDLS) {
-			Integer counterFromMsg = ((MsgAMDLS) m).getCounter();
-			this.neighborCounters.put(sendId, counterFromMsg);
-
-			MsgValueAssignmnet vam = new MsgValueAssignmnet(m);
-			super.updateMsgInContextValueAssignmnet(vam);
+			updateCounterAndValue(m, senderId);
 		}
 
 		if (m instanceof MsgOpt2FriendRequest) {
-			this.mapRecieveFriendRequest.put(m.getSenderId(), (KOptInfo) m.getContext());
+			senderId.setkOptInfo((KOptInfo) m.getContext());
 		}
 
 		if (m instanceof MsgOpt2FriendReplay) {
@@ -187,9 +173,22 @@ public class AOpt2_V1 extends AgentVariableSearch {
 
 	}
 
-	private void updateCounterAndValue(MsgAlgorithm m, NodeId sendId) {
+	private NodeId_AOpt2 get_NodeId_AOpt2(NodeId sendId_temp) {
+		for (NodeId_AOpt2 nodeIdAOpt2 : neighborsAOpt2) {
+			if (sendId_temp.getId1() == nodeIdAOpt2.getId1()) {
+				return nodeIdAOpt2;
+			}
+		}
+		return null;
+	}
+
+	private void updateCounterAndValue(MsgAlgorithm m, NodeId_AOpt2 sendId) {
 		Integer counterFromMsg = ((MsgAMDLS) m).getCounter();
-		this.neighborCounters.put(sendId, counterFromMsg);
+		if (counterFromMsg < sendId.getCounter()) {
+			throw new RuntimeException("something does not make sense");
+		}
+		sendId.setCounter(counterFromMsg);
+		// this.neighborCounters.put(sendId. counterFromMsg);
 
 		MsgValueAssignmnet vam = new MsgValueAssignmnet(m);
 		super.updateMsgInContextValueAssignmnet(vam);
@@ -200,37 +199,120 @@ public class AOpt2_V1 extends AgentVariableSearch {
 
 	@Override
 	protected void changeRecieveFlagsToTrue(MsgAlgorithm m) {
-		if (m instanceof MsgAMDLSColor && waitingToSetColor && canSetColor() && this.myColor == null) {
+		if (recieveColorMsgAndContainAllNeedToSelectColor(m)) {
 			flagCanSetColor = true;
 		}
 
-		if (m instanceof MsgAMDLSColor && this.myColor != null && allNeighborsHaveColor()
-				&& (allAboveOneMore() || (this.myColor == 1 || allBelowLikeMe()))) {
+		if (recieveAllColorsAndCanAskForFriend(m) || recieveValueCounterMsgAndCanAskForFriend(m)) {
 			flagAskForFriend = true;
 		}
 
-		if (m instanceof MsgAMDLS && !(m instanceof MsgAMDLSColor) && waitForAnything
-				&& (allAboveOneMore() || (this.myColor == 1 || allBelowLikeMe()))) {
-			flagAskForFriend = true;
-		}
-		/*
-		 * if ((m instanceof MsgAMDLS || m instanceof MsgOpt2FriendRequest) && !(m
-		 * instanceof MsgAMDLSColor)) { if (waitingToReplayUponRequest &&
-		 * canReplayUponRequest()) { flagReplayUponRequest = true; } return; }
-		 */
-
-		if (m instanceof MsgOpt2FriendRequest) {
+		if (recieveAllRequiredInfoToReplayForRequest(m)) {
+			flagReplayToFriendRequest = true;
 		}
 
-		if (m instanceof MsgOpt2FriendReplay) {
+		if (recieveValueFromAgentIRequestedFriendship(m)) {
+			flagGotNegativeReplayForMyRequest = true;
+		}
+
+		if (recieveFriendReplay(m) ) {
+			flagGotPositiveReplayForMyRequest = true;
 		}
 
 	}
 
+	private boolean recieveFriendReplay(MsgAlgorithm m) {
+		boolean typeMsg = m instanceof MsgOpt2FriendReplay;
+		int idOfMsg = m.getSenderId().getId1();
+		if (idOfMsg != this.nodeIdFriendIAskFor.getId1()) {
+			throw new RuntimeException("got replay from someone i did not ask for");
+		}
+		return true;
+	}
+
+	private boolean recieveValueFromAgentIRequestedFriendship(MsgAlgorithm m) {
+		// TODO Auto-generated method stub
+		return  (m instanceof MsgAMDLS && !(m instanceof MsgAMDLSColor)) && this.nodeIdFriendIAskFor.getId1()== m.getSenderId().getId1();
+	}
+
+	private boolean recieveAllRequiredInfoToReplayForRequest(MsgAlgorithm m) {
+		boolean validTypeMsg = m instanceof MsgOpt2FriendRequest
+				|| (m instanceof MsgAMDLS && !(m instanceof MsgAMDLSColor));
+
+		return validTypeMsg && haveAnyFriendRequest() && canRepalyToFriendRequest();
+	}
+
+	private boolean recieveValueCounterMsgAndCanAskForFriend(MsgAlgorithm m) {
+		// TODO Auto-generated method stub
+		return m instanceof MsgAMDLS && !(m instanceof MsgAMDLSColor) && waitForAnything
+				&& statusEnableToAskForFriend();
+	}
+
+	private boolean recieveAllColorsAndCanAskForFriend(MsgAlgorithm m) {
+		return m instanceof MsgAMDLSColor && this.myColor != null && allNeighborsHaveColor()
+				&& statusEnableToAskForFriend();
+
+	}
+
+	private boolean statusEnableToAskForFriend() {
+		return (allAboveOneMore() && allBelowLikeMe()) || (this.myColor == 1 && allBelowLikeMe());
+	}
+
+	private boolean recieveColorMsgAndContainAllNeedToSelectColor(MsgAlgorithm m) {
+		return m instanceof MsgAMDLSColor && waitingToSetColor && this.myColor == null && canSetColor();
+	}
+
+	private boolean canRepalyToFriendRequest() {
+		NodeId_AOpt2 boundedNodeIdThatRequested = getBoundedNodeIdThatRequested();
+		Set<NodeId_AOpt2> releventNodeIds = getAllNodeIdsAboveReleventNeighbor(boundedNodeIdThatRequested);
+		for (NodeId_AOpt2 nodeId_AOpt2 : releventNodeIds) {
+			if (nodeId_AOpt2.getCounter()+1 != this.myCounter) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private Set<NodeId_AOpt2>getAllNodeIdsAboveReleventNeighbor(NodeId_AOpt2 boundedNodeIdThatRequested){
+		Set<NodeId_AOpt2> ans = new HashSet<NodeId_AOpt2>();
+		CompTopColorAndMinIndex c = new CompTopColorAndMinIndex();
+		for (NodeId_AOpt2 nodeId_AOpt2 : this.neighborsAOpt2) {
+			if (c.compare(boundedNodeIdThatRequested, nodeId_AOpt2)>0) {
+				ans.add(nodeId_AOpt2);
+			}
+		}
+		return ans;
+	}
+	
+	private NodeId_AOpt2 getBoundedNodeIdThatRequested() {
+		Set<NodeId_AOpt2> allRequests = getAllRequests();
+		return Collections.max(allRequests, new CompTopColorAndMinIndex());
+	}
+
+	private Set<NodeId_AOpt2> getAllRequests() {
+		Set<NodeId_AOpt2>requestedNodeIds = new HashSet<NodeId_AOpt2>();
+		for (NodeId_AOpt2 nodeId_AOpt2 : requestedNodeIds) {
+			if (nodeId_AOpt2.getkOptInfo()!=null) {
+				requestedNodeIds.add(nodeId_AOpt2);
+			}
+		}
+		return requestedNodeIds;
+	}
+
+	private boolean haveAnyFriendRequest() {
+		for (NodeId_AOpt2 koi : this.neighborsAOpt2) {
+			if (koi != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private boolean allBelowLikeMe() {
-		Set<NodeId> belowMe = getAllBelowMe();
-		for (NodeId nodeId : belowMe) {
-			if (this.neighborCounters.get(nodeId) == myCounter) {
+		Set<NodeId_AOpt2> belowMe = getAllBelowMe();
+
+		for (NodeId_AOpt2 nodeId : belowMe) {
+			if (nodeId.getCounter() == myCounter) {
 				return false;
 			}
 
@@ -238,14 +320,13 @@ public class AOpt2_V1 extends AgentVariableSearch {
 		return true;
 	}
 
-	private Set<NodeId> getAllBelowMe() {
-		Set<NodeId> ans = new HashSet<NodeId>();
-		for (Entry<NodeId, Integer> e : this.neighborColors.entrySet()) {
-			if (e.getValue() > this.myColor) {
-				ans.add(e.getKey());
-
+	private Set<NodeId_AOpt2> getAllBelowMe() {
+		Set<NodeId_AOpt2> ans = new HashSet<NodeId_AOpt2>();
+		for (NodeId_AOpt2 nodeId : neighborsAOpt2) {
+			if (nodeId.getColor() > this.myColor) {
+				ans.add(nodeId);
 			}
-			if (e.getValue() == this.myColor) {
+			if (nodeId.getColor() == this.myColor) {
 				throw new RuntimeException("i have neighbors with similar color");
 			}
 		}
@@ -253,9 +334,9 @@ public class AOpt2_V1 extends AgentVariableSearch {
 	}
 
 	private boolean allAboveOneMore() {
-		Set<NodeId> aboveMe = getAllAboveMe();
-		for (NodeId nodeId : aboveMe) {
-			if (this.neighborCounters.get(nodeId) + 1 != myCounter) {
+		Set<NodeId_AOpt2> aboveMe = getAllAboveMe();
+		for (NodeId_AOpt2 nodeId_AOpt2 : aboveMe) {
+			if (nodeId_AOpt2.getCounter() + 1 != myCounter) {
 				return false;
 			}
 
@@ -263,14 +344,15 @@ public class AOpt2_V1 extends AgentVariableSearch {
 		return true;
 	}
 
-	private Set<NodeId> getAllAboveMe() {
-		Set<NodeId> ans = new HashSet<NodeId>();
-		for (Entry<NodeId, Integer> e : this.neighborColors.entrySet()) {
-			if (e.getValue() < this.myColor) {
-				ans.add(e.getKey());
+	private Set<NodeId_AOpt2> getAllAboveMe() {
+		
+		Set<NodeId_AOpt2> ans = new HashSet<NodeId_AOpt2>();
+		for (NodeId_AOpt2 nodeId_AOpt2 : this.neighborsAOpt2) {
+			if (nodeId_AOpt2.getColor() < this.myColor) {
+				ans.add(nodeId_AOpt2);
 
 			}
-			if (e.getValue() == this.myColor) {
+			if (nodeId_AOpt2.getColor() == this.myColor) {
 				throw new RuntimeException("i have neighbors with similar color");
 			}
 		}
@@ -279,8 +361,8 @@ public class AOpt2_V1 extends AgentVariableSearch {
 
 	protected boolean canSetColor() {
 
-		Set<NodeId> neighborsThatHaveColor = getNeighborsThatHaveColor();
-		Set<NodeId> neighborsIRequireToWait = neighborsWithSmallerIndexThenMe();
+		Set<NodeId_AOpt2> neighborsThatHaveColor = getNeighborsThatHaveColor();
+		Set<NodeId_AOpt2> neighborsIRequireToWait = neighborsWithSmallerIndexThenMe();
 
 		for (NodeId nodeId : neighborsIRequireToWait) {
 			if (!neighborsThatHaveColor.contains(nodeId)) {
@@ -290,21 +372,22 @@ public class AOpt2_V1 extends AgentVariableSearch {
 		return true;
 	}
 
-	private Set<NodeId> neighborsWithSmallerIndexThenMe() {
-		Set<NodeId> ans = new HashSet<NodeId>();
-		for (NodeId nodeId : neighborsConstraint.keySet()) {
-			if (nodeId.getId1() < this.id) {
-				ans.add(nodeId);
+	private Set<NodeId_AOpt2> neighborsWithSmallerIndexThenMe() {
+		Set<NodeId_AOpt2> ans = new HashSet<NodeId_AOpt2>();
+		
+		for (NodeId_AOpt2 nodeId_AOpt2 : this.neighborsAOpt2) {
+			if (nodeId_AOpt2.getId1() < this.id) {
+				ans.add(nodeId_AOpt2);
 			}
 		}
 		return ans;
 	}
 
-	private Set<NodeId> getNeighborsThatHaveColor() {
-		Set<NodeId> ans = new HashSet<NodeId>();
-		for (Entry<NodeId, Integer> e : this.neighborColors.entrySet()) {
-			if (e.getValue() != null) {
-				ans.add(e.getKey());
+	private Set<NodeId_AOpt2> getNeighborsThatHaveColor() {
+		Set<NodeId_AOpt2> ans = new HashSet<NodeId_AOpt2>();
+		for (NodeId_AOpt2 nodeId_AOpt2 : this.neighborsAOpt2) {
+			if (nodeId_AOpt2.getColor()!=null) {
+				ans.add(nodeId_AOpt2);
 			}
 		}
 		return ans;
@@ -314,12 +397,29 @@ public class AOpt2_V1 extends AgentVariableSearch {
 
 	@Override
 	protected boolean compute() {
+		
+		boolean flag = false;
 		if (flagCanSetColor) {
 			chooseColor();
+			flag = true;
 		}
 		if (flagAskForFriend) {
 			selectFriend();
+			flag = true;
 		}
+		if (flagReplayToFriendRequest) {
+			
+			flag = true;
+		}
+		if (flagGotNegativeReplayForMyRequest) {
+			
+			flag = true;
+		}
+		if (flagGotPositiveReplayForMyRequest) {
+			
+			flag = true;
+		}
+		return flag;
 	}
 
 	private KOptInfo makeMyKOptInfo() {
@@ -328,6 +428,20 @@ public class AOpt2_V1 extends AgentVariableSearch {
 	}
 
 	private void selectFriend() {
+		
+		Set<NodeId_AOpt2> allRequests = getAllRequests();
+		int minRequests = getTheMinAmountOfRequestsFromAgents(allRequests);
+		Set<NodeId_AOpt2> allRequestsAtMinAmounts = new HashSet<NodeId_AOpt2>();
+		
+				
+				
+		
+		
+		
+		
+		increaseFriendshipByOne();
+		
+		
 		Integer minValIRequest = Collections.min(this.neighborBelowMeRequestCounter.values());
 		Set<NodeId> potentialFriends = new HashSet<NodeId>();
 		for (Entry<NodeId, Integer> e : neighborBelowMeRequestCounter.entrySet()) {
@@ -338,6 +452,16 @@ public class AOpt2_V1 extends AgentVariableSearch {
 		int i = this.rndFriendRequest.nextInt(potentialFriends.size());
 		this.nodeIdFriendIAskFor = (NodeId) potentialFriends.toArray()[i];
 
+	}
+
+	private int getTheMinAmountOfRequestsFromAgents(Set<NodeId_AOpt2> allRequests) {
+		int minRequests = Integer.MAX_VALUE;
+		for (NodeId_AOpt2 nodeId_AOpt2 : allRequests) {
+			if (nodeId_AOpt2.getNumberOfFrienships()<minRequests) {
+				minRequests = nodeId_AOpt2.getNumberOfFrienships();
+			}
+		}
+		return minRequests;
 	}
 
 	// ------------ **sendMsgs** ------------
@@ -357,7 +481,7 @@ public class AOpt2_V1 extends AgentVariableSearch {
 		if (flagAskForFriend) {
 			sendFriendRequest();
 			this.waitForAnything = false;
-			this.waitforFriendReplay = true;
+			this.waitForFriendReplay = true;
 		}
 
 	}
