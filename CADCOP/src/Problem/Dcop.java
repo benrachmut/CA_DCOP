@@ -3,8 +3,10 @@ package Problem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -126,15 +128,15 @@ public abstract class Dcop {
 			ans = new MGM_SY(dcopId, D, agentId);
 		}
 
-		//if (agentType == 5) {
-		//	ans = new AMDLS_V1(dcopId, D, agentId);
-		//}
+		// if (agentType == 5) {
+		// ans = new AMDLS_V1(dcopId, D, agentId);
+		// }
 		if (agentType == 6) {
 			ans = new AMDLS_V2(dcopId, D, agentId);
 		}
-		//if (agentType == 7) {
-		//	ans = new AMDLS_V3(dcopId, D, agentId);
-		//}
+		// if (agentType == 7) {
+		// ans = new AMDLS_V3(dcopId, D, agentId);
+		// }
 
 		if (agentType == 8) {
 			ans = new DSA_SDP_ASY(dcopId, D, agentId);
@@ -148,8 +150,7 @@ public abstract class Dcop {
 		if (agentType == 11) {
 			ans = new MGM2_SY(dcopId, D, agentId);
 		}
-		
-		
+
 		if (agentType == 100) {
 
 			ans = new MaxSumStandardVarible(dcopId, D, agentId); // Async version without memory.
@@ -325,6 +326,104 @@ public abstract class Dcop {
 			createFactorGraph();
 		}
 		return this;
+	}
+
+	private void createFactorGraphCombined() {
+
+		int agentType = MainSimulator.agentType;
+		Collections.shuffle(this.neighbors, new Random(this.dcopId));
+		for (Neighbor n : neighbors) {
+
+			AgentVariableInference av1 = (AgentVariableInference) n.getA1();
+			AgentVariableInference av2 = (AgentVariableInference) n.getA2();
+
+			Integer[][] constraints = n.getConstraints();
+
+			AgentFunction af = null;
+
+			if (agentType == 103) {
+				af = new MaxSumStandardFunctionDelay(dcopId, D, av1.getId(), av2.getId(), constraints);
+				this.agentFunctions.add(af);
+				this.agentsAll.add(af);
+				av1.meetFunction(af.getMyNodes());
+				av2.meetFunction(af.getMyNodes());
+				af.meetVariables(av1.getNodeId(), av2.getNodeId());
+
+				AgentVariableInference agentVariableThatWillHoldFunction = whichAgentShouldHoldFunctionNode(av1, av2);
+				
+				agentVariableThatWillHoldFunction.holdTheFunctionNode(af);
+				af.variableNodeThatHoldsMe(agentVariableThatWillHoldFunction); 
+
+		
+
+			}
+
+			if (agentType == 104) {
+				int avSplitOne = av1.getId() + 1;
+				int avSplitTwo = av2.getId() + 1;
+				af = new MaxSumSplitConstraintFactorGraphDelay(dcopId, D, av1.getId() + 1, av2.getId() + 1,
+						constraints); // Will create a new MaxSumSplitConstraintFactorGraphSync
+				MaxSumSplitConstraintFactorGraphDelay splitConstraintAgent = (MaxSumSplitConstraintFactorGraphDelay) af;
+				List<MaxSumStandardFunctionDelay> splitList = splitConstraintAgent.getSplitFunctionNodes();
+				for (int i = 0; i < splitConstraintAgent.getSplitFunctionNodes().size(); i++) {
+					this.agentFunctions.add(splitList.get(i));
+					this.agentsAll.add(splitList.get(i));
+				}
+				av1.meetFunction(af.getMyNodes());
+				av2.meetFunction(af.getMyNodes());
+				af.meetVariables(av1.getNodeId(), av2.getNodeId());
+			}
+
+		}
+
+		if (MainSimulator.isFactorGraphDebug) {
+			pringAgentAll();
+		}
+
+	}
+
+	private AgentVariableInference whichAgentShouldHoldFunctionNode(AgentVariableInference av1,
+			AgentVariableInference av2) {
+
+		int av1Functions = av1.getFunctionNodesSize(); // Get the size of function in av1.
+		int av2Functions = av2.getFunctionNodesSize(); // Get the size of function in av2.
+
+		if (av1Functions < av2Functions) { // If the number of function nodes of av1 is smaller than av2 -> will add to
+											// av1.
+			return av1;
+		}
+		if (av1Functions > av2Functions) { // If the number of function nodes of av2 is smaller than av1 -> will add to
+											// // av2.
+			return av2;
+		}
+
+		else { // If equal will determine based on the id number.
+
+			int neigborsOfav1 = av1.neighborSize();
+			int neigborsOfav2 = av2.neighborSize();
+
+			if (neigborsOfav1 < neigborsOfav2) {
+				return av1;
+			}
+
+			if (neigborsOfav1 > neigborsOfav2) {
+				return av2;
+			}
+
+			else {
+
+				if (av1.getNodeId().getId1() < av2.getNodeId().getId1()) { // Will compare the id of each agent.
+					return av1;
+
+				}
+
+				else {
+					return av2;
+
+				}
+			}
+		}
+
 	}
 
 	private void createFactorGraph() {

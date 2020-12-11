@@ -26,7 +26,7 @@ public class MaxSumSplitConstraintFactorGraphDelay extends MaxSumStandardFunctio
 	
 	public MaxSumSplitConstraintFactorGraphDelay(int dcopId, int D, int id1, int id2, Integer[][] constraints) {
 		super(dcopId, D, id1, id2, constraints);
-		this.SCFGRatio = randomSplitConstraintRatio(0.4); 
+		this.SCFGRatio = randomSplitConstraintRatio(0.3); 
 		createDoubleConstraintMatrix(constraints); 
 		createSplitConstraintMatrices();  
 		this.splitFunctionNodes = new ArrayList<MaxSumStandardFunctionDelay>();

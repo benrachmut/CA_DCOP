@@ -1,5 +1,6 @@
 package AlgorithmsInference;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import AgentsAbstract.NodeId;
@@ -14,7 +15,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction  {
 	protected HashMap<NodeId, MaxSumMemory> neighborsMemory; 
 	protected int neighborsSize; 
 	protected int timeStampToLook; 
-	protected boolean isSync = true; 
+	protected boolean isSync = false; 
 	private boolean print = false;
 	
 	// -----------------------------------------------------------------------------------------------------------//
@@ -99,14 +100,9 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction  {
 			}
 		
 		}else{
-			
-			//if(this.receiveMessageFlag == true) {
-		
-				//produceNewMessage();
+				
 				produceNewMessageForAsyncVersion();
 				this.timeStampToLook++; 
-				
-			//}
 			
 		}
 		
@@ -122,7 +118,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction  {
 			
 			mailer.sendMsg(messagesToBeSent.get(i));
 			
-			//if(print) {printSentMessage(messagesToBeSent.get(i));}
+			if(print) {printSentMessage(messagesToBeSent.get(i));}
 			
 			if(storedMessageOn) {
 				
@@ -148,7 +144,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction  {
 	
 	//OmerP - when a message received will update the context and flag that a message was received.
 	@Override
-	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+	protected boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
 		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
 		
@@ -159,7 +155,8 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction  {
 		if(isSync) {
 			
 			storeNewContextInMemory(msgAlgorithmFactor);
-			
+			if(print) {printReceivedMessage(msgAlgorithmFactor);}
+
 		} 
 		
 		else {
@@ -167,9 +164,10 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction  {
 			variableMsgs.put(msgAlgorithmFactor.getSenderId(), newMessageReceveid);
 			if(print) {printReceivedMessage(msgAlgorithmFactor);}
 			//changeRecieveFlagsToTrue(msgAlgorithm);
-			//if(print) {printFlag();}
+			if(print) {printFlag();}
 				
 		}
+		return true;
 		
 	}
 	
@@ -386,8 +384,8 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction  {
 		
 	}
 	
+	// -----------------------------------------------------------------------------------------------------------//
 	
-	
-	
+
 	
 }

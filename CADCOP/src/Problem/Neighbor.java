@@ -5,6 +5,8 @@ import java.util.Random;
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableSearch;
+import AlgorithmsInference.MaxSumStandardFunctionDelay;
+import AlgorithmsInference.MaxSumStandardVariableDelay;
 import Main.MainSimulator;
 
 public class Neighbor {
@@ -102,17 +104,17 @@ public class Neighbor {
 	public Integer getCurrentCost() {
 		int i = a1.getValueAssignment();
 		int j = a2.getValueAssignment();
-		
+
 		try {
 			return this.constraints[i][j];
-		}catch(ArrayIndexOutOfBoundsException e) {
+		} catch (ArrayIndexOutOfBoundsException e) {
 			return null;
 		}
-		
+
 	}
 
 	public void neighborsMeetings() {
-		
+
 		a1.meetNeighbor(a2.getId(), this.constraints);
 		a2.meetNeighbor(a1.getId(), this.constraintsTranspose);
 	}
@@ -135,4 +137,5 @@ public class Neighbor {
 		return this.constraints[i][j];
 	}
 
+	
 }

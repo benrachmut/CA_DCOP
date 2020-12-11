@@ -14,9 +14,9 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	protected HashMap<NodeId, MaxSumMemory> neighborsMemory; 
 	protected int neighborsSize; 
 	protected int timeStampToLook; 
-	protected boolean isSync = true; 
+	protected boolean isSync = false; 
 	private boolean print = false;
-	private boolean damping = false; 
+	private boolean damping = true; 
 	
 	// -----------------------------------------------------------------------------------------------------------//
 
@@ -103,7 +103,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	
 	//OmerP - when a message received will update the context and flag that a message was received.
 	@Override
-	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+	protected boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
 		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
 		
@@ -114,7 +114,8 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 		if(isSync) {
 			
 			storeNewContextInMemory(msgAlgorithmFactor);
-			
+			if(print) {printReceivedMessage(msgAlgorithmFactor);}
+
 		}
 		
 		else {
@@ -125,10 +126,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 			//if(print) {printFlag();}
 			
 		}
-		
-		
-
-
+		return true;
 	}
 	
 	// OmerP - will loop over the neighbors and will send to each one of the neighbors. //Need to modify !!!!!
@@ -139,13 +137,12 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 			
 			mailer.sendMsg(messagesToBeSent.get(i)); //Get the message that need to be sent. 
 			
-			//if(print) {printSentdMessage(messagesToBeSent.get(i));} //A print for debug.
+			if(print) {printSentdMessage(messagesToBeSent.get(i));} //A print for debug.
 			
 			if(storedMessageOn) {
 				
 				storeNewMessage(i, messagesToBeSent.get(i).getContext());
 				
-			
 			}
 			
 		}
@@ -186,7 +183,22 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 		for(NodeId i: neighborsMemory.keySet()) {
 			
 			MaxSumMemory maxSumMemory = neighborsMemory.get(i);
-			double[] context = maxSumMemory.findContextByIteration(this.timeStampToLook);
+			//double[] context = maxSumMemory.findContextByIteration(this.timeStampToLook);
+			double[] context;
+			//New...
+			
+			try {
+				
+				context = maxSumMemory.findContextByIteration(this.timeStampToLook);
+				
+				}
+			
+			catch(NullPointerException e) {
+				
+				context	= produceEmptyMessageForNullPointerExeption();
+				
+				}
+			
 			table = sumMessageAsLong(table, context);
 			
 		}
@@ -388,7 +400,25 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 			if(!(i.compareTo(receiverNode) == 0)) { //If i is not the same as the receiver node. 
 					
 				MaxSumMemory maxSumMemory = neighborsMemory.get(i); //Will get the relevant memory. 
-				double[] context = maxSumMemory.getMemory().get(iterationToLook); //Will return the double of the memory in the relevant iteration. 
+				//double[] context = maxSumMemory.getMemory().get(iterationToLook); //Will return the double of the memory in the relevant iteration. 
+				double[] context;
+				//New
+				
+				try {
+					
+					context = maxSumMemory.getMemory().get(iterationToLook);
+					
+					}
+				
+				catch(NullPointerException e) {
+					
+					context	= produceEmptyMessageForNullPointerExeption();
+					
+					}
+				
+				
+				
+				
 				sentTable = sumMessages(sentTable, context); //Will sum the messages. 
 				
 				

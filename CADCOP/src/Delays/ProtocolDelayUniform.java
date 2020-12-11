@@ -6,6 +6,7 @@ public class ProtocolDelayUniform extends ProtocolDelay {
 
 	private double ub;
 	private Random rndAlgoUniform, rndAnytimeUniform;
+	
 	public ProtocolDelayUniform( boolean isTimeStamp, double gamma, double ub) {
 		super(true, isTimeStamp,gamma);
 

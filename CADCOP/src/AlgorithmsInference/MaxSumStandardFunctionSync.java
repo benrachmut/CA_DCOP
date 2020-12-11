@@ -55,7 +55,7 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 	}
 	
 	@Override
-	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+	protected boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 
 		
 		MsgAlgorithmFactor msgAlgorithmFactor;
@@ -77,6 +77,7 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 		
 		neighborsMessageIteration.put(msgAlgorithmFactor.getSenderId(), msgAlgorithm.getTimeStamp());
 		
+		return true;
 	}
 		
 	//OmerP - will send new messages for each one of the neighbors upon the initiation of the algorithm (iteration = 0)

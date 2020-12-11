@@ -32,17 +32,17 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected Mailer mailer;
 	protected Double computationCounter;
 	protected boolean stopThreadCondition;
-	protected int time;
+	protected Integer time;
 	protected boolean isIdle;
 
 	public Agent(int dcopId, int D) {
 		super();
 		this.dcopId = dcopId;
 		this.domainSize = D;
-		this.timeStampCounter = 0;
+		this.timeStampCounter = 1;
 		computationCounter = 0.0;
 		stopThreadCondition = false;
-		this.time = 0;
+		this.time = Integer.valueOf(1);
 		isIdle = true;
 		atomicActionCounter = 0;
 	}
@@ -61,7 +61,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	public void resetAgent() {
-		this.time = 1;
 		this.timeStampCounter = 0;
 		computationCounter = 0.0;
 		stopThreadCondition = false;
@@ -159,7 +158,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		boolean isUpdate = updateMessageInContext(msgAlgorithm);
 		if (isUpdate) {
 			changeRecieveFlagsToTrue(msgAlgorithm);
-
 		}
 	}
 
@@ -172,27 +170,30 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param messages
 	 * 
 	 */
-	public synchronized boolean reactionToAlgorithmicMsgs() {
-		this.atomicActionCounter = 0;
+	public boolean reactionToAlgorithmicMsgs() {
+		synchronized (this) {
+			this.atomicActionCounter = 0;
+			if (getDidComputeInThisIteration()) {
+				boolean isUpdate = compute();
+				if (isMsgGoingToBeSent(isUpdate)) {
+					computationCounter = computationCounter + 1;
+					this.timeStampCounter = this.timeStampCounter + 1;
+					if (MainSimulator.isAtomicTime) {
+						this.time = this.time + this.atomicActionCounter;
+						this.atomicActionCounter = 0;
 
-		if (getDidComputeInThisIteration()) {
-			boolean isUpdate = compute();
-			if (isMsgGoingToBeSent(isUpdate)) {
-
-				computationCounter = computationCounter + 1;
-				this.timeStampCounter = this.timeStampCounter + 1;
-				if (MainSimulator.isAtomicTime) {
-					this.time = this.time + this.atomicActionCounter;
-					this.atomicActionCounter = 0;
-
-				}else {			
-					this.time = this.time + 1;
+					}else {			
+						this.time = this.time + 1;
+					}
 				}
+				
+				this.sendMsgs();
+				this.changeRecieveFlagsToFalse();
+				return isUpdate;
 			}
-			return isUpdate;
-
+			return false;
 		}
-		return false;
+		
 	}
 
 	// protected abstract int numberOfAtomicActionsInComputation();
@@ -275,12 +276,12 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			}
 		}
 		this.reactionToAlgorithmicMsgs();
-
+		/*
 		if (this.getDidComputeInThisIteration()) {
 			this.sendMsgs();
 			this.changeRecieveFlagsToFalse();
 		}
-		// mailer.wakeUp();
+		*/
 
 	}
 

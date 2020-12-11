@@ -16,6 +16,7 @@ public abstract class AgentFunction extends Agent {
 	// List<AgentVariable> variableNeighbors;
 	protected SortedMap<NodeId, MsgReceive<double[]>> variableMsgs;
 	protected List<NodeId> nodes; 
+	protected AgentVariableInference variableNode;
 	
 	///// ******* Constructor ******* ////
 
@@ -153,8 +154,41 @@ public abstract class AgentFunction extends Agent {
 		return variableMsgs; 
 		
 	}
+
+	public void updateTimeObject(Integer time) {
+		this.time = time;
+	}
+
+	public void variableNodeThatHoldsMe(AgentVariableInference agentVariableThatWillHoldFunction) {
+		this.variableNode = agentVariableThatWillHoldFunction;
+		
+	}
 	
 	
+	
+	public boolean reactionToAlgorithmicMsgs() {
+		synchronized (this.time) {
+			this.atomicActionCounter = 0;
+			if (getDidComputeInThisIteration()) {
+				boolean isUpdate = compute();
+				if (isMsgGoingToBeSent(isUpdate)) {
+					computationCounter = computationCounter + 1;
+					this.timeStampCounter = this.timeStampCounter + 1;
+					if (MainSimulator.isAtomicTime) {
+						this.time = this.time + this.atomicActionCounter;
+						this.atomicActionCounter = 0;
+					}else {			
+						this.time = this.time + 1;
+					}
+				}
+				this.sendMsgs();
+				this.changeRecieveFlagsToFalse();
+				return isUpdate;
+			}
+			return false;
+		}
+		
+	}
 	//-----------------------------------------------------------------------------------------------------------//
 
 	

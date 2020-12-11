@@ -29,7 +29,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 	///// ******* Control Variables ******* ////
 	
 	boolean storedMessageOn = false;
-	boolean print = true; 
+	boolean print = false; 
 	 
 	///// ******* Constructors and Initialization Methods ******* ////
 
@@ -174,7 +174,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 	//OmerP - will get the message and update context in HashMap - Need to check during run. 
 	@Override
-	protected void updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+	protected boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 		
 		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
 
@@ -189,6 +189,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		changeRecieveFlagsToTrue(msgAlgorithm);
 		
 		if(print) {printFlag();}
+		return true;
 
 	}
 	
@@ -246,10 +247,11 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 			for(int j = 0 ; j < constraintMatrix.length ; j++) {
 				
+				increaseAtomicCounter();
+				
 				if(constraintMatrix[i][j] < bestCurrentValue) {
 					
 					bestCurrentValue = constraintMatrix[i][j]; 
-					
 				}
 								
 			}
@@ -527,10 +529,25 @@ public class MaxSumStandardFunction extends AgentFunction {
 			
 		}
 	
+	protected void printIncreaseInAtomicCounter() {
+		
+		System.out.println("FunctionNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + ") increased its atomic operation to(" + this.atomicActionCounter + ").\n");
+		
+	}
 	
 	//-----------------------------------------------------------------------------------------------------------//
 
-
+    ///// ******* Atomic Counter - NCLO ******* ////
+	
+	protected void increaseAtomicCounter() {
+		
+		this.atomicActionCounter++; 
+		if(print) {printIncreaseInAtomicCounter();}
+		
+		
+	}
+	
+	// -----------------------------------------------------------------------------------------------------------//
 	
 
 	

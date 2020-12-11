@@ -62,6 +62,10 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	public AgentVariableSearch(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
+		
+		
+		this.time = 1;
+
 		this.neighborsValueAssignmnet = new TreeMap<NodeId, MsgReceive<Integer>>();
 		anytimeUpToSend = new ArrayList<Context>();
 		anytimeUpToSendPast = new HashSet<Context>();
