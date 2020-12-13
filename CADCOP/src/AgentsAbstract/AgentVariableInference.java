@@ -9,16 +9,17 @@ import java.util.TreeMap;
 
 import AlgorithmsInference.MaxSumStandardFunction;
 import Main.MainSimulator;
+import Messages.MsgAlgorithm;
 import Messages.MsgReceive;
 
 public abstract class AgentVariableInference extends AgentVariable {
 
 	protected SortedMap<NodeId, MsgReceive<double[]>> functionMsgs;
 	protected HashMap<NodeId, AgentFunction> functionNodes;
-	
+
 	public AgentVariableInference(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
-		this.functionMsgs = new TreeMap<NodeId, MsgReceive<double[]>> ();
+		this.functionMsgs = new TreeMap<NodeId, MsgReceive<double[]>>();
 		this.functionNodes = new HashMap<NodeId, AgentFunction>();
 
 	}
@@ -27,8 +28,8 @@ public abstract class AgentVariableInference extends AgentVariable {
 
 		return functionMsgs.size();
 
-	} 
-	
+	}
+
 	@Override
 	public void resetAgentGivenParametersV2() {
 		this.functionMsgs = Agent.resetMapToValueNull(this.functionMsgs);
@@ -37,7 +38,7 @@ public abstract class AgentVariableInference extends AgentVariable {
 		for (AgentFunction af : functionNodes.values()) {
 			af.updateTimeObject(this.time);
 		}
-		
+
 		resetAgentGivenParametersV3();
 	}
 
@@ -48,49 +49,49 @@ public abstract class AgentVariableInference extends AgentVariable {
 		// TODO Auto-generated method stub
 		return this.nodeId;
 	}
-	
-	//To add with Ben.
+
+	// To add with Ben.
 	public boolean checkIfNodeIsContained(NodeId nodeId) {
-		
-		if(functionMsgs.containsKey(nodeId)) {
-			
+
+		if (functionMsgs.containsKey(nodeId)) {
+
 			return true;
-			
+
 		}
-		
+
 		else {
-			
+
 			return false;
-			
+
 		}
-		
+
 	}
-	
+
 	///// ******* New methods ******* ////
-	
-	//OmerP - New meetFunction method. 
+
+	// OmerP - New meetFunction method.
 	public void meetFunction(List<NodeId> nodes) {
-		
-		for(int i = 0 ; i < nodes.size() ; i++) {
-			
+
+		for (int i = 0; i < nodes.size(); i++) {
+
 			this.functionMsgs.put(nodes.get(i), null);
-			
+
 		}
-		
+
 	}
-		
-	//OmerP - New meetFunction method. 
+
+	// OmerP - New meetFunction method.
 	public void meetFunction(NodeId nodeId) {
-		
+
 		functionMsgs.put(nodeId, null);
-		
+
 	}
-	
-	//OmerP - Will return the all the nodes. 
+
+	// OmerP - Will return the all the nodes.
 	public SortedMap<NodeId, MsgReceive<double[]>> getMyFunctionMessage() {
-		
+
 		return this.functionMsgs;
-		
+
 	}
 
 	public int getFunctionNodesSize() {
@@ -102,8 +103,7 @@ public abstract class AgentVariableInference extends AgentVariable {
 		this.functionNodes.put(input.getNodeId(), input);
 		input.updateTimeObject(this.time);
 	}
-	
-	
+
 	public boolean reactionToAlgorithmicMsgs() {
 		synchronized (this.time) {
 			this.atomicActionCounter = 0;
@@ -115,7 +115,7 @@ public abstract class AgentVariableInference extends AgentVariable {
 					if (MainSimulator.isAtomicTime) {
 						this.time = this.time + this.atomicActionCounter;
 						this.atomicActionCounter = 0;
-					}else {			
+					} else {
 						this.time = this.time + 1;
 					}
 				}
@@ -125,13 +125,67 @@ public abstract class AgentVariableInference extends AgentVariable {
 			}
 			return false;
 		}
-		
-	}
-	
-	
-	//-----------------------------------------------------------------------------------------------------------//
 
-	
-	
-	
+	}
+
+	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+		synchronized (this.time) {
+			for (MsgAlgorithm msgAlgorithm : messages) {
+				if (this.isWithTimeStamp) {
+					int currentDateInContext;
+					try {
+						currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
+					} catch (NullPointerException e) {
+						currentDateInContext = -1;
+					}
+					if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
+						updateMessageInContextAndTreatFlag(msgAlgorithm);
+					}
+				} else {
+					updateMessageInContextAndTreatFlag(msgAlgorithm);
+				}
+			}
+			updateAgentTime(messages);
+
+			isIdle = false;
+			if (!messages.isEmpty()) {
+				if (MainSimulator.isThreadDebug) {
+					System.out
+							.println("mailer update " + this + " context, msg time_" + messages.get(0).getAgentTime());
+					System.out.println(this + " is NOT idle");
+				}
+			}
+			this.time.notifyAll();
+		}
+	}
+
+	protected void waitUntilMsgsRecieved() {
+		synchronized (this.time) {
+			while (getDidComputeInThisIteration() == false) {
+				waitingMethodology();
+				if (stopThreadCondition == true) {
+					return;
+				}
+			}
+			this.reactionToAlgorithmicMsgs();
+		}
+	}
+
+	protected void waitingMethodology() {
+		try {
+			isIdle = true;
+			if (MainSimulator.isThreadDebug) {
+				System.out.println(this + " is idle");
+			}
+			mailer.wakeUp();
+			this.time.wait();
+			mailer.wakeUp();
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+	}
+	// -----------------------------------------------------------------------------------------------------------//
+
 }

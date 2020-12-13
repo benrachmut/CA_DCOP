@@ -93,37 +93,35 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	// ------------**Receive Algorithmic Msgs methods**------------
 
-	public synchronized void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
-
-		for (MsgAlgorithm msgAlgorithm : messages) {
-			
-		
-			
-			if (this.isWithTimeStamp) {
-				int currentDateInContext;
-				try {
-					currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
-				} catch (NullPointerException e) {
-					currentDateInContext = -1;
-				}
-				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
+	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+		synchronized (this) {
+			for (MsgAlgorithm msgAlgorithm : messages) {
+				if (this.isWithTimeStamp) {
+					int currentDateInContext;
+					try {
+						currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
+					} catch (NullPointerException e) {
+						currentDateInContext = -1;
+					}
+					if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
+						updateMessageInContextAndTreatFlag(msgAlgorithm);
+					}
+				} else {
 					updateMessageInContextAndTreatFlag(msgAlgorithm);
 				}
-			} else {
-				updateMessageInContextAndTreatFlag(msgAlgorithm);
 			}
-		}
-		updateAgentTime(messages);
+			updateAgentTime(messages);
 
-		isIdle = false;
-		if (!messages.isEmpty()) {
-			if (MainSimulator.isThreadDebug) {
-				System.out.println("mailer update " + this + " context, msg time_" + messages.get(0).getAgentTime());
-				System.out.println(this + " is NOT idle");
+			isIdle = false;
+			if (!messages.isEmpty()) {
+				if (MainSimulator.isThreadDebug) {
+					System.out
+							.println("mailer update " + this + " context, msg time_" + messages.get(0).getAgentTime());
+					System.out.println(this + " is NOT idle");
+				}
 			}
+			this.notifyAll();
 		}
-		this.notifyAll();
-
 	}
 
 	protected void updateAgentTime(List<? extends Msg> messages) {
@@ -182,18 +180,18 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 						this.time = this.time + this.atomicActionCounter;
 						this.atomicActionCounter = 0;
 
-					}else {			
+					} else {
 						this.time = this.time + 1;
 					}
 				}
-				
+
 				this.sendMsgs();
 				this.changeRecieveFlagsToFalse();
 				return isUpdate;
 			}
 			return false;
 		}
-		
+
 	}
 
 	// protected abstract int numberOfAtomicActionsInComputation();
@@ -268,7 +266,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 	}
 
-	protected synchronized void waitUntilMsgsRecieved() {
+	protected  void waitUntilMsgsRecieved() {
+		synchronized (this) {
 		if (getDidComputeInThisIteration() == false) {
 			waitingMethodology();
 			if (stopThreadCondition == true) {
@@ -276,13 +275,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			}
 		}
 		this.reactionToAlgorithmicMsgs();
-		/*
-		if (this.getDidComputeInThisIteration()) {
-			this.sendMsgs();
-			this.changeRecieveFlagsToFalse();
-		}
-		*/
-
+		}	
 	}
 
 	protected void waitingMethodology() {

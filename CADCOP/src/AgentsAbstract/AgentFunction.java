@@ -191,5 +191,62 @@ public abstract class AgentFunction extends Agent {
 	}
 	//-----------------------------------------------------------------------------------------------------------//
 
-	
+	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+		synchronized (this.time) {
+			for (MsgAlgorithm msgAlgorithm : messages) {
+				if (this.isWithTimeStamp) {
+					int currentDateInContext;
+					try {
+						currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
+					} catch (NullPointerException e) {
+						currentDateInContext = -1;
+					}
+					if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
+						updateMessageInContextAndTreatFlag(msgAlgorithm);
+					}
+				} else {
+					updateMessageInContextAndTreatFlag(msgAlgorithm);
+				}
+			}
+			updateAgentTime(messages);
+
+			isIdle = false;
+			if (!messages.isEmpty()) {
+				if (MainSimulator.isThreadDebug) {
+					System.out
+							.println("mailer update " + this + " context, msg time_" + messages.get(0).getAgentTime());
+					System.out.println(this + " is NOT idle");
+				}
+			}
+			this.time.notifyAll();
+		}
+	}
+
+	protected void waitUntilMsgsRecieved() {
+		synchronized (this.time) {
+			while (getDidComputeInThisIteration() == false) {
+				waitingMethodology();
+				if (stopThreadCondition == true) {
+					return;
+				}
+			}
+			this.reactionToAlgorithmicMsgs();
+		}
+	}
+
+	protected void waitingMethodology() {
+		try {
+			isIdle = true;
+			if (MainSimulator.isThreadDebug) {
+				System.out.println(this + " is idle");
+			}
+			mailer.wakeUp();
+			this.time.wait();
+			mailer.wakeUp();
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+	}
 }
