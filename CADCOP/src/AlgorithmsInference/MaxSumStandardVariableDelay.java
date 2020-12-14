@@ -18,8 +18,8 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	protected int neighborsSize;
 	protected int timeStampToLook;
 	protected boolean isSync = false;
-	private boolean print = false;
-	private boolean damping = true;
+	private boolean print = true;
+	private boolean damping = false;
 
 	// -----------------------------------------------------------------------------------------------------------//
 

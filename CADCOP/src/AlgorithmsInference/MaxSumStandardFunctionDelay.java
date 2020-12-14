@@ -18,7 +18,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 	protected int neighborsSize;
 	protected int timeStampToLook;
 	protected boolean isSync = false;
-	private boolean print = false;
+	private boolean print = true;
 
 	// -----------------------------------------------------------------------------------------------------------//
 	@Override
