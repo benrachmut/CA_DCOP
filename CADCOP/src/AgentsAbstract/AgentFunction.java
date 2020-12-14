@@ -17,6 +17,7 @@ public abstract class AgentFunction extends Agent {
 	protected SortedMap<NodeId, MsgReceive<double[]>> variableMsgs;
 	protected List<NodeId> nodes; 
 	protected AgentVariableInference variableNode;
+	private Object timeSynchKey;
 	
 	///// ******* Constructor ******* ////
 
@@ -155,8 +156,8 @@ public abstract class AgentFunction extends Agent {
 		
 	}
 
-	public void updateTimeObject(Integer time) {
-		this.time = time;
+	public void updateTimeObject(Object timeSynchKey) {
+		this.timeSynchKey = timeSynchKey;
 	}
 
 	public void variableNodeThatHoldsMe(AgentVariableInference agentVariableThatWillHoldFunction) {
@@ -167,7 +168,7 @@ public abstract class AgentFunction extends Agent {
 	
 	
 	public boolean reactionToAlgorithmicMsgs() {
-		synchronized (this.time) {
+		synchronized (this.timeSynchKey) {
 			this.atomicActionCounter = 0;
 			if (getDidComputeInThisIteration()) {
 				boolean isUpdate = compute();
@@ -192,7 +193,7 @@ public abstract class AgentFunction extends Agent {
 	//-----------------------------------------------------------------------------------------------------------//
 
 	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
-		synchronized (this.time) {
+		synchronized (this.timeSynchKey) {
 			for (MsgAlgorithm msgAlgorithm : messages) {
 				if (this.isWithTimeStamp) {
 					int currentDateInContext;
@@ -218,12 +219,12 @@ public abstract class AgentFunction extends Agent {
 					System.out.println(this + " is NOT idle");
 				}
 			}
-			this.time.notifyAll();
+			this.timeSynchKey.notifyAll();
 		}
 	}
 
 	protected void waitUntilMsgsRecieved() {
-		synchronized (this.time) {
+		synchronized (this.timeSynchKey) {
 			while (getDidComputeInThisIteration() == false) {
 				waitingMethodology();
 				if (stopThreadCondition == true) {
@@ -241,7 +242,7 @@ public abstract class AgentFunction extends Agent {
 				System.out.println(this + " is idle");
 			}
 			mailer.wakeUp();
-			this.time.wait();
+			this.timeSynchKey.wait();
 			mailer.wakeUp();
 
 		} catch (InterruptedException e) {

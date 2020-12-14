@@ -323,7 +323,7 @@ public abstract class Dcop {
 		createFormations();
 
 		if (isInferenceAgent()) {
-			createFactorGraph();
+			createFactorGraphCombined();
 		}
 		return this;
 	}
@@ -351,6 +351,7 @@ public abstract class Dcop {
 				
 				
 				AgentVariableInference agentVariableThatWillHoldFunction = whichAgentShouldHoldFunctionNode(av1, av2);
+				
 				agentVariableThatWillHoldFunction.holdTheFunctionNode(af);
 				af.variableNodeThatHoldsMe(agentVariableThatWillHoldFunction); 
 			}

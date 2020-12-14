@@ -16,14 +16,19 @@ public abstract class AgentVariableInference extends AgentVariable {
 
 	protected SortedMap<NodeId, MsgReceive<double[]>> functionMsgs;
 	protected HashMap<NodeId, AgentFunction> functionNodes;
+	protected Object timeSynchKey;
 
 	public AgentVariableInference(int dcopId, int D, int id1) {
 		super(dcopId, D, id1);
 		this.functionMsgs = new TreeMap<NodeId, MsgReceive<double[]>>();
 		this.functionNodes = new HashMap<NodeId, AgentFunction>();
+		this.timeSynchKey = new Object();
 
 	}
 
+	public Object getTimeSynchKey() {
+		return this.timeSynchKey;
+	}
 	public int getFunctionMsgsSize() {
 
 		return functionMsgs.size();
@@ -101,11 +106,11 @@ public abstract class AgentVariableInference extends AgentVariable {
 
 	public void holdTheFunctionNode(AgentFunction input) {
 		this.functionNodes.put(input.getNodeId(), input);
-		input.updateTimeObject(this.time);
+		input.updateTimeObject(this.timeSynchKey);
 	}
 
 	public boolean reactionToAlgorithmicMsgs() {
-		synchronized (this.time) {
+		synchronized (this.timeSynchKey) {
 			this.atomicActionCounter = 0;
 			if (getDidComputeInThisIteration()) {
 				boolean isUpdate = compute();
@@ -129,7 +134,7 @@ public abstract class AgentVariableInference extends AgentVariable {
 	}
 
 	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
-		synchronized (this.time) {
+		synchronized (this.timeSynchKey) {
 			for (MsgAlgorithm msgAlgorithm : messages) {
 				if (this.isWithTimeStamp) {
 					int currentDateInContext;
@@ -155,12 +160,12 @@ public abstract class AgentVariableInference extends AgentVariable {
 					System.out.println(this + " is NOT idle");
 				}
 			}
-			this.time.notifyAll();
+			this.timeSynchKey.notifyAll();
 		}
 	}
 
 	protected void waitUntilMsgsRecieved() {
-		synchronized (this.time) {
+		synchronized (this.timeSynchKey) {
 			while (getDidComputeInThisIteration() == false) {
 				waitingMethodology();
 				if (stopThreadCondition == true) {
@@ -178,7 +183,7 @@ public abstract class AgentVariableInference extends AgentVariable {
 				System.out.println(this + " is idle");
 			}
 			mailer.wakeUp();
-			this.time.wait();
+			this.timeSynchKey.wait();
 			mailer.wakeUp();
 
 		} catch (InterruptedException e) {
