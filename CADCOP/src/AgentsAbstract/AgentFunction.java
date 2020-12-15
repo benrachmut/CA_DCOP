@@ -1,6 +1,7 @@
 package AgentsAbstract;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -15,10 +16,10 @@ public abstract class AgentFunction extends Agent {
 
 	// List<AgentVariable> variableNeighbors;
 	protected SortedMap<NodeId, MsgReceive<double[]>> variableMsgs;
-	protected List<NodeId> nodes; 
+	protected List<NodeId> nodes;
 	protected AgentVariableInference variableNode;
-	private Object timeSynchKey;
-	
+	protected Object timeSynchKey;
+
 	///// ******* Constructor ******* ////
 
 	public AgentFunction(int dcopId, int D, int id1, int id2) {
@@ -26,22 +27,22 @@ public abstract class AgentFunction extends Agent {
 		this.nodeId = new NodeId(id1, id2);
 		this.variableMsgs = new TreeMap<NodeId, MsgReceive<double[]>>();
 		this.nodes = new ArrayList<NodeId>();
-	
+
 	}
 
-	//-----------------------------------------------------------------------------------------------------------//
+	// -----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Initialize Methods ******* ////
 
 	public void meetVariables(NodeId VariableOneNodeId, NodeId VariableTwoNodeId) {
-		
+
 		this.variableMsgs.put(VariableOneNodeId, null);
 		this.variableMsgs.put(VariableTwoNodeId, null);
 
 	}
-	
-	//-----------------------------------------------------------------------------------------------------------//
-	
+
+	// -----------------------------------------------------------------------------------------------------------//
+
 	///// ******* Reset Methods ******* ////
 
 	@Override
@@ -49,10 +50,10 @@ public abstract class AgentFunction extends Agent {
 		this.variableMsgs = Agent.resetMapToValueNull(this.variableMsgs);
 		resetAgentGivenParametersV2();
 	}
-	
+
 	protected abstract void resetAgentGivenParametersV2();
 
-	//-----------------------------------------------------------------------------------------------------------//
+	// -----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Constraint Methods ******* ////
 
@@ -68,25 +69,25 @@ public abstract class AgentFunction extends Agent {
 
 		return ans;
 	}
-	
-	public static double[][] transposeConstraintMatrix(double[][] input){
-		
+
+	public static double[][] transposeConstraintMatrix(double[][] input) {
+
 		double[][] ans = new double[input.length][input.length];
 
-			for(int i = 0 ; i < ans.length ; i++) {
-				
-				for(int j = 0 ; j < ans.length ; j++) {
-				
-					ans[j][i] = input[i][j];
-							
-				}
-				
+		for (int i = 0; i < ans.length; i++) {
+
+			for (int j = 0; j < ans.length; j++) {
+
+				ans[j][i] = input[i][j];
+
 			}
-		
-		return ans; 
-		
+
+		}
+
+		return ans;
+
 	}
-	
+
 	public static long[][] turnIntegerToLongMatrix(Integer[][] input) {
 
 		long[][] ans = new long[input.length][input[0].length];
@@ -99,10 +100,8 @@ public abstract class AgentFunction extends Agent {
 
 		return ans;
 	}
-	
-	
-	
-	//-----------------------------------------------------------------------------------------------------------//
+
+	// -----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Getters ******* ////
 
@@ -116,44 +115,43 @@ public abstract class AgentFunction extends Agent {
 	}
 
 	public boolean checkIfNodeIsContained(NodeId nodeId) {
-		
-		if(variableMsgs.containsKey(nodeId)) {
-			
-			return true;
-			
-		}
-		
-		else {
-			
-			return false;
-			
-		}
-		
-	}
-	
-	//-----------------------------------------------------------------------------------------------------------//
 
-		
-	///// ******* New methods ******* ////
-	
-	//OmerP - Will return the all the nodes. 
-	public List<NodeId> getMyNodes() {
-		
-		return nodes;
-		
+		if (variableMsgs.containsKey(nodeId)) {
+
+			return true;
+
+		}
+
+		else {
+
+			return false;
+
+		}
+
 	}
-	
-	//OmerP - Will add a new nodeId to the updated list. 
-	public void updataNodes(NodeId nodeId){
-		
+
+	// -----------------------------------------------------------------------------------------------------------//
+
+	///// ******* New methods ******* ////
+
+	// OmerP - Will return the all the nodes.
+	public List<NodeId> getMyNodes() {
+
+		return nodes;
+
+	}
+
+	// OmerP - Will add a new nodeId to the updated list.
+	public void updataNodes(NodeId nodeId) {
+
 		this.nodes.add(nodeId);
 
 	}
-	
-	public SortedMap<NodeId, MsgReceive<double[]>> getVariableMsgs(){
-		
-		return variableMsgs; 
-		
+
+	public SortedMap<NodeId, MsgReceive<double[]>> getVariableMsgs() {
+
+		return variableMsgs;
+
 	}
 
 	public void updateTimeObject(Object timeSynchKey) {
@@ -162,13 +160,18 @@ public abstract class AgentFunction extends Agent {
 
 	public void variableNodeThatHoldsMe(AgentVariableInference agentVariableThatWillHoldFunction) {
 		this.variableNode = agentVariableThatWillHoldFunction;
-		
+
 	}
-	
-	
-	
+
 	public boolean reactionToAlgorithmicMsgs() {
+
+		if (MainSimulator.isMaxSumThreadDebug) {
+			System.out.println(this.nodeId + " wants to reacts to msg and needs to catch key");
+		}
 		synchronized (this.timeSynchKey) {
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this.nodeId + " reacts to msg");
+			}
 			this.atomicActionCounter = 0;
 			if (getDidComputeInThisIteration()) {
 				boolean isUpdate = compute();
@@ -178,7 +181,7 @@ public abstract class AgentFunction extends Agent {
 					if (MainSimulator.isAtomicTime) {
 						this.time = this.time + this.atomicActionCounter;
 						this.atomicActionCounter = 0;
-					}else {			
+					} else {
 						this.time = this.time + 1;
 					}
 				}
@@ -188,12 +191,26 @@ public abstract class AgentFunction extends Agent {
 			}
 			return false;
 		}
-		
+
 	}
-	//-----------------------------------------------------------------------------------------------------------//
+	// -----------------------------------------------------------------------------------------------------------//
 
 	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+
+		Collection<String> aaa = new ArrayList<String>();
+
+		for (MsgAlgorithm msgAlgorithm : messages) {
+			aaa.add(msgAlgorithm.getSenderId().toString());
+		}
+
+		if (MainSimulator.isMaxSumThreadDebug) {
+			System.out.println(this.nodeId + " needs key to recieve msgs from " + aaa);
+		}
 		synchronized (this.timeSynchKey) {
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this.nodeId + " recieve msgs from " + aaa);
+			}
+
 			for (MsgAlgorithm msgAlgorithm : messages) {
 				if (this.isWithTimeStamp) {
 					int currentDateInContext;
@@ -209,8 +226,11 @@ public abstract class AgentFunction extends Agent {
 					updateMessageInContextAndTreatFlag(msgAlgorithm);
 				}
 			}
+			
+			
 			updateAgentTime(messages);
 
+			
 			isIdle = false;
 			if (!messages.isEmpty()) {
 				if (MainSimulator.isThreadDebug) {
@@ -219,11 +239,17 @@ public abstract class AgentFunction extends Agent {
 					System.out.println(this + " is NOT idle");
 				}
 			}
+			
+			
 			this.timeSynchKey.notifyAll();
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this.nodeId + " finish recieve msgs so wakes up all");
+			}
 		}
 	}
 
 	protected void waitUntilMsgsRecieved() {
+
 		synchronized (this.timeSynchKey) {
 			while (getDidComputeInThisIteration() == false) {
 				waitingMethodology();
@@ -242,12 +268,48 @@ public abstract class AgentFunction extends Agent {
 				System.out.println(this + " is idle");
 			}
 			mailer.wakeUp();
+
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this.nodeId + " went to sleep");
+			}
 			this.timeSynchKey.wait();
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this.nodeId + " woke up");
+			}
 			mailer.wakeUp();
 
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
+	}
+   /*
+	public void run() {
+		// resetAgent();
+		// initialize();
+		if (MainSimulator.isMaxSumThreadDebug) {
+			System.out.println(this+" goes too initial sleep");
+		}
+		//goToSleepWithInYourVaribleNodeBedRoom();
+		
+		while (stopThreadCondition == false) {
+			waitUntilMsgsRecieved();
+		}
+	}
+	*/
+
+	private void goToSleepWithInYourVaribleNodeBedRoom() {
+		synchronized (timeSynchKey) {
+			try {
+				this.timeSynchKey.wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (MainSimulator.isMaxSumThreadDebug) {
+			System.out.println(this+" just woke up");
+		}
+		
 	}
 }

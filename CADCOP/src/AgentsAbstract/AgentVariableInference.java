@@ -1,6 +1,7 @@
 package AgentsAbstract;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,12 @@ public abstract class AgentVariableInference extends AgentVariable {
 
 	}
 
+	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "A_"+this.nodeId;
+	}
 	@Override
 	public void resetAgentGivenParametersV2() {
 		this.functionMsgs = Agent.resetMapToValueNull(this.functionMsgs);
@@ -134,7 +141,21 @@ public abstract class AgentVariableInference extends AgentVariable {
 	}
 
 	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+
+		Collection<String> aaa = new ArrayList<String>();
+
+		for (MsgAlgorithm msgAlgorithm : messages) {
+			aaa.add(msgAlgorithm.getSenderId().toString());
+		}
+
+		if (MainSimulator.isMaxSumThreadDebug) {
+			System.out.println(this.nodeId + " needs key to recieve msgs from " + aaa);
+		}
 		synchronized (this.timeSynchKey) {
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this.nodeId + " recieve msgs from " + aaa);
+			}
+
 			for (MsgAlgorithm msgAlgorithm : messages) {
 				if (this.isWithTimeStamp) {
 					int currentDateInContext;
@@ -150,8 +171,11 @@ public abstract class AgentVariableInference extends AgentVariable {
 					updateMessageInContextAndTreatFlag(msgAlgorithm);
 				}
 			}
+			
+		
 			updateAgentTime(messages);
 
+			
 			isIdle = false;
 			if (!messages.isEmpty()) {
 				if (MainSimulator.isThreadDebug) {
@@ -160,7 +184,12 @@ public abstract class AgentVariableInference extends AgentVariable {
 					System.out.println(this + " is NOT idle");
 				}
 			}
+			
+			
 			this.timeSynchKey.notifyAll();
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this.nodeId + " finish recieve msgs so wakes up all");
+			}
 		}
 	}
 
@@ -183,7 +212,14 @@ public abstract class AgentVariableInference extends AgentVariable {
 				System.out.println(this + " is idle");
 			}
 			mailer.wakeUp();
+
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this.nodeId + " went to sleep");
+			}
 			this.timeSynchKey.wait();
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this.nodeId + " woke up");
+			}
 			mailer.wakeUp();
 
 		} catch (InterruptedException e) {

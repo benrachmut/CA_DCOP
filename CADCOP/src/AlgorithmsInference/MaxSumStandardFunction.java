@@ -8,6 +8,7 @@ import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.NodeId;
+import Main.MainSimulator;
 import Messages.MsgAlgorithm;
 import Messages.MsgAlgorithmFactor;
 import Messages.MsgReceive;
@@ -29,7 +30,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 	///// ******* Control Variables ******* ////
 	
 	boolean storedMessageOn = false;
-	boolean print = false; 
+	//boolean print = false; 
 	 
 	///// ******* Constructors and Initialization Methods ******* ////
 
@@ -144,7 +145,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 			
 			mailer.sendMsg(messagesToBeSent.get(i));
 			
-			if(print) {printSentMessage(messagesToBeSent.get(i));}
+			if(MainSimulator.isMaxSumDebug) {printSentMessage(messagesToBeSent.get(i));}
 			
 			if(storedMessageOn) {
 				
@@ -155,7 +156,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		}
 		
 		changeRecieveFlagsToFalse();
-		if(print) {printFlag();}
+		if(MainSimulator.isMaxSumDebug) {printFlag();}
 		messagesToBeSent.clear();
 		
 		
@@ -178,7 +179,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
 
-		if(print) {printReceivedMessage(msgAlgorithmFactor);}
+		if(MainSimulator.isMaxSumDebug) {printReceivedMessage(msgAlgorithmFactor);}
 		
 		double[] contextFix = (double[]) msgAlgorithmFactor.getContext(); //will cast the message object as a double[].
 		
@@ -188,7 +189,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 		changeRecieveFlagsToTrue(msgAlgorithm);
 		
-		if(print) {printFlag();}
+		if(MainSimulator.isMaxSumDebug) {printFlag();}
 		return true;
 
 	}
@@ -542,7 +543,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 	protected void increaseAtomicCounter() {
 		
 		this.atomicActionCounter++; 
-		if(print) {printIncreaseInAtomicCounter();}
+		if(MainSimulator.isMaxSumDebug) {printIncreaseInAtomicCounter();}
 		
 		
 	}

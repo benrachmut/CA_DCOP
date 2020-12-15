@@ -19,7 +19,7 @@ public class NodeId implements Comparable<NodeId> {
 	//OmerP - Constructor for Variable Node.
 	public NodeId(int id1) {
 
-		this.id1 = id1; 
+		this.id1 = id1+1; 
 		this.id2 = 0;
 		setType(NodeType.Variable);
 		
@@ -28,8 +28,8 @@ public class NodeId implements Comparable<NodeId> {
 	//OmerP - Constructor for Function Node.
 	public NodeId(int id1, int id2) {
 		
-		this.id1 = id1; 
-		this.id2 = id2;
+		this.id1 = id1+1; 
+		this.id2 = id2+1;
 		setType(NodeType.Function);
 
 	}
@@ -146,7 +146,7 @@ public class NodeId implements Comparable<NodeId> {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return this.id1+"";
+		return this.id1+"."+this.id2;
 	}
 	
 	

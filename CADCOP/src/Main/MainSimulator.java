@@ -74,6 +74,8 @@ public class MainSimulator {
 
 	// ------------------------------**PROBLEM MANGNITUDE**
 	public static int A = 3; // amount of agents
+	private static int D = 2;
+
 	// public static int D = -1; // if D or costParameter < 0 use default
 
 	// ------------------------------ **DCOP GENERATOR**
@@ -115,6 +117,8 @@ public class MainSimulator {
 	public static boolean isMaxSumMailerDebug = false; 
 	public static boolean isFactorGraphDebug = false;
 	public static boolean isMGM2Debug = false;
+	public static boolean isMaxSumDebug = false;
+	public static boolean isMaxSumThreadDebug = true;
 
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
@@ -377,7 +381,7 @@ public class MainSimulator {
 		// use default Domain contractors
 
 		if (dcopBenchMark == 1) {
-			ans = new DcopUniform(dcopId, A, 10, costLbUniform, costUbUniform, dcopUniformP1, dcopUniformP2);
+			ans = new DcopUniform(dcopId, A, D , costLbUniform, costUbUniform, dcopUniformP1, dcopUniformP2);
 		}
 
 		if (dcopBenchMark == 2) {
@@ -385,7 +389,7 @@ public class MainSimulator {
 		}
 
 		if (dcopBenchMark == 3) {
-			ans = new DcopScaleFreeNetwork(dcopId, A, 10, costLbScale, costUbScale, dcopScaleHubs, dcopScaleNeighbors,
+			ans = new DcopScaleFreeNetwork(dcopId, A, D, costLbScale, costUbScale, dcopScaleHubs, dcopScaleNeighbors,
 					dcopScaleP2);
 		}
 

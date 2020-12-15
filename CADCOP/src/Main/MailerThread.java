@@ -51,11 +51,20 @@ public class MailerThread extends Mailer implements Runnable {
 				System.out.println(a + " initialize");
 			}
 		}
+		
+		
+		if (MainSimulator.isMaxSumThreadDebug) {
+			System.out.println("from mailer this is the mail box: "+this.messageBox);
+		}
 		createAndStartAgentThreads();
 
+		
 		createData(this.time);
 		shouldUpdateClockBecuaseNoMsgsRecieved();
 		List<Msg> msgToSend1 = this.handleDelay();
+		if (MainSimulator.isMaxSumThreadDebug) {
+			System.out.println("mailer goes through mailbox and starts working");
+		}
 		agentsRecieveMsgs(msgToSend1);
 		clockUpdatedFromMsgPlacedInBoxFlag = false;
 

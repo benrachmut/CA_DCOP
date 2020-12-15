@@ -261,12 +261,16 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public void run() {
 		// resetAgent();
 		// initialize();
+		if (MainSimulator.isMaxSumThreadDebug) {
+			System.out.println(this+" starts run");
+		}
 		while (stopThreadCondition == false) {
 			waitUntilMsgsRecieved();
 		}
 	}
 
 	protected  void waitUntilMsgsRecieved() {
+		
 		synchronized (this) {
 		if (getDidComputeInThisIteration() == false) {
 			waitingMethodology();
