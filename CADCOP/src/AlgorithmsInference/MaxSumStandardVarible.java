@@ -10,7 +10,6 @@ import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.NodeId;
-import Main.MainSimulator;
 import Messages.MsgAlgorithm;
 import Messages.MsgAlgorithmFactor;
 import Messages.MsgReceive;
@@ -33,7 +32,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	boolean damping = false;
 	boolean storedMessageOn = false;
-	//protected boolean print = true;
+	protected boolean print = true;
 	protected boolean printValueAssignment = true;
 	protected boolean dampingPrint = false;
 	protected boolean dust = false;
@@ -109,7 +108,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 			mailer.sendMsg(messagesToBeSent.get(i));
 
-			if (MainSimulator.isMaxSumDebug) {
+			if (print) {
 				printSentdMessage(messagesToBeSent.get(i));
 			}
 
@@ -123,7 +122,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 		messagesToBeSent.clear();
 		changeRecieveFlagsToFalse();
-		if (MainSimulator.isMaxSumDebug) {
+		if (print) {
 			printFlag();
 		}
 
@@ -136,7 +135,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
 
-		if (MainSimulator.isMaxSumDebug) {
+		if (print) {
 			printReceivedMessage(msgAlgorithmFactor);
 		}
 
@@ -149,7 +148,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 		changeRecieveFlagsToTrue(msgAlgorithm);
 
-		if (MainSimulator.isMaxSumDebug) {
+		if (print) {
 			printFlag();
 		}
 		return true;
@@ -334,7 +333,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 		}
 
 		setValueAssignmnet(valueAssignment);
-		if (MainSimulator.isMaxSumDebug) {
+		if (print) {
 			printValueAssignment(valueAssignment, table);
 		}
 

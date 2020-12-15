@@ -353,7 +353,7 @@ public abstract class Dcop {
 				AgentVariableInference agentVariableThatWillHoldFunction = whichAgentShouldHoldFunctionNode(av1, av2);
 				
 				agentVariableThatWillHoldFunction.holdTheFunctionNode(af);
-				af.variableNodeThatHoldsMe(agentVariableThatWillHoldFunction); 
+				//af.variableNodeThatHoldsMe(agentVariableThatWillHoldFunction); 
 			}
 
 			if (agentType == 104) {
@@ -378,12 +378,12 @@ public abstract class Dcop {
 				
 				MaxSumStandardFunction af1 = splitConstraintAgent.getFirstSplit();
 				av1.holdTheFunctionNode(af1);
-				af1.variableNodeThatHoldsMe(av1); 
+				//af1.variableNodeThatHoldsMe(av1); 
 
 				
 				MaxSumStandardFunction af2 = splitConstraintAgent.getSecondSplit();
 				av2.holdTheFunctionNode(af2);
-				af2.variableNodeThatHoldsMe(av2); 
+				//af2.variableNodeThatHoldsMe(av2); 
 				
 				
 				
@@ -399,7 +399,9 @@ public abstract class Dcop {
 		}
 
 	}
+	
 
+	
 	private AgentVariableInference whichAgentShouldHoldFunctionNode(AgentVariableInference av1,
 			AgentVariableInference av2) {
 

@@ -11,7 +11,7 @@ public class MaxSumSplitConstraintFactorGraphDelay extends MaxSumStandardFunctio
 
 	///// ******* Variables ******* ////
 
-	Random rnd = new Random();
+	Random rnd;
 	double SCFGRatio;
 	MaxSumStandardFunctionDelay firstSplit, secondSplit;
 	protected List<MaxSumStandardFunctionDelay> splitFunctionNodes;
@@ -26,7 +26,9 @@ public class MaxSumSplitConstraintFactorGraphDelay extends MaxSumStandardFunctio
 	
 	public MaxSumSplitConstraintFactorGraphDelay(int dcopId, int D, int id1, int id2, Integer[][] constraints) {
 		super(dcopId, D, id1, id2, constraints);
-		this.SCFGRatio = randomSplitConstraintRatio(0.3); 
+		rnd = new Random(id1*100+id2*3+dcopId*17);
+		rnd.nextDouble();
+		this.SCFGRatio = randomSplitConstraintRatio(0.4); 
 		createDoubleConstraintMatrix(constraints); 
 		createSplitConstraintMatrices();  
 		this.splitFunctionNodes = new ArrayList<MaxSumStandardFunctionDelay>();
@@ -98,6 +100,15 @@ public class MaxSumSplitConstraintFactorGraphDelay extends MaxSumStandardFunctio
 	
 	// -----------------------------------------------------------------------------------------------------------//
 	
+	
+	
+	@Override
+	public void resetAgentGivenParametersV4() {
+		
+		rnd = new Random(this.nodeId.getId1()*100+this.nodeId.getId2()*3+dcopId*17);
+		rnd.nextDouble();
+		
+	}
 	
 	///// ******* Split Constraint Factor Graph Methods ******* ////
 

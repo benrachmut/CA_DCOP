@@ -76,7 +76,6 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 		if(print){printReceivedMessage(msgAlgorithmFactor);}
 		
 		neighborsMessageIteration.put(msgAlgorithmFactor.getSenderId(), msgAlgorithm.getTimeStamp());
-		
 		return true;
 	}
 		

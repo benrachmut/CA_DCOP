@@ -8,7 +8,6 @@ import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.NodeId;
-import Main.MainSimulator;
 import Messages.MsgAlgorithm;
 import Messages.MsgAlgorithmFactor;
 import Messages.MsgReceive;
@@ -30,7 +29,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 	///// ******* Control Variables ******* ////
 	
 	boolean storedMessageOn = false;
-	//boolean print = false; 
+	boolean print = false; 
 	 
 	///// ******* Constructors and Initialization Methods ******* ////
 
@@ -145,7 +144,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 			
 			mailer.sendMsg(messagesToBeSent.get(i));
 			
-			if(MainSimulator.isMaxSumDebug) {printSentMessage(messagesToBeSent.get(i));}
+			if(print) {printSentMessage(messagesToBeSent.get(i));}
 			
 			if(storedMessageOn) {
 				
@@ -156,7 +155,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		}
 		
 		changeRecieveFlagsToFalse();
-		if(MainSimulator.isMaxSumDebug) {printFlag();}
+		if(print) {printFlag();}
 		messagesToBeSent.clear();
 		
 		
@@ -175,11 +174,11 @@ public class MaxSumStandardFunction extends AgentFunction {
 
 	//OmerP - will get the message and update context in HashMap - Need to check during run. 
 	@Override
-	protected boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+	protected boolean  updateMessageInContext(MsgAlgorithm msgAlgorithm) {
 		
 		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
 
-		if(MainSimulator.isMaxSumDebug) {printReceivedMessage(msgAlgorithmFactor);}
+		if(print) {printReceivedMessage(msgAlgorithmFactor);}
 		
 		double[] contextFix = (double[]) msgAlgorithmFactor.getContext(); //will cast the message object as a double[].
 		
@@ -189,7 +188,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 		changeRecieveFlagsToTrue(msgAlgorithm);
 		
-		if(MainSimulator.isMaxSumDebug) {printFlag();}
+		if(print) {printFlag();}
 		return true;
 
 	}
@@ -253,6 +252,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 				if(constraintMatrix[i][j] < bestCurrentValue) {
 					
 					bestCurrentValue = constraintMatrix[i][j]; 
+					
 				}
 								
 			}
@@ -543,12 +543,13 @@ public class MaxSumStandardFunction extends AgentFunction {
 	protected void increaseAtomicCounter() {
 		
 		this.atomicActionCounter++; 
-		if(MainSimulator.isMaxSumDebug) {printIncreaseInAtomicCounter();}
+		if(print) {printIncreaseInAtomicCounter();}
 		
 		
 	}
 	
 	// -----------------------------------------------------------------------------------------------------------//
+	
 	
 
 	

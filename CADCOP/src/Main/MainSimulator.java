@@ -87,7 +87,7 @@ public class MainSimulator {
 	public static double dcopUniformP1 =1;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
-	public static int costUbUniform = 100;
+	public static int costUbUniform = 10;
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
 	public static int costLbColor = 10;
