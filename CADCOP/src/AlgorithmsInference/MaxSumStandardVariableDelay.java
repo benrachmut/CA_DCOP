@@ -114,7 +114,6 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	public void sendMsgs() {
 
 		for (NodeId i : messagesToBeSent.keySet()) {
-			
 			if (functionNodes.containsKey(i)) { //If I as a variable node holds the the function node. 
 				List<MsgAlgorithm> messages = new ArrayList<MsgAlgorithm>();
 				messages.add(messagesToBeSent.get(i));
@@ -122,8 +121,6 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 				MaxSumStandardFunction functionNode = (MaxSumStandardFunction) functionNodes.get(i);
 				functionNodes.get(i).receiveAlgorithmicMsgs(messages);
 				//functionNode.updateMessageInContext(messagesToBeSent.get(i));
-
-				
 			} 
 			
 			else {							//If I as a variable node does not holds the the function node. 

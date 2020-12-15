@@ -1,15 +1,17 @@
 package AgentsAbstract;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import Main.MainSimulator;
+import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgReceive;
+import Messages.MsgsMailerTimeComparator;
 import Problem.Neighbor;
 
 public abstract class AgentFunction extends Agent {
@@ -18,7 +20,6 @@ public abstract class AgentFunction extends Agent {
 	protected SortedMap<NodeId, MsgReceive<double[]>> variableMsgs;
 	protected List<NodeId> nodes;
 	protected AgentVariableInference variableNode;
-	protected Object timeSynchKey;
 
 	///// ******* Constructor ******* ////
 
@@ -154,162 +155,72 @@ public abstract class AgentFunction extends Agent {
 
 	}
 
-	public void updateTimeObject(Object timeSynchKey) {
-		this.timeSynchKey = timeSynchKey;
-	}
-
-	public void variableNodeThatHoldsMe(AgentVariableInference agentVariableThatWillHoldFunction) {
-		this.variableNode = agentVariableThatWillHoldFunction;
+	public void informFunctionNodeAboutItsVariableNode(AgentVariableInference agentVariableInference) {
+		this.variableNode = agentVariableInference;
+		this.timeKey = agentVariableInference.timeKey;
 
 	}
 
-	public boolean reactionToAlgorithmicMsgs() {
+	@Override
+	public synchronized boolean reactionToAlgorithmicMsgs() {
+		this.atomicActionCounter = 0;
 
-		if (MainSimulator.isMaxSumThreadDebug) {
-			System.out.println(this.nodeId + " wants to reacts to msg and needs to catch key");
-		}
-		synchronized (this.timeSynchKey) {
-			if (MainSimulator.isMaxSumThreadDebug) {
-				System.out.println(this.nodeId + " reacts to msg");
-			}
-			this.atomicActionCounter = 0;
-			if (getDidComputeInThisIteration()) {
-				boolean isUpdate = compute();
-				if (isMsgGoingToBeSent(isUpdate)) {
+		if (getDidComputeInThisIteration()) {
+			boolean isUpdate = compute();
+			if (isMsgGoingToBeSent(isUpdate)) {
+				synchronized (this.timeKey) {
+					if (MainSimulator.isMaxSumThreadDebug) {
+						System.out.println(this + "time is " + this.time + " BEFORE because computation");
+					}
 					computationCounter = computationCounter + 1;
 					this.timeStampCounter = this.timeStampCounter + 1;
 					if (MainSimulator.isAtomicTime) {
 						this.time = this.time + this.atomicActionCounter;
+						infromMyVaribleAboutTime();
 						this.atomicActionCounter = 0;
 					} else {
 						this.time = this.time + 1;
 					}
-				}
-				this.sendMsgs();
-				this.changeRecieveFlagsToFalse();
-				return isUpdate;
-			}
-			return false;
-		}
 
+					if (MainSimulator.isMaxSumThreadDebug) {
+						System.out.println(this + "time is " + this.time + " AFTER because computation");
+					}
+				}
+			}
+			return isUpdate;
+
+		}
+		return false;
 	}
 	// -----------------------------------------------------------------------------------------------------------//
 
-	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+	private void infromMyVaribleAboutTime() {
+		this.variableNode.time = this.time;
+		this.variableNode.infromMyFunctionsAboutTime();
 
-		Collection<String> aaa = new ArrayList<String>();
+	}
 
-		for (MsgAlgorithm msgAlgorithm : messages) {
-			aaa.add(msgAlgorithm.getSenderId().toString());
-		}
-
-		if (MainSimulator.isMaxSumThreadDebug) {
-			System.out.println(this.nodeId + " needs key to recieve msgs from " + aaa);
-		}
-		synchronized (this.timeSynchKey) {
+	@Override
+	protected void updateAgentTime(List<? extends Msg> messages) {
+		Msg msgWithMaxTime = Collections.max(messages, new MsgsMailerTimeComparator());
+		int maxAgentTime = msgWithMaxTime.getMailerTime();
+		synchronized (this.timeKey) {
 			if (MainSimulator.isMaxSumThreadDebug) {
-				System.out.println(this.nodeId + " recieve msgs from " + aaa);
+				System.out.println(this + "time is " + this.time + " BEFORE because recieve Msg");
 			}
-
-			for (MsgAlgorithm msgAlgorithm : messages) {
-				if (this.isWithTimeStamp) {
-					int currentDateInContext;
-					try {
-						currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
-					} catch (NullPointerException e) {
-						currentDateInContext = -1;
-					}
-					if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
-						updateMessageInContextAndTreatFlag(msgAlgorithm);
-					}
-				} else {
-					updateMessageInContextAndTreatFlag(msgAlgorithm);
-				}
+			if (this.time <= maxAgentTime) {
+				int oldTime = this.time;
+				this.time = maxAgentTime;
+				infromMyVaribleAboutTime();
 			}
-			
-			
-			updateAgentTime(messages);
-
-			
-			isIdle = false;
-			if (!messages.isEmpty()) {
-				if (MainSimulator.isThreadDebug) {
-					System.out
-							.println("mailer update " + this + " context, msg time_" + messages.get(0).getAgentTime());
-					System.out.println(this + " is NOT idle");
-				}
-			}
-			
-			
-			this.timeSynchKey.notifyAll();
 			if (MainSimulator.isMaxSumThreadDebug) {
-				System.out.println(this.nodeId + " finish recieve msgs so wakes up all");
+				System.out.println(this + "time is " + this.time + " AFTER because recieve Msg");
 			}
 		}
 	}
 
-	protected void waitUntilMsgsRecieved() {
+	
 
-		synchronized (this.timeSynchKey) {
-			while (getDidComputeInThisIteration() == false) {
-				waitingMethodology();
-				if (stopThreadCondition == true) {
-					return;
-				}
-			}
-			this.reactionToAlgorithmicMsgs();
-		}
-	}
+	
 
-	protected void waitingMethodology() {
-		try {
-			isIdle = true;
-			if (MainSimulator.isThreadDebug) {
-				System.out.println(this + " is idle");
-			}
-			mailer.wakeUp();
-
-			if (MainSimulator.isMaxSumThreadDebug) {
-				System.out.println(this.nodeId + " went to sleep");
-			}
-			this.timeSynchKey.wait();
-			if (MainSimulator.isMaxSumThreadDebug) {
-				System.out.println(this.nodeId + " woke up");
-			}
-			mailer.wakeUp();
-
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-	}
-   /*
-	public void run() {
-		// resetAgent();
-		// initialize();
-		if (MainSimulator.isMaxSumThreadDebug) {
-			System.out.println(this+" goes too initial sleep");
-		}
-		//goToSleepWithInYourVaribleNodeBedRoom();
-		
-		while (stopThreadCondition == false) {
-			waitUntilMsgsRecieved();
-		}
-	}
-	*/
-
-	private void goToSleepWithInYourVaribleNodeBedRoom() {
-		synchronized (timeSynchKey) {
-			try {
-				this.timeSynchKey.wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		if (MainSimulator.isMaxSumThreadDebug) {
-			System.out.println(this+" just woke up");
-		}
-		
-	}
 }

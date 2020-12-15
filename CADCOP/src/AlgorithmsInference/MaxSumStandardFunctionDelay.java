@@ -119,7 +119,6 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 				messages.add(messagesToBeSent.get(i));
 				MaxSumStandardVariableDelay VariableNode = (MaxSumStandardVariableDelay) variableNode;
 				if (print) {printSentMessage(messagesToBeSent.get(i));}
-				//VariableNode.updateMessageInContext(messagesToBeSent.get(i));
 				variableNode.receiveAlgorithmicMsgs(messages);
 				
 			} else {
