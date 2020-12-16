@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import AlgorithmsInference.MaxSumStandardFunction;
 import Main.MainSimulator;
 import Messages.Msg;
+import Messages.MsgAlgorithm;
 import Messages.MsgReceive;
 import Messages.MsgsMailerTimeComparator;
 
@@ -100,42 +101,116 @@ public abstract class AgentVariableInference extends AgentVariable {
 	}
 
 	// -----------------------------------------------------------------------------------------------------------//
-
-	public synchronized boolean reactionToAlgorithmicMsgs() {
+	public boolean reactionToAlgorithmicMsgs() {
+		synchronized (this.timeObject) {
+			
 		this.atomicActionCounter = 0;
 
 		if (getDidComputeInThisIteration()) {
 			boolean isUpdate = compute();
 			if (isMsgGoingToBeSent(isUpdate)) {
-				synchronized (this.timeKey) {
-					if (MainSimulator.isMaxSumThreadDebug) {
-						System.out.println(this + "time is " + this.time + " BEFORE because computation");
-					}
-					computationCounter = computationCounter + 1;
-					this.timeStampCounter = this.timeStampCounter + 1;
-					if (MainSimulator.isAtomicTime) {
-						this.time = this.time + this.atomicActionCounter;
-						infromMyFunctionsAboutTime();
-						this.atomicActionCounter = 0;
-
-					} else {
-						this.time = this.time + 1;
-					}
+				if (MainSimulator.isMaxSumThreadDebug) {
+					System.out.println(this + "time is " + this.time + " BEFORE because computation");
 				}
+				computationCounter = computationCounter + 1;
+				this.timeStampCounter = this.timeStampCounter + 1;
+				if (MainSimulator.isAtomicTime) {
+					this.timeObject.addToTime(this.atomicActionCounter);
+					this.time = this.timeObject.getTimeOfObject();
+					this.atomicActionCounter = 0;
+
+				} else {
+					this.time = this.time + 1;
+				}
+				this.sendMsgs();
+				this.changeRecieveFlagsToFalse();
+
 			}
 			return isUpdate;
 
 		}
 		return false;
+		}
 	}
+	
+	protected  void waitUntilMsgsRecieved() {
+		synchronized (this.timeObject) {
 
-	public void infromMyFunctionsAboutTime() {
-		for (AgentFunction af : this.functionNodes.values()) {
-			af.time = time;
+		if (getDidComputeInThisIteration() == false) {
+			waitingMethodology();
+			if (stopThreadCondition == true) {
+				return;
+			}
+		}
+		if (MainSimulator.isMaxSumThreadDebug) {
+			System.out.println(this+" about to react to message");
+		}
+		this.reactionToAlgorithmicMsgs();
+
+		// mailer.wakeUp();
+		}
+	}
+	
+	protected void waitingMethodology() {
+		try {
+			isIdle = true;
+			if (MainSimulator.isThreadDebug) {
+				System.out.println(this + " is idle");
+			}
+			mailer.wakeUp();
+			timeObject.wait();
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this+" woke up after wait");
+			}
+			mailer.wakeUp();
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	public  void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+		synchronized (this.timeObject) {
+
+		if (MainSimulator.isMaxSumThreadDebug) {
+			System.out.println(this+" recieve msgs");
+		}
+		for (MsgAlgorithm msgAlgorithm : messages) {
+
+			if (this.isWithTimeStamp) {
+				int currentDateInContext;
+				try {
+					currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
+				} catch (NullPointerException e) {
+					currentDateInContext = -1;
+				}
+				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
+					updateMessageInContextAndTreatFlag(msgAlgorithm);
+				}
+			} else {
+				updateMessageInContextAndTreatFlag(msgAlgorithm);
+			}
+		}
+		updateAgentTime(messages);
+
+		isIdle = false;
+		if (!messages.isEmpty()) {
+			if (MainSimulator.isThreadDebug) {
+				System.out.println("mailer update " + this + " context, msg time_" + messages.get(0).getAgentTime());
+				System.out.println(this + " is NOT idle");
+			}
+		}
+
+		if (MainSimulator.isMaxSumThreadDebug) {
+			System.out.println(this+" is about to notifyAll");
+		}
+		timeObject.notifyAll();
 		}
 
 	}
 
+	
 	protected void updateAgentTime(List<? extends Msg> messages) {
 		Msg msgWithMaxTime = Collections.max(messages, new MsgsMailerTimeComparator());
 
@@ -145,21 +220,12 @@ public abstract class AgentVariableInference extends AgentVariable {
 
 		int maxAgentTime = msgWithMaxTime.getMailerTime();
 
-		synchronized (this.timeKey) {
-			if (MainSimulator.isMaxSumThreadDebug) {
-				System.out.println(this + "time is " + this.time + " BEFORE because recieve Msg");
-			}
-			if (this.time <= maxAgentTime) {
-				int oldTime = this.time;
-				this.time = maxAgentTime;
-				infromMyFunctionsAboutTime();
-
-			}
-			if (MainSimulator.isMaxSumThreadDebug) {
-				System.out.println(this + "time is " + this.time + " AFTER because recieve Msg");
-			}
-
+		if (this.time <= maxAgentTime) {
+			int oldTime = this.time;
+			this.timeObject.addToTime(maxAgentTime);
+			this.time = this.timeObject.getTimeOfObject();
 		}
+
 	}
 
 	@Override

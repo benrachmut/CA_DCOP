@@ -226,6 +226,15 @@ public abstract class Mailer {
 			if (recieverAgent == null) {
 				System.err.println("from mailer: something is wrong with finding the recieverAgent");
 			}
+			
+			if (Main.MainSimulator.isMaxSumThreadDebug) {
+				
+				Collection<String> senders = new ArrayList<String>();
+				for (MsgAlgorithm m : msgsForAnAgnet) {
+					senders.add(m.getSenderId().toString());
+				}
+				System.err.println("mailer thread send message to {"+msgsForAnAgnet.get(0).getRecieverId()+"}"+" from {"+senders+"}");
+			}
 			recieverAgent.receiveAlgorithmicMsgs(msgsForAnAgnet);
 		}
 

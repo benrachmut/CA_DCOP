@@ -112,13 +112,15 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 	public void sendMsgs() {
 
 		for (NodeId i : messagesToBeSent.keySet()) {
-			
 			if (variableNode.getNodeId().equals(i)) {
-				
 				List<MsgAlgorithm> messages = new ArrayList<MsgAlgorithm>();
 				messages.add(messagesToBeSent.get(i));
 				MaxSumStandardVariableDelay VariableNode = (MaxSumStandardVariableDelay) variableNode;
 				if (print) {printSentMessage(messagesToBeSent.get(i));}
+				
+				if (Main.MainSimulator.isMaxSumThreadDebug) {
+					System.err.println(this+" thread send message to "+messages.get(0).getRecieverId());
+				}
 				variableNode.receiveAlgorithmicMsgs(messages);
 				
 			} else {
