@@ -43,6 +43,7 @@ import Formation.DFS;
 import Formation.Formation;
 import Main.Mailer;
 import Main.MainSimulator;
+import Main.UnboundedBuffer;
 import Messages.Msg;
 
 public abstract class Dcop {
@@ -70,7 +71,6 @@ public abstract class Dcop {
 		agentsVariables = new AgentVariable[A];
 		this.agentsAll = new ArrayList<Agent>();
 		createVariableAgents();
-
 		neighbors = new ArrayList<Neighbor>();
 
 	}
@@ -88,8 +88,13 @@ public abstract class Dcop {
 	protected abstract void setDcopParameters();
 
 	public void dcopMeetsMailer(Mailer mailer) {
+		UnboundedBuffer<Msg> msgsFromAgentsToMailer = new UnboundedBuffer<Msg>();
+		mailer.setInbox(msgsFromAgentsToMailer);
 		for (Agent a : agentsAll) {
-			a.meetMailer(mailer);
+			UnboundedBuffer<Msg> msgsFromMailerToSpecificAgent = new UnboundedBuffer<Msg>();
+			mailer.meetAgent(msgsFromMailerToSpecificAgent , a.getNodeId());
+			a.meetMailer(msgsFromMailerToSpecificAgent,msgsFromAgentsToMailer);
+			//> msgsFromMeToMailer, UnboundedBuffer<Msg> msgsFromMailerToMe
 		}
 	}
 
@@ -983,6 +988,10 @@ public abstract class Dcop {
 			}
 		}
 		throw new RuntimeException();
+	}
+
+	public List<Agent> getAllAgents() {
+		return agentsAll;
 	}
 
 }

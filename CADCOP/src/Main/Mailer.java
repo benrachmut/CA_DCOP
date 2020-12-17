@@ -38,25 +38,32 @@ import Problem.Dcop;
 public abstract class Mailer {
 	protected Protocol protocol;
 	protected List<Msg> messageBox;
-	protected Dcop dcop;
+	//protected Dcop dcop;
 	protected int terminationTime;
 	protected SortedMap<Integer, Data> dataMap;
 	private Double algorithmMsgsCounter;
 	private Double anytimeMsgsCounter;
 	protected Map<NodeId, List<MsgAlgorithm>> recieversAlgortihmicMsgs;
 	protected Map<NodeId, List<MsgAnyTime>> recieversAnyTimeMsgs;
-	public static String mailerName;
 
-	public Mailer(Protocol protocol, int terminationTime, Dcop dcop) {
+	public static String mailerName;
+	
+	
+	private UnboundedBuffer<Msg> inbox;
+	private Map<NodeId,UnboundedBuffer<Msg>> outboxes;
+
+	public Mailer(Protocol protocol, int terminationTime, int dcopId) {
 		super();
-		this.dcop = dcop;
+		
 		this.protocol = protocol;
 		this.algorithmMsgsCounter = 0.0;
 		this.anytimeMsgsCounter = 0.0;
-		this.protocol.setSeeds(dcop.getId());
+		this.protocol.setSeeds(dcopId);
 		this.messageBox = new ArrayList<Msg>();
 		this.terminationTime = terminationTime;
 		this.dataMap = new TreeMap<Integer, Data>();
+		this.outboxes = new HashMap <NodeId,UnboundedBuffer<Msg>> ();
+
 		setMailerName();
 
 	}
@@ -162,15 +169,12 @@ public abstract class Mailer {
 	 * @param dcopId
 	 * @param agents
 	 */
-	public void mailerMeetsDcop(Dcop dcop) {
+	
+	public void mailerMeetsDcop(int dcopId) {
 		this.messageBox = new ArrayList<Msg>();
-		this.dcop = dcop;
+		//this.dcop = dcop;
 		boolean isWithTimeStamp = this.protocol.getDelay().isWithTimeStamp();
-
-		for (Agent a : dcop.getAgents()) {
-			a.setIsWithTimeStamp(isWithTimeStamp);
-		}
-		this.protocol.getDelay().setSeeds(dcop.getId());
+		this.protocol.getDelay().setSeeds(dcopId);
 	}
 
 	@Override
@@ -461,6 +465,17 @@ public abstract class Mailer {
 		Integer lastKay = this.dataMap.lastKey();
 		Data ans = this.dataMap.get(lastKay);
 		return ans;
+	}
+
+	public void meetAgent(UnboundedBuffer<Msg> msgsFromMailerToSpecificAgent,
+			NodeId nodeId) {
+		this.outboxes.put(nodeId,msgsFromMailerToSpecificAgent);
+		
+	}
+
+	public void setInbox(UnboundedBuffer<Msg> msgsFromAgentsToMailer) {
+		this.inbox = msgsFromAgentsToMailer;
+		
 	}
 
 }

@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import Main.Mailer;
 import Main.MainSimulator;
+import Main.UnboundedBuffer;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgReceive;
@@ -24,13 +25,16 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected int timeStampCounter;
 
 	protected boolean isWithTimeStamp;
-	protected Mailer mailer;
+	//protected Mailer mailer;
+	protected UnboundedBuffer<Msg> msgsFromMeToMailer;
+
 	protected Double computationCounter;
 	protected boolean stopThreadCondition;
 	protected int time;
 	protected boolean isIdle;
 
 	protected TimeObject timeObject;
+	private UnboundedBuffer<Msg> msgsFromMailerToMe;
 
 	public Agent(int dcopId, int D) {
 		super();
@@ -189,7 +193,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * 
 	 */
 	public synchronized boolean reactionToAlgorithmicMsgs() {
-		System.out.println("sdfs");
 		this.atomicActionCounter = 0;
 
 		if (getDidComputeInThisIteration()) {
@@ -273,8 +276,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * 
 	 * @param mailer
 	 */
-	public void meetMailer(Mailer mailer) {
-		this.mailer = mailer;
+	public void meetMailer(UnboundedBuffer<Msg> msgsFromMeToMailer, UnboundedBuffer<Msg> msgsFromMailerToMe) {
+		this.msgsFromMeToMailer = msgsFromMeToMailer;
+		this.msgsFromMailerToMe = msgsFromMailerToMe;
 
 		this.resetAgent();
 
@@ -284,8 +288,13 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public void run() {
 		// resetAgent();
 		// initialize();
+		
+		List<Msg> messages = this.msgsFromMailerToMe.extract();
+		receiveAlgorithmicMsgs(messages);
+		
 		while (stopThreadCondition == false) {
-			waitUntilMsgsRecieved();
+			//waitUntilMsgsRecieved();
+			receiveAlgorithmicMsgs() 
 		}
 	}
 

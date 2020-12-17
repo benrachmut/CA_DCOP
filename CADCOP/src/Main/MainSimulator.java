@@ -454,8 +454,15 @@ public class MainSimulator {
 			for (Protocol protocol : protocols) {
 				protocolCounter += 1;
 				Mailer mailer = getMailer(protocol, dcop);
+				
 				dcop.dcopMeetsMailer(mailer);
-				mailer.mailerMeetsDcop(dcop);
+				//mailer.mailerMeetsDcop(dcop);
+				
+				mailer.mailerMeetsDcop(dcop.getId());
+				infromAllAgentsUponTimeStamp(protocol, dcop.getAllAgents());
+				
+				
+				
 				if (isThreadMailer) {
 					executeThreadMailer(mailer);
 				} else {
@@ -478,6 +485,14 @@ public class MainSimulator {
 
 		}
 
+	}
+
+	private static void infromAllAgentsUponTimeStamp(Protocol protocol, List<Agent> agents) {
+		boolean isWithTimeStamp = protocol.getDelay().isWithTimeStamp();
+		for (Agent a : agents) {
+			a.setIsWithTimeStamp(isWithTimeStamp);
+		}
+		
 	}
 
 	private static void executeThreadMailer(Mailer mailer) {
