@@ -180,7 +180,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	protected abstract boolean updateMessageInContext(MsgAlgorithm msgAlgorithm);
-
+	
 	// ------------**Reaction to algorithmic messages methods**------------
 	/**
 	 * used by mailer after, the mailer uses recieveAlgorithmicMsgs on the receiver
@@ -189,6 +189,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * 
 	 */
 	public synchronized boolean reactionToAlgorithmicMsgs() {
+		System.out.println("sdfs");
 		this.atomicActionCounter = 0;
 
 		if (getDidComputeInThisIteration()) {
