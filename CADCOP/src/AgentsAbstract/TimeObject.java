@@ -1,5 +1,7 @@
 package AgentsAbstract;
 
+import java.util.Vector;
+
 public class TimeObject {
 
 	private int timeOfObject;
@@ -9,15 +11,15 @@ public class TimeObject {
 		this.timeOfObject = timeOfObject;
 	}
 
-	public int getTimeOfObject() {
+	public synchronized int getTimeOfObject() {
 		return timeOfObject;
 	}
 
-	public void setTimeOfObject(int timeOfObject) {
+	public synchronized void setTimeOfObject(int timeOfObject) {
 		this.timeOfObject = timeOfObject;
 	}
 
-	public void addToTime(int atomicActionCounter) {
+	public synchronized void addToTime(int atomicActionCounter) {
 		this.timeOfObject += atomicActionCounter;
 		
 	}

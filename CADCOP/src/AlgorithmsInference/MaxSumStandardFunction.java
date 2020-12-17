@@ -547,6 +547,11 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 		
 	}
+
+	@Override
+	protected void sendInsideMsgs() {
+		throw new RuntimeException("this method needs to be override");
+	}
 	
 	// -----------------------------------------------------------------------------------------------------------//
 	

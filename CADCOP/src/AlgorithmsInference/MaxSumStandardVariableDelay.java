@@ -7,6 +7,7 @@ import java.util.List;
 
 import AgentsAbstract.NodeId;
 import AlgorithmsInference.MaxSumMemory;
+import Main.MainSimulator;
 import Messages.MsgAlgorithm;
 import Messages.MsgAlgorithmFactor;
 import Messages.MsgReceive;
@@ -81,9 +82,9 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	// value assignment.
 	public boolean compute() {
 
-			chooseValueLongAssignmentForAsyncVersion();
-			produceNewMessageForAsyncVersion();
-			this.timeStampToLook++;
+		chooseValueLongAssignmentForAsyncVersion();
+		produceNewMessageForAsyncVersion();
+		this.timeStampToLook++;
 
 		return true;
 	}
@@ -97,14 +98,17 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 
 		double[] contextFix = (double[]) msgAlgorithmFactor.getContext(); // will cast the message object as a double[].
 
-		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix, msgAlgorithmFactor.getTimeStamp()); 
+		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix,
+				msgAlgorithmFactor.getTimeStamp());
 
 		functionMsgs.put(msgAlgorithmFactor.getSenderId(), newMessageReceveid);
-		
+
 		messagesArrivedControl.put(msgAlgorithmFactor.getSenderId(), true);
-		
-		if (print) {printReceivedMessage(msgAlgorithmFactor);}
-		
+
+		if (print) {
+			printReceivedMessage(msgAlgorithmFactor);
+		}
+
 		return true;
 	}
 
@@ -112,9 +116,16 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	// neighbors. //Need to modify !!!!!
 	@Override
 	public void sendMsgs() {
+		synchronized (messagesToBeSent) {
 
 		for (NodeId i : messagesToBeSent.keySet()) {
-			if (functionNodes.containsKey(i)) { //If I as a variable node holds the the function node. 
+
+				if (!functionNodes.containsKey(i)){							//If I as a variable node does not holds the the function node. 
+					mailer.sendMsg(messagesToBeSent.get(i));
+					if (print) {printSentdMessage(messagesToBeSent.get(i));}	
+				}
+				/*
+			else { //If I as a variable node holds the the function node. 
 				List<MsgAlgorithm> messages = new ArrayList<MsgAlgorithm>();
 				messages.add(messagesToBeSent.get(i));
 				if (print) {printSentdMessage(messagesToBeSent.get(i));}
@@ -128,19 +139,14 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 				functionNodes.get(i).receiveAlgorithmicMsgs(messages);
 				//functionNode.updateMessageInContext(messagesToBeSent.get(i));
 			} 
-			
-			else {							//If I as a variable node does not holds the the function node. 
-				mailer.sendMsg(messagesToBeSent.get(i));
-				if (print) {printSentdMessage(messagesToBeSent.get(i));}	
-			}
-		
+			*/
 		}
 		this.computationCounter++;
 		messagesToBeSent.clear(); // When finish sending all the messages will clear the messages to be sent.
 		clearMemoryFromAllNeighbors(this.timeStampToLook);
-
+		}// synch
 	}
-
+/*
 	@Override
 	protected void produceNewMessages() {
 
@@ -151,7 +157,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 		}
 
 	}
-
+*/
 	@Override
 	public void chooseValueLongAssignment() {
 
@@ -207,9 +213,11 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	///// ******* Methods for the Async Version ******* ////
 
 	protected void produceNewMessageForAsyncVersion() {
-
+		synchronized (messagesToBeSent) {
+			
+		
 		for (NodeId i : functionMsgs.keySet()) {
-
+			
 			double[] sentTable = new double[this.domainSize];
 			sentTable = produceMessage(i, sentTable); // For each specific neighbor, sum all messages excluding the
 														// table of the receiving function node.
@@ -225,8 +233,11 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 
 			newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.computationCounter, this.time);
 			messagesToBeSent.put(i, newMsg);
-			if(print) {printPreparedMessage(newMsg);}
+			if (print) {
+				printPreparedMessage(newMsg);
+			}
 
+		}
 		}
 
 	}
@@ -372,6 +383,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 
 	// OmerP - When all messages with the same iteration have been received this
 	// method will create new messages to send.
+	/*
 	protected void createNewMessageFromMemory(int iterationToLook, NodeId receiverNode) {
 
 		double[] sentTable = new double[this.domainSize]; // Create a new table for the new message.
@@ -418,7 +430,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 		messagesToBeSent.put(receiverNode, newMsg);
 
 	}
-
+*/
 	// OmerP - will produce empty messages.
 	@Override
 	protected void produceEmptyMessage() {
@@ -427,9 +439,12 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 
 			double[] sentTable = new double[this.domainSize]; // Create a new table.
 			sentTable = produceEmptyTable(i, sentTable); // For each specific neighbor, produce an empty message.
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.computationCounter, this.time); // Create new factor message.
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.computationCounter,
+					this.time); // Create new factor message.
 			messagesToBeSent.put(i, newMsg); // Store the message in the message to by sent HashMap.
-			if(print) {printPreparedMessage(newMsg);}
+			if (print) {
+				printPreparedMessage(newMsg);
+			}
 			if (damping) { // If damping is on it will store the new message so it could restore it for the
 							// next message that will be created.
 
@@ -458,40 +473,46 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	protected void printMessageUsedForCalculations() {
 
 	}
-	
-	public void printPreparedMessage(MsgAlgorithmFactor msg) {
-		
-		System.out.println("Computation Counter:(" + this.computationCounter + "),VariableNode:(" + msg.getSenderId().getId1() + "," + msg.getSenderId().getId2() + ") PREPERED a message for FunctionNode ("
-		
-		+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: " + Arrays.toString(msg.getContext()) + " and timestamp:(" + msg.getTimeStamp() + ").\n");
 
-}
-	
+	public void printPreparedMessage(MsgAlgorithmFactor msg) {
+
+		System.out.println(
+				"Computation Counter:(" + this.computationCounter + "),VariableNode:(" + msg.getSenderId().getId1()
+						+ "," + msg.getSenderId().getId2() + ") PREPERED a message for FunctionNode ("
+
+						+ msg.getRecieverId().getId1() + "," + msg.getRecieverId().getId2() + ") with message context: "
+						+ Arrays.toString(msg.getContext()) + " and timestamp:(" + msg.getTimeStamp() + ").\n");
+
+	}
+
 	///// ******* Flags Methods ******* ////
 
-	//Decide if to raise the flag of the agent. 
+	// Decide if to raise the flag of the agent.
 	@Override
 	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
-		
-		if(isSync) { //If i am sync the flag will be raised only if all the messages have been received. 
 
-			System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + "), Flag Check.\n");
+		if (isSync) { // If i am sync the flag will be raised only if all the messages have been
+						// received.
 
-			if(checkIfReceivedAllMessages()) {
-				
-				if(print) {printFlag();}
+			System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2()
+					+ "), Flag Check.\n");
+
+			if (checkIfReceivedAllMessages()) {
+
+				if (print) {
+					printFlag();
+				}
 				this.receiveMessageFlag = true;
-				
+
 			}
-			
-		}
-		else {     //If i am not sync the flag will be raised in each time that i will received a message. 
-			
+
+		} else { // If i am not sync the flag will be raised in each time that i will received a
+					// message.
+
 			this.receiveMessageFlag = true;
 
-			
 		}
-		
+
 	}
 
 	@Override
@@ -501,33 +522,59 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 
 	}
 
-	//If this is a sync run check if the size of the messages that was received is equal to the number of my neighbors. 
+	// If this is a sync run check if the size of the messages that was received is
+	// equal to the number of my neighbors.
 	protected boolean checkIfReceivedAllMessages() {
-		
+
 		int numberOfReceivedMessages = this.messagesArrivedControl.size();
 		int sizeOfMyNeigbors = this.functionMsgs.size();
-		if(numberOfReceivedMessages == sizeOfMyNeigbors) {
-			
+		if (numberOfReceivedMessages == sizeOfMyNeigbors) {
+
 			messagesArrivedControl.clear();
-			return true; 
-			
+			return true;
+
+		} else {
+
+			return false;
+
 		}
-		else {
-			
-			return false; 
-			
-		}
-		
+
 	}
-	
+
 	protected void printFlag() {
-		
-		System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + "), Flag is UP.\n");
-		
-}
+
+		System.out.println(
+				"VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + "), Flag is UP.\n");
+
+	}
+
 	
-	
+	@Override
+	protected void sendInsideMsgs() {
+		for (NodeId i : messagesToBeSent.keySet()) {
+
+			
+			
+		if (functionNodes.containsKey(i)) { //If I as a variable node holds the the function node. 
+			synchronized (functionNodes.get(i)) {
+			List<MsgAlgorithm> messages = new ArrayList<MsgAlgorithm>();
+			messages.add(messagesToBeSent.get(i));
+			if (print) {printSentdMessage(messagesToBeSent.get(i));}
+			MaxSumStandardFunction functionNode = (MaxSumStandardFunction) functionNodes.get(i);
+			
+			if (Main.MainSimulator.isMaxSumThreadDebug) {
+				
+				System.err.println(this+" thread send message to "+messages.get(0).getRecieverId());
+			}
+			
+			functionNodes.get(i).receiveAlgorithmicMsgs(messages);
+			//functionNode.updateMessageInContext(messagesToBeSent.get(i));
+			}
+		} 
+		
+		
+		}
+	}
 	// -----------------------------------------------------------------------------------------------------------//
-	
-	
+
 }

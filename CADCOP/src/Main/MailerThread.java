@@ -51,16 +51,18 @@ public class MailerThread extends Mailer implements Runnable {
 				System.out.println(a + " initialize");
 			}
 		}
-		
-		
+
 		if (MainSimulator.isMaxSumThreadDebug) {
-			System.out.println("from mailer this is the mail box: "+this.messageBox);
+			System.out.println("from mailer this is the mail box: " + this.messageBox);
 		}
 		createAndStartAgentThreads();
 
-		
 		createData(this.time);
-		shouldUpdateClockBecuaseNoMsgsRecieved();
+		try {
+			shouldUpdateClockBecuaseNoMsgsRecieved();
+		} catch (Exception e) {
+			System.out.println();
+		}
 		List<Msg> msgToSend1 = this.handleDelay();
 		if (MainSimulator.isMaxSumThreadDebug) {
 			System.out.println("mailer goes through mailbox and starts working");
@@ -112,20 +114,17 @@ public class MailerThread extends Mailer implements Runnable {
 	}
 
 	private synchronized void shouldUpdateClockBecuaseNoMsgsRecieved() {
-		
-	
-			Msg<?> minTimeMsg = Collections.min(messageBox, new MsgsAgentTimeComparator());
-			int minTime = minTimeMsg.getAgentTime();
-			// int oldTime = time;
-			if (Main.MainSimulator.isThreadDebug) {
-				System.out.println("min agent time check because no msgs to send");
-			}
-			if (minTime > this.time) {
-				this.time = minTime;
-			}
-		
-		
-		
+
+		Msg<?> minTimeMsg = Collections.min(messageBox, new MsgsAgentTimeComparator());
+		int minTime = minTimeMsg.getAgentTime();
+		// int oldTime = time;
+		if (Main.MainSimulator.isThreadDebug) {
+			System.out.println("min agent time check because no msgs to send");
+		}
+		if (minTime > this.time) {
+			this.time = minTime;
+		}
+
 		/*
 		 * if (clockUpdatedFromMsgPlacedInBoxFlag == false) { if (!messageBox.isEmpty())
 		 * { Msg minTimeMsg = Collections.min(messageBox, new
@@ -134,7 +133,7 @@ public class MailerThread extends Mailer implements Runnable {
 		 * System.out.println("min agent time check because no msgs to send"); }
 		 * this.time = minTime; } }
 		 */
-	
+
 	}
 
 	@Override

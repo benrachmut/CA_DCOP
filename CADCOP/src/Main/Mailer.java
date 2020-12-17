@@ -114,11 +114,17 @@ public abstract class Mailer {
 		if (d != -1) {
 			m.setDelay(d);
 			this.messageBox.add(m);
+			
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.err.println(m + "entered mailBox at mailer");
+			}
 		}
 
 		if (MainSimulator.isCommunicationDebug) {
 			System.out.println(m);
 		}
+		
+		
 	}
 
 	public void sendMsgWitoutDelay(MsgAlgorithm m) {
@@ -234,6 +240,10 @@ public abstract class Mailer {
 					senders.add(m.getSenderId().toString());
 				}
 				System.err.println("mailer thread send message to {"+msgsForAnAgnet.get(0).getRecieverId()+"}"+" from {"+senders+"}");
+			}
+			
+			if (Main.MainSimulator.isMaxSumThreadDebug) {
+				System.err.println("");
 			}
 			recieverAgent.receiveAlgorithmicMsgs(msgsForAnAgnet);
 		}

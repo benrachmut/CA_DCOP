@@ -20,6 +20,7 @@ public abstract class AgentFunction extends Agent {
 	protected SortedMap<NodeId, MsgReceive<double[]>> variableMsgs;
 	protected List<NodeId> nodes;
 	protected AgentVariableInference variableNode;
+	private boolean flagOfFunctionForKey;
 
 	///// ******* Constructor ******* ////
 
@@ -28,6 +29,7 @@ public abstract class AgentFunction extends Agent {
 		this.nodeId = new NodeId(id1, id2);
 		this.variableMsgs = new TreeMap<NodeId, MsgReceive<double[]>>();
 		this.nodes = new ArrayList<NodeId>();
+		flagOfFunctionForKey = false;
 
 	}
 
@@ -49,7 +51,10 @@ public abstract class AgentFunction extends Agent {
 	@Override
 	protected void resetAgentGivenParameters() {
 		this.variableMsgs = Agent.resetMapToValueNull(this.variableMsgs);
+		flagOfFunctionForKey = false;
+
 		resetAgentGivenParametersV2();
+
 	}
 
 	protected abstract void resetAgentGivenParametersV2();
@@ -160,58 +165,74 @@ public abstract class AgentFunction extends Agent {
 		this.timeObject = agentVariableInference.getTimeObject();
 
 	}
-
+//----------------------------------------
 	
+
 	public boolean reactionToAlgorithmicMsgs() {
-		synchronized (this.timeObject) {
-			
-		this.atomicActionCounter = 0;
+		synchronized (this) {
 
-		if (getDidComputeInThisIteration()) {
-			boolean isUpdate = compute();
-			if (isMsgGoingToBeSent(isUpdate)) {
-				if (MainSimulator.isMaxSumThreadDebug) {
-					System.out.println(this + "time is " + this.time + " BEFORE because computation");
-				}
-				computationCounter = computationCounter + 1;
-				this.timeStampCounter = this.timeStampCounter + 1;
-				if (MainSimulator.isAtomicTime) {
-					this.timeObject.addToTime(this.atomicActionCounter);
-					this.time = this.timeObject.getTimeOfObject();
-					this.atomicActionCounter = 0;
+			this.atomicActionCounter = 0;
 
-				} else {
-					this.time = this.time + 1;
+			if (getDidComputeInThisIteration()) {
+				boolean isUpdate = compute();
+				if (isMsgGoingToBeSent(isUpdate)) {
+					if (MainSimulator.isMaxSumThreadDebug) {
+						System.out.println(this + "time is " + this.time + " BEFORE because computation");
+					}
+					computationCounter = computationCounter + 1;
+					this.timeStampCounter = this.timeStampCounter + 1;
+					if (MainSimulator.isAtomicTime) {
+						this.timeObject.addToTime(this.atomicActionCounter);
+						this.time = this.timeObject.getTimeOfObject();
+						this.atomicActionCounter = 0;
+
+					} else {
+						this.time = this.time + 1;
+					}
+					if (MainSimulator.isMaxSumThreadDebug) {
+						System.out.println(this + "time is " + this.time + " After because computation");
+					}
+					this.sendMsgs();
+					mailer.wakeUp();
+
+					this.changeRecieveFlagsToFalse();
+
 				}
-				this.sendMsgs();
-				this.changeRecieveFlagsToFalse();
+				return isUpdate;
 
 			}
-			return isUpdate;
 
-		}
-		return false;
-		}
-	}
-	
-	protected  void waitUntilMsgsRecieved() {
-		synchronized (this.timeObject) {
-
-		if (getDidComputeInThisIteration() == false) {
-			waitingMethodology();
-			if (stopThreadCondition == true) {
-				return;
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.err.println(this + " release key and finish reactionToAlgorithmicMsgs");
 			}
-		}
-		if (MainSimulator.isMaxSumThreadDebug) {
-			System.out.println(this+" about to react to message");
-		}
-		this.reactionToAlgorithmicMsgs();
-
-		// mailer.wakeUp();
+			return false;
 		}
 	}
-	
+
+	protected void waitUntilMsgsRecieved() {
+		synchronized (this) {
+
+			if (getDidComputeInThisIteration() == false) {
+				waitingMethodology();
+				if (stopThreadCondition == true) {
+					return;
+				}
+			}
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this + " about to react to message");
+			}
+			this.reactionToAlgorithmicMsgs();
+			flagOfFunctionForKey = true; 
+			// mailer.wakeUp();
+		}
+		if (flagOfFunctionForKey) {
+			flagOfFunctionForKey = false;
+			sendInsideMsgs();
+		}
+	}
+
+	protected abstract void sendInsideMsgs();
+
 	protected void waitingMethodology() {
 		try {
 			isIdle = true;
@@ -219,9 +240,9 @@ public abstract class AgentFunction extends Agent {
 				System.out.println(this + " is idle");
 			}
 			mailer.wakeUp();
-			timeObject.wait();
+			this.wait();
 			if (MainSimulator.isMaxSumThreadDebug) {
-				System.out.println(this+" woke up after wait");
+				System.out.println(this + " woke up after wait");
 			}
 			mailer.wakeUp();
 
@@ -230,48 +251,54 @@ public abstract class AgentFunction extends Agent {
 		}
 
 	}
-	
-	public  void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
-		synchronized (this.timeObject) {
 
-		if (MainSimulator.isMaxSumThreadDebug) {
-			System.out.println(this+" recieve msgs");
+	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+		if (MainSimulator.isMaxSumThreadDebug && this.nodeId.getId2()==2 ) {
+			System.err.println("AHHHHHHHHHHHH");
 		}
-		for (MsgAlgorithm msgAlgorithm : messages) {
+		synchronized (this) {
 
-			if (this.isWithTimeStamp) {
-				int currentDateInContext;
-				try {
-					currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
-				} catch (NullPointerException e) {
-					currentDateInContext = -1;
-				}
-				if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this + " recieve msgs");
+			}
+			for (MsgAlgorithm msgAlgorithm : messages) {
+
+				if (this.isWithTimeStamp) {
+					int currentDateInContext;
+					try {
+						currentDateInContext = getSenderCurrentTimeStampFromContext(msgAlgorithm);
+					} catch (NullPointerException e) {
+						currentDateInContext = -1;
+					}
+					if (msgAlgorithm.getTimeStamp() > currentDateInContext) {
+						updateMessageInContextAndTreatFlag(msgAlgorithm);
+					}
+				} else {
 					updateMessageInContextAndTreatFlag(msgAlgorithm);
 				}
-			} else {
-				updateMessageInContextAndTreatFlag(msgAlgorithm);
 			}
-		}
-		updateAgentTime(messages);
+			updateAgentTime(messages);
 
-		isIdle = false;
-		if (!messages.isEmpty()) {
-			if (MainSimulator.isThreadDebug) {
-				System.out.println("mailer update " + this + " context, msg time_" + messages.get(0).getAgentTime());
-				System.out.println(this + " is NOT idle");
+			isIdle = false;
+			if (!messages.isEmpty()) {
+				if (MainSimulator.isThreadDebug) {
+					System.out
+							.println("mailer update " + this + " context, msg time_" + messages.get(0).getAgentTime());
+					System.out.println(this + " is NOT idle");
+				}
 			}
-		}
 
-		if (MainSimulator.isMaxSumThreadDebug) {
-			System.out.println(this+" is about to notifyAll");
-		}
-		timeObject.notifyAll();
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.out.println(this + " is about to notifyAll");
+			}
+			this.notifyAll();
+			if (MainSimulator.isMaxSumThreadDebug) {
+				System.err.println(this + " release key and finish receiveToAlgorithmicMsgs");
+			}
 		}
 
 	}
 
-	
 	protected void updateAgentTime(List<? extends Msg> messages) {
 		Msg msgWithMaxTime = Collections.max(messages, new MsgsMailerTimeComparator());
 
@@ -288,5 +315,5 @@ public abstract class AgentFunction extends Agent {
 		}
 
 	}
-	
+
 }

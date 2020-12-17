@@ -105,7 +105,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 	public void sendMsgs() {
 
 		for (NodeId i : functionMsgs.keySet()) {
-
+			
 			mailer.sendMsg(messagesToBeSent.get(i));
 
 			if (print) {
@@ -645,6 +645,11 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 		}
 
+	}
+
+	@Override
+	protected void sendInsideMsgs() {
+		throw new RuntimeException("this method needs to be override");
 	}
 
 }
