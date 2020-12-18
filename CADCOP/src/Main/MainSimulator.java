@@ -453,12 +453,15 @@ public class MainSimulator {
 			int protocolCounter = -1;
 			for (Protocol protocol : protocols) {
 				protocolCounter += 1;
+				
+				
 				Mailer mailer = getMailer(protocol, dcop);
-				
 				dcop.dcopMeetsMailer(mailer);
-				//mailer.mailerMeetsDcop(dcop);
 				
+				//mailer.mailerMeetsDcop(dcop);
 				mailer.mailerMeetsDcop(dcop.getId());
+				dcop.initilizeAndStartRunAgents();
+				
 				infromAllAgentsUponTimeStamp(protocol, dcop.getAllAgents());
 				
 				
@@ -515,9 +518,9 @@ public class MainSimulator {
 	private static Mailer getMailer(Protocol protocol, Dcop dcop) {
 		Mailer ans;
 		if (isThreadMailer) {
-			ans = new MailerThread(protocol, termination, dcop);
+			ans = new MailerThread(protocol, termination, dcop, dcop.getId());
 		} else {
-			ans = new MailerIterations(protocol, termination, dcop);
+			ans = new MailerIterations(protocol, termination, dcop, dcop.getId());
 		}
 
 		return ans;

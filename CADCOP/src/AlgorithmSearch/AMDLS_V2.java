@@ -1,7 +1,9 @@
 package AlgorithmSearch;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -9,6 +11,7 @@ import AgentsAbstract.AgentVariable;
 import AgentsAbstract.NodeId;
 import Main.MailerIterations;
 import Main.MainSimulator;
+import Messages.Msg;
 import Messages.MsgAMDLS;
 import Messages.MsgAMDLSColor;
 import Messages.MsgAlgorithm;
@@ -130,11 +133,17 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	}
 
 	protected void sendAMDLSColorMsgs() {
+		List<Msg>msgsToOutbox = new ArrayList<Msg>();
+		
+		
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgAMDLSColor mva = new MsgAMDLSColor(this.nodeId, recieverNodeId, this.valueAssignment,
 					this.timeStampCounter, this.time, this.myCounter, this.myColor);
-			this.mailer.sendMsg(mva);
+			
+			msgsToOutbox.add(mva);
 		}
+		outbox.insert(msgsToOutbox);
+		
 	}
 
 	// done

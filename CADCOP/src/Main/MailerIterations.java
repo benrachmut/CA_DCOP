@@ -31,8 +31,8 @@ public class MailerIterations extends Mailer {
 
 	public static int m_iteration;
 
-	public MailerIterations(Protocol protocol, int terminationTime, Dcop dcop) {
-		super(protocol, terminationTime, dcop);
+	public MailerIterations(Protocol protocol, int terminationTime, Dcop dcop, int i) {
+		super(protocol, terminationTime, dcop,i);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class MailerIterations extends Mailer {
 			if (MainSimulator.isAMDLSdebug ) {
 				if (iteration % 20 == 0) {
 					System.out.println("-------ITERATION_" + iteration + "-------");
-					for (Agent a : dcop.getAgents()) {
+					for (Agent a : dcop.getAllAgents()) {
 						System.out.println(a+" color is:"+((AMDLS_V2)a).getColor()); 
 					}
 				}
@@ -142,7 +142,7 @@ public class MailerIterations extends Mailer {
 
 	private void agentsReactToMsgs(int iteration) {
 
-		for (Agent agent : dcop.getAgents()) {
+		for (Agent agent : dcop.getAllAgents()) {
 
 			if (iteration == 0) {
 				agent.resetAgent();

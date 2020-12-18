@@ -13,6 +13,7 @@ import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
 import Main.MailerIterations;
 import Main.MainSimulator;
+import Messages.Msg;
 import Messages.MsgAMDLS;
 import Messages.MsgAlgorithm;
 import Messages.MsgValueAssignmnet;
@@ -76,12 +77,16 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	}
 
 	protected void sendAMDLSmsgs() {
+		
+		List<Msg>msgsToOutbox = new ArrayList<Msg>();
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgAMDLS mva = new MsgAMDLS(this.nodeId, recieverNodeId, this.valueAssignment, this.timeStampCounter,
 					this.time, this.myCounter);
-			this.mailer.sendMsg(mva);
+			msgsToOutbox.add(mva);
 
 		}
+		this.outbox.insert(msgsToOutbox);
+
 	}
 
 	// done

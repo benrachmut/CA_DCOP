@@ -140,36 +140,47 @@ public class AOpt2_V1 extends AgentVariableSearch {
 	protected boolean updateMessageInContext(MsgAlgorithm m) {
 		NodeId sendId_temp = m.getSenderId();
 		NodeId_AOpt2 senderId = get_NodeId_AOpt2(sendId_temp);
-
+		boolean ans = false;
 		if (m instanceof MsgAMDLSColor) {
 			Integer colorFromMsg = ((MsgAMDLSColor) m).getColor();
 			senderId.setColor(colorFromMsg);
 			updateCounterAndValue(m, senderId);
+			ans = true;
 		}
 
 		if (!(m instanceof MsgAMDLSColor) && waitingToSetColor) {
 			future.add(m);
+			ans = true;
+
 		}
 
 		if (m instanceof MsgAMDLS && !(m instanceof MsgAMDLSColor) && waitForAnything) {
 			updateCounterAndValue(m, senderId);
+			ans = true;
+
 		}
 
 		if (m instanceof MsgAMDLS) {
 			updateCounterAndValue(m, senderId);
+			ans = true;
+
 		}
 
 		if (m instanceof MsgOpt2FriendRequest) {
 			senderId.setkOptInfo((KOptInfo) m.getContext());
+			ans = true;
+
 		}
 
 		if (m instanceof MsgOpt2FriendReplay) {
 			this.find2OptFriendIAskFor = (Find2Opt) m.getContext();
+			ans = true;
 
 			if (m.getSenderId().getId1() != this.nodeIdFriendIAskFor.getId1()) {
 				throw new RuntimeException("recieve friend replay from someone I didnt ask for");
 			}
 		}
+		return ans;
 
 	}
 
@@ -433,12 +444,7 @@ public class AOpt2_V1 extends AgentVariableSearch {
 		int minRequests = getTheMinAmountOfRequestsFromAgents(allRequests);
 		Set<NodeId_AOpt2> allRequestsAtMinAmounts = new HashSet<NodeId_AOpt2>();
 		
-				
-				
-		
-		
-		
-		
+			
 		increaseFriendshipByOne();
 		
 		

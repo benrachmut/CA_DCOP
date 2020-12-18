@@ -17,10 +17,13 @@ public class UnboundedBuffer<T>{
 		this.notifyAll();
 	}
 
-	public synchronized List<T> extract() 
-			throws InterruptedException{
+	public synchronized List<T> extract() {
 		while (buffer.isEmpty()) {
-			this.wait();
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		return buffer.remove(0);
 	}

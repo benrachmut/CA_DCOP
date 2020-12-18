@@ -571,10 +571,11 @@ public abstract class Dcop {
 		}
 
 	}
-
+/*
 	public List<Agent> getAgents() {
 		return agentsAll;
 	}
+	*/
 
 	public int getId() {
 		return this.dcopId;
@@ -990,8 +991,28 @@ public abstract class Dcop {
 		throw new RuntimeException();
 	}
 
+
+
+	public void initilizeAndStartRunAgents() {
+		List<Thread> agentsThreads = new ArrayList<>();
+
+		for (Agent a : agentsAll) {
+			a.resetAgent();
+			a.initialize();
+			agentsThreads.add(new Thread(a));
+
+		}
+		
+		for (Thread thread : agentsThreads) {
+			thread.start();
+		}
+		
+	}
+
 	public List<Agent> getAllAgents() {
 		return agentsAll;
 	}
+	
+	
 
 }

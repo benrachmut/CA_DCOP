@@ -38,7 +38,7 @@ import Problem.Dcop;
 public abstract class Mailer {
 	protected Protocol protocol;
 	protected List<Msg> messageBox;
-	//protected Dcop dcop;
+	protected Dcop dcop;
 	protected int terminationTime;
 	protected SortedMap<Integer, Data> dataMap;
 	private Double algorithmMsgsCounter;
@@ -49,12 +49,12 @@ public abstract class Mailer {
 	public static String mailerName;
 	
 	
-	private UnboundedBuffer<Msg> inbox;
-	private Map<NodeId,UnboundedBuffer<Msg>> outboxes;
+	protected UnboundedBuffer<Msg> inbox;
+	protected Map<NodeId,UnboundedBuffer<Msg>> outboxes;
 
-	public Mailer(Protocol protocol, int terminationTime, int dcopId) {
+	public Mailer(Protocol protocol, int terminationTime, Dcop dcop,int dcopId) {
 		super();
-		
+		this.dcop = dcop;
 		this.protocol = protocol;
 		this.algorithmMsgsCounter = 0.0;
 		this.anytimeMsgsCounter = 0.0;
@@ -139,7 +139,7 @@ public abstract class Mailer {
 		this.messageBox.add(m);
 	}
 
-	private void changeMsgsCounter(Msg m) {
+	protected void changeMsgsCounter(Msg m) {
 		if (m instanceof MsgAlgorithm) {
 			this.algorithmMsgsCounter++;
 		}
@@ -148,7 +148,7 @@ public abstract class Mailer {
 		}
 	}
 
-	private int createDelay(boolean isAlgorithmicMsg) {
+	protected int createDelay(boolean isAlgorithmicMsg) {
 		Double d = this.protocol.getDelay().createDelay(isAlgorithmicMsg);
 		if (d == null) {
 			return -1;
@@ -193,6 +193,28 @@ public abstract class Mailer {
 	 * @param msgToSend created by handle msgs
 	 */
 	protected void agentsRecieveMsgs(List<Msg> msgToSend) {
+		Map<NodeId, List<Msg>>MsgsByRecieverNodeId = getRecieversByNodeId(msgToSend);
+		for (Entry<NodeId, List<Msg>> e : MsgsByRecieverNodeId.entrySet()) {
+			NodeId recieverId = e.getKey();
+			List<Msg> msgsForAgnet = e.getValue();
+			UnboundedBuffer<Msg> nodeIdInbox = this.outboxes.get(recieverId);
+			nodeIdInbox.insert(msgsForAgnet);
+			//Agent recieverAgent = getAgentByNodeId(recieverId);
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		/*
 		List<MsgAnyTime> msgsAnyTime = new ArrayList<MsgAnyTime>();
 		List<MsgAlgorithm> msgsAlgorithm = new ArrayList<MsgAlgorithm>();
 		iterateOverMsgToSend(msgToSend, msgsAnyTime, msgsAlgorithm);
@@ -200,6 +222,8 @@ public abstract class Mailer {
 		if (MainSimulator.isAnytime) {
 			handleMsgAnytime(msgsAnyTime);
 		}
+		
+		*/
 	}
 
 	/**
@@ -227,6 +251,7 @@ public abstract class Mailer {
 	 * 
 	 * @param msgsAlgorithm
 	 */
+	/*
 	private void handleMsgAlgorithm(List<MsgAlgorithm> msgsAlgorithm) {
 		this.recieversAlgortihmicMsgs = getRecieversByNodeIdAlgorithmic(msgsAlgorithm);
 		for (Entry<NodeId, List<MsgAlgorithm>> e : recieversAlgortihmicMsgs.entrySet()) {
@@ -253,6 +278,7 @@ public abstract class Mailer {
 		}
 
 	}
+	*/
 
 
 
@@ -263,8 +289,9 @@ public abstract class Mailer {
 	 * @param recieverId
 	 * @return
 	 */
+	
 	private Agent getAgentByNodeId(NodeId recieverId) {
-		for (Agent a : dcop.getAgents()) {
+		for (Agent a : dcop.getAllAgents()) {
 			NodeId aId = a.getNodeId();
 			if (aId == null) {
 				System.err.println("from mailer: you didnt make sure that the agents are in factor graph");
@@ -275,6 +302,7 @@ public abstract class Mailer {
 		}
 		return null;
 	}
+	
 
 	/**
 	 * create map of messages were the key is receiver NodeId and key is list of
@@ -284,12 +312,12 @@ public abstract class Mailer {
 	 * @return
 	 */
 
-	private Map<NodeId, List<MsgAlgorithm>> getRecieversByNodeIdAlgorithmic(List<MsgAlgorithm> msgsAlgorithm) {
-		Map<NodeId, List<MsgAlgorithm>> ans = new HashMap<NodeId, List<MsgAlgorithm>>();
-		for (MsgAlgorithm msg : msgsAlgorithm) {
+	private Map<NodeId, List<Msg>> getRecieversByNodeId(List<Msg> msgsAlgorithm) {
+		Map<NodeId, List<Msg>> ans = new HashMap<NodeId, List<Msg>>();
+		for (Msg msg : msgsAlgorithm) {
 			NodeId reciever = msg.getRecieverId();
 			if (!ans.containsKey(reciever)) {
-				ans.put(reciever, new ArrayList<MsgAlgorithm>());
+				ans.put(reciever, new ArrayList<Msg>());
 			}
 			ans.get(reciever).add(msg);
 		}
@@ -308,23 +336,6 @@ public abstract class Mailer {
 		}
 
 		return ans;
-	}
-
-	private void handleMsgAnytime(List<MsgAnyTime> msgsAnyTime) {
-		this.recieversAnyTimeMsgs = getRecieversByNodeIdAnyTime(msgsAnyTime);
-		for (Entry<NodeId, List<MsgAnyTime>> e : recieversAnyTimeMsgs.entrySet()) {
-			NodeId recieverId = e.getKey();
-			List<MsgAnyTime> msgsForAnAgnet = e.getValue();
-			Agent recieverAgent = getAgentByNodeId(recieverId);
-			if (recieverAgent == null) {
-				System.err.println("from mailer: something is wrong with finding the recieverAgent");
-			}
-
-			if (recieverAgent instanceof AgentVariable) {
-				((AgentVariableSearch) recieverAgent).recieveAnyTimeMsgs(msgsForAnAgnet);
-			}
-
-		}
 	}
 
 	protected boolean isAnytimeUpToSend() {
@@ -381,12 +392,6 @@ public abstract class Mailer {
 
 	}
 
-	public synchronized void wakeUp() {
-		this.notifyAll();
-		if (MainSimulator.isThreadDebug) {
-			System.out.println("mailer wake up");
-		}
-	}
 
 	public boolean isMaxOfItsNeighbors(AgentVariable a) {
 		SortedSet<AgentVariable> agentsLocal = getSortedSetOfAgentInput(a);

@@ -1,5 +1,6 @@
 package AgentsAbstract;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
@@ -26,15 +27,15 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	protected boolean isWithTimeStamp;
 	//protected Mailer mailer;
-	protected UnboundedBuffer<Msg> msgsFromMeToMailer;
+	protected UnboundedBuffer<Msg> outbox;
 
 	protected Double computationCounter;
-	protected boolean stopThreadCondition;
+	//protected boolean stopThreadCondition;
 	protected int time;
 	protected boolean isIdle;
 
 	protected TimeObject timeObject;
-	private UnboundedBuffer<Msg> msgsFromMailerToMe;
+	protected UnboundedBuffer<Msg> inbox;
 
 	public Agent(int dcopId, int D) {
 		super();
@@ -42,7 +43,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		this.domainSize = D;
 		this.timeStampCounter = 0;
 		computationCounter = 0.0;
-		stopThreadCondition = false;
+		//stopThreadCondition = false;
 		this.time = 0;
 		isIdle = true;
 		atomicActionCounter = 0;
@@ -69,7 +70,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		this.time = 1;
 		this.timeStampCounter = 0;
 		computationCounter = 0.0;
-		stopThreadCondition = false;
+		//stopThreadCondition = false;
 		resetAgentGivenParameters();
 		changeRecieveFlagsToFalse();
 		isIdle = true;
@@ -84,7 +85,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public TimeObject getTimeObject() {
 		return this.timeObject;
 	}
-	protected abstract void resetAgentGivenParameters();
 
 	// -----------------**methods of algorithms**---------------
 	@Override
@@ -92,22 +92,16 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		return this.nodeId.compareTo(a.getNodeId());
 
 	}
+	
 
-	/**
-	 * mailer activates prior to algorithm's launch at time 0
-	 */
-	public abstract void initialize();
-
-	/**
-	 * used by mailer, when it has msgs with the receivers address, each agent
-	 * updates the relevant field according to the context recieved in the msg
-	 * 
-	 * @param messages
-	 */
-
+	
+	
+	
+	
+	
 	// ------------**Receive Algorithmic Msgs methods**------------
 
-	public synchronized void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
 		if (MainSimulator.isMaxSumThreadDebug) {
 			System.out.println(this+" recieve msgs");
 		}
@@ -129,7 +123,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 		updateAgentTime(messages);
 
-		isIdle = false;
 		if (!messages.isEmpty()) {
 			if (MainSimulator.isThreadDebug) {
 				System.out.println("mailer update " + this + " context, msg time_" + messages.get(0).getAgentTime());
@@ -161,12 +154,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	}
 
-	/**
-	 * 
-	 * @param MsgAlgorithm, uses it to get the sender's id
-	 * @return last time stamp of message received by sender.
-	 */
-	protected abstract int getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm);
 
 	/**
 	 * 
@@ -183,7 +170,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 	}
 
-	protected abstract boolean updateMessageInContext(MsgAlgorithm msgAlgorithm);
 	
 	// ------------**Reaction to algorithmic messages methods**------------
 	/**
@@ -192,7 +178,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param messages
 	 * 
 	 */
-	public synchronized boolean reactionToAlgorithmicMsgs() {
+	public boolean reactionToAlgorithmicMsgs() {
 		this.atomicActionCounter = 0;
 
 		if (getDidComputeInThisIteration()) {
@@ -222,26 +208,11 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	// protected abstract int numberOfAtomicActionsInComputation();
 
-	public abstract boolean getDidComputeInThisIteration();
 
 	protected boolean isMsgGoingToBeSent(boolean changeContext) {
 		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) || (MainSimulator.sendOnlyIfChange == false);
 	}
 
-	/**
-	 * After the context was updated by messages received, computation takes place
-	 * using the new information and preparation on context to be sent takes place
-	 * 
-	 * @return if statues changed after context was updated
-	 */
-	protected abstract boolean compute();
-
-	/**
-	 * after verification, loop over neighbors and send them the message using the
-	 * mailer
-	 */
-
-	public abstract void sendMsgs();
 
 	/**
 	 * reaction to msgs include computation and send message to mailer
@@ -277,8 +248,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param mailer
 	 */
 	public void meetMailer(UnboundedBuffer<Msg> msgsFromMeToMailer, UnboundedBuffer<Msg> msgsFromMailerToMe) {
-		this.msgsFromMeToMailer = msgsFromMeToMailer;
-		this.msgsFromMailerToMe = msgsFromMailerToMe;
+		this.outbox = msgsFromMeToMailer;
+		this.inbox = msgsFromMailerToMe;
 
 		this.resetAgent();
 
@@ -286,53 +257,45 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	@Override
 	public void run() {
-		// resetAgent();
-		// initialize();
 		
-		List<Msg> messages = this.msgsFromMailerToMe.extract();
-		receiveAlgorithmicMsgs(messages);
-		
-		while (stopThreadCondition == false) {
-			//waitUntilMsgsRecieved();
-			receiveAlgorithmicMsgs() 
-		}
-	}
-
-	protected synchronized void waitUntilMsgsRecieved() {
-		if (getDidComputeInThisIteration() == false) {
-			waitingMethodology();
-			if (stopThreadCondition == true) {
-				return;
-			}
-		}
-		if (MainSimulator.isMaxSumThreadDebug) {
-			System.out.println(this+" about to react to message");
-		}
-		this.reactionToAlgorithmicMsgs();
-
-		// mailer.wakeUp();
-
-	}
-
-	protected void waitingMethodology() {
-		try {
+		while (true) {
+			
 			isIdle = true;
-			if (MainSimulator.isThreadDebug) {
-				System.out.println(this + " is idle");
-			}
-			mailer.wakeUp();
-			this.wait();
-			if (MainSimulator.isMaxSumThreadDebug) {
-				System.out.println(this+" woke up after wait");
-			}
-			mailer.wakeUp();
+			List<Msg> messages = this.inbox.extract();
+			isIdle = false;
 
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+			if (messages == null) {
+				break;
+			}
+			List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
+			checkingAllMsgsShouldBeAlgorithmicMsgs(messages, algorithmicMsgs);
+			receiveAlgorithmicMsgs(algorithmicMsgs);
+			reactionToAlgorithmicMsgs();
+
 		}
-
 	}
 
+	protected void checkingAllMsgsShouldBeAlgorithmicMsgs(List<Msg> messages, List<MsgAlgorithm> algorithmicMsgs) {
+		if (messages.size() != algorithmicMsgs.size()) {
+			throw new RuntimeException("all messages should be algorithmic msgs");
+		}
+	}
+
+
+
+	protected List<MsgAlgorithm> extractAlgorithmicMsgs(List<Msg> messages) {
+		List<MsgAlgorithm> ans = new ArrayList<MsgAlgorithm>();
+		for (Msg msg : messages) {
+			if (msg instanceof MsgAlgorithm) {
+				ans.add((MsgAlgorithm)msg);
+			}
+		}
+		return ans;
+	}
+
+
+
+	
 	public static SortedMap<NodeId, Integer> turnMapWithMsgRecieveToContextValues(
 			SortedMap<NodeId, MsgReceive<Integer>> input) {
 		SortedMap<NodeId, Integer> ans = new TreeMap<NodeId, Integer>();
@@ -346,15 +309,60 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		return ans;
 	}
 
+	
+
+	
+	
+	protected abstract void resetAgentGivenParameters();
+
+	/**
+	 * mailer activates prior to algorithm's launch at time 0
+	 */
+	public abstract void initialize();
+
+	/**
+	 * used by mailer, when it has msgs with the receivers address, each agent
+	 * updates the relevant field according to the context recieved in the msg
+	 * 
+	 * @param messages
+	 */
+	
+	
+	/**
+	 * 
+	 * @param MsgAlgorithm, uses it to get the sender's id
+	 * @return last time stamp of message received by sender.
+	 */
+	protected abstract int getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm);
+	
+	
+	protected abstract boolean updateMessageInContext(MsgAlgorithm msgAlgorithm);
+
+	
+	public abstract boolean getDidComputeInThisIteration();
+
+	
+	/**
+	 * After the context was updated by messages received, computation takes place
+	 * using the new information and preparation on context to be sent takes place
+	 * 
+	 * @return if statues changed after context was updated
+	 */
+	protected abstract boolean compute();
+
+	/**
+	 * after verification, loop over neighbors and send them the message using the
+	 * mailer
+	 */
+
+	public abstract void sendMsgs();
+	
+	
 	protected abstract void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm);
 
 	public abstract void changeRecieveFlagsToFalse();
-
-	public synchronized void setStopThreadCondition() {
-		this.stopThreadCondition = true;
-		this.notifyAll();
-
-	}
+	
+	
 
 	public boolean getIsIdle() {
 		return isIdle;

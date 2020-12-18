@@ -1,7 +1,9 @@
 package AlgorithmSearch;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -11,6 +13,8 @@ import AgentsAbstract.Agent;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
+import Messages.Msg;
+import Messages.MsgAMDLS;
 import Messages.MsgAlgorithm;
 import Messages.MsgLR;
 import Messages.MsgReceive;
@@ -206,10 +210,26 @@ public abstract class MGM extends AgentVariableSearch {
 	}
 
 	private void sendLRmsgs() {
+		List<Msg>msgsToOutbox = new ArrayList<Msg>();
+
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgLR mlr = new MsgLR(this.nodeId, recieverNodeId, this.lr, this.timeStampCounter, this.time);
-			this.mailer.sendMsg(mlr);
+			msgsToOutbox.add(mlr);
 		}
+		this.outbox.insert(msgsToOutbox);
+
+		
+		/*
+		 	
+		List<Msg>msgsToOutbox = new ArrayList<Msg>();
+		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
+			MsgAMDLS mva = new MsgAMDLS(this.nodeId, recieverNodeId, this.valueAssignment, this.timeStampCounter,
+					this.time, this.myCounter);
+			msgsToOutbox.add(mva);
+
+		}
+		this.outbox.insert(msgsToOutbox);
+		 */
 
 	}
 
