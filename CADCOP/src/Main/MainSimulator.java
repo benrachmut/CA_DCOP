@@ -48,10 +48,9 @@ public class MainSimulator {
 	//public static int dividAtomicTime = 1;
 	
 	public static int multiplicationTime = 1;
-	public static int howManyIterationForCalculation = 10000;
+	public static int howManyIterationForCalculation = 100;
 
-	public static boolean isThreadDebug = false;
-	public static boolean isWhatAgentDebug = false;
+	
 
 	// ------------------------------**any time**
 	public static boolean isAnytime = false;
@@ -66,9 +65,9 @@ public class MainSimulator {
 	public static int div=1;
 
 	public static int start = 0;
-	public static int end = 1;
+	public static int end = 10;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static int termination = 500000000;
+	public static int termination = 200000;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
@@ -86,7 +85,7 @@ public class MainSimulator {
 	public static double dcopUniformP1 =0.2;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
-	public static int costUbUniform = 10;
+	public static int costUbUniform = 100;
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
 	public static int costLbColor = 10;
@@ -105,8 +104,12 @@ public class MainSimulator {
 	 * ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType = 103;
+	public static int agentType = 1;
 
+	
+	public static boolean isThreadDebug = false;
+	
+	
 	public static boolean isCommunicationDebug = false;
 	public static boolean isSDPdebug = false;
 	public static boolean isAMDLSdebug = false;
@@ -117,7 +120,7 @@ public class MainSimulator {
 	public static boolean isFactorGraphDebug = false;
 	public static boolean isMGM2Debug = false;
 	public static boolean isMaxSumDebug = false;
-	public static boolean isMaxSumThreadDebug = true;
+	public static boolean isMaxSumThreadDebug = false;
 
 	/*
 	 * delayTypes: 0 = non, 1 = normal, 2 = uniform
@@ -453,19 +456,12 @@ public class MainSimulator {
 			int protocolCounter = -1;
 			for (Protocol protocol : protocols) {
 				protocolCounter += 1;
-				
-				
 				Mailer mailer = getMailer(protocol, dcop);
 				dcop.dcopMeetsMailer(mailer);
-				
 				//mailer.mailerMeetsDcop(dcop);
 				mailer.mailerMeetsDcop(dcop.getId());
 				dcop.initilizeAndStartRunAgents();
-				
 				infromAllAgentsUponTimeStamp(protocol, dcop.getAllAgents());
-				
-				
-				
 				if (isThreadMailer) {
 					executeThreadMailer(mailer);
 				} else {

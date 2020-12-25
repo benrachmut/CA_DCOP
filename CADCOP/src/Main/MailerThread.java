@@ -19,7 +19,7 @@ import Problem.Dcop;
 public class MailerThread extends Mailer implements Runnable {
 	private int time;
 	private Collection<Thread> agentsThreads;
-	//private boolean clockUpdatedFromMsgPlacedInBoxFlag;
+	// private boolean clockUpdatedFromMsgPlacedInBoxFlag;
 
 	public MailerThread(Protocol protocol, int terminationTime, Dcop dcop, int dcopId) {
 		super(protocol, terminationTime, dcop, dcopId);
@@ -33,31 +33,55 @@ public class MailerThread extends Mailer implements Runnable {
 		System.out.println("wont be used");
 	}
 
-
-
 	@Override
 	public void run() {
-		
 		createData(this.time);
+		List<Msg> msgsFromInbox = inbox.extract();
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("mailer msgs extract from inbox: " + msgsFromInbox);
+		}
+		placeMsgsFromInboxInMessageBox(msgsFromInbox);
 		shouldUpdateClockBecuaseNoMsgsRecieved();
-		List<Msg> msgToSend1 = this.handleDelay();
-		agentsRecieveMsgs(msgToSend1);
-		
+		List<Msg> msgToSend = this.handleDelay();
+		agentsRecieveMsgs(msgToSend);
+
+		/*
+		 * List<Msg> msgToSend1 = this.handleDelay(); agentsRecieveMsgs(msgToSend1);
+		 */
+
 		while (this.time < this.terminationTime) {
 			createData(this.time);
-			List<Msg> msgsFromInbox = inbox.extract();
-			placeMsgsFromInboxInMessageBox(msgsFromInbox);
-			if (!mailerHasMsgsToSend() && areAllIdle()) {
-				shouldUpdateClockBecuaseNoMsgsRecieved();
-			} 
-			List<Msg> msgToSend = this.handleDelay();
-			agentsRecieveMsgs(msgToSend1);
+			if (MainSimulator.isThreadDebug) {
+				System.out.println("mailer goes to sleep");
+			}
+			if (this.messageBox.isEmpty()) {
+				msgsFromInbox = inbox.extract();
+				placeMsgsFromInboxInMessageBox(msgsFromInbox);
+				if (MainSimulator.isThreadDebug) {
+					System.out.println("mailer wakes up");
+				}
+			}
+			
+			if (this.messageBox.isEmpty()) {
+				System.out.println("say what!");
+			}
+			if (!mailerHasMsgsToSend()) {
+				if (areAllIdle() && !mailerHasMsgsToSend()) {
+					shouldUpdateClockBecuaseNoMsgsRecieved();
+				}
+			}
+			msgToSend = this.handleDelay();
+			agentsRecieveMsgs(msgToSend);
+
 		}
+
 		killAgents();
+
 	}
 
 	/**
-	 * give msg delay and treat mailer clock 
+	 * give msg delay and treat mailer clock
+	 * 
 	 * @param msgsFromInbox
 	 */
 	private void placeMsgsFromInboxInMessageBox(List<Msg> msgsFromInbox) {
@@ -68,7 +92,7 @@ public class MailerThread extends Mailer implements Runnable {
 				m.setDelay(d);
 				this.messageBox.add(m);
 			}
-			
+
 			updateMailerClockUponMsgRecieved(m);
 
 			try {
@@ -83,7 +107,7 @@ public class MailerThread extends Mailer implements Runnable {
 			}
 
 		}
-		
+
 	}
 
 	private boolean mailerHasMsgsToSend() {
@@ -105,39 +129,27 @@ public class MailerThread extends Mailer implements Runnable {
 		return true;
 	}
 
-	
-	
 	protected void updateMailerClockUponMsgRecieved(Msg m) {
 		int timeMsg = m.getAgentTime();
 		if (this.time <= timeMsg) {
 			this.time = timeMsg;
 		}
 	}
-	
-	private synchronized void shouldUpdateClockBecuaseNoMsgsRecieved() {
+
+	private void shouldUpdateClockBecuaseNoMsgsRecieved() {
 
 		Msg<?> minTimeMsg = Collections.min(messageBox, new MsgsAgentTimeComparator());
 		int minTime = minTimeMsg.getAgentTime();
 		// int oldTime = time;
-		if (Main.MainSimulator.isThreadDebug) {
-			System.out.println("min agent time check because no msgs to send");
-		}
+
 		if (minTime > this.time) {
 			this.time = minTime;
 		}
 
-		/*
-		 * if (clockUpdatedFromMsgPlacedInBoxFlag == false) { if (!messageBox.isEmpty())
-		 * { Msg minTimeMsg = Collections.min(messageBox, new
-		 * MsgsAgentTimeComparator()); int minTime = minTimeMsg.getAgentTime(); // int
-		 * oldTime = time; if (Main.MainSimulator.isThreadDebug) {
-		 * System.out.println("min agent time check because no msgs to send"); }
-		 * this.time = minTime; } }
-		 */
 	}
 
 	@Override
-	public synchronized void sendMsg(Msg m) {
+	public void sendMsg(Msg m) {
 		super.sendMsg(m);
 		updateMailerClockUponMsgRecieved(m);
 		try {
@@ -151,22 +163,18 @@ public class MailerThread extends Mailer implements Runnable {
 			m.setMailerTime(this.time);
 		}
 
-
-
 	}
 
 	private void killAgents() {
-		for (UnboundedBuffer<Msg> ubb: outboxes.values()) {
+		for (UnboundedBuffer<Msg> ubb : outboxes.values()) {
+			ubb.removeAllMsgs();
 			ubb.insert(null);
 		}
-		
-		
+
 	}
 
-	
-
 	@Override
-	protected synchronized List<Msg> handleDelay() {
+	protected List<Msg> handleDelay() {
 		List<Msg> toSend = new ArrayList<Msg>();
 		for (Msg msg : messageBox) {
 			if (msg.getAgentTime() <= this.time) {

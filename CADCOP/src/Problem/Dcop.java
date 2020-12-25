@@ -93,7 +93,10 @@ public abstract class Dcop {
 		for (Agent a : agentsAll) {
 			UnboundedBuffer<Msg> msgsFromMailerToSpecificAgent = new UnboundedBuffer<Msg>();
 			mailer.meetAgent(msgsFromMailerToSpecificAgent , a.getNodeId());
-			a.meetMailer(msgsFromMailerToSpecificAgent,msgsFromAgentsToMailer);
+			a.meetMailer(msgsFromMailerToSpecificAgent,msgsFromAgentsToMailer, mailer);
+			
+			
+			
 			//> msgsFromMeToMailer, UnboundedBuffer<Msg> msgsFromMailerToMe
 		}
 	}

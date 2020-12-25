@@ -647,9 +647,6 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	}
 
-	@Override
-	protected void sendInsideMsgs() {
-		throw new RuntimeException("this method needs to be override");
-	}
+	
 
 }

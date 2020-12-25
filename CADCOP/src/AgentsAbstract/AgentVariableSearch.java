@@ -85,7 +85,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	@Override
 	public void initialize() {
 		this.sendValueAssignmnetMsgs();
-
+		
 		if (MainSimulator.isAnytime) {
 			if (this.neighborsValueAssignmnet.isEmpty()) {
 				this.bestContexFound = createMyContext();
@@ -290,7 +290,12 @@ public abstract class AgentVariableSearch extends AgentVariable {
 					this.timeStampCounter, this.time);
 			msgsToInsertMsgBox.add(mva);
 		}
+		
+		
 		outbox.insert(msgsToInsertMsgBox);
+		if (MainSimulator.isThreadDebug) {
+			System.out.println(this + " send msg value");
+		}
 
 	}
 
@@ -376,7 +381,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		return new Context(m, this.id, this.valueAssignment, myCost);
 	}
 
-	
+	/*
 	@Override
 	public void run() {
 		
@@ -391,18 +396,21 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			}
 			List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
 			receiveAlgorithmicMsgs(algorithmicMsgs);
-
-			List<MsgAnyTime> anytimeMsgs = extractAnytimeMsgs (messages);
-			recieveAnyTimeMsgs(anytimeMsgs);
-			//checkingAllMsgsShouldBeAlgorithmicMsgs(messages, algorithmicMsgs);
+			if (MainSimulator.isAnytime) {
+				List<MsgAnyTime> anytimeMsgs = extractAnytimeMsgs (messages);
+				recieveAnyTimeMsgs(anytimeMsgs);
+			}
 			reactionToAlgorithmicMsgs();
 			if (MainSimulator.isAnytime) {
 				sendAnytimeMsgs();
 			}
 			
 		}
+		if (MainSimulator.isThreadDebug) {
+			System.err.println(this+" is dead");
+		}
 	}
-	
+	*/
 	private List<MsgAnyTime> extractAnytimeMsgs(List<Msg> messages) {
 		List<MsgAnyTime> ans = new ArrayList<MsgAnyTime>();
 		for (Msg msg : messages) {

@@ -549,32 +549,6 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	}
 
 	
-	@Override
-	protected void sendInsideMsgs() {
-		for (NodeId i : messagesToBeSent.keySet()) {
-
-			
-			
-		if (functionNodes.containsKey(i)) { //If I as a variable node holds the the function node. 
-			synchronized (functionNodes.get(i)) {
-			List<MsgAlgorithm> messages = new ArrayList<MsgAlgorithm>();
-			messages.add(messagesToBeSent.get(i));
-			if (print) {printSentdMessage(messagesToBeSent.get(i));}
-			MaxSumStandardFunction functionNode = (MaxSumStandardFunction) functionNodes.get(i);
-			
-			if (Main.MainSimulator.isMaxSumThreadDebug) {
-				
-				System.err.println(this+" thread send message to "+messages.get(0).getRecieverId());
-			}
-			
-			functionNodes.get(i).receiveAlgorithmicMsgs(messages);
-			//functionNode.updateMessageInContext(messagesToBeSent.get(i));
-			}
-		} 
-		
-		
-		}
-	}
 	// -----------------------------------------------------------------------------------------------------------//
 
 }

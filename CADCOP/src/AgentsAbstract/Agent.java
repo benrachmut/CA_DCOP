@@ -26,16 +26,17 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected int timeStampCounter;
 
 	protected boolean isWithTimeStamp;
-	//protected Mailer mailer;
+	// protected Mailer mailer;
 	protected UnboundedBuffer<Msg> outbox;
 
 	protected Double computationCounter;
-	//protected boolean stopThreadCondition;
+	// protected boolean stopThreadCondition;
 	protected int time;
 	protected boolean isIdle;
 
 	protected TimeObject timeObject;
 	protected UnboundedBuffer<Msg> inbox;
+	protected Mailer mailer;
 
 	public Agent(int dcopId, int D) {
 		super();
@@ -43,15 +44,13 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		this.domainSize = D;
 		this.timeStampCounter = 0;
 		computationCounter = 0.0;
-		//stopThreadCondition = false;
+		// stopThreadCondition = false;
 		this.time = 0;
 		isIdle = true;
 		atomicActionCounter = 0;
 		timeObject = new TimeObject(0);
 
 	}
-	
-	
 
 	public int getId() {
 		return this.id;
@@ -70,7 +69,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		this.time = 1;
 		this.timeStampCounter = 0;
 		computationCounter = 0.0;
-		//stopThreadCondition = false;
+		// stopThreadCondition = false;
 		resetAgentGivenParameters();
 		changeRecieveFlagsToFalse();
 		isIdle = true;
@@ -81,7 +80,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	public void setTimeObject(TimeObject input) {
 		this.timeObject = input;
 	}
-	
+
 	public TimeObject getTimeObject() {
 		return this.timeObject;
 	}
@@ -92,19 +91,18 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		return this.nodeId.compareTo(a.getNodeId());
 
 	}
-	
 
-	
-	
-	
-	
-	
 	// ------------**Receive Algorithmic Msgs methods**------------
 
 	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
-		if (MainSimulator.isMaxSumThreadDebug) {
-			System.out.println(this+" recieve msgs");
+		if (MainSimulator.isThreadDebug) {
+			System.out.println(this + " recieve msgs " + this.time);
 		}
+
+		if (MainSimulator.isThreadDebug && this.id == 1 && this.time == 99) {
+			System.out.println(this + " " + this.time);
+		}
+
 		for (MsgAlgorithm msgAlgorithm : messages) {
 
 			if (this.isWithTimeStamp) {
@@ -123,27 +121,10 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 		updateAgentTime(messages);
 
-		if (!messages.isEmpty()) {
-			if (MainSimulator.isThreadDebug) {
-				System.out.println("mailer update " + this + " context, msg time_" + messages.get(0).getAgentTime());
-				System.out.println(this + " is NOT idle");
-			}
-		}
-
-		if (MainSimulator.isMaxSumThreadDebug) {
-			System.out.println(this+" is about to notifyAll");
-		}
-		this.notifyAll();
-
 	}
 
-	
 	protected void updateAgentTime(List<? extends Msg> messages) {
 		Msg msgWithMaxTime = Collections.max(messages, new MsgsMailerTimeComparator());
-
-		if (MainSimulator.isThreadDebug && messages.size() > 1) {
-			System.out.println(this.toString() + " update time upon msg recieve");
-		}
 
 		int maxAgentTime = msgWithMaxTime.getMailerTime();
 
@@ -153,7 +134,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 
 	}
-
 
 	/**
 	 * 
@@ -170,7 +150,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 	}
 
-	
 	// ------------**Reaction to algorithmic messages methods**------------
 	/**
 	 * used by mailer after, the mailer uses recieveAlgorithmicMsgs on the receiver
@@ -179,9 +158,16 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * 
 	 */
 	public boolean reactionToAlgorithmicMsgs() {
+		if (MainSimulator.isThreadDebug) {
+			System.out.println(this + " react to msgs");
+		}
 		this.atomicActionCounter = 0;
 
+		if (MainSimulator.isThreadDebug && this.id == 1 && this.time == 99) {
+			System.out.println(this + " " + this.time);
+		}
 		if (getDidComputeInThisIteration()) {
+
 			boolean isUpdate = compute();
 			if (isMsgGoingToBeSent(isUpdate)) {
 				if (MainSimulator.isMaxSumThreadDebug) {
@@ -196,9 +182,11 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				} else {
 					this.time = this.time + 1;
 				}
+				if (MainSimulator.isThreadDebug) {
+					System.out.println(this + " notify mailer");
+				}
 				this.sendMsgs();
 				this.changeRecieveFlagsToFalse();
-
 			}
 			return isUpdate;
 
@@ -208,11 +196,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	// protected abstract int numberOfAtomicActionsInComputation();
 
-
 	protected boolean isMsgGoingToBeSent(boolean changeContext) {
 		return (changeContext && (MainSimulator.sendOnlyIfChange == true)) || (MainSimulator.sendOnlyIfChange == false);
 	}
-
 
 	/**
 	 * reaction to msgs include computation and send message to mailer
@@ -247,22 +233,27 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * 
 	 * @param mailer
 	 */
-	public void meetMailer(UnboundedBuffer<Msg> msgsFromMeToMailer, UnboundedBuffer<Msg> msgsFromMailerToMe) {
+	public void meetMailer(UnboundedBuffer<Msg> msgsFromMailerToMe, UnboundedBuffer<Msg> msgsFromMeToMailer, Mailer m) {
 		this.outbox = msgsFromMeToMailer;
 		this.inbox = msgsFromMailerToMe;
-
+		this.mailer = m;
 		this.resetAgent();
 
 	}
 
 	@Override
 	public void run() {
-		
+
 		while (true) {
-			
-			isIdle = true;
+			setIsIdleToTrue();
+			if (MainSimulator.isThreadDebug) {
+				System.out.println(this + " goes to sleep");
+			}
 			List<Msg> messages = this.inbox.extract();
-			isIdle = false;
+			if (MainSimulator.isThreadDebug) {
+				System.out.println(this + " extract " + messages);
+			}
+			setIsIdleToFalse();
 
 			if (messages == null) {
 				break;
@@ -273,6 +264,31 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			reactionToAlgorithmicMsgs();
 
 		}
+		if (MainSimulator.isThreadDebug) {
+			System.err.println(this + " is dead");
+		}
+	}
+
+	private synchronized void setIsIdleToFalse() {
+		isIdle = false;
+		
+
+	}
+
+	private synchronized void setIsIdleToTrue() {
+		isIdle = true;
+		this.notifyAll();
+	}
+
+	public synchronized boolean getIsIdle() {
+
+		while (isIdle == false) {
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+			}
+		}
+		return isIdle;
 	}
 
 	protected void checkingAllMsgsShouldBeAlgorithmicMsgs(List<Msg> messages, List<MsgAlgorithm> algorithmicMsgs) {
@@ -281,21 +297,16 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 	}
 
-
-
 	protected List<MsgAlgorithm> extractAlgorithmicMsgs(List<Msg> messages) {
 		List<MsgAlgorithm> ans = new ArrayList<MsgAlgorithm>();
 		for (Msg msg : messages) {
 			if (msg instanceof MsgAlgorithm) {
-				ans.add((MsgAlgorithm)msg);
+				ans.add((MsgAlgorithm) msg);
 			}
 		}
 		return ans;
 	}
 
-
-
-	
 	public static SortedMap<NodeId, Integer> turnMapWithMsgRecieveToContextValues(
 			SortedMap<NodeId, MsgReceive<Integer>> input) {
 		SortedMap<NodeId, Integer> ans = new TreeMap<NodeId, Integer>();
@@ -309,10 +320,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		return ans;
 	}
 
-	
-
-	
-	
 	protected abstract void resetAgentGivenParameters();
 
 	/**
@@ -326,22 +333,18 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * 
 	 * @param messages
 	 */
-	
-	
+
 	/**
 	 * 
 	 * @param MsgAlgorithm, uses it to get the sender's id
 	 * @return last time stamp of message received by sender.
 	 */
 	protected abstract int getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm);
-	
-	
+
 	protected abstract boolean updateMessageInContext(MsgAlgorithm msgAlgorithm);
 
-	
 	public abstract boolean getDidComputeInThisIteration();
 
-	
 	/**
 	 * After the context was updated by messages received, computation takes place
 	 * using the new information and preparation on context to be sent takes place
@@ -356,16 +359,9 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 */
 
 	public abstract void sendMsgs();
-	
-	
+
 	protected abstract void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm);
 
 	public abstract void changeRecieveFlagsToFalse();
-	
-	
-
-	public boolean getIsIdle() {
-		return isIdle;
-	}
 
 }
