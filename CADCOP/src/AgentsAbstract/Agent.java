@@ -28,6 +28,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected boolean isWithTimeStamp;
 	// protected Mailer mailer;
 	protected UnboundedBuffer<Msg> outbox;
+	protected UnboundedBuffer<Msg> inbox;
 
 	protected Double computationCounter;
 	// protected boolean stopThreadCondition;
@@ -35,7 +36,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected boolean isIdle;
 
 	protected TimeObject timeObject;
-	protected UnboundedBuffer<Msg> inbox;
 	protected Mailer mailer;
 
 	public Agent(int dcopId, int D) {

@@ -52,6 +52,7 @@ public abstract class Dcop {
 	protected AgentVariable[] agentsVariables;
 	protected List<Neighbor> neighbors;
 	protected int D;
+	public List<Thread >agentsThreads;
 
 	// ------- ** for factor graph use **------
 	protected List<AgentFunction> agentFunctions;
@@ -94,9 +95,6 @@ public abstract class Dcop {
 			UnboundedBuffer<Msg> msgsFromMailerToSpecificAgent = new UnboundedBuffer<Msg>();
 			mailer.meetAgent(msgsFromMailerToSpecificAgent , a.getNodeId());
 			a.meetMailer(msgsFromMailerToSpecificAgent,msgsFromAgentsToMailer, mailer);
-			
-			
-			
 			//> msgsFromMeToMailer, UnboundedBuffer<Msg> msgsFromMailerToMe
 		}
 	}
@@ -995,15 +993,17 @@ public abstract class Dcop {
 	}
 
 
+	public List<Thread> getAgentThreads(){
+		return agentsThreads;
+	}
 
 	public void initilizeAndStartRunAgents() {
-		List<Thread> agentsThreads = new ArrayList<>();
+		agentsThreads = new ArrayList<>();
 
 		for (Agent a : agentsAll) {
 			a.resetAgent();
 			a.initialize();
 			agentsThreads.add(new Thread(a));
-
 		}
 		
 		for (Thread thread : agentsThreads) {

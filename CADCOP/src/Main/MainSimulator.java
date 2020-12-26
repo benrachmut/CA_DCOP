@@ -463,7 +463,7 @@ public class MainSimulator {
 				dcop.initilizeAndStartRunAgents();
 				infromAllAgentsUponTimeStamp(protocol, dcop.getAllAgents());
 				if (isThreadMailer) {
-					executeThreadMailer(mailer);
+					executeThreadMailer(mailer,dcop);
 				} else {
 					mailer.execute();
 				}
@@ -494,10 +494,13 @@ public class MainSimulator {
 		
 	}
 
-	private static void executeThreadMailer(Mailer mailer) {
+	private static void executeThreadMailer(Mailer mailer,Dcop dcop) {
 		Thread t = new Thread((MailerThread) mailer);
 		t.start();
 		try {
+			for (Thread threadAgent : dcop.getAgentThreads()) {
+				threadAgent.join();
+			}
 			t.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();

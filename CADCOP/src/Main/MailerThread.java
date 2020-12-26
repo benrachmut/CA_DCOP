@@ -62,9 +62,7 @@ public class MailerThread extends Mailer implements Runnable {
 				}
 			}
 			
-			if (this.messageBox.isEmpty()) {
-				System.out.println("say what!");
-			}
+		
 			if (!mailerHasMsgsToSend()) {
 				if (areAllIdle() && !mailerHasMsgsToSend()) {
 					shouldUpdateClockBecuaseNoMsgsRecieved();
