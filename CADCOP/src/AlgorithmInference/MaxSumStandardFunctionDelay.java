@@ -172,7 +172,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 																	// that will be sent to.
 			sentTable = getBestValueTable(constraintMatrix); // Get the best value of each value of the domain.
 			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.timeStampCounter,
-					this.time); // Create a new message factor.
+					 this.timeObject.getTimeOfObject()); // Create a new message factor.
 			if (print) {
 				printPreparedMessage(newMsg);
 			}
@@ -201,7 +201,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 			double[] sentTable = new double[this.domainSize];
 			sentTable = produceFunctionMessage(i);
 			MsgAlgorithmFactor newMsg;
-			newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.timeStampCounter, this.time); // Create
+			newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.timeStampCounter, this.timeObject.getTimeOfObject()); // Create
 																												// a new
 																												// message
 																												// factor.
@@ -275,7 +275,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 																					// message to the constraint matrix.
 		sentTable = getBestValueTable(constraintMatrix); // The best value will be chosen out of the matrix.
 		MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), receiverNode, sentTable,
-				this.computationCounter, this.time); // Prepare the message.
+				this.computationCounter, this.timeObject.getTimeOfObject()); // Prepare the message.
 		messagesToBeSent.put(receiverNode, newMsg);
 
 	}
@@ -436,7 +436,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 		for(NodeId recieverNodeId : messagesToBeSent.keySet()) { //Loop over messages to be sent. 
 			
 			double[] context = messagesToBeSent.get(recieverNodeId).getContext(); //Get the context. 
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), recieverNodeId, context , this.timeStampCounter, this.time);
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), recieverNodeId, context , this.timeStampCounter, this.timeObject.getTimeOfObject());
 			msgsToInsertMsgBox.add(newMsg); //Add the message to the message box. 
 			
 		}

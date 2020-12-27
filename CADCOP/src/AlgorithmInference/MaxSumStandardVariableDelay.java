@@ -180,7 +180,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 
 			}
 
-			newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.computationCounter, this.time);
+			newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.computationCounter, this.timeObject.getTimeOfObject());
 			messagesToBeSent.put(i, newMsg);
 			if (print) {
 				printPreparedMessage(newMsg);
@@ -389,7 +389,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 			double[] sentTable = new double[this.domainSize]; // Create a new table.
 			sentTable = produceEmptyTable(i, sentTable); // For each specific neighbor, produce an empty message.
 			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), i, sentTable, this.computationCounter,
-					this.time); // Create new factor message.
+					 this.timeObject.getTimeOfObject()); // Create new factor message.
 			messagesToBeSent.put(i, newMsg); // Store the message in the message to by sent HashMap.
 			if (print) {
 				printPreparedMessage(newMsg);
@@ -477,7 +477,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 		for(NodeId recieverNodeId : messagesToBeSent.keySet()) { //Loop over messages to be sent. 
 			
 			double[] context = messagesToBeSent.get(recieverNodeId).getContext(); //Get the context. 
-			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), recieverNodeId, context , this.timeStampCounter, this.time);
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), recieverNodeId, context , this.timeStampCounter,  this.timeObject.getTimeOfObject());
 			msgsToInsertMsgBox.add(newMsg); //Add the message to the message box. 
 			
 		}

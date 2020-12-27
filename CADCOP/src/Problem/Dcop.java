@@ -18,6 +18,16 @@ import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableInference;
 import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
+
+import AlgorithmInference.MaxSumSplitConstraintFactorGraphDelay;
+import AlgorithmInference.MaxSumSplitConstraintFactorGraphSync;
+import AlgorithmInference.MaxSumStandardFunction;
+import AlgorithmInference.MaxSumStandardFunctionDelay;
+import AlgorithmInference.MaxSumStandardFunctionSync;
+import AlgorithmInference.MaxSumStandardVariableDelay;
+import AlgorithmInference.MaxSumStandardVarible;
+import AlgorithmInference.MaxSumStandardVaribleSync;
+
 import AlgorithmSearch.AMDLS_V1;
 import AlgorithmSearch.AMDLS_V2;
 import AlgorithmSearch.AMDLS_V3;
@@ -29,14 +39,7 @@ import AlgorithmSearch.MGM2_ASY;
 import AlgorithmSearch.MGM2_SY;
 import AlgorithmSearch.MGM_ASY;
 import AlgorithmSearch.MGM_SY;
-import AlgorithmsInference.MaxSumSplitConstraintFactorGraphDelay;
-import AlgorithmsInference.MaxSumSplitConstraintFactorGraphSync;
-import AlgorithmsInference.MaxSumStandardFunction;
-import AlgorithmsInference.MaxSumStandardFunctionDelay;
-import AlgorithmsInference.MaxSumStandardFunctionSync;
-import AlgorithmsInference.MaxSumStandardVariableDelay;
-import AlgorithmsInference.MaxSumStandardVarible;
-import AlgorithmsInference.MaxSumStandardVaribleSync;
+
 import Comparators.CompAgentVariableByNeighborSize;
 import Formation.ColorFormation;
 import Formation.DFS;

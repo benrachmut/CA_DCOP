@@ -166,6 +166,72 @@ public abstract class AgentFunction extends Agent {
 
 	}
 //----------------------------------------
-	
 
+	@Override
+	protected void updateAgentTime(List<? extends Msg> messages) {
+		Msg msgWithMaxTime = Collections.max(messages, new MsgsMailerTimeComparator());
+
+		int maxAgentTime = msgWithMaxTime.getMailerTime();
+
+		if (this.timeObject.getTimeOfObject()<= maxAgentTime) {
+			synchronized (timeObject) {
+			int oldTime = this.timeObject.getTimeOfObject();
+			this.timeObject.setTimeOfObject(maxAgentTime);
+			}
+		}
+	}
+	
+	@Override
+	public boolean reactionToAlgorithmicMsgs() {
+		if (MainSimulator.isThreadDebug) {
+			System.out.println(this + " react to msgs");
+		}
+		this.atomicActionCounter = 0;
+
+		if (MainSimulator.isThreadDebug && this.id == 1 && this.time == 99) {
+			System.out.println(this + " " + this.timeObject.getTimeOfObject());
+		}
+		if (getDidComputeInThisIteration()) {
+
+			boolean isUpdate = compute();
+			if (isMsgGoingToBeSent(isUpdate)) {
+				if (MainSimulator.isMaxSumThreadDebug) {
+					System.out.println(this + "time is " +  this.timeObject.getTimeOfObject() + " BEFORE because computation");
+				}
+				computationCounter = computationCounter + 1;
+				this.timeStampCounter = this.timeStampCounter + 1;
+				if (MainSimulator.isAtomicTime) {
+					synchronized (timeObject) {
+						int currentTime = this.timeObject.getTimeOfObject();
+						int updatedTime = currentTime + this.atomicActionCounter;
+						this.timeObject.setTimeOfObject(updatedTime);
+					}
+				
+					this.atomicActionCounter = 0;
+
+				} else {
+					synchronized (timeObject) {
+						int currentTime = this.timeObject.getTimeOfObject();
+						int updatedTime = currentTime + 1;
+						this.timeObject.setTimeOfObject(updatedTime);
+					}
+				}
+				
+				if (MainSimulator.isMaxSumThreadDebug) {
+					System.out.println(this + "time is " +  this.timeObject.getTimeOfObject() + " After because computation");
+				}
+				if (MainSimulator.isThreadDebug) {
+					System.out.println(this + " notify mailer");
+				}
+				this.sendMsgs();
+				this.changeRecieveFlagsToFalse();
+			}
+			return isUpdate;
+
+		}
+		return false;
+	}
+	
+	
+	
 }

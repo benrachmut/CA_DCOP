@@ -5,8 +5,8 @@ import java.util.Random;
 import AgentsAbstract.AgentFunction;
 import AgentsAbstract.AgentVariable;
 import AgentsAbstract.AgentVariableSearch;
-import AlgorithmsInference.MaxSumStandardFunctionDelay;
-import AlgorithmsInference.MaxSumStandardVariableDelay;
+import AlgorithmInference.MaxSumStandardFunctionDelay;
+import AlgorithmInference.MaxSumStandardVariableDelay;
 import Main.MainSimulator;
 
 public class Neighbor {

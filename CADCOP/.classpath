@@ -8,5 +8,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="/FisherMarketSimulator"/>
 	<classpathentry kind="src" path="/Fatma"/>
+	<classpathentry kind="src" path="/CADCOP2308"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
