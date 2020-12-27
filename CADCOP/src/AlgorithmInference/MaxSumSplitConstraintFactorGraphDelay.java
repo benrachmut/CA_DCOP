@@ -23,7 +23,6 @@ public class MaxSumSplitConstraintFactorGraphDelay extends MaxSumStandardFunctio
 
 	///// ******* Constructor ******* ////
 
-	
 	public MaxSumSplitConstraintFactorGraphDelay(int dcopId, int D, int id1, int id2, Integer[][] constraints) {
 		super(dcopId, D, id1, id2, constraints);
 		rnd = new Random(id1*100+id2*3+dcopId*17);
@@ -62,7 +61,6 @@ public class MaxSumSplitConstraintFactorGraphDelay extends MaxSumStandardFunctio
 		
 	}
 	
-	
 	///// ******* Initialize Split Constraint Factor Graph Methods ******* //// 
 
 	//OmerP - Will add a new nodeId to the updated list. 
@@ -99,8 +97,6 @@ public class MaxSumSplitConstraintFactorGraphDelay extends MaxSumStandardFunctio
 	}
 	
 	// -----------------------------------------------------------------------------------------------------------//
-	
-	
 	
 	@Override
 	public void resetAgentGivenParametersV4() {
@@ -176,7 +172,6 @@ public class MaxSumSplitConstraintFactorGraphDelay extends MaxSumStandardFunctio
 	
 	// -----------------------------------------------------------------------------------------------------------//
 	
-
 	///// ******* Getters ******* ////
 
 	// OmerP - Will return the firstSplit MaxSumStandardFunction.

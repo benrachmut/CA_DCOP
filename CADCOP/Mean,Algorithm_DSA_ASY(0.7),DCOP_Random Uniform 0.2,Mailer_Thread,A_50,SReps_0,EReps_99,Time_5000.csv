@@ -1,0 +1,5 @@
+DCOP,Perfect Communication,Timestamp Use,Message Lost Prob,UB,Algorithm,Stochastic,Iteration,Global View Cost,Monotonicy,Agent View Cost,Global Anytime Cost,Value Assignmnet Counter,Algorithm Msgs Counter,Global View Cost Agent Zero,Agent View Cost Agent Zero,Abs Delta Global and POV,Percent Agents With Colors,Number of Colors
+Random Uniform 0.2,Imperfect Communication,w Timestamp,0.0,250.0,DSA_ASY,0.7,0,12159.27,1.0,0.0,0.0,0.0,0.0,488.96,0.0,12159.27,1.0,1.0
+Random Uniform 0.2,Imperfect Communication,w Timestamp,0.0,500.0,DSA_ASY,0.7,0,12159.27,1.0,0.0,0.0,0.0,0.0,488.96,0.0,12159.27,1.0,1.0
+Random Uniform 0.2,Imperfect Communication,w Timestamp,0.0,100.0,DSA_ASY,0.7,0,12159.27,1.0,0.0,0.0,0.0,0.0,488.96,0.0,12159.27,1.0,1.0
+Random Uniform 0.2,Perfect Communication,w Timestamp,0.0,0.0,DSA_ASY,0.7,0,12159.27,1.0,0.0,0.0,0.0,0.0,488.96,0.0,12159.27,1.0,1.0

@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import AgentsAbstract.NodeId;
+import Main.MainSimulator;
+import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgAlgorithmFactor;
 import Messages.MsgReceive;
@@ -20,7 +23,9 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 	protected int timeStampToLook;
 	protected boolean isSync = false;
 	private boolean print = false;
-
+	private boolean canCompute = false; 
+	private Random r;
+	
 	// -----------------------------------------------------------------------------------------------------------//
 
 	@Override
@@ -39,6 +44,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 		this.neighborsSize = this.variableMsgs.size();
 		this.timeStampToLook = 0;
 		initializeNeighborsMemory();
+		this.r = new Random();
 
 	}
 
@@ -50,11 +56,11 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 		this.neighborsSize = this.variableMsgs.size();
 		this.timeStampToLook = 0;
 		initializeNeighborsMemory();
+		this.r = new Random();
 
 	}
 
-	// OmerP - A method to initialize the memory of the agent will add the
-	// neighbors.
+	// OmerP - A method to initialize the memory of the agent will add the neighbors.
 	public void initializeNeighborsMemory() {
 
 		for (NodeId i : variableMsgs.keySet()) {
@@ -66,50 +72,45 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 
 	}
 
+	protected void addDust() {
+		
+		double rangeMin = 0; 
+		double rangeMax = 1;
+		
+		for(NodeId nodeIdConstraint: neighborsConstraintMatrix.keySet()) {
+			
+			double[][] constraintMatrix = neighborsConstraintMatrix.get(nodeIdConstraint);
+			
+			for(int i = 0 ; i < constraintMatrix.length ; i++) {
+				
+				for(int j = 0 ; j < constraintMatrix.length ; j++) {
+					
+					double randonValue = rangeMin + (rangeMax - rangeMin)*r.nextDouble();
+					randonValue = randonValue/10000; 
+					constraintMatrix[i][j] = constraintMatrix[i][j] + randonValue;
+					
+				}
+				
+				
+			}
+			
+			
+		}
+		
+		
+		
+	}
+	
 	// -----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Main Methods ******* ////
 
-	// OmerP - Reset parameters at the end of the run.
-	public void resetAgentGivenParametersV3() {
-
-		this.neighborsSize = this.variableMsgs.size();
-		this.neighborsMemory.clear();
-		this.timeStampToLook = 0;
-		this.computationCounter = 0;
-		resetAgentGivenParametersV4();
-
-	}
-
 	public void resetAgentGivenParametersV4() {
-	}
-
-	// OmerP - Will send new messages for each one of the neighbors upon the
-	public void initialize() {
-
-		if (isSync) {
-
-			// initializeNeighborsMemory();
-			produceOnlyConstraintMessages();
-			sendMsgs();
-
-		}
-	}
-
-	// OmerP - new information has arrived and the variable node will update its
-	// value assignment.
-	public boolean compute() {
-
-		produceNewMessageForAsyncVersion();
-		this.timeStampToLook++;
-		return true;
-
 	}
 
 	// OmerP - will loop over the neighbors and will send to each one of the a
 	// message - Need to check during run.
-	@Override
-	public void sendMsgs() {
+	public void sendMsgsP() {
 
 		for (NodeId i : messagesToBeSent.keySet()) {
 			if (!variableNode.getNodeId().equals(i)) {
@@ -141,30 +142,6 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 		this.computationCounter++;
 		// messagesToBeSent.clear();
 		clearMemoryFromAllNeighbors(this.timeStampToLook);
-
-	}
-
-	// OmerP - when a message received will update the context and flag that a
-	// message was received.
-	@Override
-	public boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
-
-		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
-
-		double[] contextFix = (double[]) msgAlgorithmFactor.getContext(); // will cast the message object as a double[].
-
-		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix,
-				msgAlgorithmFactor.getTimeStamp()); //
-
-		variableMsgs.put(msgAlgorithmFactor.getSenderId(), newMessageReceveid);
-
-		messagesArrivedControl.put(msgAlgorithmFactor.getSenderId(), true);
-
-		if (print) {
-			printReceivedMessage(msgAlgorithmFactor);
-		}
-
-		return true;
 
 	}
 
@@ -420,41 +397,6 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 
 	///// ******* Flags Methods ******* ////
 
-	// Decide if to raise the flag of the agent.
-	@Override
-	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
-
-		if (isSync) { // If i am sync the flag will be raised only if all the messages have been
-						// received.
-
-			System.out.println("FunctionNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2()
-					+ "), Flag Check.\n");
-
-			if (checkIfReceivedAllMessages()) {
-
-				if (print) {
-					printFlag();
-				}
-				this.receiveMessageFlag = true;
-
-			}
-
-		} else { // If i am not sync the flag will be raised in each time that i will received a
-					// message.
-
-			this.receiveMessageFlag = true;
-
-		}
-
-	}
-
-	@Override
-	public void changeRecieveFlagsToFalse() {
-
-		this.receiveMessageFlag = false;
-
-	}
-
 	// If this is a sync run check if the size of the messages that was received is
 	// equal to the number of my neighbors.
 	protected boolean checkIfReceivedAllMessages() {
@@ -481,8 +423,142 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 
 	}
 
-	
-
 	// -----------------------------------------------------------------------------------------------------------//
 
+	///// ******* New Methods for the new simulator  ******* ////
+
+	//OmerP - The new method to send messages. 
+	@Override
+	public void sendMsgs() {
+		
+		List<Msg> msgsToInsertMsgBox = new ArrayList<Msg>(); //Create a new list of msgs. 
+		
+		for(NodeId recieverNodeId : messagesToBeSent.keySet()) { //Loop over messages to be sent. 
+			
+			double[] context = messagesToBeSent.get(recieverNodeId).getContext(); //Get the context. 
+			MsgAlgorithmFactor newMsg = new MsgAlgorithmFactor(this.getNodeId(), recieverNodeId, context , this.timeStampCounter, this.time);
+			msgsToInsertMsgBox.add(newMsg); //Add the message to the message box. 
+			
+		}
+		
+		outbox.insert(msgsToInsertMsgBox); //Send the messages. 
+		messagesToBeSent.clear();
+		
+		if(MainSimulator.isThreadDebug) {
+			
+			System.out.println(this + "send context value");
+			
+		}
+		
+	}
+	
+	//OmerP - Will return the get did compute in this iteration. 
+	@Override
+	public boolean getDidComputeInThisIteration() {
+
+		return canCompute;
+	}
+	
+	@Override
+	public void changeRecieveFlagsToFalse() {
+
+		this.canCompute = false;
+
+	}
+	
+	// Decide if to raise the flag of the agent.
+	@Override
+	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
+
+		if (isSync) { // If i am sync the flag will be raised only if all the messages have been
+						// received.
+
+			System.out.println("FunctionNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + "), Flag Check.\n");
+
+			if (checkIfReceivedAllMessages()) {
+
+				if (print) {
+					printFlag();
+				}
+				this.canCompute = true;
+
+			}
+
+		} else { // If i am not sync the flag will be raised in each time that i will received a
+					// message.
+
+			this.canCompute = true;
+
+		}
+
+	}
+	
+	// OmerP - when a message received will update the context and flag that a
+	// message was received.
+	@Override
+	public boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
+
+		MsgAlgorithmFactor msgAlgorithmFactor = (MsgAlgorithmFactor) msgAlgorithm;
+
+		double[] contextFix = (double[]) msgAlgorithmFactor.getContext(); // will cast the message object as a double[].
+
+		MsgReceive<double[]> newMessageReceveid = new MsgReceive<double[]>(contextFix,
+				msgAlgorithmFactor.getTimeStamp()); //
+
+		variableMsgs.put(msgAlgorithmFactor.getSenderId(), newMessageReceveid);
+
+		messagesArrivedControl.put(msgAlgorithmFactor.getSenderId(), true);
+
+		if (print) {printReceivedMessage(msgAlgorithmFactor);}
+
+		return true;
+
+	}
+	
+	// OmerP - new information has arrived and the variable node will update its
+	// value assignment.
+	@Override
+	public boolean compute() {
+
+		produceNewMessageForAsyncVersion();
+		this.timeStampToLook++;
+		return true;
+
+	}
+	
+	// OmerP - Will send new messages for each one of the neighbors upon the
+	@Override
+	public void initialize() {
+
+		if (isSync) {
+
+			produceOnlyConstraintMessages();
+			sendMsgs();
+
+		}
+	}
+	
+	// OmerP - Reset parameters at the end of the run.
+	@Override
+	public void resetAgentGivenParametersV3() {
+
+		this.neighborsSize = this.variableMsgs.size();
+		this.neighborsMemory.clear();
+		this.timeStampToLook = 0;
+		this.computationCounter = 0;
+		resetAgentGivenParametersV4();
+
+	}
+	
+	@Override
+	protected int getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm) {
+		
+		int timestamp = variableMsgs.get(msgAlgorithm.getSenderId()).getTimestamp(); //OmerP - will get the timestamp of the messages. 
+		
+		return timestamp; 
+		
+		
+
+	}
+	
 }

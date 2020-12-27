@@ -3,6 +3,7 @@ package AlgorithmsInference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.AgentFunction;
@@ -71,7 +72,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		}
 		
 	}
-	
+		
 	//-----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Main Methods ******* ////
@@ -542,7 +543,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 	
 	protected void increaseAtomicCounter() {
 		
-		this.atomicActionCounter++; 
+		this.atomicActionCounter = atomicActionCounter + 1; 
 		if(print) {printIncreaseInAtomicCounter();}
 		
 		
