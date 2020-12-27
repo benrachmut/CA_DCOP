@@ -1,4 +1,4 @@
-package AlgorithmsInference;
+package AlgorithmInference;
 
 import java.util.ArrayList;
 import java.util.Arrays;

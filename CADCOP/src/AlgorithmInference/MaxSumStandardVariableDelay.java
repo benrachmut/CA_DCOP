@@ -1,4 +1,4 @@
-package AlgorithmsInference;
+package AlgorithmInference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import AgentsAbstract.NodeId;
-import AlgorithmsInference.MaxSumMemory;
 import Main.MainSimulator;
 import Messages.Msg;
 import Messages.MsgAlgorithm;

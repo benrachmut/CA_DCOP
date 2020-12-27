@@ -1,4 +1,4 @@
-package AlgorithmsInference;
+package AlgorithmInference;
 
 import java.util.Arrays;
 import java.util.HashMap;
