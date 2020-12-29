@@ -85,12 +85,14 @@ public class MailerThread extends Mailer implements Runnable {
 	private void placeMsgsFromInboxInMessageBox(List<Msg> msgsFromInbox) {
 		for (Msg m : msgsFromInbox) {
 			changeMsgsCounter(m);
-			int d = createDelay(m instanceof MsgAlgorithm);
-			if (d != -1) {
-				m.setDelay(d);
-				this.messageBox.add(m);
+			if (m.isWithDelay()) {
+				int d = createDelay(m instanceof MsgAlgorithm);
+				if (d != -1) {
+					m.setDelay(d);
+				}
 			}
-
+			this.messageBox.add(m);
+			
 			updateMailerClockUponMsgRecieved(m);
 
 			try {

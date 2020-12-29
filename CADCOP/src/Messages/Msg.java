@@ -10,6 +10,8 @@ public abstract class Msg<Identity> {
 	protected int agentTime;
 	private int timestamp;
 	
+	boolean withDelay;
+	
 	private Integer delay;
 	
 	private int mailerTime;
@@ -20,6 +22,11 @@ public abstract class Msg<Identity> {
 		this.context = context;
 		this.timestamp = timeStamp;
 		this.agentTime = agentTime;
+		this.withDelay = true;
+	}
+	
+	public void setWithDelayToFalse() {
+		this.withDelay = false;
 	}
 	
 	public void setMailerTime(int mailerTime) {
@@ -78,6 +85,10 @@ public abstract class Msg<Identity> {
 	public void setAgentTime(int timeToSendByMailer) {
 		this.agentTime = timeToSendByMailer;
 		
+	}
+
+	public boolean isWithDelay() {
+		return this.withDelay;
 	}
 
 	
