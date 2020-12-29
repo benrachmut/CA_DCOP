@@ -188,9 +188,7 @@ public abstract class AgentFunction extends Agent {
 		}
 		this.atomicActionCounter = 0;
 
-		if (MainSimulator.isThreadDebug && this.id == 1 && this.time == 99) {
-			System.out.println(this + " " + this.timeObject.getTimeOfObject());
-		}
+		
 		if (getDidComputeInThisIteration()) {
 
 			boolean isUpdate = compute();

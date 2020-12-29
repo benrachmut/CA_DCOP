@@ -22,7 +22,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	protected int timeStampToLook;
 	protected boolean isSync = false;
 	private boolean print = false;
-	private boolean damping = false;
+	private boolean damping = true;
 	private boolean canCompute = false;
 
 	// -----------------------------------------------------------------------------------------------------------//

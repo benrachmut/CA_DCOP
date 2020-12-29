@@ -99,9 +99,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			System.out.println(this + " recieve msgs " + this.time);
 		}
 
-		if (MainSimulator.isThreadDebug && this.id == 1 && this.time == 99) {
-			System.out.println(this + " " + this.time);
-		}
+		
 
 		for (MsgAlgorithm msgAlgorithm : messages) {
 
