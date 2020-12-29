@@ -269,13 +269,13 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		}
 	}
 
-	private synchronized void setIsIdleToFalse() {
+	protected synchronized void setIsIdleToFalse() {
 		isIdle = false;
 		
 
 	}
 
-	private synchronized void setIsIdleToTrue() {
+	protected synchronized void setIsIdleToTrue() {
 		isIdle = true;
 		this.notifyAll();
 	}

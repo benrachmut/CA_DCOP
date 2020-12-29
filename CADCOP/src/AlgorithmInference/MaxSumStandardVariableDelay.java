@@ -64,7 +64,6 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	// neighbors. //Need to modify !!!!!
 	
 	public void sendMsgsP() {
-		synchronized (messagesToBeSent) {
 
 		for (NodeId i : messagesToBeSent.keySet()) {
 
@@ -88,7 +87,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 				//functionNode.updateMessageInContext(messagesToBeSent.get(i));
 			} 
 			*/
-		}
+		
 		this.computationCounter++;
 		messagesToBeSent.clear(); // When finish sending all the messages will clear the messages to be sent.
 		clearMemoryFromAllNeighbors(this.timeStampToLook);
@@ -163,7 +162,6 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 
 	protected void produceNewMessageForAsyncVersion() {
 		
-		synchronized (messagesToBeSent) {
 			
 		for (NodeId i : functionMsgs.keySet()) {
 			
@@ -187,7 +185,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 			}
 
 		}
-		}
+		
 
 	}
 

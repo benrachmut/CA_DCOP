@@ -176,7 +176,33 @@ public abstract class AgentVariableInference extends AgentVariable {
 	}
 	
 	
+	@Override
+	public void run() {
 
+		while (this.timeObject.getTimeOfObject()<MainSimulator.termination) {
+			setIsIdleToTrue();
+			if (MainSimulator.isThreadDebug) {
+				System.out.println(this + " goes to sleep");
+			}
+			List<Msg> messages = this.inbox.extract();
+			if (MainSimulator.isThreadDebug) {
+				System.out.println(this + " extract " + messages);
+			}
+			setIsIdleToFalse();
+
+			if (messages == null) {
+				break;
+			}
+			List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
+			checkingAllMsgsShouldBeAlgorithmicMsgs(messages, algorithmicMsgs);
+			receiveAlgorithmicMsgs(algorithmicMsgs);
+			reactionToAlgorithmicMsgs();
+
+		}
+		if (MainSimulator.isThreadDebug) {
+			System.err.println(this + " is dead");
+		}
+	}
 
 
 	
