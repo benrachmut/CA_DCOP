@@ -214,10 +214,9 @@ public abstract class MGM extends AgentVariableSearch {
 
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgLR mlr = new MsgLR(this.nodeId, recieverNodeId, this.lr, this.timeStampCounter, this.time);
-			//msgsToOutbox.add(mlr);
-			this.outbox.insert(mlr);
-
+			msgsToOutbox.add(mlr);
 		}
+		this.outbox.insert(msgsToOutbox);
 
 		
 		/*

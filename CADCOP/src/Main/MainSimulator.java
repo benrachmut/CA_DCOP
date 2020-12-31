@@ -65,9 +65,10 @@ public class MainSimulator {
 	public static int div=1;
 
 	public static int start = 0;
-	public static int end = 1;
+	public static int end = 50;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static int termination = 50000;
+	public static int termination = 10000
+			;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
@@ -82,7 +83,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 =0.7;
+	public static double dcopUniformP1 =0.2;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
 	public static int costUbUniform = 100;
@@ -104,7 +105,8 @@ public class MainSimulator {
 	 * ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType = 2;
+	public static int agentType =1
+			;
 
 	
 	public static boolean isThreadDebug = false;

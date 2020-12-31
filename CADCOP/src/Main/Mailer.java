@@ -202,7 +202,10 @@ public abstract class Mailer {
 			List<Msg> msgsForAgnet = e.getValue();
 			UnboundedBuffer<Msg> nodeIdInbox = this.outboxes.get(recieverId);
 			nodeIdInbox.insert(msgsForAgnet);
-			//Agent recieverAgent = getAgentByNodeId(recieverId);
+			//for (Msg msg : msgsForAgnet) {
+			//	nodeIdInbox.insert(msg);
+
+			//}
 		}
 		
 		

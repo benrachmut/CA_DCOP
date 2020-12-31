@@ -2,6 +2,7 @@ package AgentsAbstract;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -13,6 +14,7 @@ import Main.UnboundedBuffer;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
 import Messages.MsgReceive;
+import Messages.MsgsAgentTimeComparator;
 import Messages.MsgsMailerTimeComparator;
 
 public abstract class Agent implements Runnable, Comparable<Agent> {
@@ -98,8 +100,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			System.out.println(this + " recieve msgs " + this.time);
 		}
 
-		
-
 		for (MsgAlgorithm msgAlgorithm : messages) {
 
 			if (this.isWithTimeStamp) {
@@ -116,14 +116,16 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				updateMessageInContextAndTreatFlag(msgAlgorithm);
 			}
 		}
+
 		updateAgentTime(messages);
+
 	}
 
 	protected void updateAgentTime(List<? extends Msg> messages) {
 		Msg msgWithMaxTime = Collections.max(messages, new MsgsMailerTimeComparator());
 
 		int maxAgentTime = msgWithMaxTime.getTimeOfMsg();
-		
+
 		if (this.time <= maxAgentTime) {
 			this.time = maxAgentTime;
 		}
@@ -152,22 +154,21 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param messages
 	 * 
 	 */
-	
+
 	int compCounter = 0;
+
 	public boolean reactionToAlgorithmicMsgs() {
 		if (MainSimulator.isThreadDebug) {
 			System.out.println(this + " react to msgs");
 		}
 		this.atomicActionCounter = 0;
 
-		
 		if (getDidComputeInThisIteration()) {
-			
-			if (this.id == 2 ) {
-				compCounter = compCounter+1;
-				System.out.println(compCounter);
-			}
-			
+			/*
+			 * if (this.id == 2 ) { compCounter = compCounter+1;
+			 * System.out.println(compCounter); }
+			 */
+
 			boolean isUpdate = compute();
 			if (isMsgGoingToBeSent(isUpdate)) {
 				if (MainSimulator.isMaxSumThreadDebug) {
@@ -249,29 +250,49 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			if (MainSimulator.isThreadDebug) {
 				System.out.println(this + " goes to sleep");
 			}
-			//List<Msg> messages = this.inbox.extract();
-			Msg m = inbox.extract();
-			List<Msg> messages = new ArrayList<Msg>();
-			messages.add(m);
+			List<Msg> messages = this.inbox.extract();
+			// Msg m = inbox.extract();
+			// List<Msg> messages = new ArrayList<Msg>();
+			// messages.add(m);
 			if (MainSimulator.isThreadDebug) {
-				System.out.println(this + " extract " + m);
+				System.out.println(this + " extract " + messages);
 			}
-			
+
 			setIsIdleToFalse();
 
-			if (m == null) {
+			if (messages == null) {
 				break;
 			}
-			
-			if (this.id == 2) {
-				System.out.println("from agent msg size "+messages.size());
-			}
-			List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
-			checkingAllMsgsShouldBeAlgorithmicMsgs(messages, algorithmicMsgs);
-			receiveAlgorithmicMsgs(algorithmicMsgs);
-			reactionToAlgorithmicMsgs();
+			boolean flag = false;
+			/*		
+			while (!messages.isEmpty()) {
 
-		}
+				List<Msg> msgsFromPast = new ArrayList<Msg>();
+
+				if (!flag) {
+					flag = true;
+					for (Msg msg : messages) {
+						if (msg.getTimeOfMsg() < this.time) {
+							msgsFromPast.add(msg);
+						}
+					}
+					if (msgsFromPast.isEmpty()) {
+						msgsFromPast.addAll(messages);
+					}
+				} else {
+					msgsFromPast.addAll(messages);
+					if (msgsFromPast.isEmpty()) {
+						break;
+					}
+				}
+			 */
+				List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
+				// checkingAllMsgsShouldBeAlgorithmicMsgs(messages, algorithmicMsgs);
+				receiveAlgorithmicMsgs(algorithmicMsgs);
+				reactionToAlgorithmicMsgs();
+				messages.removeAll(messages);
+			}
+	
 		if (MainSimulator.isThreadDebug) {
 			System.err.println(this + " is dead");
 		}
@@ -279,7 +300,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	protected synchronized void setIsIdleToFalse() {
 		isIdle = false;
-		
 
 	}
 

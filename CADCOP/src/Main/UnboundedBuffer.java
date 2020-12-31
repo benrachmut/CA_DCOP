@@ -6,11 +6,11 @@ import java.util.Vector;
 
 public class UnboundedBuffer<T>{
 
-	private List<T> buffer;
+	private List<List<T>> buffer;
 	public static int bufferId;
 	private int id;
 	public UnboundedBuffer() {
-		buffer = new ArrayList<T>();
+		buffer = new ArrayList<List<T>>();
 		bufferId=+1;
 		this.id = bufferId;
 	}
@@ -19,12 +19,12 @@ public class UnboundedBuffer<T>{
 		return "buffer_"+this.id;
 	}
 
-	public synchronized void insert(T item) {
+	public synchronized void insert(List<T> item) {
 		buffer.add(item);
 		this.notifyAll();
 	}
 
-	public synchronized T extract() {
+	public synchronized List<T> extract() {
 		while (buffer.isEmpty()) {
 			try {
 				this.wait();
@@ -34,9 +34,9 @@ public class UnboundedBuffer<T>{
 		}
 		
 		
-		//List<T> ans = new ArrayList<T>();
-		/*
-		for (T l1 : buffer) {
+		List<T> ans = new ArrayList<T>();
+		
+		for (List<T> l1 : buffer) {
 			if (l1 == null) {
 				return null;
 			}
@@ -45,16 +45,15 @@ public class UnboundedBuffer<T>{
 			}
 		}
 	
-		*/
 		
-		return buffer.remove(0);
+		buffer.clear();
+		return ans;
 	}
 	public synchronized void removeAllMsgs() {
 		buffer.clear();
 		
 	}
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
 		return this.buffer.isEmpty();
 	}
 }

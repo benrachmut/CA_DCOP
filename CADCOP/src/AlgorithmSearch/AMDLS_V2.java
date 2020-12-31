@@ -138,10 +138,11 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgAMDLSColor mva = new MsgAMDLSColor(this.nodeId, recieverNodeId, this.valueAssignment,
 					this.timeStampCounter, this.time, this.myCounter, this.myColor);
-			outbox.insert(mva);
 
-			//msgsToOutbox.add(mva);
-		}
+			msgsToOutbox.add(mva);
+
+		}			outbox.insert(msgsToOutbox);
+
 		
 	}
 
