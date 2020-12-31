@@ -82,10 +82,10 @@ public class AMDLS_V1 extends AgentVariableSearch {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgAMDLS mva = new MsgAMDLS(this.nodeId, recieverNodeId, this.valueAssignment, this.timeStampCounter,
 					this.time, this.myCounter);
-			msgsToOutbox.add(mva);
+			//msgsToOutbox.add(mva);
+			this.outbox.insert(mva);
 
 		}
-		this.outbox.insert(msgsToOutbox);
 
 	}
 

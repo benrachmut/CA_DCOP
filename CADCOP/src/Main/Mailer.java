@@ -114,6 +114,7 @@ public abstract class Mailer {
 	 * 
 	 * @param m
 	 */
+	/*
 	public synchronized void sendMsg(Msg m) {
 
 		changeMsgsCounter(m);
@@ -133,11 +134,13 @@ public abstract class Mailer {
 		
 		
 	}
-
+	*/
+/*
 	public void sendMsgWitoutDelay(MsgAlgorithm m) {
 		m.setDelay(0);
 		this.messageBox.add(m);
 	}
+	*/
 
 	protected void changeMsgsCounter(Msg m) {
 		if (m instanceof MsgAlgorithm) {

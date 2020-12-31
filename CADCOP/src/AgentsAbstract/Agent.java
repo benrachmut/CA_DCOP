@@ -39,7 +39,6 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected Mailer mailer;
 
 	public Agent(int dcopId, int D) {
-		super();
 		this.dcopId = dcopId;
 		this.domainSize = D;
 		this.timeStampCounter = 0;
@@ -118,16 +117,14 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			}
 		}
 		updateAgentTime(messages);
-
 	}
 
 	protected void updateAgentTime(List<? extends Msg> messages) {
 		Msg msgWithMaxTime = Collections.max(messages, new MsgsMailerTimeComparator());
 
-		int maxAgentTime = msgWithMaxTime.getMailerTime();
-
+		int maxAgentTime = msgWithMaxTime.getTimeOfMsg();
+		
 		if (this.time <= maxAgentTime) {
-			int oldTime = this.time;
 			this.time = maxAgentTime;
 		}
 
@@ -155,17 +152,22 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	 * @param messages
 	 * 
 	 */
+	
+	int compCounter = 0;
 	public boolean reactionToAlgorithmicMsgs() {
 		if (MainSimulator.isThreadDebug) {
 			System.out.println(this + " react to msgs");
 		}
 		this.atomicActionCounter = 0;
 
-		if (MainSimulator.isThreadDebug && this.id == 1 && this.time == 99) {
-			System.out.println(this + " " + this.time);
-		}
+		
 		if (getDidComputeInThisIteration()) {
-
+			
+			if (this.id == 2 ) {
+				compCounter = compCounter+1;
+				System.out.println(compCounter);
+			}
+			
 			boolean isUpdate = compute();
 			if (isMsgGoingToBeSent(isUpdate)) {
 				if (MainSimulator.isMaxSumThreadDebug) {
@@ -247,14 +249,22 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			if (MainSimulator.isThreadDebug) {
 				System.out.println(this + " goes to sleep");
 			}
-			List<Msg> messages = this.inbox.extract();
+			//List<Msg> messages = this.inbox.extract();
+			Msg m = inbox.extract();
+			List<Msg> messages = new ArrayList<Msg>();
+			messages.add(m);
 			if (MainSimulator.isThreadDebug) {
-				System.out.println(this + " extract " + messages);
+				System.out.println(this + " extract " + m);
 			}
+			
 			setIsIdleToFalse();
 
-			if (messages == null) {
+			if (m == null) {
 				break;
+			}
+			
+			if (this.id == 2) {
+				System.out.println("from agent msg size "+messages.size());
 			}
 			List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
 			checkingAllMsgsShouldBeAlgorithmicMsgs(messages, algorithmicMsgs);

@@ -14,7 +14,7 @@ public class NodeId_AOpt2 extends NodeId{
 	}
 	*/
 	public NodeId_AOpt2(NodeId nodeId) {
-		super(nodeId.getId1());
+		super(nodeId.getId1(),false);
 		color = null;
 		counter = null;
 		kOptInfo = null;

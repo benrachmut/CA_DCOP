@@ -17,9 +17,13 @@ public class NodeId implements Comparable<NodeId> {
 	//-----------------------------------------------------------------------------------------------------------//
 
 	//OmerP - Constructor for Variable Node.
-	public NodeId(int id1) {
+	public NodeId(int id1, boolean isPlusOne) {
 
-		this.id1 = id1+1; 
+		if (isPlusOne) {
+			this.id1 = id1; 
+		}else {
+		this.id1 = id1;
+		}
 		this.id2 = 0;
 		setType(NodeType.Variable);
 		

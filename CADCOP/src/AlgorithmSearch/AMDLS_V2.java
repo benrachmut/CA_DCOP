@@ -27,7 +27,6 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		super(dcopId, D, agentId);
 		myColor = null;
 		isWaitingToSetColor = true;
-		canSetColorFlag = false;
 		resetNeighborColors();
 	}
 
@@ -139,10 +138,10 @@ public class AMDLS_V2 extends AMDLS_V1 {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgAMDLSColor mva = new MsgAMDLSColor(this.nodeId, recieverNodeId, this.valueAssignment,
 					this.timeStampCounter, this.time, this.myCounter, this.myColor);
-			
-			msgsToOutbox.add(mva);
+			outbox.insert(mva);
+
+			//msgsToOutbox.add(mva);
 		}
-		outbox.insert(msgsToOutbox);
 		
 	}
 
@@ -198,9 +197,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 
 	@Override
 	protected boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
-		if (MainSimulator.isAMDLSDistributedDebug && this.id == 4) {
-			System.out.println();
-		}
+	
 		if (msgAlgorithm instanceof MsgAMDLSColor) {
 			Integer colorN = ((MsgAMDLSColor) msgAlgorithm).getColor();
 			neighborColors.put(msgAlgorithm.getSenderId(), colorN);
@@ -350,8 +347,9 @@ public class AMDLS_V2 extends AMDLS_V1 {
 
 	public boolean getDidComputeInThisIteration() {
 
-		if (MainSimulator.isAMDLSDistributedDebug && MailerIterations.m_iteration == 50) {
+		if (MainSimulator.isAMDLSDistributedDebug ) {
 			printAMDLSstatus();
+			System.out.println(this+" compute in this iteration: "+ ( canSetColorFlag || consistentFlag));
 		}
 		
 		if (sendWhenMsgReceive && canSetColor()) {

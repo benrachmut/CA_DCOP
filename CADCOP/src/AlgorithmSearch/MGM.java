@@ -53,7 +53,7 @@ public abstract class MGM extends AgentVariableSearch {
 	@Override
 	public void meetNeighbor(int neighborId, Integer[][] constraint) {
 		super.meetNeighbor(neighborId, constraint);
-		this.neighborsLR.put(new NodeId(neighborId), null);
+		this.neighborsLR.put(new NodeId(neighborId,false), null);
 	}
 
 	@Override
@@ -214,9 +214,10 @@ public abstract class MGM extends AgentVariableSearch {
 
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgLR mlr = new MsgLR(this.nodeId, recieverNodeId, this.lr, this.timeStampCounter, this.time);
-			msgsToOutbox.add(mlr);
+			//msgsToOutbox.add(mlr);
+			this.outbox.insert(mlr);
+
 		}
-		this.outbox.insert(msgsToOutbox);
 
 		
 		/*

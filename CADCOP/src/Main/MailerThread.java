@@ -36,7 +36,12 @@ public class MailerThread extends Mailer implements Runnable {
 	@Override
 	public void run() {
 		createData(this.time);
-		List<Msg> msgsFromInbox = inbox.extract();
+		List<Msg> msgsFromInbox = new ArrayList<Msg>();
+		while (inbox.isEmpty() ==false) {
+			Msg m = inbox.extract();
+			msgsFromInbox.add(m);
+		}
+		//List<Msg> msgsFromInbox = inbox.extract();
 		if (MainSimulator.isThreadDebug) {
 			System.out.println("mailer msgs extract from inbox: " + msgsFromInbox);
 		}
@@ -50,6 +55,9 @@ public class MailerThread extends Mailer implements Runnable {
 		 */
 
 		while (this.time < this.terminationTime) {
+			//if (areAllIdle()) {
+			
+			
 			createData(this.time);
 			if (MainSimulator.isThreadDebug) {
 				System.out.println("mailer goes to sleep");
@@ -61,16 +69,17 @@ public class MailerThread extends Mailer implements Runnable {
 					System.out.println("mailer wakes up");
 				}
 			}
-			
-		
-			if (!mailerHasMsgsToSend()) {
-				if (areAllIdle() && !mailerHasMsgsToSend()) {
+			//if (!mailerHasMsgsToSend()) {
+			//if (areAllIdle() && !mailerHasMsgsToSend()) {
+				if (areAllIdle() ) {
 					shouldUpdateClockBecuaseNoMsgsRecieved();
+			//	}
+			//}
+				
+				msgToSend = this.handleDelay();
+				agentsRecieveMsgs(msgToSend);
 				}
-			}
-			msgToSend = this.handleDelay();
-			agentsRecieveMsgs(msgToSend);
-
+			//}
 		}
 
 		killAgents();
@@ -87,32 +96,37 @@ public class MailerThread extends Mailer implements Runnable {
 			changeMsgsCounter(m);
 			if (m.isWithDelay()) {
 				int d = createDelay(m instanceof MsgAlgorithm);
+				m.setTimeOfMsg(d);
+				/*
 				if (d != -1) {
 					m.setDelay(d);
 				}
+				*/
 			}
 			this.messageBox.add(m);
 			
 			updateMailerClockUponMsgRecieved(m);
-
+/*
 			try {
-				int t = m.getAgentTime();
+				int t = m.getTimeOfMsg();
 				int d1 = m.getDelay();
 				int timeToSendByMailer = t + d1;
-				m.setAgentTime(timeToSendByMailer);
-				m.setMailerTime(this.time);
+				m.setTimeOfMsg(timeToSendByMailer);
+				//m.setMailerTime(this.time);
 			} catch (NullPointerException e) {
 				m.setAgentTime(m.getAgentTime());
-				m.setMailerTime(this.time);
+				//m.setMailerTime(this.time);
 			}
+			*/
 
 		}
+		
 
 	}
 
 	private boolean mailerHasMsgsToSend() {
 		Msg minTimeMsg = Collections.min(messageBox, new MsgsAgentTimeComparator());
-		int minTime = minTimeMsg.getAgentTime();
+		int minTime = minTimeMsg.getTimeOfMsg();
 
 		if (minTime <= this.time) {
 			return true;
@@ -130,7 +144,7 @@ public class MailerThread extends Mailer implements Runnable {
 	}
 
 	protected void updateMailerClockUponMsgRecieved(Msg m) {
-		int timeMsg = m.getAgentTime();
+		int timeMsg = m.getTimeOfMsg();
 		if (this.time <= timeMsg) {
 			this.time = timeMsg;
 		}
@@ -139,15 +153,16 @@ public class MailerThread extends Mailer implements Runnable {
 	private void shouldUpdateClockBecuaseNoMsgsRecieved() {
 
 		Msg<?> minTimeMsg = Collections.min(messageBox, new MsgsAgentTimeComparator());
-		int minTime = minTimeMsg.getAgentTime();
+		int minTime = minTimeMsg.getTimeOfMsg();
 		// int oldTime = time;
 
 		if (minTime > this.time) {
+			System.out.println("aaaaaaaa");
 			this.time = minTime;
 		}
 
 	}
-
+/*
 	@Override
 	public void sendMsg(Msg m) {
 		super.sendMsg(m);
@@ -164,6 +179,7 @@ public class MailerThread extends Mailer implements Runnable {
 		}
 
 	}
+	*/
 
 	private void killAgents() {
 		for (UnboundedBuffer<Msg> ubb : outboxes.values()) {
@@ -177,7 +193,7 @@ public class MailerThread extends Mailer implements Runnable {
 	protected List<Msg> handleDelay() {
 		List<Msg> toSend = new ArrayList<Msg>();
 		for (Msg msg : messageBox) {
-			if (msg.getAgentTime() <= this.time) {
+			if (msg.getTimeOfMsg() <= this.time) {
 				toSend.add(msg);
 			}
 		}

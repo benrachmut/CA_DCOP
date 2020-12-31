@@ -47,7 +47,6 @@ public abstract class AgentVariable extends Agent {
 		super(dcopId, D);
 		neighborsConstraint = new TreeMap<NodeId, Integer[][]>();
 		this.id = id1;
-		this.nodeId = new NodeId(id1);
 		this.domainArray = new int[domainSize];
 		createDomainArray();
 		Random r = new Random(132 * id1 + 100 * dcopId);
@@ -107,7 +106,7 @@ public abstract class AgentVariable extends Agent {
 	}
 
 	public void meetNeighbor(int neighborId, Integer[][] constraint) {
-		this.neighborsConstraint.put(new NodeId(neighborId), constraint);
+		this.neighborsConstraint.put(new NodeId(neighborId,false), constraint);
 	}
 
 	public int neighborSize() {
@@ -171,8 +170,8 @@ public abstract class AgentVariable extends Agent {
 	}
 
 	public Integer[][] getMatrixWithAgent(int i) {
-		if (this.neighborsConstraint.containsKey(new NodeId(i))) {
-			return this.neighborsConstraint.get(new NodeId(i));
+		if (this.neighborsConstraint.containsKey(new NodeId(i,false))) {
+			return this.neighborsConstraint.get(new NodeId(i,false));
 		}
 		return null;
 	}

@@ -64,6 +64,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		super(dcopId, D, id1);
 
 		this.time = 1;
+		this.nodeId = new NodeId(id1,true);
 
 		this.neighborsValueAssignmnet = new TreeMap<NodeId, MsgReceive<Integer>>();
 		anytimeUpToSend = new ArrayList<Context>();
@@ -97,7 +98,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	@Override
 	public void meetNeighbor(int neighborId, Integer[][] constraint) {
 		super.meetNeighbor(neighborId, constraint);
-		this.neighborsValueAssignmnet.put(new NodeId(neighborId), null);
+		this.neighborsValueAssignmnet.put(new NodeId(neighborId,false), null);
 	}
 
 	@Override
@@ -288,11 +289,12 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgValueAssignmnet mva = new MsgValueAssignmnet(this.nodeId, recieverNodeId, this.valueAssignment,
 					this.timeStampCounter, this.time);
-			msgsToInsertMsgBox.add(mva);
+			//msgsToInsertMsgBox.add(mva);
+			outbox.insert(mva);
+
 		}
 		
 		
-		outbox.insert(msgsToInsertMsgBox);
 		if (MainSimulator.isThreadDebug) {
 			System.out.println(this + " send msg value");
 		}
@@ -802,7 +804,9 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		List<Msg> msgsToInsertMsgBox = new ArrayList<Msg>();
 		for (Context c : anytimeUpToSend) {
 			Msg m = new MsgAnyTimeUp(this.nodeId, this.anytimeFather, c, this.timeStampCounter, this.time);
-			msgsToInsertMsgBox.add(m);
+			//msgsToInsertMsgBox.add(m);
+			outbox.insert(m);
+
 		}
 
 		this.anytimeUpToSend = new ArrayList<Context>();
@@ -810,11 +814,12 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		if (hasAnytimeNews) {
 			for (NodeId son : this.anytimeSons) {
 				Msg m = new MsgAnyTimeDown(this.nodeId, son, this.bestContexFound, this.timeStampCounter, this.time);
-				msgsToInsertMsgBox.add(m);
+				//msgsToInsertMsgBox.add(m);
+				outbox.insert(m);
+
 			}
 		}
 
-		outbox.insert(msgsToInsertMsgBox);
 
 		hasAnytimeNews = false;
 
