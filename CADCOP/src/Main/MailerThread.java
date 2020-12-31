@@ -47,7 +47,7 @@ public class MailerThread extends Mailer implements Runnable {
 		}
 		placeMsgsFromInboxInMessageBox(msgsFromInbox);
 		shouldUpdateClockBecuaseNoMsgsRecieved();
-		//updateMailerClockUponMsgRecieved(msgToSend);
+		// updateMailerClockUponMsgRecieved(msgToSend);
 
 		List<Msg> msgToSend = this.handleDelay();
 		agentsRecieveMsgs(msgToSend);
@@ -60,34 +60,34 @@ public class MailerThread extends Mailer implements Runnable {
 		while (this.time < this.terminationTime) {
 
 			createData(this.time);
-			if (MainSimulator.isThreadDebug) {
-				System.out.println("mailer goes to sleep");
+
+			while (inbox.isEmpty()) {
+				if (areAllIdle() && inbox.isEmpty() && !this.messageBox.isEmpty()) {
+					shouldUpdateClockBecuaseNoMsgsRecieved();
+					msgToSend = this.handleDelay();
+					agentsRecieveMsgs(msgToSend);
+					//System.out.println("aaaaaa");
+				}
 			}
-			//if (this.messageBox.isEmpty() || !inbox.isEmpty()) {
-				// msgsFromInbox = new ArrayList<Msg>();
-				msgsFromInbox = inbox.extract();
-				// msgsFromInbox.add();
-				placeMsgsFromInboxInMessageBox(msgsFromInbox);
-				if (MainSimulator.isThreadDebug) {
-					System.out.println("mailer wakes up");
-			//	}
-			//}
-			// if (areAllIdle()) {
-			if (!mailerHasMsgsToSend()) {
-				// if (areAllIdle() && !mailerHasMsgsToSend()) {
-				// if (areAllIdle() ) {
-				shouldUpdateClockBecuaseNoMsgsRecieved();
-				//System.out.println("aaaaaaaa");
-				// }
-				// }
-			}
-			msgToSend = this.handleDelay();
-			agentsRecieveMsgs(msgToSend);
-			//updateMailerClockUponMsgRecieved(msgToSend);
+		
+
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("mailer goes to sleep");
+		}
+
+		msgsFromInbox = inbox.extract();
+		placeMsgsFromInboxInMessageBox(msgsFromInbox);
+		if (MainSimulator.isThreadDebug) {
+			System.out.println("mailer wakes up");
 
 		}
 
-		killAgents();
+		msgToSend = this.handleDelay();
+		agentsRecieveMsgs(msgToSend);
+
+	}
+
+	killAgents();
 
 	}
 
@@ -140,13 +140,13 @@ public class MailerThread extends Mailer implements Runnable {
 	}
 
 	protected void updateMailerClockUponMsgRecieved(Msg msg) {
-		//for (Msg msg : msgToSend) {
-			int timeMsg = msg.getTimeOfMsg();
-			if (this.time <= timeMsg) {
-				this.time = timeMsg;
-			}
-		//}
-		
+		// for (Msg msg : msgToSend) {
+		int timeMsg = msg.getTimeOfMsg();
+		if (this.time <= timeMsg) {
+			this.time = timeMsg;
+		}
+		// }
+
 	}
 
 	private void shouldUpdateClockBecuaseNoMsgsRecieved() {

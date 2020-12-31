@@ -251,9 +251,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				System.out.println(this + " goes to sleep");
 			}
 			List<Msg> messages = this.inbox.extract();
-			// Msg m = inbox.extract();
-			// List<Msg> messages = new ArrayList<Msg>();
-			// messages.add(m);
+			
 			if (MainSimulator.isThreadDebug) {
 				System.out.println(this + " extract " + messages);
 			}
@@ -264,28 +262,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				break;
 			}
 			boolean flag = false;
-			/*		
-			while (!messages.isEmpty()) {
-
-				List<Msg> msgsFromPast = new ArrayList<Msg>();
-
-				if (!flag) {
-					flag = true;
-					for (Msg msg : messages) {
-						if (msg.getTimeOfMsg() < this.time) {
-							msgsFromPast.add(msg);
-						}
-					}
-					if (msgsFromPast.isEmpty()) {
-						msgsFromPast.addAll(messages);
-					}
-				} else {
-					msgsFromPast.addAll(messages);
-					if (msgsFromPast.isEmpty()) {
-						break;
-					}
-				}
-			 */
+			
 				List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
 				// checkingAllMsgsShouldBeAlgorithmicMsgs(messages, algorithmicMsgs);
 				receiveAlgorithmicMsgs(algorithmicMsgs);
