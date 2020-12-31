@@ -65,9 +65,9 @@ public class MainSimulator {
 	public static int div=1;
 
 	public static int start = 0;
-	public static int end = 50;
+	public static int end = 100;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static int termination = 40000
+	public static int termination = 50000
 			;
 	private static int everyHowManyExcel = 100;
 
@@ -105,7 +105,7 @@ public class MainSimulator {
 	 * ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType =2			;
+	public static int agentType =2;
 
 	
 	public static boolean isThreadDebug = false;
