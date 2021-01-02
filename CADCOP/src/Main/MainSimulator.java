@@ -64,15 +64,14 @@ public class MainSimulator {
 	// --------------------------------**Experiment Repetitions**
 	public static int div=1;
 
-	public static int start = 0;
-	public static int end = 100;
+	public static int start = 6;
+	public static int end = 50;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static int termination = 50000
-			;
+	public static int termination = 50000;//80000;//
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 50; // amount of agents
+	public static int A = 10; // amount of agents
 	private static int D = 10;
 
 	// public static int D = -1; // if D or costParameter < 0 use default
@@ -105,7 +104,7 @@ public class MainSimulator {
 	 * ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType =2;
+	public static int agentType =7;
 
 	
 	public static boolean isThreadDebug = false;

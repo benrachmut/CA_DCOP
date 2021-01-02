@@ -83,8 +83,6 @@ public class AMDLS_V1 extends AgentVariableSearch {
 			MsgAMDLS mva = new MsgAMDLS(this.nodeId, recieverNodeId, this.valueAssignment, this.timeStampCounter,
 					this.time, this.myCounter);
 			msgsToOutbox.add(mva);
-			
-
 		}
 		this.outbox.insert(msgsToOutbox);
 	}

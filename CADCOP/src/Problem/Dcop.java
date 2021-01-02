@@ -143,9 +143,9 @@ public abstract class Dcop {
 		if (agentType == 6) {
 			ans = new AMDLS_V2(dcopId, D, agentId);
 		}
-		// if (agentType == 7) {
-		// ans = new AMDLS_V3(dcopId, D, agentId);
-		// }
+		 if (agentType == 7) {
+		 ans = new AMDLS_V3(dcopId, D, agentId);
+		 }
 
 		if (agentType == 8) {
 			ans = new DSA_SDP_ASY(dcopId, D, agentId);

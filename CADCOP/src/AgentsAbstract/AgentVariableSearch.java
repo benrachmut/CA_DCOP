@@ -141,7 +141,11 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			if (e.getValue() != null) {
 				int nValueAssignmnet = e.getValue().getContext();
 				Integer[][] nConst = this.neighborsConstraint.get(e.getKey());
+				try {
 				ans += nConst[input][nValueAssignmnet];
+				}catch(Exception ed) {
+					return -1;
+				}
 				atomicActionCounter = atomicActionCounter + 1;
 			}
 		}
