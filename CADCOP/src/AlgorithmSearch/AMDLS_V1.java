@@ -38,7 +38,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 
 		this.below = new HashSet<NodeId>();
 		this.above = new HashSet<NodeId>();
-		this.myCounter = 1;
+		this.myCounter = 0;
 		future = new ArrayList<MsgAMDLS>();
 		consistentFlag = false;
 		gotMsgFlag = false;
@@ -52,22 +52,22 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	// done
 	@Override
 	public void updateAlgorithmName() {
-		
+
 		String a = "AMDLS";
 		String b = "V1";
 		String c = "";
-		if (AMDLS_V1.typeDecision=='A' || AMDLS_V1.typeDecision=='a') {
+		if (AMDLS_V1.typeDecision == 'A' || AMDLS_V1.typeDecision == 'a') {
 			c = "a";
 		}
-		
-		if (AMDLS_V1.typeDecision=='B' || AMDLS_V1.typeDecision=='b') {
+
+		if (AMDLS_V1.typeDecision == 'B' || AMDLS_V1.typeDecision == 'b') {
 			c = "b";
 		}
-		
-		if (AMDLS_V1.typeDecision=='C' || AMDLS_V1.typeDecision=='c') {
+
+		if (AMDLS_V1.typeDecision == 'C' || AMDLS_V1.typeDecision == 'c') {
 			c = "c";
 		}
-		AgentVariable.AlgorithmName = a+"_"+b+"_"+c;
+		AgentVariable.AlgorithmName = a + "_" + b + "_" + c;
 	}
 
 	// done
@@ -77,8 +77,8 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	}
 
 	protected void sendAMDLSmsgs() {
-		
-		List<Msg>msgsToOutbox = new ArrayList<Msg>();
+
+		List<Msg> msgsToOutbox = new ArrayList<Msg>();
 		for (NodeId recieverNodeId : neighborsConstraint.keySet()) {
 			MsgAMDLS mva = new MsgAMDLS(this.nodeId, recieverNodeId, this.valueAssignment, this.timeStampCounter,
 					this.time, this.myCounter);
@@ -90,7 +90,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	// done
 	@Override
 	protected void resetAgentGivenParametersV3() {
-		myCounter = 1;
+		myCounter = 0;
 		consistentFlag = false;
 		future = new ArrayList<MsgAMDLS>();
 		gotMsgFlag = false;
@@ -111,7 +111,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	// done
 	@Override
 	public void updateAlgorithmHeader() {
-		AgentVariable.algorithmHeader = "Message Frequency"+','+"Decision";
+		AgentVariable.algorithmHeader = "Message Frequency" + ',' + "Decision";
 	}
 
 	// done
@@ -120,23 +120,23 @@ public class AMDLS_V1 extends AgentVariableSearch {
 		String freq = "";
 		if (AMDLS_V1.sendWhenMsgReceive) {
 			freq = "high";
-		}else {
+		} else {
 			freq = "low";
 		}
-		//-------------------------
+		// -------------------------
 		String t = "";
-		if (AMDLS_V1.typeDecision=='A' || AMDLS_V1.typeDecision=='a') {
+		if (AMDLS_V1.typeDecision == 'A' || AMDLS_V1.typeDecision == 'a') {
 			t = "a";
 		}
-		
-		if (AMDLS_V1.typeDecision=='B' || AMDLS_V1.typeDecision=='b') {
+
+		if (AMDLS_V1.typeDecision == 'B' || AMDLS_V1.typeDecision == 'b') {
 			t = "b";
 		}
-		
-		if (AMDLS_V1.typeDecision=='C' || AMDLS_V1.typeDecision=='c') {
+
+		if (AMDLS_V1.typeDecision == 'C' || AMDLS_V1.typeDecision == 'c') {
 			t = "c";
 		}
-		AgentVariable.algorithmData = freq+","+t; 
+		AgentVariable.algorithmData = freq + "," + t;
 
 	}
 
@@ -153,11 +153,9 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	// 1
 	@Override
 	protected boolean updateMessageInContext(MsgAlgorithm msgAlgorithm) {
-/*
-		if (MainSimulator.isAMDLSdebug && this.id==19) {
-			System.out.println();
-		}
-		*/
+		/*
+		 * if (MainSimulator.isAMDLSdebug && this.id==19) { System.out.println(); }
+		 */
 		NodeId sender = msgAlgorithm.getSenderId();
 		int currentCounterInContext = this.counters.get(sender);
 		int msgCounter = ((MsgAMDLS) msgAlgorithm).getCounter();
@@ -174,7 +172,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 
 	// 2
 	@Override
-	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {	
+	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {
 		boolean allNotZero = checkAllNotZero();
 		if (allNotZero) {
 			releaseFutureMsgs();
@@ -201,32 +199,25 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	@Override
 	public boolean getDidComputeInThisIteration() {
 		/*
-		if (MainSimulator.isAMDLSdebug && MailerIterations.m_iteration == 50) {
-			
-			System.out.println("--------------");
-			System.out.println(this.toString() + " counter is " + this.myCounter);
-			if (!this.above.isEmpty()) {
-				System.out.println("above:");
-				for (NodeId nodeId : above) {
-					System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ", ");
-				}
-				System.out.println();
+		 * if (MainSimulator.isAMDLSdebug && MailerIterations.m_iteration == 50) {
+		 * 
+		 * System.out.println("--------------"); System.out.println(this.toString() +
+		 * " counter is " + this.myCounter); if (!this.above.isEmpty()) {
+		 * System.out.println("above:"); for (NodeId nodeId : above) {
+		 * System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) +
+		 * ", "); } System.out.println();
+		 * 
+		 * }
+		 * 
+		 * if (!this.below.isEmpty()) { System.out.println("below:"); for (NodeId nodeId
+		 * : below) { System.out.print("A" + nodeId.getId1() + ":" +
+		 * this.counters.get(nodeId) + ","); } System.out.println();
+		 * 
+		 * } System.out.println();
+		 * 
+		 * }
+		 */
 
-			}
-
-			if (!this.below.isEmpty()) {
-				System.out.println("below:");
-				for (NodeId nodeId : below) {
-					System.out.print("A" + nodeId.getId1() + ":" + this.counters.get(nodeId) + ",");
-				}
-				System.out.println();
-
-			}
-			System.out.println();
-
-		}
-		*/
-		
 		if (sendWhenMsgReceive) {
 			return gotMsgFlag;
 		} else {
@@ -237,57 +228,40 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	// 4
 	@Override
 	protected boolean compute() {
-		if (consistentFlag ) {
-			
+		if (consistentFlag) {
+
 			decideAndChange();
-			
+
 		}
 		return true;
 	}
 
 	protected void decideAndChange() {
 		this.myCounter = this.myCounter + 1;
-		
-		if (typeDecision == 'a'|| typeDecision == 'A') {
+
+		if (typeDecision == 'a' || typeDecision == 'A') {
 			this.valueAssignment = getCandidateToChange_A();
 		}
-		if (typeDecision == 'b'|| typeDecision == 'B') {
+		if (typeDecision == 'b' || typeDecision == 'B') {
 			this.valueAssignment = getCandidateToChange_B();
 		}
 		if (typeDecision == 'c' || typeDecision == 'C') {
 			this.valueAssignment = getCandidateToChange_C();
 		}
 	}
-	
 
 	// 5
 	@Override
 	public void sendMsgs() {
 
 		if ((sendWhenMsgReceive && this.gotMsgFlag) || (!sendWhenMsgReceive && this.consistentFlag)) {
-		//if ((!sendWhenMsgReceive && this.consistentFlag)) {
+			// if ((!sendWhenMsgReceive && this.consistentFlag)) {
 			sendAMDLSmsgs();
 		}
 
 	}
 
-	protected void releaseFutureMsgs() {
-
-		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
-		for (MsgAlgorithm m : this.future) {
-
-			int currentCounterInContext = this.counters.get(m.getSenderId());
-			int msgCounter = ((MsgAMDLS) m).getCounter();
-
-			if (currentCounterInContext + 1 == msgCounter) {
-				toRelease.add(m);
-				updateMessageInContext(m);
-
-			}
-		}
-		this.future.removeAll(toRelease);
-
-	}
+	
 
 	protected boolean isBelowConsistent() {
 		for (NodeId nodeId : this.below) {
@@ -299,10 +273,10 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	}
 
 	protected boolean isAboveConsistent() {
-		for (NodeId nodeId : this.above) {		
-				if (this.counters.get(nodeId) != this.myCounter + 1) {
-					return false;
-				} 
+		for (NodeId nodeId : this.above) {
+			if (this.counters.get(nodeId) != this.myCounter + 1) {
+				return false;
+			}
 		}
 		return true;
 	}
@@ -322,10 +296,10 @@ public class AMDLS_V1 extends AgentVariableSearch {
 		this.above.addAll(above);
 
 	}
-	
+
 	public void printAMDLSstatus() {
 		System.out.println("--------------");
-		System.out.println(this.toString() + " counter is " + this.myCounter + " Value is: "+this.valueAssignment);
+		System.out.println(this.toString() + " counter is " + this.myCounter + " Value is: " + this.valueAssignment);
 		if (!this.above.isEmpty()) {
 			System.out.println("above:");
 			for (NodeId nodeId : above) {
@@ -345,10 +319,8 @@ public class AMDLS_V1 extends AgentVariableSearch {
 		System.out.println();
 
 	}
-/*
-	@Override
-	protected int numberOfAtomicActionsInComputation() {
-		return this.neighborSize()+this.domainSize;
-	}
-*/
+	/*
+	 * @Override protected int numberOfAtomicActionsInComputation() { return
+	 * this.neighborSize()+this.domainSize; }
+	 */
 }

@@ -64,7 +64,7 @@ public class MainSimulator {
 	// --------------------------------**Experiment Repetitions**
 	public static int div=1;
 
-	public static int start = 6;
+	public static int start = 14;
 	public static int end = 50;
 	public static int end_temp = start; //DO NOT CHANGE
 	public static int termination = 50000;//80000;//
@@ -104,7 +104,7 @@ public class MainSimulator {
 	 * ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType =7;
+	public static int agentType =6;
 
 	
 	public static boolean isThreadDebug = false;

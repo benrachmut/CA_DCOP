@@ -300,8 +300,8 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			}
 			boolean flag = false;
 
-			if (MainSimulator.isAMDLSDistributedDebug && this.id == 9) {
-				System.out.println("im 999");
+			if (MainSimulator.isAMDLSDistributedDebug && this.id == 1) {
+				System.out.println("from agent");
 			}
 			List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
 			// checkingAllMsgsShouldBeAlgorithmicMsgs(messages, algorithmicMsgs);
@@ -316,6 +316,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	}
 
 	protected synchronized void setIsIdleToFalse() {
+
 		isIdle = false;
 
 	}
