@@ -161,13 +161,14 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 		if (MainSimulator.isThreadDebug) {
 			System.out.println(this + " react to msgs");
 		}
+		this.atomicActionCounter = 0;
 
 		if (getDidComputeInThisIteration()) {
 			/*
 			 * if (this.id == 2 ) { compCounter = compCounter+1;
 			 * System.out.println(compCounter); }
 			 */
-			this.atomicActionCounter = 0;
+
 			boolean isUpdate = compute();
 			if (isMsgGoingToBeSent(isUpdate)) {
 				if (MainSimulator.isMaxSumThreadDebug) {
@@ -178,53 +179,15 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				if (MainSimulator.isAtomicTime) {
 					this.time = this.time + this.atomicActionCounter;
 					this.atomicActionCounter = 0;
+
 				} else {
 					this.time = this.time + 1;
 				}
 				if (MainSimulator.isThreadDebug) {
 					System.out.println(this + " notify mailer");
 				}
-				this.atomicActionCounter = 0;
-				
 				this.sendMsgs();
 				this.changeRecieveFlagsToFalse();
-			}
-			return isUpdate;
-
-		}
-		return false;
-	}
-
-	
-	public boolean reactionToAlgorithmicMsgsWithoutSendingMsgs() {
-		if (MainSimulator.isThreadDebug) {
-			System.out.println(this + " react to msgs");
-		}
-
-		if (getDidComputeInThisIteration()) {
-			/*
-			 * if (this.id == 2 ) { compCounter = compCounter+1;
-			 * System.out.println(compCounter); }
-			 */
-			this.atomicActionCounter = 0;
-			boolean isUpdate = compute();
-			if (isMsgGoingToBeSent(isUpdate)) {
-				if (MainSimulator.isMaxSumThreadDebug) {
-					System.out.println(this + "time is " + this.time + " BEFORE because computation");
-				}
-				computationCounter = computationCounter + 1;
-				this.timeStampCounter = this.timeStampCounter + 1;
-				if (MainSimulator.isAtomicTime) {
-					this.time = this.time + this.atomicActionCounter;
-					this.atomicActionCounter = 0;
-				} else {
-					this.time = this.time + 1;
-				}
-				if (MainSimulator.isThreadDebug) {
-					System.out.println(this + " notify mailer");
-				}
-				this.atomicActionCounter = 0;
-
 			}
 			return isUpdate;
 
@@ -288,7 +251,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				System.out.println(this + " goes to sleep");
 			}
 			List<Msg> messages = this.inbox.extract();
-
+			
 			if (MainSimulator.isThreadDebug) {
 				System.out.println(this + " extract " + messages);
 			}
@@ -299,24 +262,20 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				break;
 			}
 			boolean flag = false;
-
-			if (MainSimulator.isAMDLSDistributedDebug && this.id == 1) {
-				System.out.println("from agent");
+			
+				List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
+				// checkingAllMsgsShouldBeAlgorithmicMsgs(messages, algorithmicMsgs);
+				receiveAlgorithmicMsgs(algorithmicMsgs);
+				reactionToAlgorithmicMsgs();
+				messages.removeAll(messages);
 			}
-			List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
-			// checkingAllMsgsShouldBeAlgorithmicMsgs(messages, algorithmicMsgs);
-			receiveAlgorithmicMsgs(algorithmicMsgs);
-			reactionToAlgorithmicMsgs();
-			messages.removeAll(messages);
-		}
-
+	
 		if (MainSimulator.isThreadDebug) {
 			System.err.println(this + " is dead");
 		}
 	}
 
 	protected synchronized void setIsIdleToFalse() {
-
 		isIdle = false;
 
 	}

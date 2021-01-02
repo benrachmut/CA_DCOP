@@ -11,7 +11,6 @@ public abstract class Msg<Identity> {
 	private int timestamp;
 	
 	boolean withDelay;
-	private int delay;
 	
 	//private Integer delay;
 	
@@ -87,16 +86,6 @@ public abstract class Msg<Identity> {
 
 	public boolean isWithDelay() {
 		return this.withDelay;
-	}
-
-	public int getDelay() {
-		// TODO Auto-generated method stub
-		return this.delay;
-	}
-
-	public void setDelay(int i) {
-		this.delay =i;
-		
 	}
 
 	

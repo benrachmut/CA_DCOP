@@ -48,7 +48,7 @@ public class MainSimulator {
 	//public static int dividAtomicTime = 1;
 	
 	public static int multiplicationTime = 1;
-	public static int howManyIterationForCalculation = 10;
+	public static int howManyIterationForCalculation = 100;
 
 	
 
@@ -64,14 +64,15 @@ public class MainSimulator {
 	// --------------------------------**Experiment Repetitions**
 	public static int div=1;
 
-	public static int start = 14;
+	public static int start = 0;
 	public static int end = 50;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static int termination = 50000;//80000;//
+	public static int termination = 100000
+			;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
-	public static int A = 10; // amount of agents
+	public static int A = 50; // amount of agents
 	private static int D = 10;
 
 	// public static int D = -1; // if D or costParameter < 0 use default
@@ -82,7 +83,7 @@ public class MainSimulator {
 	 */
 	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 =0.2;
+	public static double dcopUniformP1 =0.7;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
 	public static int costLbUniform = 1;
 	public static int costUbUniform = 100;
@@ -104,7 +105,7 @@ public class MainSimulator {
 	 * ------- 100 =
 	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
 	 */
-	public static int agentType =6;
+	public static int agentType =4;
 
 	
 	public static boolean isThreadDebug = false;
@@ -113,7 +114,7 @@ public class MainSimulator {
 	public static boolean isCommunicationDebug = false;
 	public static boolean isSDPdebug = false;
 	//public static boolean isAMDLSdebug = true;
-	public static boolean isAMDLSDistributedDebug = true;
+	public static boolean isAMDLSDistributedDebug = false;
 	public static boolean isAnytimeThreadDebug = false;
 	public static boolean isAnytimeDebug = false;
 	public static boolean isMaxSumMailerDebug = false; 

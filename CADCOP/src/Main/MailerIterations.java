@@ -37,10 +37,35 @@ public class MailerIterations extends Mailer {
 
 	@Override
 	public void execute() {
-		
+		if (MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug || MainSimulator.isMGM2Debug) {
+			System.out.println("--------***NEIGHBORS***--------");
+			for (AgentVariable a : dcop.getVariableAgents()) {
+				System.out.println(a + " " + a.getNeigborSetId());
+			}
+		}
 
 		for (int iteration = 0; iteration < this.terminationTime; iteration++) {
 			m_iteration = iteration;
+			if ( (MainSimulator.isAMDLSdebug || MainSimulator.isAMDLSDistributedDebug) && iteration == 4000) {
+				System.out.println("-------ITERATION_" + iteration + "-------");
+			}
+
+			if (MainSimulator.isAnytimeDebug || MainSimulator.isMGM2Debug ) {
+				if (iteration % 20 == 0) {
+					System.out.println("-------ITERATION_" + iteration + "-------");
+				}
+
+			}
+
+			if (MainSimulator.isAMDLSdebug ) {
+				if (iteration % 20 == 0) {
+					System.out.println("-------ITERATION_" + iteration + "-------");
+					for (Agent a : dcop.getAllAgents()) {
+						System.out.println(a+" color is:"+((AMDLS_V2)a).getColor()); 
+					}
+				}
+				
+			}
 			agentsReactToMsgs(iteration);
 			createData(iteration);
 			List<Msg> msgToSend = this.handleDelay();
