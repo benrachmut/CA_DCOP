@@ -64,7 +64,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		super(dcopId, D, id1);
 
 		this.time = 1;
-		this.nodeId = new NodeId(id1,true);
+		this.nodeId = new NodeId(id1, true);
 
 		this.neighborsValueAssignmnet = new TreeMap<NodeId, MsgReceive<Integer>>();
 		anytimeUpToSend = new ArrayList<Context>();
@@ -86,7 +86,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	@Override
 	public void initialize() {
 		this.sendValueAssignmnetMsgs();
-		
+
 		if (MainSimulator.isAnytime) {
 			if (this.neighborsValueAssignmnet.isEmpty()) {
 				this.bestContexFound = createMyContext();
@@ -98,7 +98,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	@Override
 	public void meetNeighbor(int neighborId, Integer[][] constraint) {
 		super.meetNeighbor(neighborId, constraint);
-		this.neighborsValueAssignmnet.put(new NodeId(neighborId,false), null);
+		this.neighborsValueAssignmnet.put(new NodeId(neighborId, false), null);
 	}
 
 	@Override
@@ -142,8 +142,8 @@ public abstract class AgentVariableSearch extends AgentVariable {
 				int nValueAssignmnet = e.getValue().getContext();
 				Integer[][] nConst = this.neighborsConstraint.get(e.getKey());
 				try {
-				ans += nConst[input][nValueAssignmnet];
-				}catch (Exception e12) {
+					ans += nConst[input][nValueAssignmnet];
+				} catch (Exception e12) {
 					return -1;
 
 				}
@@ -296,8 +296,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 					this.timeStampCounter, this.time);
 			msgsToInsertMsgBox.add(mva);
 		}
-		
-		
+
 		outbox.insert(msgsToInsertMsgBox);
 		if (MainSimulator.isThreadDebug) {
 			System.out.println(this + " send msg value");
@@ -306,7 +305,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	}
 
 	@Override
-	public  boolean reactionToAlgorithmicMsgs() {
+	public boolean reactionToAlgorithmicMsgs() {
 
 		Context context_j = createMyContext();
 
@@ -333,7 +332,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	}
 
-	public  void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
+	public void receiveAlgorithmicMsgs(List<? extends MsgAlgorithm> messages) {
 		Context context_i_beforeMsgUpdate = null;
 
 		if (MainSimulator.isAnytime) {
@@ -342,7 +341,6 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			}
 		}
 
-	
 		super.receiveAlgorithmicMsgs(messages);
 
 		if (MainSimulator.isAnytime) {
@@ -378,56 +376,41 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			for (Entry<NodeId, MsgReceive<Integer>> e : this.neighborsValueAssignmnet.entrySet()) {
 				m.put(e.getKey().getId1(), e.getValue().getContext());
 			}
+
+			int myCost = this.getCostPerDomain().get(this.valueAssignment);
+		
+		return new Context(m, this.id, this.valueAssignment, myCost);
 		} catch (NullPointerException e) {
 			return null;
 		}
-
-		int myCost = this.getCostPerDomain().get(this.valueAssignment);
-
-		return new Context(m, this.id, this.valueAssignment, myCost);
 	}
 
 	/*
-	@Override
-	public void run() {
-		
-		while (true) {
-			
-			isIdle = true;
-			List<Msg> messages = this.inbox.extract();
-			isIdle = false;
-
-			if (messages == null) {
-				break;
-			}
-			List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
-			receiveAlgorithmicMsgs(algorithmicMsgs);
-			if (MainSimulator.isAnytime) {
-				List<MsgAnyTime> anytimeMsgs = extractAnytimeMsgs (messages);
-				recieveAnyTimeMsgs(anytimeMsgs);
-			}
-			reactionToAlgorithmicMsgs();
-			if (MainSimulator.isAnytime) {
-				sendAnytimeMsgs();
-			}
-			
-		}
-		if (MainSimulator.isThreadDebug) {
-			System.err.println(this+" is dead");
-		}
-	}
-	*/
+	 * @Override public void run() {
+	 * 
+	 * while (true) {
+	 * 
+	 * isIdle = true; List<Msg> messages = this.inbox.extract(); isIdle = false;
+	 * 
+	 * if (messages == null) { break; } List<MsgAlgorithm> algorithmicMsgs =
+	 * extractAlgorithmicMsgs(messages); receiveAlgorithmicMsgs(algorithmicMsgs); if
+	 * (MainSimulator.isAnytime) { List<MsgAnyTime> anytimeMsgs = extractAnytimeMsgs
+	 * (messages); recieveAnyTimeMsgs(anytimeMsgs); } reactionToAlgorithmicMsgs();
+	 * if (MainSimulator.isAnytime) { sendAnytimeMsgs(); }
+	 * 
+	 * } if (MainSimulator.isThreadDebug) { System.err.println(this+" is dead"); } }
+	 */
 	private List<MsgAnyTime> extractAnytimeMsgs(List<Msg> messages) {
 		List<MsgAnyTime> ans = new ArrayList<MsgAnyTime>();
 		for (Msg msg : messages) {
 			if (msg instanceof MsgAnyTime) {
-				ans.add((MsgAnyTime)msg);
+				ans.add((MsgAnyTime) msg);
 			}
 		}
 		return ans;
 	}
 
-	public  void recieveAnyTimeMsgs(List<? extends MsgAnyTime> messages) {
+	public void recieveAnyTimeMsgs(List<? extends MsgAnyTime> messages) {
 
 		for (MsgAnyTime msgAnyTime : messages) {
 			if (msgAnyTime instanceof MsgAnyTimeUp) {
