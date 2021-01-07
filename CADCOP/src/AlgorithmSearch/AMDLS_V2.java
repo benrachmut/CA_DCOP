@@ -19,7 +19,6 @@ import Messages.MsgAlgorithm;
 public class AMDLS_V2 extends AMDLS_V1 {
 	public static int structureHeuristic = 1; // 1:by index, 2:delta_max, 3:delta_min
 	protected boolean isWaitingToSetColor;
-	protected Integer myColor;
 	private TreeMap<NodeId, Integer> neighborColors;
 	protected boolean canSetColorFlag;
 
@@ -70,6 +69,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 	// done
 	@Override
 	public void initialize() {
+		this.isWithTimeStamp = false;
 		if (canSetColorInitilize()) {
 			chooseColor();
 			sendAMDLSColorMsgs();
@@ -213,14 +213,36 @@ public class AMDLS_V2 extends AMDLS_V1 {
 			}
 		}
 
+		
+		//!haveAllColors()&&
+		if ( (msgAlgorithm instanceof MsgAMDLSColor)==false && this.myCounter<=1 
+				&& !((MsgAMDLS)msgAlgorithm).isFromFuture()) {
+			//MsgAMDLS m = new MsgAMDLS((MsgAMDLSColor) msgAlgorithm);
+			if (this.id == 6  && MainSimulator.isAMDLSDistributedDebug) {
+				System.out.println(this+" puts "+msgAlgorithm+" in future");
+			}
+				future.add((MsgAMDLS)msgAlgorithm);
+			
+
+			}
+		/*
 		if (!canSetColor() && this.isWaitingToSetColor && msgAlgorithm instanceof MsgAMDLSColor) {
-			MsgAMDLS m = new MsgAMDLS((MsgAMDLSColor) msgAlgorithm);
-			future.add(m);
-		} else {
+			
+		} */
+		else {
 			super.updateMessageInContext(msgAlgorithm);
 		}
 		return true;
 
+	}
+
+	private boolean haveAllColors() {
+		for (Integer i : neighborColors.values()) {
+			if (i == null ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	protected void changeRecieveFlagsToTrueMsgAMDLSColor(){
@@ -258,7 +280,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 
 		return true;
 	}
-
+/*
 	protected boolean releaseFutureMsgs_distributed() {
 
 		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
@@ -281,7 +303,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 
 		return true;
 	}
-
+*/
 	protected boolean allNeighborsHaveColor() {
 		Set<NodeId> allNeighbors = this.neighborsConstraint.keySet();
 		for (NodeId nodeId : allNeighbors) {
@@ -351,13 +373,9 @@ public class AMDLS_V2 extends AMDLS_V1 {
 
 	public boolean getDidComputeInThisIteration() {
 
-		if (MainSimulator.isAMDLSDistributedDebug ) {
+		if (MainSimulator.isAMDLSDistributedDebug && this.id== 6 ) {
 			printAMDLSstatus();
 			System.out.println(this+" compute in this iteration: "+ ( canSetColorFlag || consistentFlag));
-		}
-		
-		if (sendWhenMsgReceive && canSetColor()) {
-			return gotMsgFlag;
 		}
 		return canSetColorFlag || consistentFlag;
 	}
@@ -388,7 +406,7 @@ public class AMDLS_V2 extends AMDLS_V1 {
 			
 			this.consistentFlag = false;
 			this.canSetColorFlag = false;
-			if (releaseFutureMsgs_distributed()) {	
+			if (releaseFutureMsgs()) {	
 				reactionToAlgorithmicMsgs();
 			}
 			
@@ -401,9 +419,10 @@ public class AMDLS_V2 extends AMDLS_V1 {
 				flag = false;
 			}
 		}
-		if (sendAllTheTime || (this.consistentFlag && !canSetColorFlag) || (flag)) {
+		if (flag || (consistentFlag && !canSetColorFlag)) {
 			if (flag) {
 				decideAndChange();
+				this.timeStampCounter = this.timeStampCounter+1;
 			}
 			sendAMDLSmsgs();
 		} 

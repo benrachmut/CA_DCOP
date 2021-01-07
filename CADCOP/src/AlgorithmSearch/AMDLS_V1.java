@@ -19,7 +19,7 @@ import Messages.MsgAlgorithm;
 import Messages.MsgValueAssignmnet;
 
 public class AMDLS_V1 extends AgentVariableSearch {
-
+	protected Integer myColor;
 	public static boolean structureColor = true;
 	public static boolean sendWhenMsgReceive = false;
 	public static char typeDecision = 'a';
@@ -73,6 +73,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	// done
 	@Override
 	public void initialize() {
+		this.isWithTimeStamp = false;
 		sendAMDLSmsgs();
 	}
 
@@ -177,18 +178,23 @@ public class AMDLS_V1 extends AgentVariableSearch {
 	// 2
 	@Override
 	protected void changeRecieveFlagsToTrue(MsgAlgorithm msgAlgorithm) {	
-		boolean allNotZero = checkAllNotZero();
-		if (allNotZero) {
+		//boolean allNotZero = checkAllNotZero();
+		//if (allNotZero) {
+		//	releaseFutureMsgs();
+		//}
+		if (this.myColor!=null&&this.myColor!=1 && !this.future.isEmpty()) {
 			releaseFutureMsgs();
 		}
 		boolean aboveConsistent = isAboveConsistent();
 		boolean belowConsistent = isBelowConsistent();
-		if (aboveConsistent && belowConsistent && allNotZero) {
+		if (aboveConsistent && belowConsistent) {
 			this.consistentFlag = true;
 		} else {
 			this.consistentFlag = false;
 		}
-		this.gotMsgFlag = true;
+		
+		
+		
 	}
 
 	protected boolean checkAllNotZero() {
@@ -273,8 +279,7 @@ public class AMDLS_V1 extends AgentVariableSearch {
 
 	}
 
-	protected void releaseFutureMsgs() {
-
+	protected boolean releaseFutureMsgs() {
 		Collection<MsgAlgorithm> toRelease = new HashSet<MsgAlgorithm>();
 		for (MsgAlgorithm m : this.future) {
 
@@ -283,11 +288,20 @@ public class AMDLS_V1 extends AgentVariableSearch {
 
 			if (currentCounterInContext + 1 == msgCounter) {
 				toRelease.add(m);
-				updateMessageInContext(m);
-
+			
+				//changeRecieveFlagsToTrue(m);
 			}
 		}
+		boolean ans = false;
+		if (toRelease.size() != 0) {
+			ans = true;
+		}
+		for (MsgAlgorithm m : toRelease) {
+			((MsgAMDLS)m).setFromFutureToTrue();
+			updateMessageInContext((MsgAMDLS)m);
+		}
 		this.future.removeAll(toRelease);
+		return ans;
 
 	}
 

@@ -57,6 +57,7 @@ public class AMDLS_V3 extends AMDLS_V2 {
 
 	@Override
 	public void initialize() {
+		this.isWithTimeStamp = false;
 		if (canSetColorInitilize()) {
 			chooseColor();
 			sendAMDLSColorMsgs();
@@ -76,7 +77,7 @@ public class AMDLS_V3 extends AMDLS_V2 {
 			if (firstFlag == false) {
 				this.myCounter = myCounter + 1;
 				this.valueAssignment = this.firstRandomVariable;
-				releaseFutureMsgs_distributed();
+				//releaseFutureMsgs();
 			}
 			firstFlag = true;
 			if (canSetColorFlag) {
@@ -107,7 +108,7 @@ public class AMDLS_V3 extends AMDLS_V2 {
 			if (flag || (consistentFlag && !canSetColorFlag)) {
 				double rnd = this.stochasticDecisionRandom.nextDouble();
 				if (rnd < stochasticDecision || flag) {
-					releaseFutureMsgs_distributed();
+					//releaseFutureMsgs();
 					decideAndChange();
 				} else {
 					myCounter = myCounter + 1;

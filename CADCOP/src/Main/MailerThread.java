@@ -10,6 +10,7 @@ import java.util.List;
 
 import AgentsAbstract.Agent;
 import AgentsAbstract.NodeId;
+import AlgorithmSearch.AMDLS_V1;
 import Delays.ProtocolDelayUniform;
 import Messages.Msg;
 import Messages.MsgAlgorithm;
@@ -35,28 +36,27 @@ public class MailerThread extends Mailer implements Runnable {
 
 	@Override
 	public void run() {
+		if (MainSimulator.isAMDLSDistributedDebug) {
+			for (Agent a : dcop.getAllAgents()) {
+				System.out.println((AMDLS_V1)a+" neighbors: "+((AMDLS_V1)a).getNeigborSetId());
+			}
+		}
+		
+		
 		createData(this.time);
-		// List<Msg> msgsFromInbox = new ArrayList<Msg>();
-		// while (inbox.isEmpty() ==false) {
-		// Msg m = inbox.extract();
-		// msgsFromInbox.add(m);
-		// }
+	
 		List<Msg> msgsFromInbox = inbox.extract();
 		if (MainSimulator.isThreadDebug) {
 			System.out.println("mailer msgs extract from inbox: " + msgsFromInbox);
 		}
 		placeMsgsFromInboxInMessageBox(msgsFromInbox);
 		shouldUpdateClockBecuaseNoMsgsRecieved();
-		// updateMailerClockUponMsgRecieved(msgToSend);
 
 		List<Msg> msgToSend = this.handleDelay();
 		agentsRecieveMsgs(msgToSend);
 
 		msgsFromInbox = new ArrayList<Msg>();
-		/*
-		 * List<Msg> msgToSend1 = this.handleDelay(); agentsRecieveMsgs(msgToSend1);
-		 */
-
+		
 		while (this.time < this.terminationTime) {
 
 			createData(this.time);

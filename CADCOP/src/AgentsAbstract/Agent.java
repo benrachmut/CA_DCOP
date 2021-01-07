@@ -251,7 +251,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 				System.out.println(this + " goes to sleep");
 			}
 			List<Msg> messages = this.inbox.extract();
-			
+
 			if (MainSimulator.isThreadDebug) {
 				System.out.println(this + " extract " + messages);
 			}
@@ -261,15 +261,19 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			if (messages == null) {
 				break;
 			}
-			boolean flag = false;
-			
-				List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
-				// checkingAllMsgsShouldBeAlgorithmicMsgs(messages, algorithmicMsgs);
-				receiveAlgorithmicMsgs(algorithmicMsgs);
-				reactionToAlgorithmicMsgs();
-				messages.removeAll(messages);
+
+			if (this.id ==6 && MainSimulator.isAMDLSDistributedDebug) {
+				System.out.println("aaaaaa");
 			}
-	
+			if (this.id ==0 && MainSimulator.isAMDLSDistributedDebug) {
+				System.out.println("bbbbbb");
+			}
+			List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
+			receiveAlgorithmicMsgs(algorithmicMsgs);
+			reactionToAlgorithmicMsgs();
+			messages.removeAll(messages);
+		}
+
 		if (MainSimulator.isThreadDebug) {
 			System.err.println(this + " is dead");
 		}
