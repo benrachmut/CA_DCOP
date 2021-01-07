@@ -20,11 +20,12 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	protected boolean iAmAsync = true;
 	protected boolean receiveMessageFlag;
-	private double dampingFactor = 0.9;
+	protected double dampingFactor = 0.9;
 	protected HashMap<NodeId, double[]> storedMessges;
 	HashMap<NodeId, MsgAlgorithmFactor> messagesToBeSent;
 	Random rand = new Random();
 	protected int computationCounter;
+	protected int numberofIterations = 1;
 
 	// -----------------------------------------------------------------------------------------------------------//
 
@@ -32,8 +33,8 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	boolean damping = false;
 	boolean storedMessageOn = false;
-	protected boolean print = true;
-	protected boolean printValueAssignment = true;
+	protected boolean print = false;
+	protected boolean printValueAssignment = false;
 	protected boolean dampingPrint = false;
 	protected boolean dust = false;
 
@@ -106,7 +107,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 		for (NodeId i : functionMsgs.keySet()) {
 			
-			mailer.sendMsg(messagesToBeSent.get(i));
+			//mailer.sendMsg(messagesToBeSent.get(i));
 
 			if (print) {
 				printSentdMessage(messagesToBeSent.get(i));
@@ -167,7 +168,7 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 			double[] sentTable = new double[this.domainSize];
 			sentTable = produceMessage(i, sentTable); // For each specific neighbor, sum all messages excluding the
 														// table of the receiving function node.
-			sentTable = subtractMinimumValueD(sentTable);
+			//sentTable = subtractMinimumValueD(sentTable);
 			MsgAlgorithmFactor newMsg;
 
 			if (damping) {
@@ -623,6 +624,15 @@ public class MaxSumStandardVarible extends AgentVariableInference {
 
 	}
 
+	protected void printValueAssignmentIteration(int valueAssignment, long[] belief) {
+
+		System.out.println("Computation Counter:(" + this.numberofIterations + ") ,VariableNode:("
+				+ this.getNodeId().getId1() + "," + this.getNodeId().getId2() + ") belief is " + Arrays.toString(belief)
+				+ ", and value assignment is:" + valueAssignment + ".\n");
+
+	}
+	
+	
 	protected void printDampedTable(double[] oldTable, double[] newTable, double[] dampedTable) {
 
 		System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + ") "

@@ -109,7 +109,7 @@ public class MaxSumStandardFunctionSync extends MaxSumStandardFunction {
 		
 		for(NodeId i: messagesToBeSent.keySet()) {
 			
-			mailer.sendMsg(messagesToBeSent.get(i));
+			//mailer.sendMsg(messagesToBeSent.get(i));
 			
 			if(print){printSentMessage(messagesToBeSent.get(i));}
 		

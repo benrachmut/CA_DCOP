@@ -94,7 +94,7 @@ public class MaxSumStandardVaribleSync extends MaxSumStandardVarible{
 			MsgAlgorithmFactor m = messagesToBeSent.get(i);
 			
 			try {
-			mailer.sendMsg(m);
+			//mailer.sendMsg(m);
 			}catch (Exception e) {
 				System.out.println(3);
 			}

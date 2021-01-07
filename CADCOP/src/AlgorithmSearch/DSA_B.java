@@ -45,6 +45,13 @@ abstract public class DSA_B extends AgentVariableSearch {
 		AgentVariable.algorithmData = this.stochastic + "";
 	}
 
+	
+	@Override
+	public void updateAlgorithmName() {
+		
+		AgentVariable.AlgorithmName = "DSA_SY";
+	}
+	
 	@Override
 	protected int getSenderCurrentTimeStampFromContext(MsgAlgorithm msgAlgorithm) {
 		if (msgAlgorithm instanceof MsgValueAssignmnet) {

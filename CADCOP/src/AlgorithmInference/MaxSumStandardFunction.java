@@ -24,6 +24,9 @@ public class MaxSumStandardFunction extends AgentFunction {
 	HashMap<NodeId, double[][]> neighborsConstraintMatrix = new HashMap<NodeId, double[][]>(); 
 	protected boolean printConstraints = false; 
 	protected int computationCounter;
+	private Random r;
+
+	
 	
 	//-----------------------------------------------------------------------------------------------------------//
 
@@ -38,6 +41,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 	public MaxSumStandardFunction(int dcopId, int D, int id1, int id2, Integer[][] constraints) {
 		
 		super(dcopId, D, id1, id2);
+		this.r = new Random();
 		initializeNeighborsConstraintMatrix(id1, id2, constraints);
 		updataNodes(getNodeId());
 		this.receiveMessageFlag = false;
@@ -49,8 +53,9 @@ public class MaxSumStandardFunction extends AgentFunction {
 	public MaxSumStandardFunction(int dcopId, int D, int id1, int id2, double[][] constraints) {
 		
 		super(dcopId, D, id1, id2);
-		NodeId av1 = new NodeId(id1);
-		NodeId av2 = new NodeId(id2);
+		this.r = new Random();
+		NodeId av1 = new NodeId(id1, true);
+		NodeId av2 = new NodeId(id2, true);
 		neighborsConstraintMatrix.put(av1, constraints);
 		neighborsConstraintMatrix.put(av2, transposeConstraintMatrix(constraints));
 		updataNodes(getNodeId());
@@ -62,10 +67,11 @@ public class MaxSumStandardFunction extends AgentFunction {
 	//Will Initialize the constraint matrix. 
 	protected void initializeNeighborsConstraintMatrix(int id1, int id2 , Integer[][] constraints) {
 		
-		NodeId av1 = new NodeId(id1);
-		NodeId av2 = new NodeId(id2);
+		NodeId av1 = new NodeId(id1, true);
+		NodeId av2 = new NodeId(id2, true);
 		neighborsConstraintMatrix.put(av1, turnIntegerToDoubleMatrix(constraints));
 		neighborsConstraintMatrix.put(av2, transposeConstraintMatrix(turnIntegerToDoubleMatrix(constraints)));
+		//addDust();
 		if(printConstraints) {
 			printConstraints(av1, neighborsConstraintMatrix.get(av1));
 			printConstraints(av2, neighborsConstraintMatrix.get(av2));
@@ -73,6 +79,31 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 	}
 		
+	protected void addDust() {
+
+		double rangeMin = 0;
+		double rangeMax = 1;
+
+		for (NodeId nodeIdConstraint : neighborsConstraintMatrix.keySet()) {
+
+			double[][] constraintMatrix = neighborsConstraintMatrix.get(nodeIdConstraint);
+
+			for (int i = 0; i < constraintMatrix.length; i++) {
+
+				for (int j = 0; j < constraintMatrix.length; j++) {
+
+					double randonValue = rangeMin + (rangeMax - rangeMin) * r.nextDouble();
+					randonValue = randonValue / 10000;
+					constraintMatrix[i][j] = constraintMatrix[i][j] + randonValue;
+
+				}
+
+			}
+
+		}
+
+	}
+	
 	//-----------------------------------------------------------------------------------------------------------//
 
 	///// ******* Main Methods ******* ////
@@ -143,7 +174,7 @@ public class MaxSumStandardFunction extends AgentFunction {
 		
 		for(NodeId i: messagesToBeSent.keySet()) {
 			
-			mailer.sendMsg(messagesToBeSent.get(i));
+			//mailer.sendMsg(messagesToBeSent.get(i));
 			
 			if(print) {printSentMessage(messagesToBeSent.get(i));}
 			

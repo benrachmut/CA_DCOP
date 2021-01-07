@@ -48,7 +48,7 @@ public class MainSimulator {
 	//public static int dividAtomicTime = 1;
 	
 	public static int multiplicationTime = 1;
-	public static int howManyIterationForCalculation = 10;
+	public static int howManyIterationForCalculation = 1000;
 
 	
 
@@ -65,7 +65,7 @@ public class MainSimulator {
 	public static int div=1;
 
 	public static int start = 0;
-	public static int end = 100;
+	public static int end = 50;
 	public static int end_temp = start; //DO NOT CHANGE
 	public static int termination = 100000;
 	private static int everyHowManyExcel = 100;
@@ -80,12 +80,12 @@ public class MainSimulator {
 	/*
 	 * 1 = Random uniform; 2 = Graph Coloring; 3 = Scale Free Network
 	 */
-	public static int dcopBenchMark = 3;
+	public static int dcopBenchMark = 1;
 	// 1 = Random uniform
-	public static double dcopUniformP1 =0.2;
+	public static double dcopUniformP1 =0.6;
 	public static double dcopUniformP2 = 1;// Probability for two values in domain between neighbors to have constraints
-	public static int costLbUniform = 1;
-	public static int costUbUniform = 100;
+	public static int costLbUniform = 100;
+	public static int costUbUniform = 200;
 	// 2 = Graph Coloring
 	public static double dcopGraphColoringP1 = 0.05;// Probability for agents to have constraints
 	public static int costLbColor = 10;
@@ -102,11 +102,11 @@ public class MainSimulator {
 	 * AMDLS_V2; 7 = AMDLS_V3; 8 = DSA_SDP-ASY ; 9 = DSA_SDP-SY ; 10 = MGM2-ASY  ; 11 = MGM2-SY
 	 * 
 	 * ------- 100 =
-	 * MaxSum-ASY; 101 = MaxSum-SY; 102 = MaxSum_Split-SY
+	 * 101 = MaxSum-SY; 101 = MaxSum_split-SY; 103 = MaxSum-ASY; 104 = MaxSum_split-ASY;
 	 */
-	public static int agentType = 4;
+	public static int agentType = 102;
 
-	
+	public static boolean isMaxSumSyDebug = true;
 	public static boolean isThreadDebug = false;
 	public static boolean isCommunicationDebug = false;
 	public static boolean isSDPdebug = false;

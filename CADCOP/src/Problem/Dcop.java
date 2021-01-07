@@ -20,11 +20,14 @@ import AgentsAbstract.AgentVariableSearch;
 import AgentsAbstract.NodeId;
 
 import AlgorithmInference.MaxSumSplitConstraintFactorGraphDelay;
+import AlgorithmInference.MaxSumSplitConstraintFactorGraphDelay_SY;
 import AlgorithmInference.MaxSumSplitConstraintFactorGraphSync;
 import AlgorithmInference.MaxSumStandardFunction;
 import AlgorithmInference.MaxSumStandardFunctionDelay;
+import AlgorithmInference.MaxSumStandardFunctionDelay_SY;
 import AlgorithmInference.MaxSumStandardFunctionSync;
 import AlgorithmInference.MaxSumStandardVariableDelay;
+import AlgorithmInference.MaxSumStandardVariableDelay_SY;
 import AlgorithmInference.MaxSumStandardVarible;
 import AlgorithmInference.MaxSumStandardVaribleSync;
 
@@ -55,7 +58,7 @@ public abstract class Dcop {
 	protected AgentVariable[] agentsVariables;
 	protected List<Neighbor> neighbors;
 	protected int D;
-	public List<Thread >agentsThreads;
+	public List<Thread> agentsThreads;
 
 	// ------- ** for factor graph use **------
 	protected List<AgentFunction> agentFunctions;
@@ -96,9 +99,9 @@ public abstract class Dcop {
 		mailer.setInbox(msgsFromAgentsToMailer);
 		for (Agent a : agentsAll) {
 			UnboundedBuffer<Msg> msgsFromMailerToSpecificAgent = new UnboundedBuffer<Msg>();
-			mailer.meetAgent(msgsFromMailerToSpecificAgent , a.getNodeId());
-			a.meetMailer(msgsFromMailerToSpecificAgent,msgsFromAgentsToMailer, mailer);
-			//> msgsFromMeToMailer, UnboundedBuffer<Msg> msgsFromMailerToMe
+			mailer.meetAgent(msgsFromMailerToSpecificAgent, a.getNodeId());
+			a.meetMailer(msgsFromMailerToSpecificAgent, msgsFromAgentsToMailer, mailer);
+			// > msgsFromMeToMailer, UnboundedBuffer<Msg> msgsFromMailerToMe
 		}
 	}
 
@@ -143,9 +146,9 @@ public abstract class Dcop {
 		if (agentType == 6) {
 			ans = new AMDLS_V2(dcopId, D, agentId);
 		}
-		 if (agentType == 7) {
-		 ans = new AMDLS_V3(dcopId, D, agentId);
-		 }
+		if (agentType == 7) {
+			ans = new AMDLS_V3(dcopId, D, agentId);
+		}
 
 		if (agentType == 8) {
 			ans = new DSA_SDP_ASY(dcopId, D, agentId);
@@ -159,22 +162,21 @@ public abstract class Dcop {
 		if (agentType == 11) {
 			ans = new MGM2_SY(dcopId, D, agentId);
 		}
-
-		if (agentType == 100) {
-
-			ans = new MaxSumStandardVarible(dcopId, D, agentId); // Async version without memory.
-		}
-
+		/*
+		 * if (agentType == 100) {
+		 * 
+		 * ans = new MaxSumStandardVarible(dcopId, D, agentId); // Async version without
+		 * memory. }
+		 */
 		if (agentType == 101) {
-
-			ans = new MaxSumStandardVaribleSync(dcopId, D, agentId); // Sync version without memory.
+			ans = new MaxSumStandardVariableDelay_SY(dcopId, D, agentId); // Sync version without memory.
 		}
 
 		if (agentType == 102) {
 
-			agentId = agentId + 1;
-			ans = new MaxSumStandardVaribleSync(dcopId, D, agentId); // Sync Split version without memory.
-
+			ans = new MaxSumStandardVariableDelay_SY(dcopId, D, agentId); // Sync Split version without memory.
+			MaxSumStandardVariableDelay_SY temp = (MaxSumStandardVariableDelay_SY) ans;
+			temp.updateNodeId();
 		}
 
 		if (agentType == 103) { // To add.
@@ -350,6 +352,50 @@ public abstract class Dcop {
 
 			AgentFunction af = null;
 
+			if(agentType == 101) {
+				af = new MaxSumStandardFunctionDelay_SY(dcopId, D, av1.getId(), av2.getId(), constraints);
+				this.agentFunctions.add(af);
+				this.agentsAll.add(af);
+				av1.meetFunction(af.getMyNodes());
+				av2.meetFunction(af.getMyNodes());
+				af.meetVariables(av1.getNodeId(), av2.getNodeId());
+
+				AgentVariableInference agentVariableThatWillHoldFunction = whichAgentShouldHoldFunctionNode(av1, av2);
+				agentVariableThatWillHoldFunction.holdTheFunctionNode(af);
+				
+				
+			}
+			
+			if(agentType == 102) {
+							
+				
+				af = new MaxSumSplitConstraintFactorGraphDelay_SY(dcopId, D, av1.getId() + 1, av2.getId() + 1,constraints); // Will create a new MaxSumSplitConstraintFactorGraphSync
+				MaxSumSplitConstraintFactorGraphDelay_SY splitConstraintAgent = (MaxSumSplitConstraintFactorGraphDelay_SY) af;
+
+				List<MaxSumStandardFunctionDelay_SY> splitList = splitConstraintAgent.getSplitFunctionNodes();
+
+				for (int i = 0; i < splitConstraintAgent.getSplitFunctionNodes().size(); i++) {
+					this.agentFunctions.add(splitList.get(i));
+					this.agentsAll.add(splitList.get(i));
+				}
+
+				av1.meetFunction(af.getMyNodes());
+				av2.meetFunction(af.getMyNodes());
+				af.meetVariables(av1.getNodeId(), av2.getNodeId());
+
+				MaxSumStandardFunction af1 = splitConstraintAgent.getFirstSplit();
+				av1.holdTheFunctionNode(af1);
+				// af1.variableNodeThatHoldsMe(av1);
+
+				MaxSumStandardFunction af2 = splitConstraintAgent.getSecondSplit();
+				av2.holdTheFunctionNode(af2);
+				// af2.variableNodeThatHoldsMe(av2);	
+							
+			}
+			
+			
+			
+			
 			if (agentType == 103) {
 				af = new MaxSumStandardFunctionDelay(dcopId, D, av1.getId(), av2.getId(), constraints);
 				this.agentFunctions.add(af);
@@ -357,47 +403,37 @@ public abstract class Dcop {
 				av1.meetFunction(af.getMyNodes());
 				av2.meetFunction(af.getMyNodes());
 				af.meetVariables(av1.getNodeId(), av2.getNodeId());
-				
-				
+
 				AgentVariableInference agentVariableThatWillHoldFunction = whichAgentShouldHoldFunctionNode(av1, av2);
-				
+
 				agentVariableThatWillHoldFunction.holdTheFunctionNode(af);
-				//af.variableNodeThatHoldsMe(agentVariableThatWillHoldFunction); 
+				// af.variableNodeThatHoldsMe(agentVariableThatWillHoldFunction);
 			}
 
 			if (agentType == 104) {
-				int avSplitOne = av1.getId() + 1;
-				int avSplitTwo = av2.getId() + 1;
+				
 				af = new MaxSumSplitConstraintFactorGraphDelay(dcopId, D, av1.getId() + 1, av2.getId() + 1,
 						constraints); // Will create a new MaxSumSplitConstraintFactorGraphSync
 				MaxSumSplitConstraintFactorGraphDelay splitConstraintAgent = (MaxSumSplitConstraintFactorGraphDelay) af;
-				
+
 				List<MaxSumStandardFunctionDelay> splitList = splitConstraintAgent.getSplitFunctionNodes();
-				
+
 				for (int i = 0; i < splitConstraintAgent.getSplitFunctionNodes().size(); i++) {
 					this.agentFunctions.add(splitList.get(i));
 					this.agentsAll.add(splitList.get(i));
 				}
-				
+
 				av1.meetFunction(af.getMyNodes());
 				av2.meetFunction(af.getMyNodes());
 				af.meetVariables(av1.getNodeId(), av2.getNodeId());
-				
-				
-				
+
 				MaxSumStandardFunction af1 = splitConstraintAgent.getFirstSplit();
 				av1.holdTheFunctionNode(af1);
-				//af1.variableNodeThatHoldsMe(av1); 
+				// af1.variableNodeThatHoldsMe(av1);
 
-				
 				MaxSumStandardFunction af2 = splitConstraintAgent.getSecondSplit();
 				av2.holdTheFunctionNode(af2);
-				//af2.variableNodeThatHoldsMe(av2); 
-				
-				
-				
-				
-				
+				// af2.variableNodeThatHoldsMe(av2);
 
 			}
 
@@ -408,9 +444,7 @@ public abstract class Dcop {
 		}
 
 	}
-	
 
-	
 	private AgentVariableInference whichAgentShouldHoldFunctionNode(AgentVariableInference av1,
 			AgentVariableInference av2) {
 
@@ -575,11 +609,9 @@ public abstract class Dcop {
 		}
 
 	}
-/*
-	public List<Agent> getAgents() {
-		return agentsAll;
-	}
-	*/
+	/*
+	 * public List<Agent> getAgents() { return agentsAll; }
+	 */
 
 	public int getId() {
 		return this.dcopId;
@@ -995,8 +1027,7 @@ public abstract class Dcop {
 		throw new RuntimeException();
 	}
 
-
-	public List<Thread> getAgentThreads(){
+	public List<Thread> getAgentThreads() {
 		return agentsThreads;
 	}
 
@@ -1008,17 +1039,15 @@ public abstract class Dcop {
 			a.initialize();
 			agentsThreads.add(new Thread(a));
 		}
-		
+
 		for (Thread thread : agentsThreads) {
 			thread.start();
 		}
-		
+
 	}
 
 	public List<Agent> getAllAgents() {
 		return agentsAll;
 	}
-	
-	
 
 }

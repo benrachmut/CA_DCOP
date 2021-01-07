@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import AgentsAbstract.AgentVariable;
 import AgentsAbstract.NodeId;
 import Main.MainSimulator;
 import Messages.Msg;
@@ -22,8 +23,9 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 	protected int timeStampToLook;
 	protected boolean isSync = false;
 	private boolean print = false;
-	private boolean damping = true;
-	private boolean canCompute = false;
+	private boolean printOnlyValueAssignment = false;
+	protected boolean damping = false;
+	protected boolean canCompute = false;
 
 	// -----------------------------------------------------------------------------------------------------------//
 
@@ -35,11 +37,34 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 		this.messagesArrivedControl = new HashMap<NodeId, Boolean>();
 		this.neighborsSize = this.functionMsgs.size();
 		this.timeStampToLook = 0;
-
+		updateAlgorithmHeader();
+		updateAlgorithmData();
+		updateAlgorithmName();
 	}
 
+	
+	@Override
+	public void updateAlgorithmHeader() {
+		AgentVariable.algorithmHeader = "Damping Factor";
+	}
+
+	@Override
+	public void updateAlgorithmData() {
+		AgentVariable.algorithmData = this.dampingFactor + "";
+	}
+
+	@Override
+	public void updateAlgorithmName() {
+		if (this.damping == false) {
+			AgentVariable.AlgorithmName = "Max Sum ASY";
+		}else {
+			AgentVariable.AlgorithmName = "DMS ASY";
+
+		}
+	}
+	
 	public void updateNodeId() {
-		this.nodeId = new NodeId(id + 1);
+		this.nodeId = new NodeId(id + 1, true);
 	}
 
 	// OmerP - A method to initialize the memory of the agent will add the
@@ -68,7 +93,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 		for (NodeId i : messagesToBeSent.keySet()) {
 
 			if (!functionNodes.containsKey(i)) { // If I as a variable node does not holds the the function node.
-				mailer.sendMsg(messagesToBeSent.get(i));
+				//mailer.sendMsg(messagesToBeSent.get(i));
 				if (print) {
 					printSentdMessage(messagesToBeSent.get(i));
 				}
@@ -167,7 +192,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 			double[] sentTable = new double[this.domainSize];
 			sentTable = produceMessage(i, sentTable); // For each specific neighbor, sum all messages excluding the
 														// table of the receiving function node.
-			sentTable = subtractMinimumValueD(sentTable);
+			//sentTable = subtractMinimumValueD(sentTable);
 			MsgAlgorithmFactor newMsg;
 
 			if (damping) {
@@ -198,25 +223,19 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 
 			double[] context = new double[this.domainSize];
 
-			try {
+			//try {
 
 				context = functionMsgs.get(i).getContext();
 
-			}
+			//}
 
-			catch (NullPointerException e) {
-
-				context = produceEmptyMessageForNullPointerExeption();
-
-			}
+			//catch (NullPointerException e) {context = produceEmptyMessageForNullPointerExeption();}
 
 			table = sumMessageAsLong(table, context);
 
 		}
 
-		if (dust) {
-			table = addLongDust(table);
-		}
+		//if (dust) {table = addLongDust(table);}
 
 		for (int i = 0; i < table.length; i++) { // OmerP - choose the best value assignment out of the table.
 
@@ -230,10 +249,10 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 		}
 
 		setValueAssignmnet(valueAssignment);
-		if (print) {
-			printValueAssignment(valueAssignment, table);
+		if (printOnlyValueAssignment) {
+			printValueAssignmentIteration(valueAssignment, table);
 		}
-
+		numberofIterations++; 
 	}
 
 	protected double[] produceEmptyMessageForNullPointerExeption() {
@@ -531,8 +550,7 @@ public class MaxSumStandardVariableDelay extends MaxSumStandardVarible {
 		if (isSync) { // If i am sync the flag will be raised only if all the messages have been
 						// received.
 
-			System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2()
-					+ "), Flag Check.\n");
+			//System.out.println("VariableNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + "), Flag Check.\n");
 
 			if (checkIfReceivedAllMessages()) {
 

@@ -21,10 +21,9 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 	protected HashMap<NodeId, Boolean> messagesArrivedControl;
 	protected int neighborsSize;
 	protected int timeStampToLook;
-	protected boolean isSync = false;
+	protected boolean isSync = true;
 	private boolean print = false;
-	private boolean canCompute = false;
-	private Random r;
+	protected boolean canCompute = false;
 
 	// -----------------------------------------------------------------------------------------------------------//
 
@@ -44,7 +43,6 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 		this.neighborsSize = this.variableMsgs.size();
 		this.timeStampToLook = 0;
 		initializeNeighborsMemory();
-		this.r = new Random();
 
 	}
 
@@ -56,7 +54,6 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 		this.neighborsSize = this.variableMsgs.size();
 		this.timeStampToLook = 0;
 		initializeNeighborsMemory();
-		this.r = new Random();
 
 	}
 
@@ -73,30 +70,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 
 	}
 
-	protected void addDust() {
 
-		double rangeMin = 0;
-		double rangeMax = 1;
-
-		for (NodeId nodeIdConstraint : neighborsConstraintMatrix.keySet()) {
-
-			double[][] constraintMatrix = neighborsConstraintMatrix.get(nodeIdConstraint);
-
-			for (int i = 0; i < constraintMatrix.length; i++) {
-
-				for (int j = 0; j < constraintMatrix.length; j++) {
-
-					double randonValue = rangeMin + (rangeMax - rangeMin) * r.nextDouble();
-					randonValue = randonValue / 10000;
-					constraintMatrix[i][j] = constraintMatrix[i][j] + randonValue;
-
-				}
-
-			}
-
-		}
-
-	}
 
 	// -----------------------------------------------------------------------------------------------------------//
 
@@ -111,7 +85,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 
 		for (NodeId i : messagesToBeSent.keySet()) {
 			if (!variableNode.getNodeId().equals(i)) {
-				mailer.sendMsg(messagesToBeSent.get(i)); // Get the message that need to be sent.
+				//mailer.sendMsg(messagesToBeSent.get(i)); // Get the message that need to be sent.
 				if (print) {
 					printSentMessage(messagesToBeSent.get(i));
 				}
@@ -212,19 +186,19 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 
 	}
 
-	protected double[] produceEmptyMessageForNullPointerExeption() {
+	//protected double[] produceEmptyMessageForNullPointerExeption() {
 
-		double[] emptyTable = new double[this.domainSize];
+	//	double[] emptyTable = new double[this.domainSize];
 
-		for (int i = 0; i < emptyTable.length; i++) {
+	//	for (int i = 0; i < emptyTable.length; i++) {
 
-			emptyTable[i] = 0;
+	//		emptyTable[i] = 0;
 
-		}
+	//	}
 
-		return emptyTable;
+	//	return emptyTable;
 
-	}
+	//}
 
 	// -----------------------------------------------------------------------------------------------------------//
 
@@ -353,17 +327,13 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 
 		if (to.equals(temp[0])) {
 
-			try {
+			//try {
 
 				context = variableMsgs.get(temp[1]).getContext();
 
-			}
+			//}
 
-			catch (NullPointerException e) {
-
-				context = produceEmptyMessageForNullPointerExeption();
-
-			}
+			//catch (NullPointerException e) {context = produceEmptyMessageForNullPointerExeption();}
 
 			return context; // Will return the message that received from the other variable node that was
 							// received.
@@ -371,18 +341,18 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 
 		else {
 
-			try {
+			//try {
 
 				context = variableMsgs.get(temp[0]).getContext(); // Will return the message that received from the
 																	// other variable node that was received.
 
-			}
+			//}
 
-			catch (NullPointerException e) {
+			//catch (NullPointerException e) {
 
-				context = produceEmptyMessageForNullPointerExeption();
+				//context = produceEmptyMessageForNullPointerExeption();
 
-			}
+			//}
 
 			return context; // Will return the message that received from the other variable node that was
 							// received.
@@ -486,8 +456,7 @@ public class MaxSumStandardFunctionDelay extends MaxSumStandardFunction {
 		if (isSync) { // If i am sync the flag will be raised only if all the messages have been
 						// received.
 
-			System.out.println("FunctionNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2()
-					+ "), Flag Check.\n");
+			//System.out.println("FunctionNode:(" + this.getNodeId().getId1() + "," + this.getNodeId().getId2() + "), Flag Check.\n");
 
 			if (checkIfReceivedAllMessages()) {
 
