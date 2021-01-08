@@ -48,7 +48,7 @@ public class MainSimulator {
 	//public static int dividAtomicTime = 1;
 	
 	public static int multiplicationTime = 1;
-	public static int howManyIterationForCalculation = 1000;
+	public static int howManyIterationForCalculation = 10;
 
 	
 
