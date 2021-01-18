@@ -320,9 +320,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 							anytimeUpToSend.add(context_i);
 						}
 					} else {
-
 						placeContextInMemory(context_i, this.id);
-
 					}
 				}
 			}
@@ -385,6 +383,28 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		}
 	}
 
+	@Override
+	protected void handleMsgs(List<Msg> messages) {
+		List<MsgAnyTime> anytimeMsgs = extractAnytimeMsgs(messages);
+		if (!anytimeMsgs.isEmpty()) {
+			recieveAnyTimeMsgs(anytimeMsgs);
+		}
+		List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
+		receiveAlgorithmicMsgs(algorithmicMsgs);
+		reactionToAlgorithmicMsgs();
+		sendAnytimeMsgs();
+	}
+	
+	
+	protected List<MsgAnyTime> extractAnytimeMsgs(List<Msg> messages) {
+		List<MsgAnyTime> ans = new ArrayList<MsgAnyTime>();
+		for (Msg msg : messages) {
+			if (msg instanceof MsgAnyTime) {
+				ans.add((MsgAnyTime) msg);
+			}
+		}
+		return ans;
+	}
 	/*
 	 * @Override public void run() {
 	 * 
@@ -400,15 +420,7 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	 * 
 	 * } if (MainSimulator.isThreadDebug) { System.err.println(this+" is dead"); } }
 	 */
-	private List<MsgAnyTime> extractAnytimeMsgs(List<Msg> messages) {
-		List<MsgAnyTime> ans = new ArrayList<MsgAnyTime>();
-		for (Msg msg : messages) {
-			if (msg instanceof MsgAnyTime) {
-				ans.add((MsgAnyTime) msg);
-			}
-		}
-		return ans;
-	}
+
 
 	public void recieveAnyTimeMsgs(List<? extends MsgAnyTime> messages) {
 

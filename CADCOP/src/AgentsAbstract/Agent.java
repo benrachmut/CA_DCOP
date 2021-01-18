@@ -261,23 +261,19 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 			if (messages == null) {
 				break;
 			}
-			/*
-			if (this.id ==6 && MainSimulator.isAMDLSDistributedDebug) {
-				System.out.println("aaaaaa");
-			}
-			if (this.id ==0 && MainSimulator.isAMDLSDistributedDebug) {
-				System.out.println("bbbbbb");
-			}
-			*/
-			List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
-			receiveAlgorithmicMsgs(algorithmicMsgs);
-			reactionToAlgorithmicMsgs();
+			handleMsgs(messages);
 			messages.removeAll(messages);
 		}
 
 		if (MainSimulator.isThreadDebug) {
 			System.err.println(this + " is dead");
 		}
+	}
+
+	protected void handleMsgs(List<Msg> messages) {
+		List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
+		receiveAlgorithmicMsgs(algorithmicMsgs);
+		reactionToAlgorithmicMsgs();
 	}
 
 	protected synchronized void setIsIdleToFalse() {
