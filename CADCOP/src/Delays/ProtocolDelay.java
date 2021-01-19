@@ -97,6 +97,7 @@ public abstract class ProtocolDelay {
 		// TODO Auto-generated method stub
 		return this.gamma;
 	}
+	
 
 
 	private boolean getIsTimeStamp() {

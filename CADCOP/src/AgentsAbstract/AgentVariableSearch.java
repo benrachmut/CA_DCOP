@@ -390,8 +390,10 @@ public abstract class AgentVariableSearch extends AgentVariable {
 			recieveAnyTimeMsgs(anytimeMsgs);
 		}
 		List<MsgAlgorithm> algorithmicMsgs = extractAlgorithmicMsgs(messages);
-		receiveAlgorithmicMsgs(algorithmicMsgs);
-		reactionToAlgorithmicMsgs();
+		if (!algorithmicMsgs.isEmpty()) {
+			receiveAlgorithmicMsgs(algorithmicMsgs);
+			reactionToAlgorithmicMsgs();
+		}
 		sendAnytimeMsgs();
 	}
 	

@@ -98,28 +98,25 @@ public class MailerThread extends Mailer implements Runnable {
 	 */
 	private void placeMsgsFromInboxInMessageBox(List<Msg> msgsFromInbox) {
 		for (Msg m : msgsFromInbox) {
-			changeMsgsCounter(m);
+			boolean flag = false;
+			
 			updateMailerClockUponMsgRecieved(m);
 			if (m.isWithDelay()) {
 				int d = createDelay(m instanceof MsgAlgorithm);
+				if (d == -1) {
+					flag = true;
+				}
 				m.setTimeOfMsg(d);
-				/*
-				 * if (d != -1) { m.setDelay(d); }
-				 */
 			}
-			this.messageBox.add(m);
-
-			/*
-			 * try { int t = m.getTimeOfMsg(); int d1 = m.getDelay(); int timeToSendByMailer
-			 * = t + d1; m.setTimeOfMsg(timeToSendByMailer); //m.setMailerTime(this.time); }
-			 * catch (NullPointerException e) { m.setAgentTime(m.getAgentTime());
-			 * //m.setMailerTime(this.time); }
-			 */
-
+			if (!flag) {
+				changeMsgsCounter(m);
+				this.messageBox.add(m);
+			}
 		}
 
 	}
 
+	
 	private boolean mailerHasMsgsToSend() {
 		Msg minTimeMsg = Collections.min(messageBox, new MsgsAgentTimeComparator());
 		int minTime = minTimeMsg.getTimeOfMsg();
