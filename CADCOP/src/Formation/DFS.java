@@ -161,7 +161,7 @@ public class DFS extends Formation {
 
 	private AgentVariable findFirstNotVisited() {
 		Collection<AgentVariable> notColored = getNotColoredYet();
-		return Collections.max(notColored, new AgentNeighborComp());
+		return Collections.min(notColored, new AgentNeighborComp());
 	}
 
 	private Collection<AgentVariable> getNotColoredYet() {

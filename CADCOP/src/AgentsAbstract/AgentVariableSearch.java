@@ -272,11 +272,6 @@ public abstract class AgentVariableSearch extends AgentVariable {
 		Integer context = (Integer) msgAlgorithm.getContext();
 		int timestamp = msgAlgorithm.getTimeStamp();
 		MsgReceive<Integer> msgReceive = new MsgReceive<Integer>(context, timestamp);
-		/*
-		 * if (MainSimulator.isSDPdebug && this.id==4 && msgReceive.getContext()==1 ) {
-		 * System.out.println("from search"); }
-		 */
-
 		this.neighborsValueAssignmnet.put(msgAlgorithm.getSenderId(), msgReceive);
 	}
 
@@ -308,13 +303,11 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	public boolean reactionToAlgorithmicMsgs() {
 
 		Context context_j = createMyContext();
-
 		boolean isValueAssignmnetChange = super.reactionToAlgorithmicMsgs();
 		if (MainSimulator.isAnytime) {
 			if (isValueAssignmnetChange || context_j == null) {
 				Context context_i = createMyContext();
 				if (context_i != null) {
-
 					if (this.anytimeSons.size() == 0) {
 						if (anytimeUpToSendPast.add(context_i)) {
 							anytimeUpToSend.add(context_i);
@@ -582,27 +575,25 @@ public abstract class AgentVariableSearch extends AgentVariable {
 	private boolean isValidWithBest(Context combined) {
 		if (this.bestContexFound == null) {
 			return true;
-		} else {
+		} 
+		else {
 			if (combined.getTotalCost() < this.bestContexFound.getTotalCost()) {
 				return true;
 			} else {
 				return false;
 			}
-
 		}
 	}
 
 	private void saveWithReleventCombined(Context combined, int creator) {
-
 		for (CombinedContextCollection ccc : this.combinedContextCollection) {
 			if (ccc.isIdInCCC(creator)) {
 				ccc.addContext(combined);
-			} // else {
+			} 
 			for (Context contextToCombine : ccc.getContexts()) {
 				Context anotherCombined = contextToCombine.combineWith(combined);
 				increaseTime(contextToCombine, combined);
-				if (anotherCombined != null && isValidWithBest(combined)) {
-
+				if (anotherCombined != null&& isValidWithBest(combined)) {
 					Set<Integer> ids = ccc.getIds();
 					ids.add(creator);
 					if (this.isAnytimeTop()) {
@@ -610,15 +601,11 @@ public abstract class AgentVariableSearch extends AgentVariable {
 					} else {
 						if (anytimeUpToSendPast.add(anotherCombined)) {
 							anytimeUpToSend.add(anotherCombined);
-							// System.out.println("hello Avs");
 						}
 					}
-
 				}
 			}
-			// }
 		}
-
 	}
 
 	private boolean isContextInMemory(Integer creator, Context input) {
@@ -648,14 +635,8 @@ public abstract class AgentVariableSearch extends AgentVariable {
 
 	private void handleContextAdditionForTreeTop(Context context) {
 
-		if (!contextIncludesCostOfAllBelowAndMe(context)) {
-			throw new RuntimeException(
-					"reached to and combined in chain but context is not complete of all agents below");
-		} else {
+		
 			int costOfCandidateContext = context.getTotalCost();
-			if (costOfCandidateContext == 86) {
-				System.out.println();
-			}
 
 			if (bestContexFound == null) {
 				System.out.println(MailerIterations.m_iteration + ": bestContexFound: " + costOfCandidateContext);
@@ -676,14 +657,8 @@ public abstract class AgentVariableSearch extends AgentVariable {
 					this.hasAnytimeNews = true;
 					this.anytimeValueAssignmnet = context.getValueAssignmentPerAgent(this.id);
 				}
-			}
-			/*
-			 * boolean flag = false;
-			 * 
-			 * for (Context c : fullContextFound) { if (c.isConsistentWith(context)) { flag=
-			 * true; break; } } if (!flag) { //fullContextFound.add(context);
-			 * //newFullContextFoundToSend.add(context); }
-			 */
+			
+		
 		}
 	}
 

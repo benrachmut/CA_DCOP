@@ -133,8 +133,7 @@ public class Data {
 		this.numberOfColors = calcNumberOfColors(dcop.getVariableAgents());
 		if (MainSimulator.isAnytime) {
 			if (mailer.getDcop().isSearchAlgorithm()) {
-				
-				
+
 				this.topAgentsAnytimeContextCost = calcTopAgentsAnytimeContextCost(mailer);
 
 				this.anytimeCost = calcAnytimeCost(dcop.getNeighbors());
@@ -174,21 +173,21 @@ public class Data {
 	private Double calcAnytimeCost(List<Neighbor> neighbors) {
 		Integer ans = null;
 		for (Neighbor n : neighbors) {
-			//try {
+			// try {
 			Integer costOfN = n.getCurrentAnytimeCost();
-				if (costOfN != null ) {
-					if (ans == null) {
-						ans = costOfN;
-					}else {
-						ans = ans + costOfN;
+			if (costOfN != null) {
+				if (ans == null) {
+					ans = costOfN;
+				} else {
+					ans = ans + costOfN;
 
-					}
 				}
-		}// for
+			}
+		} // for
 		if (ans == null) {
 			return null;
 		}
-		
+
 		return (double) ans;
 	}
 
@@ -294,15 +293,12 @@ public class Data {
 			return this.globalCost;
 		}
 		Double lastAnytimeGlobal = mailer.getLastGlobalAnytimeCost();
-		try {
-			if (this.globalCost < lastAnytimeGlobal) {
-				return this.globalCost;
-			} else {
-				return lastAnytimeGlobal;
-			}
-		} catch (NullPointerException e) {
-			return null;
+		if (lastAnytimeGlobal == 0 || this.globalCost < lastAnytimeGlobal) {
+			return this.globalCost;
+		} else {
+			return lastAnytimeGlobal;
 		}
+
 	}
 
 	private static Double calcChangeValueAssignmentCounter(AgentVariable[] variableAgents) {
