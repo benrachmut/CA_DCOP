@@ -48,7 +48,7 @@ public class MainSimulator {
 	//public static int dividAtomicTime = 1;
 	
 	public static int multiplicationTime = 1;
-	public static int howManyIterationForCalculation = 1000000;
+	public static int howManyIterationForCalculation = 5000000;
 
 	
 
@@ -58,19 +58,23 @@ public class MainSimulator {
 	public static int anytimeFormation = 1;
 //	public static boolean deleteAfterCombine = false;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
-	public static int anytimeMemoryHuerstic =1;
+	public static int anytimeMemoryHuerstic =3;
 	public static int anytimeMemoryLimitedSize = 100;
 
 	// --------------------------------**Experiment Repetitions**
 	public static int div=1;
 
-	//2,4,5,8,9,15,19,20,23,25,26,27,31,37,38,45,48,50,101,103,104,105,106,107,109,112,113,115,116,117,120,121,123,124,128,129,132,133,136,138,139,140,142,150,151,156
-	//160,166,170,171,172,174,176,178,182,184,187,190,192,194,196,198,200,202,203,205,
-	public static int start =0;
-			
+	//2,4,5,8,9,15,19,20,23,25,26,
+	//27,31,37,38,45,48,50,101,103,104,
+	//105,106,107,109,112,113,115,116,117,120,
+	//121,123,124,128,129,132,133,136,138,139,
+	//140,142,150,151,156,160,166,170,171,172,
+	//174,176,178,182,184,187,190,192,194,196,
+	//198,200,202,203,205,
+	public static int start =3;
 	public static int end = start+1;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static int termination = 500000000;
+	public static long termination = 8000000000L ;//Long.MAX_VALUE;//2110000000;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
@@ -260,12 +264,12 @@ public class MainSimulator {
 		String algoString = AgentVariable.AlgorithmName + "," + AgentVariable.algorithmData;
 		for (Entry<Protocol, List<Mailer>> e : mailersByProtocol.entrySet()) {
 			String protocolString = e.getKey().getDelay().toString();
-			SortedMap<Integer, List<Data>> mapBeforeCalcMean = getMeanMapBeforeAvg(e.getValue());
-			SortedMap<Integer, Data> meanMap = createMeanMap(mapBeforeCalcMean);
+			SortedMap<Long, List<Data>> mapBeforeCalcMean = getMeanMapBeforeAvg(e.getValue());
+			SortedMap<Long, Data> meanMap = createMeanMap(mapBeforeCalcMean);
 			System.out.println(e.getKey());
 
 			String anytimeInfoString = getAnytimeString();
-			for (Entry<Integer, Data> e1 : meanMap.entrySet()) {
+			for (Entry<Long, Data> e1 : meanMap.entrySet()) {
 				String tempAns = dcopString + "," + protocolString + "," + algoString + "," + e1.getValue();
 				if (isAnytime) {
 					tempAns = tempAns + "," + anytimeInfoString;
@@ -315,9 +319,9 @@ public class MainSimulator {
 		return "";
 	}
 
-	private static SortedMap<Integer, Data> createMeanMap(SortedMap<Integer, List<Data>> input) {
-		SortedMap<Integer, Data> ans = new TreeMap<Integer, Data>();
-		for (Entry<Integer, List<Data>> e : input.entrySet()) {
+	private static SortedMap<Long, Data> createMeanMap(SortedMap<Long, List<Data>> input) {
+		SortedMap<Long, Data> ans = new TreeMap<Long, Data>();
+		for (Entry<Long, List<Data>> e : input.entrySet()) {
 			ans.put(e.getKey(), new Data(e));
 		}
 		return ans;
@@ -335,13 +339,13 @@ public class MainSimulator {
 		return ans;
 	}
 
-	private static SortedMap<Integer, List<Data>> getMeanMapBeforeAvg(List<Mailer> mailers) {
-		SortedMap<Integer, List<Data>> ans = new TreeMap<Integer, List<Data>>();
+	private static SortedMap<Long, List<Data>> getMeanMapBeforeAvg(List<Mailer> mailers) {
+		SortedMap<Long, List<Data>> ans = new TreeMap<Long, List<Data>>();
 
-		int firstMax = getFirstMax(mailers);
+		Long firstMax = getFirstMax(mailers);
 		
 		if (MainSimulator.isAtomicTime) {
-			for (int i = firstMax; i < termination; i=i+howManyIterationForCalculation) {
+			for (Long i = firstMax; i < termination; i=i+howManyIterationForCalculation) {
 				List<Data> listPerIteration = new ArrayList<Data>();
 				for (Mailer mailer : mailers) {
 					listPerIteration.add(mailer.getDataPerIteration(i));
@@ -350,7 +354,7 @@ public class MainSimulator {
 			}
 		}
 		else {
-			for (int i = firstMax; i < termination; i++) {
+			for (Long i = firstMax; i < termination; i++) {
 				List<Data> listPerIteration = new ArrayList<Data>();
 				for (Mailer mailer : mailers) {
 					listPerIteration.add(mailer.getDataPerIteration(i));
@@ -362,8 +366,8 @@ public class MainSimulator {
 		return ans;
 	}
 
-	private static int getFirstMax(List<Mailer> mailers) {
-		List<Integer> firsts = new ArrayList<Integer>();
+	private static Long getFirstMax(List<Mailer> mailers) {
+		List<Long> firsts = new ArrayList<Long>();
 		for (Mailer m : mailers) {
 			firsts.add(m.getFirstKeyInData());
 		}

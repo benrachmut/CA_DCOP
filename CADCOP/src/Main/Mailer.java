@@ -39,8 +39,8 @@ public abstract class Mailer {
 	protected Protocol protocol;
 	protected List<Msg> messageBox;
 	protected Dcop dcop;
-	protected int terminationTime;
-	protected SortedMap<Integer, Data> dataMap;
+	protected long terminationTime;
+	protected SortedMap<Long, Data> dataMap;
 	private Double algorithmMsgsCounter;
 	private Double anytimeMsgsCounter;
 	protected Map<NodeId, List<MsgAlgorithm>> recieversAlgortihmicMsgs;
@@ -52,7 +52,7 @@ public abstract class Mailer {
 	protected UnboundedBuffer<Msg> inbox;
 	protected Map<NodeId,UnboundedBuffer<Msg>> outboxes;
 
-	public Mailer(Protocol protocol, int terminationTime, Dcop dcop,int dcopId) {
+	public Mailer(Protocol protocol, long terminationTime, Dcop dcop,int dcopId) {
 		super();
 		this.dcop = dcop;
 		this.protocol = protocol;
@@ -61,7 +61,7 @@ public abstract class Mailer {
 		this.protocol.setSeeds(dcopId);
 		this.messageBox = new ArrayList<Msg>();
 		this.terminationTime = terminationTime;
-		this.dataMap = new TreeMap<Integer, Data>();
+		this.dataMap = new TreeMap<Long, Data>();
 		this.outboxes = new HashMap <NodeId,UnboundedBuffer<Msg>> ();
 
 		setMailerName();
@@ -70,13 +70,13 @@ public abstract class Mailer {
 
 	abstract public void setMailerName();
 
-	public Data getDataPerIteration(int i) {
+	public Data getDataPerIteration(long i) {
 		if (dataMap.containsKey(i)) {
 			return this.dataMap.get(i);
 		} else {
 			if (MainSimulator.isAtomicTime) {
-				TreeMap<Integer, Data> limitedData = getLimitedData(i);
-				Integer maxInt = limitedData.lastKey();//Collections.max(limitedData.keySet());
+				TreeMap<Long, Data> limitedData = getLimitedData(i);
+				Long maxInt = limitedData.lastKey();//Collections.max(limitedData.keySet());
 				Data ans = limitedData.get(maxInt);
 				/*
 				limitedData.remove(maxInt);
@@ -97,9 +97,9 @@ public abstract class Mailer {
 		}
 	}
 
-	private TreeMap<Integer, Data> getLimitedData(int i) {
-		TreeMap<Integer, Data> ans = new TreeMap<Integer, Data>();
-		for (Entry<Integer, Data> e : this.dataMap.entrySet()) {
+	private TreeMap<Long, Data> getLimitedData(long i) {
+		TreeMap<Long, Data> ans = new TreeMap<Long, Data>();
+		for (Entry<Long, Data> e : this.dataMap.entrySet()) {
 			if (e.getKey() <= i) {
 				ans.put(e.getKey(),e.getValue());
 			}else {
@@ -351,13 +351,13 @@ public abstract class Mailer {
 		return this.anytimeMsgsCounter;
 	}
 
-	protected void createData(int i) {
+	protected void createData(long i) {
 		dataMap.put(i, new Data(i, this.dcop, this));
 	}
 
 	public Double getLastGlobalCost() {
 		try {
-			Integer lastTime = dataMap.lastKey();
+			Long lastTime = dataMap.lastKey();
 			Data d = dataMap.get(lastTime);
 			return d.getGlobalCost();
 		} catch (Exception e) {
@@ -367,7 +367,7 @@ public abstract class Mailer {
 
 	public Double getLastGlobalAnytimeCost() {
 		try {
-			Integer lastTime = dataMap.lastKey();
+			Long lastTime = dataMap.lastKey();
 			Data d = dataMap.get(lastTime);
 			return d.getGlobalAnytimeCost();
 		} catch (Exception e) {
@@ -375,7 +375,7 @@ public abstract class Mailer {
 		}
 	}
 
-	public Integer getFirstKeyInData() {
+	public Long getFirstKeyInData() {
 		return this.dataMap.firstKey();
 	}
 
@@ -458,7 +458,7 @@ public abstract class Mailer {
 	}
 
 	public Data getLastData() {
-		Integer lastKay = this.dataMap.lastKey();
+		Long lastKay = this.dataMap.lastKey();
 		Data ans = this.dataMap.get(lastKay);
 		return ans;
 	}

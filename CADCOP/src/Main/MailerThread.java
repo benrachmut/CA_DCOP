@@ -18,11 +18,11 @@ import Messages.MsgsAgentTimeComparator;
 import Problem.Dcop;
 
 public class MailerThread extends Mailer implements Runnable {
-	private int time;
+	private long time;
 	private Collection<Thread> agentsThreads;
 	// private boolean clockUpdatedFromMsgPlacedInBoxFlag;
 
-	public MailerThread(Protocol protocol, int terminationTime, Dcop dcop, int dcopId) {
+	public MailerThread(Protocol protocol, long terminationTime, Dcop dcop, int dcopId) {
 		super(protocol, terminationTime, dcop, dcopId);
 		time = 0;
 		this.agentsThreads = new HashSet<Thread>();
@@ -56,9 +56,55 @@ public class MailerThread extends Mailer implements Runnable {
 		agentsRecieveMsgs(msgToSend);
 
 		msgsFromInbox = new ArrayList<Msg>();
-		
-		while (this.time < this.terminationTime) {
+		boolean flag1 = false;
+		boolean flag2 = false;
+		boolean flag3 = false;
+		boolean flag4 = false;
+		boolean flag5 = false;
+		boolean flag6 = false;
+		boolean flag7 = false;
+		boolean flag8 = false;
+		boolean flag9 = false;
 
+		while (this.time < this.terminationTime) {
+			
+			if (MainSimulator.isAnytimeDebug && this.time>500000000 && !flag1) {
+				System.out.println(this.time);
+				flag1 = true;
+			}
+			if (MainSimulator.isAnytimeDebug && this.time>1000000000 && !flag2) {
+				System.out.println(this.time);
+				flag2 = true;
+			}
+			if (MainSimulator.isAnytimeDebug && this.time>1500000000L && !flag3) {
+				System.out.println(this.time);
+				flag3 = true;
+			}
+			if (MainSimulator.isAnytimeDebug && this.time>2000000000L && !flag4) {
+				System.out.println(this.time);
+				flag4 = true;
+			}
+			if (MainSimulator.isAnytimeDebug && this.time>2500000000L && !flag5) {
+				System.out.println(this.time);
+				flag5 = true;
+			}
+			
+			if (MainSimulator.isAnytimeDebug && this.time>3000000000L && !flag6) {
+				System.out.println(this.time);
+				flag6 = true;
+			}
+			if (MainSimulator.isAnytimeDebug && this.time>3500000000L && !flag7) {
+				System.out.println(this.time);
+				flag7 = true;
+			}
+			if (MainSimulator.isAnytimeDebug && this.time>4000000000L && !flag8) {
+				System.out.println(this.time);
+				flag8 = true;
+			}
+			if (MainSimulator.isAnytimeDebug && this.time>4500000000L && !flag9) {
+				System.out.println(this.time);
+				flag9 = true;
+			}
 			createData(this.time);
 
 			while (inbox.isEmpty()) {
@@ -119,7 +165,7 @@ public class MailerThread extends Mailer implements Runnable {
 	
 	private boolean mailerHasMsgsToSend() {
 		Msg minTimeMsg = Collections.min(messageBox, new MsgsAgentTimeComparator());
-		int minTime = minTimeMsg.getTimeOfMsg();
+		long minTime = minTimeMsg.getTimeOfMsg();
 
 		if (minTime <= this.time) {
 			return true;
@@ -138,7 +184,7 @@ public class MailerThread extends Mailer implements Runnable {
 
 	protected void updateMailerClockUponMsgRecieved(Msg msg) {
 		// for (Msg msg : msgToSend) {
-		int timeMsg = msg.getTimeOfMsg();
+		long timeMsg = msg.getTimeOfMsg();
 		if (this.time <= timeMsg) {
 			this.time = timeMsg;
 		}
@@ -149,7 +195,7 @@ public class MailerThread extends Mailer implements Runnable {
 	private void shouldUpdateClockBecuaseNoMsgsRecieved() {
 
 		Msg<?> minTimeMsg = Collections.min(messageBox, new MsgsAgentTimeComparator());
-		int minTime = minTimeMsg.getTimeOfMsg();
+		long minTime = minTimeMsg.getTimeOfMsg();
 		// int oldTime = time;
 
 		if (minTime > this.time) {

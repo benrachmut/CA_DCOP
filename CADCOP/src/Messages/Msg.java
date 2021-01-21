@@ -7,7 +7,7 @@ public abstract class Msg<Identity> {
 	private NodeId sender;
 	private NodeId reciever;
 	protected Object context;
-	protected int timeOfMsg;
+	protected long timeOfMsg;
 	private int timestamp;
 	
 	boolean withDelay;
@@ -15,7 +15,7 @@ public abstract class Msg<Identity> {
 	//private Integer delay;
 	
 	//private int mailerTime;
-	public Msg(NodeId sender, NodeId reciever, Object context, int timeStamp, int agentTime) {
+	public Msg(NodeId sender, NodeId reciever, Object context, int timeStamp, long agentTime) {
 		super();
 		this.sender = sender;
 		this.reciever = reciever;
@@ -68,7 +68,7 @@ public abstract class Msg<Identity> {
 	}
 	
 
-	public int getTimeOfMsg() {
+	public long getTimeOfMsg() {
 		return this.timeOfMsg;
 	}
 

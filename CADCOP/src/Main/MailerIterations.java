@@ -31,7 +31,7 @@ public class MailerIterations extends Mailer {
 
 	public static int m_iteration;
 
-	public MailerIterations(Protocol protocol, int terminationTime, Dcop dcop, int i) {
+	public MailerIterations(Protocol protocol, Long terminationTime, Dcop dcop, int i) {
 		super(protocol, terminationTime, dcop,i);
 	}
 

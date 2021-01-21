@@ -15,7 +15,7 @@ import Problem.Dcop;
 import Problem.Neighbor;
 
 public class Data {
-	private int time;
+	private Long time;
 	private Double globalCost;
 	private Double globalAnytimeCost;
 	private Double changeValueAssignmentCounter;
@@ -40,7 +40,7 @@ public class Data {
 	private Double numberOfRepsMeanAtTop;
 	private Double numberOfRepsMeanAtAll;
 
-	public Data(Entry<Integer, List<Data>> e) {
+	public Data(Entry<Long, List<Data>> e) {
 		this.time = e.getKey();
 		List<List<Double>> colletionPerFields = createColletionsPerField(e.getValue());
 		this.globalCost = Statistics.mean(colletionPerFields.get(0));
@@ -110,7 +110,7 @@ public class Data {
 		return ans;
 	}
 
-	public Data(int time, Dcop dcop, Mailer mailer) {
+	public Data(Long time, Dcop dcop, Mailer mailer) {
 		this.time = time;
 		this.globalCost = calcGlobalCost(dcop.getNeighbors());
 		this.changeValueAssignmentCounter = calcChangeValueAssignmentCounter(dcop.getVariableAgents());

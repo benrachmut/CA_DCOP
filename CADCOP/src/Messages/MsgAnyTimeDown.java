@@ -5,7 +5,7 @@ import AgentsAbstract.NodeId;
 public class MsgAnyTimeDown extends MsgAnyTime {
 
 	public MsgAnyTimeDown(NodeId sender, NodeId reciever, Object context, int timeStamp,
-			int time) {
+			long time) {
 		super(sender, reciever, context, timeStamp, time);
 	}
 

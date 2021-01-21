@@ -34,7 +34,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 
 	protected Double computationCounter;
 	// protected boolean stopThreadCondition;
-	protected int time;
+	protected long time;
 	protected boolean isIdle;
 
 	protected TimeObject timeObject;
@@ -124,7 +124,7 @@ public abstract class Agent implements Runnable, Comparable<Agent> {
 	protected void updateAgentTime(List<? extends Msg> messages) {
 		Msg msgWithMaxTime = Collections.max(messages, new MsgsMailerTimeComparator());
 
-		int maxAgentTime = msgWithMaxTime.getTimeOfMsg();
+		long maxAgentTime = msgWithMaxTime.getTimeOfMsg();
 
 		if (this.time <= maxAgentTime) {
 			this.time = maxAgentTime;

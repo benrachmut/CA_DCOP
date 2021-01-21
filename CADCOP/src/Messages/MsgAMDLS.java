@@ -6,7 +6,7 @@ public class MsgAMDLS extends MsgValueAssignmnet {
 
 	private int counter;
 	private boolean fromFuture;
-	public MsgAMDLS(NodeId sender, NodeId reciever, Object context, int timeStamp, int time, int counter) {
+	public MsgAMDLS(NodeId sender, NodeId reciever, Object context, int timeStamp, long time, int counter) {
 		super(sender, reciever, context, timeStamp, time);
 		this.counter = counter;
 		fromFuture = false;
