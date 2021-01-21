@@ -47,7 +47,7 @@ public class MainSimulator {
 	public static boolean isAtomicTime= true;
 	//public static int dividAtomicTime = 1;
 	
-	public static int multiplicationTime = 1;
+	public static int multiplicationTime = 2;
 	public static int howManyIterationForCalculation = 5000000;
 
 	
@@ -58,7 +58,7 @@ public class MainSimulator {
 	public static int anytimeFormation = 1;
 //	public static boolean deleteAfterCombine = false;
 	// 1 = no memoryLimit, 2=MSC, 3=Fifo, 4=Random
-	public static int anytimeMemoryHuerstic =3;
+	public static int anytimeMemoryHuerstic =2;
 	public static int anytimeMemoryLimitedSize = 100;
 
 	// --------------------------------**Experiment Repetitions**
@@ -71,10 +71,10 @@ public class MainSimulator {
 	//140,142,150,151,156,160,166,170,171,172,
 	//174,176,178,182,184,187,190,192,194,196,
 	//198,200,202,203,205,
-	public static int start =3;
+	public static int start =29;
 	public static int end = start+1;
 	public static int end_temp = start; //DO NOT CHANGE
-	public static long termination = 8000000000L ;//Long.MAX_VALUE;//2110000000;
+	public static long termination = 5000000000l ;//Long.MAX_VALUE;//2110000000;
 	private static int everyHowManyExcel = 100;
 
 	// ------------------------------**PROBLEM MANGNITUDE**
